@@ -140,7 +140,7 @@ public class MIDlet666 extends MIDlet {
 	}
 
 	private AbstractJSON invApi(String s) throws InvidiousException, IOException {
-		s = hproxyUtf(inv + "api/" + s);
+		s = proxy(inv + "api/" + s);
 		AbstractJSON res;
 		try {
 			res = JSON.getObject(s);
