@@ -1,7 +1,8 @@
+MIDlet-1: MIDlet-555,,MIDlet666
+MIDlet-Jar-Size: 33138
+MIDlet-Jar-URL: midlet555.jar
+MIDlet-Name: MIDlet-555
 MIDlet-Vendor: nnproject
 MIDlet-Version: 1.0.0
 MicroEdition-Configuration: CLDC-1.0
-MIDlet-1: MIDlet-555,,MIDlet666
-MIDlet-Name: MIDlet-555
 MicroEdition-Profile: MIDP-2.0
-MIDlet-Jar-URL: midlet555.jar

@@ -2,7 +2,7 @@ package cc.nnproject.json;
 
 import java.util.Vector;
 
-public class JSONArray {
+public class JSONArray extends AbstractJSON {
 
 	private Vector vector;
 
@@ -182,12 +182,7 @@ public class JSONArray {
 		}
 	}
 
-	public String format() {
-		if(!JSON.build_functions) return "";
-		else return format(0);
-	}
-
-	String format(int l) {
+	protected String format(int l) {
 		if(!JSON.build_functions) return "";
 		else {
 			if (size() == 0)
@@ -208,8 +203,6 @@ public class JSONArray {
 				}
 				if (v instanceof JSONObject) {
 					s += ((JSONObject) v).format(l + 1);
-				} else if (v instanceof JSONArray) {
-					s += ((JSONArray) v).format(l + 1);
 				} else if (v instanceof String) {
 					s += "\"" + JSON.escape_utf8(v.toString()) + "\"";
 				} else s += v;

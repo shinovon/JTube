@@ -9,6 +9,11 @@ public class InvidiousException extends RuntimeException {
 		json = j;
 		msg = j.getNullableString("error");
 	}
+
+	public InvidiousException(JSONObject j, String msg) {
+		json = j;
+		this.msg = msg;
+	}
 	
 	public JSONObject getJSON() {
 		return json;

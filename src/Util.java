@@ -1,6 +1,6 @@
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -12,11 +12,11 @@ public class Util {
 			throw new IllegalArgumentException("URL is null");
 		ByteArrayOutputStream o = null;
 		HttpConnection hc = null;
-		InputStream i = null;
+		DataInputStream i = null;
 		try {
-			o = new ByteArrayOutputStream();
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
+			hc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
 			int r = hc.getResponseCode();
 			if (r == 301) {
 				String redir = hc.getHeaderField("Location");
@@ -29,9 +29,15 @@ public class Util {
 				hc = (HttpConnection) Connector.open(redir);
 				hc.setRequestMethod("GET");
 			}
-			i = hc.openInputStream();
+			i = hc.openDataInputStream();
+			int s = (int) hc.getLength();
+			if(s > 0) {
+				byte[] b = new byte[s];
+				i.readFully(b);
+				return b;
+			}
 			byte[] b = new byte[16384];
-
+			o = new ByteArrayOutputStream();
 			int c;
 			while ((c = i.read(b)) != -1) {
 				o.write(b, 0, c);
