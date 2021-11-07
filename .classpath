@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="res"/>
+	<classpathentry kind="src" path="json/src/main"/>
+	<classpathentry kind="con" path="org.elipse.mtj.JavaMEContainer/Nokia Symbian Belle SDK v1.0 /SymbianEmulator"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
