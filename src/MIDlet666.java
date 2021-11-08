@@ -31,10 +31,11 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	private static final String getlinksphp = "http://nnproject.cc/getlinks.php";
 	private static final String inv = "https://invidious.snopyta.org/";
 	
-	private static final Command searchCmd = new Command("Search", Command.SCREEN, 1);
 	private static final Command searchOkCmd = new Command("Search", Command.OK, 1);
 	private static final Command goCmd = new Command("Go", Command.OK, 1);
-	private static final Command idCmd = new Command("Open by ID", Command.SCREEN, 2);
+	private static final Command settingsCmd = new Command("Settings", Command.SCREEN, 1);
+	private static final Command searchCmd = new Command("Search", Command.SCREEN, 2);
+	private static final Command idCmd = new Command("Open by ID", Command.SCREEN, 3);
 	private static final Command cancelCmd = new Command("Cancel", Command.CANCEL, 2);
 	private static final Command backCmd = new Command("Back", Command.BACK, 1);
 	private static final Command watchCmd = new Command("Watch", Command.OK, 1);
@@ -61,10 +62,11 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	public VideoModel[] models;
 	
 	public Form mainForm;
+	public Form searchForm;
+	public Form settingsForm;
 	//private TextField searchText;
 	//private StringItem searchBtn;
 	
-	public Form searchForm;
 	
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
@@ -345,6 +347,12 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	public void commandAction(Command c, Displayable d) {
 		if(c == exitCmd) {
 			notifyDestroyed();
+		}
+		if(c == settingsCmd) {
+			// TODO
+		}
+		if(c == backCmd && d == settingsForm) {
+			// TODO
 		}
 		if(c == watchCmd) {
 			watch(video.getVideoId());
