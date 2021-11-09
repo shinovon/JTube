@@ -1,20 +1,32 @@
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Gauge;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
+import javax.microedition.media.Manager;
+import javax.microedition.media.Player;
+import javax.microedition.media.protocol.DataSource;
 import javax.microedition.midlet.MIDlet;
+import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSON;
@@ -26,10 +38,11 @@ import models.VideoModel;
 
 public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandListener {
 
-	private static final String proxy = "http://nnproject.cc/proxy.php?";
-	private static final String hproxy = "http://nnproject.cc/hproxy.php?";
 	private static final String getlinksphp = "http://nnproject.cc/getlinks.php";
-	private static final String inv = "https://invidious.snopyta.org/";
+	private static final String hproxy = "http://nnproject.cc/hproxy.php?";
+	private static final String inv = "http://iteroni.com/";
+	
+	private static final String CONFIG_RECORD_NAME = "ytconfig";
 	
 	private static final Command searchOkCmd = new Command("Search", Command.OK, 1);
 	private static final Command goCmd = new Command("Go", Command.OK, 1);
@@ -39,19 +52,22 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	private static final Command cancelCmd = new Command("Cancel", Command.CANCEL, 2);
 	private static final Command backCmd = new Command("Back", Command.BACK, 1);
 	private static final Command watchCmd = new Command("Watch", Command.OK, 1);
+	private static final Command downloadCmd = new Command("Download", Command.SCREEN, 2);
 	private static final Command exitCmd = new Command("Exit", Command.EXIT, 2);
 	
 	private static final int TRENDS_LIMIT = 20;
 	private static final int SEARCH_LIMIT = 20; 
 	
 	private static final String NAME = "Some";
+	private static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
 
 	private static boolean started;
-	private static boolean destroyed;
 	
 	public static int width;
 	public static int height;
-	private static boolean httpsNotSupported;
+	
+	// Settings
+	public String videoRes;
 	
 	public static MIDlet666 midlet;
 	
@@ -78,22 +94,31 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	private VideoModel video;
 	private Vector v1;
 	private Vector v2;
+	private ChoiceGroup videoResChoice;
+	private PlayerCanvas playerCanv;
 
-	protected void destroyApp(boolean b) {
-		destroyed = true;
-	}
+	protected void destroyApp(boolean b) {}
 
-	protected void pauseApp() {
-
-	}
+	protected void pauseApp() {}
 
 	protected void startApp() {
 		if(started) return;
+		/*
+		 * форматы команд:
+		 * обязательный аргумент: url или vid или cid
+		 * url - ссылка на канал или видео
+		 * vid - ид видео
+		 * cid - ид канала
+		 * method - show / player / showvideos
+		 * - show - если видео то показать страницу видео, если канал то показать страницу канала
+		 * - player - если видео то открыть плеер видео, если канал то ничего не делать
+		 * - showvideos - если видео то показать список рекомендаванных к видео, если канал то показать видео канала
+		 */
 		midlet = this;
 		started = true;
 		region = System.getProperty("user.country");
 		if(region == null) {
-			region = System.getProperty("microedition.locale");;
+			region = System.getProperty("microedition.locale");
 			if(region == null) {
 				region = "US";
 			}
@@ -119,6 +144,7 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		models = new VideoModel[TRENDS_LIMIT + SEARCH_LIMIT + 2];
 		testCanvas();
 		initForm();
+		loadConfig();
 		loadTrends();
 	}
 
@@ -144,34 +170,20 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		mainForm.setCommandListener(this);
 		mainForm.addCommand(searchCmd);
 		mainForm.addCommand(idCmd);
+		mainForm.addCommand(settingsCmd);
 		mainForm.addCommand(exitCmd);
 		display(mainForm);
 	}
 	
-	public static String proxy(String s) throws IOException {
-		if(!httpsNotSupported) {
-			try {
-				return Util.getUtf(s);
-			} catch (IOException e) {
-				e.printStackTrace();
-				httpsNotSupported = true;
-			}
-		}
-		return Util.getUtf(proxy + Util.url(s));
-	}
-	
 	public static byte[] hproxy(String s) throws IOException {
+		if(s.startsWith("/")) return Util.get(inv + s.substring(1));
 		return Util.get(hproxy + Util.url(s));
-	}
-	
-	public static String hproxyUtf(String s) throws IOException {
-		return Util.getUtf(hproxy + Util.url(s));
 	}
 
 	public static AbstractJSON invApi(String s) throws InvidiousException, IOException {
 		if(!s.endsWith("?")) s = s.concat("&");
 		s = s.concat("region=" + region);
-		s = proxy(inv + "api/" + s);
+		s = Util.getUtf(inv + "api/" + s);
 		AbstractJSON res;
 		try {
 			res = JSON.getObject(s);
@@ -255,7 +267,7 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		videoForm = new Form(v.getTitle());
 		videoForm.setCommandListener(this);
 		videoForm.addCommand(backCmd);
-		videoForm.addCommand(watchCmd);
+		videoForm.addCommand(downloadCmd);
 		display(videoForm);
 		try {
 			v.extend();
@@ -264,7 +276,7 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		}
 		ImageItem img = v.makeImageItemForPage();
 		img.addCommand(watchCmd);
-		img.addCommand(backCmd);
+		img.setDefaultCommand(watchCmd);
 		img.setItemCommandListener(this);
 		videoForm.append(img);
 		Item t = new StringItem(null, v.getTitle());
@@ -283,13 +295,223 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		notifyAsyncTasks();
 	}
 	
+	private void download(String id) {
+
+		FileConnection fc = null;
+		OutputStream out = null;
+		HttpConnection hc = null;
+		InputStream in = null;
+		try {
+		Alert alert = new Alert("", "", null, AlertType.INFO);
+		//alert.setCommandListener(this);
+		alert.setTimeout(-2);
+		alert.setTitle("Downloading");
+		alert.setIndicator(new Gauge("", false, -1, Gauge.CONTINUOUS_RUNNING));
+		display(alert);
+		String file = System.getProperty("fileconn.dir.videos");
+		if(file == null)
+			file = System.getProperty("fileconn.dir.photos");
+		file = file + id + ".mp4";
+		alert.setString(id + ".mp4");
+		System.out.println("Download: " + id);
+			JSONArray j = JSON.getArray(Util.getUtf(getlinksphp + "?url=" + Util.url("https://www.youtube.com/watch?v="+id)));
+			if(j.size() == 0) {
+				msg("Failed!");
+				return;
+			}
+			System.out.println(j);
+			JSONObject _144 = null;
+			JSONObject _360 = null;
+			JSONObject _720 = null;
+			JSONObject other = null;
+			for(int i = 0; i < j.size(); i++) {
+				JSONObject o = j.getObject(i);
+				String q = o.getString("qualityLabel");
+				if(q.startsWith("720p")) {
+					_720 = o;
+				} else if(q.startsWith("360p")) {
+					_360 = o;
+				} else if(q.startsWith("144p")) {
+					_144 = o;
+				} else {
+					other = o;
+				}
+			}
+			System.out.println("preferred video res: " + videoRes);
+			JSONObject o = null;
+			if(videoRes == null) {
+				if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			} else if(videoRes.equals("144p")) {
+				if(_144 != null) {
+					o = _144;
+				} else if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				}
+			} else if(videoRes.equals("360p")) {
+				if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			} else if(videoRes.equals("720p")) {
+				if(_720 != null) {
+					o = _720;
+				} else if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			}
+			String url = o.getString("url");
+			alert.setString("Downloading 0%");
+			fc = (FileConnection) Connector.open(file, Connector.READ_WRITE);
+
+			if (fc.exists()) {
+				try {
+					fc.delete();
+				} catch (IOException e) {
+				}
+			}
+			fc.create();
+			out = fc.openOutputStream();
+			hc = (HttpConnection) Connector.open(url, Connector.READ);
+			hc.setRequestProperty("User-Agent", "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0");
+
+			int r = hc.getResponseCode();
+			while (r == 301 || r == 302) {
+				String redir = hc.getHeaderField("Location");
+				if (redir.startsWith("/")) {
+					String tmp = url.substring(url.indexOf("//") + 2);
+					String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
+					redir = host + redir;
+				}
+				hc.close();
+				hc = (HttpConnection) Connector.open(redir);
+				hc.setRequestMethod("GET");
+				hc.setRequestProperty("User-Agent", "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0");
+				r = hc.getResponseCode();
+			}
+			in = hc.openInputStream();
+			int i = 0;
+			byte[] buf = new byte[128 * 1024];
+			int read = 0;
+			int downloaded = 0;
+			int l = (int) hc.getLength();
+			while((read = in.read(buf)) != -1) {
+				out.write(buf, 0, read);
+				downloaded += read;
+				i = (int)(((double)downloaded / (double)l) * 100d);
+				alert.setString("Downloading " + i + "%");
+			}
+			alert.setString("Done");
+		} catch (Exception e) {
+			e.printStackTrace();
+			msg(e.toString());
+		} finally {
+			try {
+				if(out != null) out.close();
+			} catch (Exception e) {
+			} 
+			try {
+				if(fc != null) fc.close();
+			} catch (Exception e) {
+			} 
+			try {
+				if(in != null) in.close();
+			} catch (Exception e) {
+			} 
+			try {
+				if(hc != null) hc.close();
+			} catch (Exception e) {
+			} 
+		}
+	}
+	
 	private void watch(String id) {
 		// TODO
 		System.out.println("Watch: " + id);
 		try {
 			JSONArray j = JSON.getArray(Util.getUtf(getlinksphp + "?url=" + Util.url("https://www.youtube.com/watch?v="+id)));
-			if(j.size() == 0) msg("Failed!");
+			if(j.size() == 0) {
+				msg("Failed!");
+				return;
+			}
 			System.out.println(j);
+			JSONObject _144 = null;
+			JSONObject _360 = null;
+			JSONObject _720 = null;
+			JSONObject other = null;
+			for(int i = 0; i < j.size(); i++) {
+				JSONObject o = j.getObject(i);
+				String q = o.getString("qualityLabel");
+				if(q.startsWith("720p")) {
+					_720 = o;
+				} else if(q.startsWith("360p")) {
+					_360 = o;
+				} else if(q.startsWith("144p")) {
+					_144 = o;
+				} else {
+					other = o;
+				}
+			}
+			System.out.println("preferred video res: " + videoRes);
+			JSONObject o = null;
+			if(videoRes == null) {
+				if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			} else if(videoRes.equals("144p")) {
+				if(_144 != null) {
+					o = _144;
+				} else if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				}
+			} else if(videoRes.equals("360p")) {
+				if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			} else if(videoRes.equals("720p")) {
+				if(_720 != null) {
+					o = _720;
+				} else if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			}
+			String url = o.getString("url");
+			final String type = o.getString("cleanMimeType");
+			int length = o.getInt("contentLength");
+			System.out.println("Url: " + url);
+			DataSource src = new AsyncLoadDataSource(url, type, length);
+			Player p = Manager.createPlayer(src);
+			playerCanv = new PlayerCanvas(p);
+			display(playerCanv);
+			playerCanv.init();
 		} catch (Exception e) {
 			e.printStackTrace();
 			msg(e.toString());
@@ -349,10 +571,27 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 			notifyDestroyed();
 		}
 		if(c == settingsCmd) {
-			// TODO
+			if(settingsForm == null) {
+				settingsForm = new Form("Settings");
+				settingsForm.addCommand(backCmd);
+				settingsForm.setCommandListener(this);
+				videoResChoice = new ChoiceGroup("Preferred video quality", ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
+				settingsForm.append(videoResChoice);
+			}
+			display(settingsForm);
+			if(videoRes == null) {
+				videoResChoice.setSelectedIndex(1, true);
+			} else if(videoRes.equals("144p")) {
+				videoResChoice.setSelectedIndex(0, true);
+			} else if(videoRes.equals("360p")) {
+				videoResChoice.setSelectedIndex(1, true);
+			} else if(videoRes.equals("720p")) {
+				videoResChoice.setSelectedIndex(2, true);
+			}
 		}
 		if(c == backCmd && d == settingsForm) {
-			// TODO
+			saveConfig();
+			display(mainForm);
 		}
 		if(c == watchCmd) {
 			watch(video.getVideoId());
@@ -372,6 +611,9 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 			t.addCommand(goCmd);
 			t.addCommand(cancelCmd);
 			display(t);
+		}
+		if(c == downloadCmd) {
+			download(video.getVideoId());
 		}
 		if(c == cancelCmd && d instanceof TextBox) {
 			display(mainForm);
@@ -393,6 +635,44 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		}
 		if(c == searchOkCmd && d instanceof TextBox) {
 			search(((TextBox) d).getString());
+		}
+	}
+
+	private void loadConfig() {
+		try {
+			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
+			JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
+			r.closeRecordStore();
+			videoRes = j.getString("videoRes");
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		videoRes = "360p";
+	}
+	private void saveConfig() {
+		if(videoResChoice.getSelectedIndex() == 0) {
+			videoRes = "144p";
+		} else if(videoResChoice.getSelectedIndex() == 1) {
+			videoRes = "360p";
+		} else if(videoResChoice.getSelectedIndex() == 2) {
+			videoRes = "720p";
+		}
+		try {
+			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
+		} catch (Exception e) {
+		}
+		try {
+			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
+			JSONObject j = new JSONObject();
+			j.put("v", "v1");
+			j.put("videoRes", videoRes);
+			byte[] b = j.build().getBytes("UTF-8");
+			
+			r.addRecord(b, 0, b.length);
+			r.closeRecordStore();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

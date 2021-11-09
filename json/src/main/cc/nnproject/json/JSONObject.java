@@ -160,6 +160,39 @@ public class JSONObject extends AbstractJSON {
 	public boolean isNull(String name) throws JSONException {
 		return JSON.isNull(get(name));
 	}
+
+	public String build() {
+		if (size() == 0)
+			return "{}";
+		String s = "{";
+		java.util.Enumeration elements = table.keys();
+		int i = 0;
+		while (elements.hasMoreElements()) {
+			String k = elements.nextElement().toString();
+			s += "\"" + k + "\":";
+			Object v = null;
+			try {
+				v = get(k);
+			} catch (JSONException e) {
+			}
+			if (v instanceof JSONObject) {
+				s += ((JSONObject) v).build();
+			} else if (v instanceof JSONArray) {
+				s += "[]";
+			} else if (v instanceof String) {
+				s += "\"" + JSON.escape_utf8((String) v) + "\"";
+			} else s += v.toString();
+			i++;
+			if (i < size())
+				s += ",";
+		}
+		s += "}";
+		return s;
+	}
+	
+	public void put(String name, Object obj) {
+		table.put(name, JSON.getJSON(obj));
+	}
 	
 	public void clear() {
 		table.clear();

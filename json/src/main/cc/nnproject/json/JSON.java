@@ -15,10 +15,7 @@ public final class JSON {
 	 * Parse all members once
 	 */
 	public final static boolean parse_members = false;
-	/**
-	 * Enable build functions
-	 */
-	public final static boolean build_functions = false;
+	
 	public final static Object null_equivalent = new NullEquivalent();
 
 	public static JSONObject getObject(String string) throws JSONException {
@@ -311,6 +308,48 @@ public final class JSON {
 	
 	public static boolean isNull(Object obj) {
 		return null_equivalent.equals(obj);
+	}
+
+	public static String escape_utf8(String s) {
+		int len = s.length();
+		StringBuffer sb = new StringBuffer();
+		int i = 0;
+		while (i < len) {
+			char c = s.charAt(i);
+			switch (c) {
+			case '"':
+			case '\\':
+				sb.append("\\" + c);
+				break;
+			case '\b':
+				sb.append("\\b");
+				break;
+			case '\f':
+				sb.append("\\f");
+				break;
+			case '\n':
+				sb.append("\\n");
+				break;
+			case '\r':
+				sb.append("\\r");
+				break;
+			case '\t':
+				sb.append("\\t");
+				break;
+			default:
+				if (c < 32 || c > 1103) {
+					String u = Integer.toHexString(c);
+					for (int z = u.length(); z < 4; z++) {
+						u = "0" + u;
+					}
+					sb.append("\\u" + u);
+				} else {
+					sb.append(c);
+				}
+			}
+			i++;
+		}
+		return sb.toString();
 	}
 
 	static class NullEquivalent {
