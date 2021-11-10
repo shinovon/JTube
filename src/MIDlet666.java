@@ -416,7 +416,7 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 				alert.setString("Downloading " + i + "%");
 			}
 			alert.setString("Done");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			msg(e.toString());
 		} finally {
