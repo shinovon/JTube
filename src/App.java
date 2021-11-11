@@ -45,9 +45,6 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 	
 	public static App midlet;
 	
-	
-	public VideoModel[] models;
-	
 	public Form mainForm;
 	public Form searchForm;
 	public Form settingsForm;
@@ -70,6 +67,12 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 	private Vector v2;
 
 	private TextField serverText;
+
+	private ChoiceGroup checksChoice;
+
+	private boolean videoPreviews;
+
+	private boolean searchChannels;
 
 
 	protected void destroyApp(boolean b) {}
@@ -105,7 +108,6 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 			t0 = new LoaderThread(5, lazyLoadLock, v0);
 			t0.start();
 		}
-		models = new VideoModel[TRENDS_LIMIT + SEARCH_LIMIT + 2];
 		testCanvas();
 		initForm();
 		loadConfig();
@@ -174,8 +176,7 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 			JSONArray j = (JSONArray) invApi("v1/trending?");
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
-				addAsyncLoad(v);
-				models[i] = v;
+				if(videoPreviews) addAsyncLoad(v);
 				mainForm.append(v.makeImageItemForList());
 				if(i >= TRENDS_LIMIT) break;
 			}
@@ -193,13 +194,21 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		searchForm.addCommand(backCmd);
 		display(searchForm);
 		try {
-			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q));
+			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + (searchChannels ? "&type=all" : ""));
 			for(int i = 0; i < j.size(); i++) {
-				VideoModel v = new VideoModel(j.getObject(i));
-				v.setFromSearch();
-				models[TRENDS_LIMIT + i] = v;
-				addAsyncLoad(v);
-				searchForm.append(v.makeImageItemForList());
+				JSONObject o = j.getObject(i);
+				String type = o.getNullableString("type");
+				if(type == null) continue;
+				if(type.equals("video")) {
+					VideoModel v = new VideoModel(o);
+					v.setFromSearch();
+					if(videoPreviews) addAsyncLoad(v);
+					searchForm.append(v.makeImageItemForList());
+				}
+				if(searchChannels && type.equals("channel")) {
+					ChannelModel c = new ChannelModel(o);
+					searchForm.append(c.makeItemForList());
+				}
 				if(i >= SEARCH_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -416,14 +425,16 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 				settingsForm.append(videoResChoice);
 				regionText = new TextField("Country code (ISO 3166)", region, 3, TextField.ANY);
 				settingsForm.append(regionText);
+				checksChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, new String[] { "Video previews", "Channels in search" }, null);
+				settingsForm.append(checksChoice);
 				downloadDirText = new TextField("Download directory", downloadDir, 256, TextField.ANY);
 				settingsForm.append(downloadDirText);
 				serverText = new TextField("Get Links PHP server", servergetlinks, 256, TextField.URL);
 				settingsForm.append(serverText);
-				StringItem s = new StringItem("See:", "github.com/shinovon/название", StringItem.HYPERLINK);
-				settingsForm.append(s);
 			}
 			display(settingsForm);
+			checksChoice.setSelectedIndex(0, videoPreviews);
+			checksChoice.setSelectedIndex(1, searchChannels);
 			if(videoRes == null) {
 				videoResChoice.setSelectedIndex(1, true);
 			} else if(videoRes.equals("144p")) {
@@ -496,7 +507,9 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		videoRes = "360p";
 		downloadDir = System.getProperty("fileconn.dir.videos");
 		if(downloadDir == null)
-			downloadDir = System.getProperty("fileconn.dir.photo");
+			downloadDir = System.getProperty("fileconn.dir.photos");
+		if(downloadDir == null)
+			downloadDir = "C:/";
 		if(downloadDir.startsWith("file:///"))
 			downloadDir = downloadDir.substring("file:///".length());
 		try {
@@ -511,6 +524,10 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 				downloadDir = j.getString("downloadDir");
 			if(j.has("servergetlinks"))
 				servergetlinks = j.getString("servergetlinks");
+			if(j.has("videoPreviews"))
+				videoPreviews = j.getBoolean("videoPreviews");
+			if(j.has("searchChannels"))
+				searchChannels = j.getBoolean("searchChannels");
 			return;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -524,6 +541,11 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		} else if(videoResChoice.getSelectedIndex() == 2) {
 			videoRes = "720p";
 		}
+		region = regionText.getString();
+		downloadDir = downloadDirText.getString();
+		servergetlinks = serverText.getString();
+		videoPreviews = checksChoice.isSelected(0);
+		searchChannels = checksChoice.isSelected(1);
 		try {
 			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
 		} catch (Exception e) {
@@ -536,6 +558,8 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
 			j.put("servergetlinks", servergetlinks);
+			j.put("videoPreviews", new Boolean(videoPreviews));
+			j.put("searchChannels", new Boolean(searchChannels));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

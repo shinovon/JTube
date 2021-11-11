@@ -110,6 +110,8 @@ public class VideoModel implements ItemCommandListener, ILoader {
 			imageItem.setImage(img);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -120,6 +122,8 @@ public class VideoModel implements ItemCommandListener, ILoader {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorItem.setImage(Image.createImage(b, 0, b.length));
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}
 	}

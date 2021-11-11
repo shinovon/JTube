@@ -32,10 +32,10 @@ public interface Constants {
 	static final Command dlCancelCmd = new Command("Cancel", Command.CANCEL, 1);
 	
 	// Limits
-	static final int TRENDS_LIMIT = 20;
-	static final int SEARCH_LIMIT = 20; 
+	static final int TRENDS_LIMIT = 25;
+	static final int SEARCH_LIMIT = 30; 
 	
-	static final String NAME = "Some";
+	static final String NAME = "";
 	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
 	
 	static final String platform = System.getProperty("microedition.platform");
