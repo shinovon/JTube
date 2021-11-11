@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
-public class Util {
+public class Util implements Constants {
 	
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
@@ -16,7 +16,7 @@ public class Util {
 		try {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
-			hc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+			hc.setRequestProperty("User-Agent", apiUserAgent);
 			int r = hc.getResponseCode();
 			if (r == 301) {
 				String redir = hc.getHeaderField("Location");

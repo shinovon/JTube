@@ -8,7 +8,7 @@ import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 
-import MIDlet666;
+import App;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
@@ -77,7 +77,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) MIDlet666.invApi("v1/videos/" + videoId + "?fields=" + EXTENDED_FIELDS), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?fields=" + EXTENDED_FIELDS), true);
 		}
 		return this;
 	}
@@ -103,7 +103,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 			int w = getPreferredWidth();
 			if (w <= 0) w = 220;
 			String url = getThumbUrl(w);
-			byte[] b = MIDlet666.hproxy(url);
+			byte[] b = App.hproxy(url);
 			img = Image.createImage(b, 0, b.length);
 			int h = (int) ((float) w * ((float) img.getHeight() / (float) img.getWidth()));
 			img = ImageUtils.resize(img, w, h);
@@ -117,7 +117,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 		if(authorItem.getImage() != null) return;
 		if(authorThumbnails == null) return;
 			try {
-			byte[] b = MIDlet666.hproxy(getAuthorThumbUrl());
+			byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorItem.setImage(Image.createImage(b, 0, b.length));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -125,7 +125,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 	}
 	
 	private int getPreferredWidth() {
-		return (int) (MIDlet666.width * 2F / 3F);
+		return (int) (App.width * 2F / 3F);
 	}
 	
 	private String getThumbUrl(int tw) {
@@ -159,7 +159,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 
 	public void commandAction(Command c, Item item) {
 		if(c == openCmd) {
-			MIDlet666.open(this);
+			App.open(this);
 		}
 	}
 

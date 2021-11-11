@@ -1,13 +1,8 @@
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Vector;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-import javax.microedition.io.file.FileConnection;
+import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
@@ -15,7 +10,6 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Gauge;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
@@ -24,7 +18,6 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.media.Manager;
 import javax.microedition.media.Player;
-import javax.microedition.media.protocol.DataSource;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.rms.RecordStore;
 
@@ -36,30 +29,7 @@ import cc.nnproject.json.JSONObject;
 import models.ILoader;
 import models.VideoModel;
 
-public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandListener {
-
-	private static final String getlinksphp = "http://nnproject.cc/getlinks.php";
-	private static final String hproxy = "http://nnproject.cc/hproxy.php?";
-	private static final String inv = "http://iteroni.com/";
-	
-	private static final String CONFIG_RECORD_NAME = "ytconfig";
-	
-	private static final Command searchOkCmd = new Command("Search", Command.OK, 1);
-	private static final Command goCmd = new Command("Go", Command.OK, 1);
-	private static final Command settingsCmd = new Command("Settings", Command.SCREEN, 1);
-	private static final Command searchCmd = new Command("Search", Command.SCREEN, 2);
-	private static final Command idCmd = new Command("Open by ID", Command.SCREEN, 3);
-	private static final Command cancelCmd = new Command("Cancel", Command.CANCEL, 2);
-	private static final Command backCmd = new Command("Back", Command.BACK, 1);
-	private static final Command watchCmd = new Command("Watch", Command.OK, 1);
-	private static final Command downloadCmd = new Command("Download", Command.SCREEN, 2);
-	private static final Command exitCmd = new Command("Exit", Command.EXIT, 2);
-	
-	private static final int TRENDS_LIMIT = 20;
-	private static final int SEARCH_LIMIT = 20; 
-	
-	private static final String NAME = "Some";
-	private static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
+public class App extends MIDlet implements CommandListener, ItemCommandListener, Constants {
 
 	private static boolean started;
 	
@@ -67,35 +37,40 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	public static int height;
 	
 	// Settings
-	public String videoRes;
-	
-	public static MIDlet666 midlet;
-	
+	private static String videoRes;
 	private static String region;
+	private static int watchMethod; // 0 - platform request 1 - mmapi player
+	private static String downloadDir;
+	private static String servergetlinks = getlinksphp;
 	
-	public Vector v0;
+	public static App midlet;
+	
 	
 	public VideoModel[] models;
 	
 	public Form mainForm;
 	public Form searchForm;
 	public Form settingsForm;
+	private ChoiceGroup videoResChoice;
+	private TextField regionText;
+	private TextField downloadDirText;
 	//private TextField searchText;
 	//private StringItem searchBtn;
-	
+	private Form videoForm;
+	private VideoModel video;
+	private PlayerCanvas playerCanv;
 	
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
 	private LoaderThread t2;
-	
 	private boolean asyncLoading = true;
-	private Form videoForm;
-	private VideoModel video;
+	public Vector v0;
 	private Vector v1;
 	private Vector v2;
-	private ChoiceGroup videoResChoice;
-	private PlayerCanvas playerCanv;
+
+	private TextField serverText;
+
 
 	protected void destroyApp(boolean b) {}
 
@@ -103,17 +78,6 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 
 	protected void startApp() {
 		if(started) return;
-		/*
-		 * форматы команд:
-		 * обязательный аргумент: url или vid или cid
-		 * url - ссылка на канал или видео
-		 * vid - ид видео
-		 * cid - ид канала
-		 * method - show / player / showvideos
-		 * - show - если видео то показать страницу видео, если канал то показать страницу канала
-		 * - player - если видео то открыть плеер видео, если канал то ничего не делать
-		 * - showvideos - если видео то показать список рекомендаванных к видео, если канал то показать видео канала
-		 */
 		midlet = this;
 		started = true;
 		region = System.getProperty("user.country");
@@ -262,12 +226,75 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		}
 	}
 
+	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
+		JSONArray j = JSON.getArray(Util.getUtf(servergetlinks + "?url=" + Util.url("https://www.youtube.com/watch?v="+id)));
+		if(j.size() == 0) {
+			throw new RuntimeException("failed to get link for video: " + id);
+		}
+		JSONObject _144 = null;
+		JSONObject _360 = null;
+		JSONObject _720 = null;
+		JSONObject other = null;
+		for(int i = 0; i < j.size(); i++) {
+			JSONObject o = j.getObject(i);
+			String q = o.getString("qualityLabel");
+			if(q.startsWith("720p")) {
+				_720 = o;
+			} else if(q.startsWith("360p")) {
+				_360 = o;
+			} else if(q.startsWith("144p")) {
+				_144 = o;
+			} else {
+				other = o;
+			}
+		}
+		System.out.println("preferred video res: " + res);
+		JSONObject o = null;
+		if(res == null) {
+			if(_360 != null) {
+				o = _360;
+			} else if(other != null) {
+				o = other;
+			} else if(_144 != null) {
+				o = _144;
+			} 
+		} else if(res.equals("144p")) {
+			if(_144 != null) {
+				o = _144;
+			} else if(_360 != null) {
+				o = _360;
+			} else if(other != null) {
+				o = other;
+			}
+		} else if(res.equals("360p")) {
+			if(_360 != null) {
+				o = _360;
+			} else if(other != null) {
+				o = other;
+			} else if(_144 != null) {
+				o = _144;
+			} 
+		} else if(res.equals("720p")) {
+			if(_720 != null) {
+				o = _720;
+			} else if(_360 != null) {
+				o = _360;
+			} else if(other != null) {
+				o = other;
+			} else if(_144 != null) {
+				o = _144;
+			} 
+		}
+		return o;
+	}
+
 	private void openVideo(VideoModel v) {
 		video = v;
 		videoForm = new Form(v.getTitle());
 		videoForm.setCommandListener(this);
 		videoForm.addCommand(backCmd);
 		videoForm.addCommand(downloadCmd);
+		//videoForm.addCommand(browserCmd);
 		display(videoForm);
 		try {
 			v.extend();
@@ -295,227 +322,37 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		notifyAsyncTasks();
 	}
 	
-	private void download(String id) {
-
-		FileConnection fc = null;
-		OutputStream out = null;
-		HttpConnection hc = null;
-		InputStream in = null;
-		try {
-		Alert alert = new Alert("", "", null, AlertType.INFO);
-		//alert.setCommandListener(this);
-		alert.setTimeout(-2);
-		alert.setTitle("Downloading");
-		alert.setIndicator(new Gauge("", false, -1, Gauge.CONTINUOUS_RUNNING));
-		display(alert);
-		String file = System.getProperty("fileconn.dir.videos");
-		if(file == null)
-			file = System.getProperty("fileconn.dir.photos");
-		file = file + id + ".mp4";
-		alert.setString(id + ".mp4");
-		System.out.println("Download: " + id);
-			JSONArray j = JSON.getArray(Util.getUtf(getlinksphp + "?url=" + Util.url("https://www.youtube.com/watch?v="+id)));
-			if(j.size() == 0) {
-				msg("Failed!");
-				return;
-			}
-			System.out.println(j);
-			JSONObject _144 = null;
-			JSONObject _360 = null;
-			JSONObject _720 = null;
-			JSONObject other = null;
-			for(int i = 0; i < j.size(); i++) {
-				JSONObject o = j.getObject(i);
-				String q = o.getString("qualityLabel");
-				if(q.startsWith("720p")) {
-					_720 = o;
-				} else if(q.startsWith("360p")) {
-					_360 = o;
-				} else if(q.startsWith("144p")) {
-					_144 = o;
-				} else {
-					other = o;
-				}
-			}
-			System.out.println("preferred video res: " + videoRes);
-			JSONObject o = null;
-			if(videoRes == null) {
-				if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				} else if(_144 != null) {
-					o = _144;
-				} 
-			} else if(videoRes.equals("144p")) {
-				if(_144 != null) {
-					o = _144;
-				} else if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				}
-			} else if(videoRes.equals("360p")) {
-				if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				} else if(_144 != null) {
-					o = _144;
-				} 
-			} else if(videoRes.equals("720p")) {
-				if(_720 != null) {
-					o = _720;
-				} else if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				} else if(_144 != null) {
-					o = _144;
-				} 
-			}
-			String url = o.getString("url");
-			alert.setString("Downloading 0%");
-			fc = (FileConnection) Connector.open(file, Connector.READ_WRITE);
-
-			if (fc.exists()) {
-				try {
-					fc.delete();
-				} catch (IOException e) {
-				}
-			}
-			fc.create();
-			out = fc.openOutputStream();
-			hc = (HttpConnection) Connector.open(url, Connector.READ);
-			hc.setRequestProperty("User-Agent", "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0");
-
-			int r = hc.getResponseCode();
-			while (r == 301 || r == 302) {
-				String redir = hc.getHeaderField("Location");
-				if (redir.startsWith("/")) {
-					String tmp = url.substring(url.indexOf("//") + 2);
-					String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
-					redir = host + redir;
-				}
-				hc.close();
-				hc = (HttpConnection) Connector.open(redir);
-				hc.setRequestMethod("GET");
-				hc.setRequestProperty("User-Agent", "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0");
-				r = hc.getResponseCode();
-			}
-			in = hc.openInputStream();
-			int i = 0;
-			byte[] buf = new byte[128 * 1024];
-			int read = 0;
-			int downloaded = 0;
-			int l = (int) hc.getLength();
-			while((read = in.read(buf)) != -1) {
-				out.write(buf, 0, read);
-				downloaded += read;
-				i = (int)(((double)downloaded / (double)l) * 100d);
-				alert.setString("Downloading " + i + "%");
-			}
-			alert.setString("Done");
-		} catch (Throwable e) {
-			e.printStackTrace();
-			msg(e.toString());
-		} finally {
-			try {
-				if(out != null) out.close();
-			} catch (Exception e) {
-			} 
-			try {
-				if(fc != null) fc.close();
-			} catch (Exception e) {
-			} 
-			try {
-				if(in != null) in.close();
-			} catch (Exception e) {
-			} 
-			try {
-				if(hc != null) hc.close();
-			} catch (Exception e) {
-			} 
-		}
+	private void download(final String id) {
+		Downloader d = new Downloader(id, videoRes, videoForm, downloadDir);
+		d.start();
 	}
 	
-	private void watch(String id) {
+	public void watch(String id) {
 		// TODO
-		System.out.println("Watch: " + id);
 		try {
-			JSONArray j = JSON.getArray(Util.getUtf(getlinksphp + "?url=" + Util.url("https://www.youtube.com/watch?v="+id)));
-			if(j.size() == 0) {
-				msg("Failed!");
-				return;
-			}
-			System.out.println(j);
-			JSONObject _144 = null;
-			JSONObject _360 = null;
-			JSONObject _720 = null;
-			JSONObject other = null;
-			for(int i = 0; i < j.size(); i++) {
-				JSONObject o = j.getObject(i);
-				String q = o.getString("qualityLabel");
-				if(q.startsWith("720p")) {
-					_720 = o;
-				} else if(q.startsWith("360p")) {
-					_360 = o;
-				} else if(q.startsWith("144p")) {
-					_144 = o;
-				} else {
-					other = o;
-				}
-			}
-			System.out.println("preferred video res: " + videoRes);
-			JSONObject o = null;
-			if(videoRes == null) {
-				if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				} else if(_144 != null) {
-					o = _144;
-				} 
-			} else if(videoRes.equals("144p")) {
-				if(_144 != null) {
-					o = _144;
-				} else if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				}
-			} else if(videoRes.equals("360p")) {
-				if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				} else if(_144 != null) {
-					o = _144;
-				} 
-			} else if(videoRes.equals("720p")) {
-				if(_720 != null) {
-					o = _720;
-				} else if(_360 != null) {
-					o = _360;
-				} else if(other != null) {
-					o = other;
-				} else if(_144 != null) {
-					o = _144;
-				} 
-			}
+			JSONObject o = getVideoInfo(id, videoRes);
 			String url = o.getString("url");
-			final String type = o.getString("cleanMimeType");
-			int length = o.getInt("contentLength");
-			System.out.println("Url: " + url);
-			DataSource src = new AsyncLoadDataSource(url, type, length);
-			Player p = Manager.createPlayer(src);
-			playerCanv = new PlayerCanvas(p);
-			display(playerCanv);
-			playerCanv.init();
+			switch(watchMethod) {
+			case 0: {
+				platReq(url);
+				break;
+			}
+			case 1: {
+				Player p = Manager.createPlayer(url);
+				playerCanv = new PlayerCanvas(p);
+				display(playerCanv);
+				playerCanv.init();
+				break;
+			}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			msg(e.toString());
 		}
+	}
+	
+	public static void platReq(String s) throws ConnectionNotFoundException {
+		midlet.platformRequest(s);
 	}
 	
 	private void addAsyncLoad(ILoader v) {
@@ -577,6 +414,14 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 				settingsForm.setCommandListener(this);
 				videoResChoice = new ChoiceGroup("Preferred video quality", ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
 				settingsForm.append(videoResChoice);
+				regionText = new TextField("Country code (ISO 3166)", region, 3, TextField.ANY);
+				settingsForm.append(regionText);
+				downloadDirText = new TextField("Download directory", downloadDir, 256, TextField.ANY);
+				settingsForm.append(downloadDirText);
+				serverText = new TextField("Get Links PHP server", servergetlinks, 256, TextField.URL);
+				settingsForm.append(serverText);
+				StringItem s = new StringItem("See:", "github.com/shinovon/название", StringItem.HYPERLINK);
+				settingsForm.append(s);
 			}
 			display(settingsForm);
 			if(videoRes == null) {
@@ -615,6 +460,14 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 		if(c == downloadCmd) {
 			download(video.getVideoId());
 		}
+		/*if(c == browserCmd) {
+			try {
+				platReq(getVideoInfo(video.getVideoId(), videoRes).getString("url"));
+			} catch (Exception e) {
+				e.printStackTrace();
+				msg(e.toString());
+			}
+		}*/
 		if(c == cancelCmd && d instanceof TextBox) {
 			display(mainForm);
 		}
@@ -639,16 +492,29 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 	}
 
 	private void loadConfig() {
+		// Defaults
+		videoRes = "360p";
+		downloadDir = System.getProperty("fileconn.dir.video");
+		if(downloadDir == null)
+			downloadDir = System.getProperty("fileconn.dir.photo");
+		if(downloadDir.startsWith("file:///"))
+			downloadDir = downloadDir.substring("file:///".length());
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
 			JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
 			r.closeRecordStore();
-			videoRes = j.getString("videoRes");
+			if(j.has("videoRes"))
+				videoRes = j.getString("videoRes");
+			if(j.has("region"))
+				region = j.getString("region");
+			if(j.has("downloadDir"))
+				downloadDir = j.getString("downloadDir");
+			if(j.has("servergetlinks"))
+				servergetlinks = j.getString("servergetlinks");
 			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		videoRes = "360p";
 	}
 	private void saveConfig() {
 		if(videoResChoice.getSelectedIndex() == 0) {
@@ -667,6 +533,9 @@ public class MIDlet666 extends MIDlet implements CommandListener, ItemCommandLis
 			JSONObject j = new JSONObject();
 			j.put("v", "v1");
 			j.put("videoRes", videoRes);
+			j.put("region", region);
+			j.put("downloadDir", downloadDir);
+			j.put("servergetlinks", servergetlinks);
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);
