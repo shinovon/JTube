@@ -494,7 +494,7 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 	private void loadConfig() {
 		// Defaults
 		videoRes = "360p";
-		downloadDir = System.getProperty("fileconn.dir.video");
+		downloadDir = System.getProperty("fileconn.dir.videos");
 		if(downloadDir == null)
 			downloadDir = System.getProperty("fileconn.dir.photo");
 		if(downloadDir.startsWith("file:///"))
