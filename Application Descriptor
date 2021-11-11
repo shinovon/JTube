@@ -1,7 +1,7 @@
 MIDlet-Vendor: nnproject
 MIDlet-Version: 1.0.0
 MicroEdition-Configuration: CLDC-1.0
-Nokia-MIDlet-UID-1: 0xDDC1275A
+Nokia-MIDlet-UID-1: 0xAFCE0816
 MIDlet-1: App,/icon.png,App
 MIDlet-Name: App
 MicroEdition-Profile: MIDP-2.0
