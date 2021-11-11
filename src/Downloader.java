@@ -32,10 +32,9 @@ public class Downloader implements CommandListener, Constants, Runnable {
 		this.res = res;
 		this.d = d;
 		this.file = "file:///" + downloadDir;
-		if(!(downloadDir.endsWith("/") || downloadDir.endsWith("\\"))) {
-			downloadDir += "/";
+		if(!(file.endsWith("/") || file.endsWith("\\"))) {
+			file += "/";
 		}
-		file = downloadDir;
 	}
 	
 	public void run() {
