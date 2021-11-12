@@ -185,7 +185,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		mainForm.addCommand(switchToPopularCmd);
 		try {
 			mainForm.setTitle(NAME + " - Trends");
-			JSONArray j = (JSONArray) invApi("v1/trending?");
+			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
@@ -204,7 +204,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
 			mainForm.setTitle(NAME + " - Popular");
-			JSONArray j = (JSONArray) invApi("v1/popular?");
+			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
@@ -268,7 +268,8 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
-		JSONArray j = (JSONArray) invApi("v1/videos/"  + id + "?fields=formatStreams");
+		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?fields=formatStreams");
+		JSONArray arr = j.getArray("formatStreams");
 		if(j.size() == 0) {
 			throw new RuntimeException("failed to get link for video: " + id);
 		}
@@ -276,8 +277,8 @@ public class App extends MIDlet implements CommandListener, Constants {
 		JSONObject _360 = null;
 		JSONObject _720 = null;
 		JSONObject other = null;
-		for(int i = 0; i < j.size(); i++) {
-			JSONObject o = j.getObject(i);
+		for(int i = 0; i < arr.size(); i++) {
+			JSONObject o = arr.getObject(i);
 			String q = o.getString("qualityLabel");
 			if(q.startsWith("720p")) {
 				_720 = o;

@@ -56,7 +56,8 @@ public interface Constants {
 	static final String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	
 	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,videoThumbnails,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,authorThumbnails,viewCount";
-
+	static final String TRENDING_FIELDS = "title,videoId,author";
+	
 	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
 	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;
 	public static final long S40_MEM = 2048 * 1024;

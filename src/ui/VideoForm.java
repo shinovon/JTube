@@ -38,8 +38,11 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 	}
 
 	private void init() {
-		if(get(0) == loadingItem) {
-			delete(0);
+		try {
+			if(get(0) == loadingItem) {
+				delete(0);
+			}
+		} catch (Exception e) {
 		}
 		if(App.videoPreviews) {
 			ImageItem img = video.makeImageItemForPage();

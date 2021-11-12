@@ -76,7 +76,7 @@ public class Settings extends Form implements Constants, CommandListener {
 			App.videoPreviews = false;
 			//if(isS40()) App.apiProxy = true;
 		} else {
-			if(!isSymbian3()) {
+			if(isNotS60() && !isS603rd()) {
 				App.httpStream = true;
 				App.asyncLoading = true;
 			}

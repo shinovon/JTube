@@ -108,6 +108,7 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 	public void loadImage() {
 		if(img != null) return;
 		if(videoThumbnails == null) return;
+		if(imageItem == null) return;
 		try {
 			int w = getPreferredWidth();
 			if (w <= 0) w = 220;
@@ -118,7 +119,7 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 			img = ImageUtils.resize(img, w, h);
 			imageItem.setImage(img);
 			videoThumbnails = null;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
@@ -126,13 +127,13 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 	}
 
 	private void loadAuthorImg() {
-		if(authorItem.getImage() != null) return;
 		if(authorThumbnails == null) return;
+		if(authorItem == null || authorItem.getImage() != null) return;
 			try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorItem.setImage(Image.createImage(b, 0, b.length));
 			authorThumbnails = null;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
