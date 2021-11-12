@@ -36,6 +36,7 @@ public class ChannelModel implements ILoader, Constants, ItemCommandListener {
 	private void parse(JSONObject o) {
 		author = o.getString("author");
 		authorId = o.getString("authorId");
+		authorThumbnails = o.getNullableArray("authorThumbnails");
 	}
 
 	public Item makeItemForList() {
