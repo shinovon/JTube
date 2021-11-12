@@ -92,7 +92,7 @@ public class ChannelModel implements ILoader, Constants, ItemCommandListener {
 	public void load() {
 		if(img != null) return;
 		if(authorThumbnails == null) return;
-			try {
+		try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			img = Image.createImage(b, 0, b.length);
 			item.setImage(img);

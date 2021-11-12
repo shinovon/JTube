@@ -9,6 +9,8 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.media.Manager;
@@ -68,6 +70,8 @@ public class App extends MIDlet implements CommandListener, Constants {
 	private Vector v1;
 	private Vector v2;
 
+	private Item loadingItem;
+
 	protected void destroyApp(boolean b) {}
 
 	protected void pauseApp() {}
@@ -110,6 +114,9 @@ public class App extends MIDlet implements CommandListener, Constants {
 			t0.start();
 		}
 		try {
+			loadingItem = new StringItem(null, "Loading");
+			loadingItem.setLayout(Item.LAYOUT_CENTER);
+			mainForm.append(loadingItem);
 			if(startScreen == 0) {
 				loadTrends();
 			} else {
@@ -156,6 +163,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	public static byte[] hproxy(String s) throws IOException {
+		if(s.startsWith("//")) return Util.get("http:" + s);
 		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
 		return Util.get(hproxy + Util.url(s));
 	}
@@ -185,6 +193,12 @@ public class App extends MIDlet implements CommandListener, Constants {
 		try {
 			mainForm.setTitle(NAME + " - Trends");
 			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			try {
+				if(mainForm.get(0) == loadingItem) {
+					mainForm.delete(0);
+				}
+			} catch (Exception e) {
+			}
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
@@ -196,6 +210,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
+			msg(e.toString());
 		}
 	}
 	
@@ -204,6 +219,12 @@ public class App extends MIDlet implements CommandListener, Constants {
 		try {
 			mainForm.setTitle(NAME + " - Popular");
 			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			try {
+				if(mainForm.get(0) == loadingItem) {
+					mainForm.delete(0);
+				}
+			} catch (Exception e) {
+			}
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
@@ -215,6 +236,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
+			msg(e.toString());
 		}
 	}
 
