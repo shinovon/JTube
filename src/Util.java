@@ -21,7 +21,8 @@ public class Util implements Constants {
 		try {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
-			hc.setRequestProperty("User-Agent", apiUserAgent);
+			hc.setRequestProperty("User-Agent", userAgent);
+			hc.setRequestProperty("Accept-Encoding", "identity");
 			int r = hc.getResponseCode();
 			if (r == 301 || r == 302) {
 				String redir = hc.getHeaderField("Location");
@@ -34,21 +35,29 @@ public class Util implements Constants {
 				hc = (HttpConnection) Connector.open(redir);
 				hc.setRequestMethod("GET");
 			}
+			if(r >= 400) throw new IOException(r + " " + hc.getResponseMessage());
 			i = hc.openDataInputStream();
-			int s = (int) hc.getLength();
+			int s = 0;
+			try {
+				s = (int) hc.getLength();
+			} catch (Exception e) {
+				/*try {
+					s = Integer.parseInt(hc.getHeaderField("Content-Length"));
+				} catch (Exception e2) {
+				}*/
+			}
 			if(s > 0) {
 				byte[] b = new byte[s];
 				i.readFully(b);
 				return b;
 			}
-			byte[] b = new byte[16384];
+			s = 16384;
+			byte[] b = new byte[s];
 			o = new ByteArrayOutputStream();
 			int c;
 			while ((c = i.read(b)) != -1) {
 				o.write(b, 0, c);
-				o.flush();
 			}
-
 			return o.toByteArray();
 		} finally {
 			try {

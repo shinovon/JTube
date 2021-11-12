@@ -2,16 +2,21 @@ package models;
 
 import java.io.IOException;
 
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.ImageItem;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 
 import App;
 import Constants;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
-import ui.ChannelItem;
 
 // TODO
-public class ChannelModel implements ILoader, Constants {
+public class ChannelModel implements ILoader, Constants, ItemCommandListener {
+	
+	private static final Command openCmd = new Command("Open channel", Command.OK, 3);
 	
 	private String author;
 	private String authorId;
@@ -19,19 +24,25 @@ public class ChannelModel implements ILoader, Constants {
 	private int videoCount;
 	private JSONArray authorThumbnails;
 
-	private ChannelItem item;
+	private ImageItem item;
 	private Image img;
+
+	private boolean fromSearch;
 
 	public ChannelModel(JSONObject o) {
 		parse(o);
 	}
 	
 	private void parse(JSONObject o) {
-		
+		author = o.getString("author");
+		authorId = o.getString("authorId");
 	}
 
-	public ChannelItem makeItemForList() {
-		item = new ChannelItem(this);
+	public Item makeItemForList() {
+		item = new ImageItem(author, img, Item.LAYOUT_CENTER, null);
+		item.addCommand(openCmd);
+		item.setDefaultCommand(openCmd);
+		item.setItemCommandListener(this);
 		return item;
 	}
 
@@ -54,7 +65,14 @@ public class ChannelModel implements ILoader, Constants {
 	public Image getImg() {
 		return img;
 	}
+
+	public void setFromSearch() {
+		fromSearch = true;
+	}
 	
+	public boolean isFromSearch() {
+		return fromSearch;
+	}
 
 	private String getAuthorThumbUrl() {
 		int s = 0;
@@ -84,6 +102,12 @@ public class ChannelModel implements ILoader, Constants {
 			e.printStackTrace();
 		}
 		
+	}
+
+	public void commandAction(Command c, Item arg1) {
+		if(c == openCmd) {
+			App.openChannel(this);
+		}
 	}
 
 }

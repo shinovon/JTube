@@ -23,6 +23,7 @@ import cc.nnproject.json.JSONObject;
 import models.ChannelModel;
 import models.ILoader;
 import models.VideoModel;
+import ui.ChannelForm;
 import ui.Settings;
 import ui.VideoForm;
 
@@ -38,13 +39,13 @@ public class App extends MIDlet implements CommandListener, Constants {
 	public static String region;
 	public static int watchMethod; // 0 - platform request 1 - mmapi player
 	public static String downloadDir;
-	public static String servergetlinks = getlinksphp;
-	public static String serverhttp = streamphp;
+	public static String serverstream = streamphp;
 	public static boolean videoPreviews;
 	public static boolean searchChannels;
 	public static boolean rememberSearch;
 	public static boolean httpStream;
-	public static int startScreen; // 0 - Trends 1 - Popular
+	public static int startScreen = 0; // 0 - Trends 1 - Popular
+	public static String inv = iteroni;
 	
 	public static App midlet;
 	
@@ -56,7 +57,9 @@ public class App extends MIDlet implements CommandListener, Constants {
 	private VideoForm videoForm;
 	private static PlayerCanvas playerCanv;
 
-	private boolean asyncLoading = true;
+	public static boolean asyncLoading;
+
+	private static ChannelForm channelForm;
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
@@ -82,13 +85,18 @@ public class App extends MIDlet implements CommandListener, Constants {
 				region = region.substring(3, 5);
 			} else if(region.length() > 2) {
 				region = region.substring(0, 2);
+			} else {
+				region = "US";
 			}
 		} else if(region.length() > 2) {
 			region = region.substring(0, 2);
 		}
 		region = region.toUpperCase();
 		v0 = new Vector();
-		if(startMemory != S40_MEM && asyncLoading) {
+		testCanvas();
+		initForm();
+		Settings.loadConfig();
+		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
 			t0 = new LoaderThread(5, lazyLoadLock, v0);
@@ -101,13 +109,21 @@ public class App extends MIDlet implements CommandListener, Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0);
 			t0.start();
 		}
-		testCanvas();
-		initForm();
-		Settings.loadConfig();
-		if(startScreen == 0) {
-			loadTrends();
-		} else {
-			loadPopular();
+		try {
+			if(startScreen == 0) {
+				loadTrends();
+			} else {
+				loadPopular();
+			}
+			gc();
+		} catch (InvidiousException e) {
+			msg(e.toString() + "\n JSON: \n" + e.getJSON().toString());
+		} catch (OutOfMemoryError e) {
+			gc();
+			msg("Out of memory!");
+		} catch (Throwable e) {
+			e.printStackTrace();
+			msg(e.toString());
 		}
 	}
 
@@ -140,7 +156,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("/")) return Util.get(inv + s.substring(1));
+		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
 		return Util.get(hproxy + Util.url(s));
 	}
 
@@ -148,35 +164,32 @@ public class App extends MIDlet implements CommandListener, Constants {
 		if(!s.endsWith("?")) s = s.concat("&");
 		s = s.concat("region=" + region);
 		s = Util.getUtf(inv + "api/" + s);
+		System.out.println("Res: " + s);
 		AbstractJSON res;
-		try {
+		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
 			if(((JSONObject) res).has("code")) {
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"));
 			}
 			if(((JSONObject) res).has("error")) {
+				System.out.println(res.toString());
 				throw new InvidiousException((JSONObject) res);
 			}
-		} catch (JSONException e) {
-			if(!e.getMessage().equals("Not JSON object")) throw e;
-			try {
-				res = JSON.getArray(s);
-			} catch (JSONException e2) {
-				e2.printStackTrace();
-				throw e;
-			}
+		} else {
+			res = JSON.getArray(s);
 		}
 		return res;
 	}
 
 	private void loadTrends() {
+		mainForm.addCommand(switchToPopularCmd);
 		try {
 			mainForm.setTitle(NAME + " - Trends");
 			JSONArray j = (JSONArray) invApi("v1/trending?");
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
-				mainForm.append(v.makeImageItemForList());
+				mainForm.append(v.makeItemForList());
 				if(i >= TRENDS_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -188,13 +201,14 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	private void loadPopular() {
+		mainForm.addCommand(switchToTrendsCmd);
 		try {
 			mainForm.setTitle(NAME + " - Popular");
 			JSONArray j = (JSONArray) invApi("v1/popular?");
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
-				mainForm.append(v.makeImageItemForList());
+				mainForm.append(v.makeItemForList());
 				if(i >= TRENDS_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -220,10 +234,11 @@ public class App extends MIDlet implements CommandListener, Constants {
 					VideoModel v = new VideoModel(o);
 					v.setFromSearch();
 					if(videoPreviews) addAsyncLoad(v);
-					searchForm.append(v.makeImageItemForList());
+					searchForm.append(v.makeItemForList());
 				}
 				if(searchChannels && type.equals("channel")) {
 					ChannelModel c = new ChannelModel(o);
+					c.setFromSearch();
 					searchForm.append(c.makeItemForList());
 				}
 				if(i >= SEARCH_LIMIT) break;
@@ -253,7 +268,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
-		JSONArray j = JSON.getArray(Util.getUtf(servergetlinks + "?url=" + Util.url("https://www.youtube.com/watch?v="+id)));
+		JSONArray j = (JSONArray) invApi("v1/videos/"  + id + "?fields=formatStreams");
 		if(j.size() == 0) {
 			throw new RuntimeException("failed to get link for video: " + id);
 		}
@@ -317,7 +332,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		JSONObject o = getVideoInfo(id, res);
 		String s = o.getString("url");
 		if(httpStream) {
-			s = serverhttp + "?url=" + Util.url(s);
+			s = serverstream + "?url=" + Util.url(s);
 		}
 		return s;
 	}
@@ -460,23 +475,49 @@ public class App extends MIDlet implements CommandListener, Constants {
 		if(c == searchOkCmd && d instanceof TextBox) {
 			search(((TextBox) d).getString());
 		}
+		if(c == switchToPopularCmd) {
+			startScreen = 1;
+			mainForm.deleteAll();
+			d.removeCommand(c);
+			loadPopular();
+			Settings.saveConfig();
+		}
+		if(c == switchToTrendsCmd) {
+			startScreen = 0;
+			mainForm.deleteAll();
+			d.removeCommand(c);
+			loadTrends();
+			Settings.saveConfig();
+		}
 	}
 
 
 	public void disposeVideoForm() {
 		videoForm.dispose();
 		videoForm = null;
+		gc();
+	}
+	
+	public static void gc() {
+		System.gc();
 	}
 
 	private void disposeSearchForm() {
 		searchForm = null;
+		gc();
 	}
 
 	public static void pageOpen(VideoForm vf) {
+		gc();
 		App app = App.midlet;
-		app.stopDoingAsyncTasks();
-		app.addAsyncLoad(vf);
-		app.notifyAsyncTasks();
+		try {
+			app.stopDoingAsyncTasks();
+			Thread.sleep(150);
+			app.addAsyncLoad(vf);
+			app.notifyAsyncTasks();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void back(VideoForm vf) {
@@ -485,6 +526,20 @@ public class App extends MIDlet implements CommandListener, Constants {
 		} else {
 			App.display(midlet.mainForm);
 		}
+	}
+
+	public static void back(ChannelForm cf) {
+		if(cf.getChannel().isFromSearch() && midlet.searchForm != null) {
+			App.display(midlet.searchForm);
+		} else {
+			App.display(midlet.mainForm);
+		}
+		
+	}
+
+	public static void openChannel(ChannelModel c) {
+		channelForm = new ChannelForm(c);
+		display(channelForm);
 	}
 
 }

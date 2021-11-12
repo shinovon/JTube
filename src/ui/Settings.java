@@ -18,9 +18,9 @@ public class Settings extends Form implements Constants, CommandListener {
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
 	private TextField downloadDirText;
-	private TextField serverText;
 	private TextField httpProxyText;
 	private ChoiceGroup checksChoice;
+	private TextField invidiousText;
 
 	public Settings() {
 		super("Settings");
@@ -32,11 +32,11 @@ public class Settings extends Form implements Constants, CommandListener {
 		append(regionText);
 		checksChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
 		append(checksChoice);
+		invidiousText = new TextField("Invidious server", App.inv, 256, TextField.URL);
+		append(invidiousText);
 		downloadDirText = new TextField("Download directory", App.downloadDir, 256, TextField.ANY);
 		append(downloadDirText);
-		serverText = new TextField("Get Links PHP server", App.servergetlinks, 256, TextField.URL);
-		append(serverText);
-		httpProxyText = new TextField("Stream proxy server", App.serverhttp, 256, TextField.URL);
+		httpProxyText = new TextField("Stream proxy server", App.serverstream, 256, TextField.URL);
 		append(httpProxyText);
 	}
 	
@@ -45,6 +45,7 @@ public class Settings extends Form implements Constants, CommandListener {
 		checksChoice.setSelectedIndex(1, App.searchChannels);
 		checksChoice.setSelectedIndex(2, App.rememberSearch);
 		checksChoice.setSelectedIndex(3, App.httpStream);
+		//checksChoice.setSelectedIndex(4, App.apiProxy);
 		if(App.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
 		} else if(App.videoRes.equals("144p")) {
@@ -59,7 +60,6 @@ public class Settings extends Form implements Constants, CommandListener {
 
 	public static void loadConfig() {
 		// Defaults
-		App.videoRes = "360p";
 		String downloadDir = System.getProperty("fileconn.dir.videos");
 		if(downloadDir == null)
 			downloadDir = System.getProperty("fileconn.dir.photos");
@@ -74,12 +74,22 @@ public class Settings extends Form implements Constants, CommandListener {
 			App.rememberSearch = false;
 			App.searchChannels = false;
 			App.videoPreviews = false;
+			//if(isS40()) App.apiProxy = true;
 		} else {
-			if(!isSymbian3()) App.httpStream = false;
-			else App.httpStream = true;
+			if(!isSymbian3()) {
+				App.httpStream = true;
+				App.asyncLoading = true;
+			}
 			App.rememberSearch = true;
 			App.searchChannels = true;
 			App.videoPreviews = true;
+		}
+
+		int min = Math.min(App.width, App.height);
+		if(min < 360) {
+			App.videoRes = "144p";
+		} else {
+			App.videoRes = "360p";
 		}
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
@@ -91,8 +101,6 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.region = j.getString("region");
 			if(j.has("downloadDir"))
 				App.downloadDir = j.getString("downloadDir");
-			if(j.has("servergetlinks"))
-				App.servergetlinks = j.getString("servergetlinks");
 			if(j.has("videoPreviews"))
 				App.videoPreviews = j.getBoolean("videoPreviews");
 			if(j.has("searchChannels"))
@@ -101,15 +109,21 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.rememberSearch = j.getBoolean("rememberSearch");
 			if(j.has("httpStream"))
 				App.httpStream = j.getBoolean("httpStream");
-			if(j.has("serverhttp"))
-				App.serverhttp = j.getString("serverhttp");
+			if(j.has("serverstream"))
+				App.serverstream = j.getString("serverstream");
+			if(j.has("inv"))
+				App.inv = j.getString("inv");
+			//if(j.has("apiProxy"))
+			//	App.apiProxy = j.getBoolean("apiProxy");
+			//if(j.has("serverproxy"))
+			//	App.serverproxy = j.getString("serverproxy");
 			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void saveConfig() {
+	private void applySettings() {
 		if(videoResChoice.getSelectedIndex() == 0) {
 			App.videoRes = "144p";
 		} else if(videoResChoice.getSelectedIndex() == 1) {
@@ -119,12 +133,19 @@ public class Settings extends Form implements Constants, CommandListener {
 		}
 		App.region = regionText.getString();
 		App.downloadDir = downloadDirText.getString();
-		App.servergetlinks = serverText.getString();
-		App.videoPreviews = checksChoice.isSelected(0);
-		App.searchChannels = checksChoice.isSelected(1);
-		App.rememberSearch = checksChoice.isSelected(2);
-		App.httpStream = checksChoice.isSelected(3);
-		App.serverhttp = httpProxyText.getString();
+		boolean[] s = new boolean[checksChoice.size()];
+		checksChoice.getSelectedFlags(s);
+		App.videoPreviews = s[0];
+		App.searchChannels = s[1];
+		App.rememberSearch = s[2];
+		App.httpStream = s[3];
+		//App.apiProxy = s[4];
+		App.serverstream = httpProxyText.getString();
+		App.inv = invidiousText.getString();
+		saveConfig();
+	}
+	
+	public static void saveConfig() {
 		try {
 			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
 		} catch (Exception e) {
@@ -132,16 +153,16 @@ public class Settings extends Form implements Constants, CommandListener {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v1");
-			j.put("videoRes", App.videoRes);
-			j.put("region", App.region);
-			j.put("downloadDir", App.downloadDir);
-			j.put("servergetlinks", App.servergetlinks);
+			j.put("v", "\"v1\"");
+			j.put("videoRes", "\"" + App.videoRes + "\"");
+			j.put("region", "\"" + App.region + "\"");
+			j.put("downloadDir", "\"" + App.downloadDir + "\"");
 			j.put("videoPreviews", new Boolean(App.videoPreviews));
 			j.put("searchChannels", new Boolean(App.searchChannels));
 			j.put("rememberSearch", new Boolean(App.rememberSearch));
 			j.put("httpStream", new Boolean(App.httpStream));
-			j.put("serverhttp", App.serverhttp);
+			j.put("serverstream", "\"" + App.serverstream + "\"");
+			j.put("inv", "\"" + App.inv + "\"");
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);
@@ -153,7 +174,7 @@ public class Settings extends Form implements Constants, CommandListener {
 
 	public void commandAction(Command c, Displayable arg1) {
 		if(c == backCmd) {
-			saveConfig();
+			applySettings();
 			App.display(null);
 		}
 	}
@@ -184,6 +205,10 @@ public class Settings extends Form implements Constants, CommandListener {
 				platform.startsWith("NokiaE70") || platform.startsWith("NokiaN80") || platform.startsWith("NokiaE63") || 
 				platform.startsWith("NokiaE66") || platform.startsWith("NokiaE51") || platform.startsWith("NokiaE50") || 
 				platform.startsWith("NokiaE65") || platform.startsWith("NokiaE61") || platform.startsWith("NokiaE60");
+	}
+
+	public static boolean isS40() {
+		return isNotS60() && platform.startsWith("Nokia") && startMemory == S40_MEM;
 	}
 
 }

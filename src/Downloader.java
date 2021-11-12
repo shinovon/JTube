@@ -13,8 +13,6 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Gauge;
 
-import cc.nnproject.json.JSONObject;
-
 public class Downloader implements CommandListener, Constants, Runnable {
 	
 	private String id;
@@ -61,7 +59,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			fc.create();
 			out = fc.openOutputStream();
 			hc = (HttpConnection) Connector.open(url);
-			hc.setRequestProperty("User-Agent", downloadUserAgent);
+			hc.setRequestProperty("User-Agent", userAgent);
 
 			int r;
 			try {
@@ -72,7 +70,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				Thread.sleep(2000);
 				hc = (HttpConnection) Connector.open(url);
 				hc.setRequestMethod("GET");
-				hc.setRequestProperty("User-Agent", downloadUserAgent);
+				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
 			int redirectCount = 0;
@@ -87,7 +85,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				hc.close();
 				hc = (HttpConnection) Connector.open(redir);
 				hc.setRequestMethod("GET");
-				hc.setRequestProperty("User-Agent", downloadUserAgent);
+				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
 			in = hc.openInputStream();

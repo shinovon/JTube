@@ -29,7 +29,7 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 		addCommand(downloadCmd);
 		loadingItem = new StringItem("", "Loading");
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
-		//videoForm.addCommand(browserCmd);
+		//addCommand(browserCmd);
 		if(v.isExtended()) {
 			init();
 		} else {
@@ -54,12 +54,18 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 		t.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
 		append(t);
 		append(video.makeAuthorItem());
+		Item author = new StringItem(null, video.getAuthor());
+		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		append(author);
 		Item vi = new StringItem("Views", "" + video.getViewCount());
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
 		Item ld = new StringItem("Likes / Dislikes", "" + video.getLikeCount() + " / " + video.getDislikeCount());
 		ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(ld);
+		Item date = new StringItem("Published", video.getPublishedText());
+		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		append(date);
 		append(new StringItem("Description", video.getDescription()));
 	}
 
