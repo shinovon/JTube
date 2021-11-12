@@ -1,10 +1,12 @@
+MIDlet-Version: 1.1.0
 MIDlet-Vendor: nnproject
-MIDlet-Version: 1.0.3
 MicroEdition-Configuration: CLDC-1.0
 Nokia-MIDlet-UID-1: 0xAFCE0816
-MIDlet-1: App,/icon.png,App
+Nokia-MIDlet-Category: Application
 MIDlet-Name: App
+MIDlet-1: App,/icon.png,App
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-URL: youtubeapp.jar
 Nokia-Scalable-Icon: /icon.svg
+Nokia-MIDlet-On-Screen-Keypad: no
 Nokia-Scalable-Icon-MIDlet-1: /icon.svg

@@ -6,14 +6,17 @@ public interface Constants {
 	static final String getlinksphp = "http://nnproject.cc/getlinks.php";
 	static final String hproxy = "http://nnproject.cc/hproxy.php?";
 	static final String inv = "http://iteroni.com/";
+	static final String streamphp = "http://nnproject.cc/stream.php";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
 	// Main form commands
-	static final Command settingsCmd = new Command("Settings", Command.SCREEN, 1);
-	static final Command idCmd = new Command("Open by ID", Command.SCREEN, 2);
-	static final Command searchCmd = new Command("Search", Command.SCREEN, 4);
-
+	static final Command settingsCmd = new Command("Settings", Command.SCREEN, 2);
+	static final Command idCmd = new Command("Open by ID", Command.SCREEN, 4);
+	static final Command searchCmd = new Command("Search", Command.SCREEN, 5);
+	static final Command switchToPopular = new Command("Switch to popular", Command.SCREEN, 1);
+	static final Command switchToTrends = new Command("Switch to trends", Command.SCREEN, 1);
+	
 	static final Command searchOkCmd = new Command("Search", Command.OK, 1);
 	static final Command exitCmd = new Command("Exit", Command.EXIT, 2);
 	static final Command goCmd = new Command("Go", Command.OK, 1);
@@ -21,7 +24,7 @@ public interface Constants {
 	static final Command backCmd = new Command("Back", Command.BACK, 1);
 	
 	// Video page commands
-	static final Command watchCmd = new Command("Watch", Command.OK, 1);
+	static final Command watchCmd = new Command("Watch", Command.OK, 3);
 	static final Command downloadCmd = new Command("Download", Command.SCREEN, 2);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);
 	
@@ -31,16 +34,28 @@ public interface Constants {
 	static final Command dlOpenCmd = new Command("Open", Command.OK, 1);
 	static final Command dlCancelCmd = new Command("Cancel", Command.CANCEL, 1);
 	
+	public static Command vOpenCmd = new Command("Open video", Command.ITEM, 3);
+	
 	// Limits
 	static final int TRENDS_LIMIT = 25;
 	static final int SEARCH_LIMIT = 30; 
 	
 	static final String NAME = "";
 	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
+	static final String[] SETTINGS_CHECKS = new String[] { "Video previews", "Channels in search", "Remember search", "HTTP Proxy Streaming" };
 	
 	static final String platform = System.getProperty("microedition.platform");
 	
 	static final String downloadUserAgent = "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	static final String apiUserAgent = "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
+	
+	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,videoThumbnails,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,authorThumbnails,viewCount";
+
+
+	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
+	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;
+	public static final long S40_MEM = 2048 * 1024 * 1024;
+	
+	public static final long startMemory = Runtime.getRuntime().totalMemory();
 
 }

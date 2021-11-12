@@ -9,16 +9,15 @@ import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 
 import App;
+import Constants;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 
-public class VideoModel implements ItemCommandListener, ILoader {
+public class VideoModel implements ItemCommandListener, ILoader, Constants {
 
-	private static final String EXTENDED_FIELDS = "title,videoId,videoThumbnails,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,authorThumbnails,viewCount";
-
-	public static Command openCmd = new Command("Open video", Command.ITEM, 1);
+	
 	
 	private String title;
 	private String videoId;
@@ -38,7 +37,6 @@ public class VideoModel implements ItemCommandListener, ILoader {
 	private JSONArray authorThumbnails;
 
 	private boolean extended;
-
 	private boolean fromSearch;
 
 	private ImageItem authorItem;
@@ -77,16 +75,16 @@ public class VideoModel implements ItemCommandListener, ILoader {
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?fields=" + EXTENDED_FIELDS), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?fields=" + VIDEO_EXTENDED_FIELDS), true);
 		}
 		return this;
 	}
 
 	public ImageItem makeImageItemForList() {
 		//if(imageItem != null) return imageItem;
-		imageItem = new ImageItem(title, img, Item.LAYOUT_CENTER, null);
-		imageItem.addCommand(openCmd);
-		imageItem.setDefaultCommand(openCmd);
+		imageItem = new ImageItem(title, img, Item.LAYOUT_CENTER, null, ImageItem.BUTTON);
+		imageItem.addCommand(vOpenCmd);
+		imageItem.setDefaultCommand(vOpenCmd);
 		imageItem.setItemCommandListener(this);
 		return imageItem;
 	}
@@ -108,6 +106,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 			int h = (int) ((float) w * ((float) img.getHeight() / (float) img.getWidth()));
 			img = ImageUtils.resize(img, w, h);
 			imageItem.setImage(img);
+			videoThumbnails = null;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
@@ -121,6 +120,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 			try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorItem.setImage(Image.createImage(b, 0, b.length));
+			authorThumbnails = null;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
@@ -152,7 +152,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 		int ld = 16384;
 		for(int i = 0; i < authorThumbnails.size(); i++) {
 			JSONObject j = authorThumbnails.getObject(i);
-			int d = Math.abs(32 - j.getInt("width"));
+			int d = Math.abs(VIDEOFORM_AUTHOR_IMAGE_HEIGHT - j.getInt("width"));
 			if (d < ld) {
 				ld = d;
 				s = i;
@@ -162,7 +162,7 @@ public class VideoModel implements ItemCommandListener, ILoader {
 	}
 
 	public void commandAction(Command c, Item item) {
-		if(c == openCmd) {
+		if(c == vOpenCmd) {
 			App.open(this);
 		}
 	}
@@ -242,7 +242,11 @@ public class VideoModel implements ItemCommandListener, ILoader {
 
 	public Item makeAuthorItem() {
 		authorItem = new ImageItem(getAuthor(), null, Item.LAYOUT_LEFT, null);
-		return authorItem;;
+		return authorItem;
+	}
+
+	public boolean isExtended() {
+		return extended;
 	}
 
 }

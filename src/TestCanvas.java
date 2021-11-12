@@ -10,7 +10,9 @@ public class TestCanvas extends Canvas {
 		setFullScreenMode(true);
 	}
 
-	protected void paint(Graphics g) {}
+	protected void paint(Graphics g) {
+		g.drawString("Testing...", 0, 0, 0);
+	}
 	
 	// для того чтобы симбиан поняла что виртуальные кнопки пихать не надо
 	public void pointerDragged(int x, int y) {}

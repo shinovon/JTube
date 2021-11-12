@@ -4,32 +4,29 @@ import java.util.Vector;
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.ImageItem;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
-import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.media.Manager;
 import javax.microedition.media.Player;
 import javax.microedition.midlet.MIDlet;
-import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONException;
 import cc.nnproject.json.JSONObject;
+import models.ChannelModel;
 import models.ILoader;
 import models.VideoModel;
+import ui.Settings;
+import ui.VideoForm;
 
-public class App extends MIDlet implements CommandListener, ItemCommandListener, Constants {
+public class App extends MIDlet implements CommandListener, Constants {
 
 	private static boolean started;
 	
@@ -37,43 +34,36 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 	public static int height;
 	
 	// Settings
-	private static String videoRes;
-	private static String region;
-	private static int watchMethod; // 0 - platform request 1 - mmapi player
-	private static String downloadDir;
-	private static String servergetlinks = getlinksphp;
+	public static String videoRes;
+	public static String region;
+	public static int watchMethod; // 0 - platform request 1 - mmapi player
+	public static String downloadDir;
+	public static String servergetlinks = getlinksphp;
+	public static String serverhttp = streamphp;
+	public static boolean videoPreviews;
+	public static boolean searchChannels;
+	public static boolean rememberSearch;
+	public static boolean httpStream;
+	public static int startScreen; // 0 - Trends 1 - Popular
 	
 	public static App midlet;
 	
-	public Form mainForm;
-	public Form searchForm;
-	public Form settingsForm;
-	private ChoiceGroup videoResChoice;
-	private TextField regionText;
-	private TextField downloadDirText;
+	private Form mainForm;
+	private Form searchForm;
+	public Settings settingsForm;
 	//private TextField searchText;
 	//private StringItem searchBtn;
-	private Form videoForm;
-	private VideoModel video;
-	private PlayerCanvas playerCanv;
-	
+	private VideoForm videoForm;
+	private static PlayerCanvas playerCanv;
+
+	private boolean asyncLoading = true;
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
 	private LoaderThread t2;
-	private boolean asyncLoading = true;
 	public Vector v0;
 	private Vector v1;
 	private Vector v2;
-
-	private TextField serverText;
-
-	private ChoiceGroup checksChoice;
-
-	private boolean videoPreviews;
-
-	private boolean searchChannels;
-
 
 	protected void destroyApp(boolean b) {}
 
@@ -88,14 +78,17 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 			region = System.getProperty("microedition.locale");
 			if(region == null) {
 				region = "US";
+			} else if(region.length() == 5) {
+				region = region.substring(3, 5);
+			} else if(region.length() > 2) {
+				region = region.substring(0, 2);
 			}
-		}
-		if(region.length() > 2) {
+		} else if(region.length() > 2) {
 			region = region.substring(0, 2);
 		}
 		region = region.toUpperCase();
 		v0 = new Vector();
-		if(Runtime.getRuntime().totalMemory() != 2048 * 1024 * 1024 && asyncLoading) {
+		if(startMemory != S40_MEM && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
 			t0 = new LoaderThread(5, lazyLoadLock, v0);
@@ -110,8 +103,12 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		}
 		testCanvas();
 		initForm();
-		loadConfig();
-		loadTrends();
+		Settings.loadConfig();
+		if(startScreen == 0) {
+			loadTrends();
+		} else {
+			loadPopular();
+		}
 	}
 
 	private void testCanvas() {
@@ -122,7 +119,8 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 	}
 
 	private void initForm() {
-		mainForm = new Form(NAME + " - Trends");
+		mainForm = new Form(NAME);
+		
 		/*
 		searchText = new TextField("", "", 256, TextField.ANY);
 		searchText.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_2);
@@ -173,7 +171,26 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 
 	private void loadTrends() {
 		try {
+			mainForm.setTitle(NAME + " - Trends");
 			JSONArray j = (JSONArray) invApi("v1/trending?");
+			for(int i = 0; i < j.size(); i++) {
+				VideoModel v = new VideoModel(j.getObject(i));
+				if(videoPreviews) addAsyncLoad(v);
+				mainForm.append(v.makeImageItemForList());
+				if(i >= TRENDS_LIMIT) break;
+			}
+			notifyAsyncTasks();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadPopular() {
+		try {
+			mainForm.setTitle(NAME + " - Popular");
+			JSONArray j = (JSONArray) invApi("v1/popular?");
 			for(int i = 0; i < j.size(); i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
@@ -257,7 +274,6 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 				other = o;
 			}
 		}
-		System.out.println("preferred video res: " + res);
 		JSONObject o = null;
 		if(res == null) {
 			if(_360 != null) {
@@ -297,50 +313,30 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		return o;
 	}
 
-	private void openVideo(VideoModel v) {
-		video = v;
-		videoForm = new Form(v.getTitle());
-		videoForm.setCommandListener(this);
-		videoForm.addCommand(backCmd);
-		videoForm.addCommand(downloadCmd);
-		//videoForm.addCommand(browserCmd);
-		display(videoForm);
-		try {
-			v.extend();
-		} catch (Exception e) {
-			msg(e.toString());
+	public static String getVideoLink(String id, String res) throws JSONException, IOException {
+		JSONObject o = getVideoInfo(id, res);
+		String s = o.getString("url");
+		if(httpStream) {
+			s = serverhttp + "?url=" + Util.url(s);
 		}
-		ImageItem img = v.makeImageItemForPage();
-		img.addCommand(watchCmd);
-		img.setDefaultCommand(watchCmd);
-		img.setItemCommandListener(this);
-		videoForm.append(img);
-		Item t = new StringItem(null, v.getTitle());
-		t.setLayout(Item.LAYOUT_LEFT);
-		videoForm.append(t);
-		videoForm.append(v.makeAuthorItem());
-		stopDoingAsyncTasks();
-		addAsyncLoad(v);
-		Item vi = new StringItem("Views", "" + v.getViewCount());
-		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
-		videoForm.append(vi);
-		Item ld = new StringItem("Likes / Dislikes", "" + v.getLikeCount() + " / " + v.getDislikeCount());
-		ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
-		videoForm.append(ld);
-		videoForm.append(new StringItem("Description", v.getDescription()));
-		notifyAsyncTasks();
+		return s;
+	}
+
+	private void openVideo(VideoModel v) {
+		videoForm = new VideoForm(v);
+		display(videoForm);
+		videoForm.queueLoad();
 	}
 	
-	private void download(final String id) {
-		Downloader d = new Downloader(id, videoRes, videoForm, downloadDir);
+	public static void download(final String id) {
+		Downloader d = new Downloader(id, videoRes, midlet.videoForm, downloadDir);
 		d.start();
 	}
 	
-	public void watch(String id) {
-		// TODO
+	public static void watch(String id) {
+		// TODO other variants
 		try {
-			JSONObject o = getVideoInfo(id, videoRes);
-			String url = o.getString("url");
+			String url = getVideoLink(id, videoRes);
 			switch(watchMethod) {
 			case 0: {
 				platReq(url);
@@ -364,7 +360,7 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		midlet.platformRequest(s);
 	}
 	
-	private void addAsyncLoad(ILoader v) {
+	void addAsyncLoad(ILoader v) {
 		synchronized(lazyLoadLock) {
 			if(v1 == null) {
 				v0.addElement(v);
@@ -383,13 +379,13 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		}
 	}
 	
-	private void notifyAsyncTasks() {
+	void notifyAsyncTasks() {
 		synchronized(lazyLoadLock) {
 			lazyLoadLock.notifyAll();
 		}
 	}
 
-	private void stopDoingAsyncTasks() {
+	void stopDoingAsyncTasks() {
 		synchronized(lazyLoadLock) {
 			if(t0 != null) t0.pleaseInterrupt();
 			if(t1 != null) t1.pleaseInterrupt();
@@ -405,10 +401,14 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 	}
 	
 	public static void display(Displayable d) {
+		if(d == null) d = midlet.mainForm;
 		Display.getDisplay(midlet).setCurrent(d);
 	}
 
 	public static void open(VideoModel v) {
+		if(v.isFromSearch() && !rememberSearch) {
+			midlet.disposeSearchForm();
+		}
 		midlet.openVideo(v);
 	}
 
@@ -418,39 +418,10 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		}
 		if(c == settingsCmd) {
 			if(settingsForm == null) {
-				settingsForm = new Form("Settings");
-				settingsForm.addCommand(backCmd);
-				settingsForm.setCommandListener(this);
-				videoResChoice = new ChoiceGroup("Preferred video quality", ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
-				settingsForm.append(videoResChoice);
-				regionText = new TextField("Country code (ISO 3166)", region, 3, TextField.ANY);
-				settingsForm.append(regionText);
-				checksChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, new String[] { "Video previews", "Channels in search" }, null);
-				settingsForm.append(checksChoice);
-				downloadDirText = new TextField("Download directory", downloadDir, 256, TextField.ANY);
-				settingsForm.append(downloadDirText);
-				serverText = new TextField("Get Links PHP server", servergetlinks, 256, TextField.URL);
-				settingsForm.append(serverText);
+				settingsForm = new Settings();
 			}
 			display(settingsForm);
-			checksChoice.setSelectedIndex(0, videoPreviews);
-			checksChoice.setSelectedIndex(1, searchChannels);
-			if(videoRes == null) {
-				videoResChoice.setSelectedIndex(1, true);
-			} else if(videoRes.equals("144p")) {
-				videoResChoice.setSelectedIndex(0, true);
-			} else if(videoRes.equals("360p")) {
-				videoResChoice.setSelectedIndex(1, true);
-			} else if(videoRes.equals("720p")) {
-				videoResChoice.setSelectedIndex(2, true);
-			}
-		}
-		if(c == backCmd && d == settingsForm) {
-			saveConfig();
-			display(mainForm);
-		}
-		if(c == watchCmd) {
-			watch(video.getVideoId());
+			settingsForm.show();
 		}
 		if(c == searchCmd && d instanceof Form) {
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
@@ -468,9 +439,6 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 			t.addCommand(cancelCmd);
 			display(t);
 		}
-		if(c == downloadCmd) {
-			download(video.getVideoId());
-		}
 		/*if(c == browserCmd) {
 			try {
 				platReq(getVideoInfo(video.getVideoId(), videoRes).getString("url"));
@@ -486,14 +454,6 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 			display(mainForm);
 			disposeSearchForm();
 		}
-		if(c == backCmd && d == videoForm) {
-			if(video.isFromSearch()) {
-				display(searchForm);
-			} else {
-				display(mainForm);
-			}
-			disposeVideoForm();
-		}
 		if(c == goCmd && d instanceof TextBox) {
 			openVideo(((TextBox) d).getString());
 		}
@@ -502,76 +462,9 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		}
 	}
 
-	private void loadConfig() {
-		// Defaults
-		videoRes = "360p";
-		downloadDir = System.getProperty("fileconn.dir.videos");
-		if(downloadDir == null)
-			downloadDir = System.getProperty("fileconn.dir.photos");
-		if(downloadDir == null)
-			downloadDir = "C:/";
-		if(downloadDir.startsWith("file:///"))
-			downloadDir = downloadDir.substring("file:///".length());
-		try {
-			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
-			JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
-			r.closeRecordStore();
-			if(j.has("videoRes"))
-				videoRes = j.getString("videoRes");
-			if(j.has("region"))
-				region = j.getString("region");
-			if(j.has("downloadDir"))
-				downloadDir = j.getString("downloadDir");
-			if(j.has("servergetlinks"))
-				servergetlinks = j.getString("servergetlinks");
-			if(j.has("videoPreviews"))
-				videoPreviews = j.getBoolean("videoPreviews");
-			if(j.has("searchChannels"))
-				searchChannels = j.getBoolean("searchChannels");
-			return;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	private void saveConfig() {
-		if(videoResChoice.getSelectedIndex() == 0) {
-			videoRes = "144p";
-		} else if(videoResChoice.getSelectedIndex() == 1) {
-			videoRes = "360p";
-		} else if(videoResChoice.getSelectedIndex() == 2) {
-			videoRes = "720p";
-		}
-		region = regionText.getString();
-		downloadDir = downloadDirText.getString();
-		servergetlinks = serverText.getString();
-		videoPreviews = checksChoice.isSelected(0);
-		searchChannels = checksChoice.isSelected(1);
-		try {
-			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
-		} catch (Exception e) {
-		}
-		try {
-			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
-			JSONObject j = new JSONObject();
-			j.put("v", "v1");
-			j.put("videoRes", videoRes);
-			j.put("region", region);
-			j.put("downloadDir", downloadDir);
-			j.put("servergetlinks", servergetlinks);
-			j.put("videoPreviews", new Boolean(videoPreviews));
-			j.put("searchChannels", new Boolean(searchChannels));
-			byte[] b = j.build().getBytes("UTF-8");
-			
-			r.addRecord(b, 0, b.length);
-			r.closeRecordStore();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
-	private void disposeVideoForm() {
-		video.disposeExtendedVars();
-		video = null;
+	public void disposeVideoForm() {
+		videoForm.dispose();
 		videoForm = null;
 	}
 
@@ -579,9 +472,18 @@ public class App extends MIDlet implements CommandListener, ItemCommandListener,
 		searchForm = null;
 	}
 
-	public void commandAction(Command c, Item item) {
-		if(c == watchCmd) {
-			watch(video.getVideoId());
+	public static void pageOpen(VideoForm vf) {
+		App app = App.midlet;
+		app.stopDoingAsyncTasks();
+		app.addAsyncLoad(vf);
+		app.notifyAsyncTasks();
+	}
+
+	public static void back(VideoForm vf) {
+		if(vf.getVideo().isFromSearch() && midlet.searchForm != null) {
+			App.display(midlet.searchForm);
+		} else {
+			App.display(midlet.mainForm);
 		}
 	}
 

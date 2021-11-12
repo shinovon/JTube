@@ -46,8 +46,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			file = file + id + ".mp4";
 			info(id + ".mp4");
 			
-			JSONObject o = App.getVideoInfo(id, res);
-			String url = o.getString("url");
+			String url = App.getVideoLink(id, res);
 			// подождать
 			Thread.sleep(500);
 			info("Connecting", 0);

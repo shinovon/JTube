@@ -10,6 +10,11 @@ public class Util implements Constants {
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
 			throw new IllegalArgumentException("URL is null");
+		/*boolean isLoader = Thread.currentThread() instanceof LoaderThread;
+		LoaderThread il = null;
+		if(isLoader) {
+			il = (LoaderThread) Thread.currentThread();
+		}*/
 		ByteArrayOutputStream o = null;
 		HttpConnection hc = null;
 		DataInputStream i = null;
@@ -18,7 +23,7 @@ public class Util implements Constants {
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", apiUserAgent);
 			int r = hc.getResponseCode();
-			if (r == 301) {
+			if (r == 301 || r == 302) {
 				String redir = hc.getHeaderField("Location");
 				if (redir.startsWith("/")) {
 					String tmp = url.substring(url.indexOf("//") + 2);
