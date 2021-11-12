@@ -164,7 +164,6 @@ public class App extends MIDlet implements CommandListener, Constants {
 		if(!s.endsWith("?")) s = s.concat("&");
 		s = s.concat("region=" + region);
 		s = Util.getUtf(inv + "api/" + s);
-		System.out.println("Res: " + s);
 		AbstractJSON res;
 		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
@@ -239,6 +238,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 				if(searchChannels && type.equals("channel")) {
 					ChannelModel c = new ChannelModel(o);
 					c.setFromSearch();
+					if(videoPreviews) addAsyncLoad(c);
 					searchForm.append(c.makeItemForList());
 				}
 				if(i >= SEARCH_LIMIT) break;

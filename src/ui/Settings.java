@@ -72,7 +72,7 @@ public class Settings extends Form implements Constants, CommandListener {
 		if(lowEnd) {
 			App.httpStream = true;
 			App.rememberSearch = false;
-			App.searchChannels = false;
+			App.searchChannels = true;
 			App.videoPreviews = false;
 			//if(isS40()) App.apiProxy = true;
 		} else {

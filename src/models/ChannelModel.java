@@ -97,7 +97,7 @@ public class ChannelModel implements ILoader, Constants, ItemCommandListener {
 			img = Image.createImage(b, 0, b.length);
 			item.setImage(img);
 			authorThumbnails = null;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
