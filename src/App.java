@@ -245,6 +245,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		searchForm.setCommandListener(this);
 		searchForm.addCommand(backCmd);
 		display(searchForm);
+		stopDoingAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + (searchChannels ? "&type=all" : ""));
 			for(int i = 0; i < j.size(); i++) {
@@ -462,6 +463,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 			settingsForm.show();
 		}
 		if(c == searchCmd && d instanceof Form) {
+			stopDoingAsyncTasks();
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
 			t.setCommandListener(this);
 			t.setTitle("Search");
@@ -470,6 +472,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 			display(t);
 		}
 		if(c == idCmd && d instanceof Form) {
+			stopDoingAsyncTasks();
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
 			t.setCommandListener(this);
 			t.setTitle("Video URL or ID");
@@ -563,6 +566,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 	public static void openChannel(ChannelModel c) {
 		channelForm = new ChannelForm(c);
 		display(channelForm);
+		midlet.stopDoingAsyncTasks();
 	}
 
 }
