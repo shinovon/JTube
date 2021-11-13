@@ -27,6 +27,8 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 		setCommandListener(this);
 		addCommand(backCmd);
 		addCommand(downloadCmd);
+		addCommand(settingsCmd);
+		addCommand(watchCmd);
 		loadingItem = new StringItem("", "Loading");
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
 		//addCommand(browserCmd);
@@ -45,13 +47,12 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 		} catch (Exception e) {
 		}
 		if(App.videoPreviews) {
+			removeCommand(watchCmd);
 			ImageItem img = video.makeImageItemForPage();
 			img.addCommand(watchCmd);
 			img.setDefaultCommand(watchCmd);
 			img.setItemCommandListener(this);
 			append(img);
-		} else {
-			addCommand(watchCmd);
 		}
 		Item t = new StringItem(null, video.getTitle());
 		t.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
@@ -88,17 +89,21 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 		}
 	}
 
-	public void commandAction(Command c, Displayable arg1) {
+	public void commandAction(Command c, Displayable d) {
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());
+			return;
 		}
 		if(c == downloadCmd) {
 			App.download(video.getVideoId());
+			return;
 		}
 		if(c == backCmd) {
 			App.back(this);
 			app.disposeVideoForm();
+			return;
 		}
+		App.midlet.commandAction(c, d);
 	}
 
 	public void commandAction(Command c, Item arg1) {

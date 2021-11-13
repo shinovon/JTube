@@ -189,6 +189,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 
 	private void loadTrends() {
+		stopDoingAsyncTasks();
 		mainForm.addCommand(switchToPopularCmd);
 		try {
 			mainForm.setTitle(NAME + " - Trends");
@@ -215,6 +216,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	private void loadPopular() {
+		stopDoingAsyncTasks();
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
 			mainForm.setTitle(NAME + " - Popular");
@@ -244,6 +246,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		searchForm = new Form(NAME + " - Search query");
 		searchForm.setCommandListener(this);
 		searchForm.addCommand(backCmd);
+		searchForm.addCommand(settingsCmd);
 		display(searchForm);
 		stopDoingAsyncTasks();
 		try {
@@ -440,7 +443,15 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	public static void display(Displayable d) {
-		if(d == null) d = midlet.mainForm;
+		if(d == null) {
+			if(midlet.videoForm != null) {
+				d = midlet.videoForm;
+			} else if(midlet.searchForm != null) {
+				d = midlet.searchForm;
+			} else {
+				d = midlet.mainForm;
+			}
+		}
 		Display.getDisplay(midlet).setCurrent(d);
 	}
 

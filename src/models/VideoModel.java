@@ -59,6 +59,8 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 		title = j.getNullableString("title");
 		if(App.videoPreviews) {
 			videoThumbnails = j.getNullableArray("videoThumbnails");
+			if(extended)
+				author = j.getNullableString("author");
 		} else {
 			author = j.getNullableString("author");
 		}
@@ -258,7 +260,7 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 			i.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
 			return i;
 		}
-		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT, null);
+		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE, null);
 		return authorItem;
 	}
 

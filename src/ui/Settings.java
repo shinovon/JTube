@@ -12,6 +12,7 @@ import App;
 import Constants;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
+import ru.nnproject.utils.PlatformUtils;
 
 public class Settings extends Form implements Constants, CommandListener {
 	
@@ -24,7 +25,7 @@ public class Settings extends Form implements Constants, CommandListener {
 
 	public Settings() {
 		super("Settings");
-		addCommand(backCmd);
+		addCommand(applyCmd);
 		setCommandListener(this);
 		videoResChoice = new ChoiceGroup("Preferred video quality", ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
 		append(videoResChoice);
@@ -76,7 +77,7 @@ public class Settings extends Form implements Constants, CommandListener {
 			App.videoPreviews = false;
 			//if(isS40()) App.apiProxy = true;
 		} else {
-			if(isNotS60() && !isS603rd()) {
+			if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
 				App.httpStream = true;
 				App.asyncLoading = true;
 			}
@@ -173,42 +174,14 @@ public class Settings extends Form implements Constants, CommandListener {
 	}
 
 	public void commandAction(Command c, Displayable arg1) {
-		if(c == backCmd) {
+		if(c == applyCmd) {
 			applySettings();
 			App.display(null);
 		}
 	}
 	
-	private static boolean isS60PlatformVersion(String v) {
-		return platform.indexOf("platform_version=" + v) > -1;
-	}
-	
 	public static boolean isLowEndDevice() {
-		return isNotS60() && (startMemory == S40_MEM || App.width < 240);
-	}
-	
-	public static boolean isNotS60() {
-		return platform.indexOf("S60") < 0;
-	}
-	
-	public static boolean isSymbian3() {
-		return !isNotS60() && (isS60PlatformVersion("5.1") || isS60PlatformVersion("5.2") || isS60PlatformVersion("5.3") || isS60PlatformVersion("5.4") || isS60PlatformVersion("5.5"));
-	}
-	
-	public static boolean isSymbian94() {
-		return !isNotS60() && isS60PlatformVersion("5.0");
-	}
-	
-	public static boolean isS603rd() {
-		return isS60PlatformVersion("3") || platform.startsWith("NokiaN73") || platform.startsWith("NokiaN95") || platform.startsWith("NokiaE90") || 
-				platform.startsWith("NokiaN93") || platform.startsWith("NokiaN82") || platform.startsWith("NokiaE71") || 
-				platform.startsWith("NokiaE70") || platform.startsWith("NokiaN80") || platform.startsWith("NokiaE63") || 
-				platform.startsWith("NokiaE66") || platform.startsWith("NokiaE51") || platform.startsWith("NokiaE50") || 
-				platform.startsWith("NokiaE65") || platform.startsWith("NokiaE61") || platform.startsWith("NokiaE60");
-	}
-
-	public static boolean isS40() {
-		return isNotS60() && platform.startsWith("Nokia") && startMemory == S40_MEM;
+		return PlatformUtils.isNotS60() && (PlatformUtils.isS40() || App.width < 240);
 	}
 
 }

@@ -22,10 +22,12 @@ public class ChannelForm extends Form implements Constants, CommandListener {
 		this.channel = c;
 	}
 
-	public void commandAction(Command c, Displayable arg1) {
+	public void commandAction(Command c, Displayable d) {
 		if(c == backCmd) {
 			App.back(this);
+			return;
 		}
+		App.midlet.commandAction(c, d);
 	}
 
 	public ChannelModel getChannel() {

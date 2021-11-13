@@ -1,7 +1,5 @@
 package models;
 
-import java.io.IOException;
-
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;

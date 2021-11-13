@@ -1,6 +1,6 @@
 import javax.microedition.lcdui.Command;
 
-import ui.Settings;
+import ru.nnproject.utils.PlatformUtils;
 
 public interface Constants {
 	
@@ -12,8 +12,6 @@ public interface Constants {
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
-	public static final String platform = System.getProperty("microedition.platform");
-	public static final long startMemory = Runtime.getRuntime().totalMemory();
 	
 	// Main form commands
 	static final Command settingsCmd = new Command("Settings", Command.SCREEN, 2);
@@ -27,6 +25,8 @@ public interface Constants {
 	static final Command goCmd = new Command("Go", Command.OK, 1);
 	static final Command cancelCmd = new Command("Cancel", Command.CANCEL, 2);
 	static final Command backCmd = new Command("Back", Command.BACK, 1);
+	
+	static final Command applyCmd = new Command("Apply", Command.BACK, 1);
 	
 	// Video page commands
 	static final Command watchCmd = new Command("Watch", Command.OK, 3);
@@ -46,21 +46,20 @@ public interface Constants {
 	static final int SEARCH_LIMIT_S60 = 30; 
 	static final int TRENDS_LIMIT_LOWEND = 20;
 	static final int SEARCH_LIMIT_LOWEND = 25; 
-	static final int TRENDS_LIMIT = Settings.isNotS60() ? TRENDS_LIMIT_LOWEND : TRENDS_LIMIT_S60;
-	static final int SEARCH_LIMIT = Settings.isNotS60() ? SEARCH_LIMIT_LOWEND : SEARCH_LIMIT_S60;
+	static final int TRENDS_LIMIT = PlatformUtils.isNotS60() ? TRENDS_LIMIT_LOWEND : TRENDS_LIMIT_S60;
+	static final int SEARCH_LIMIT = PlatformUtils.isNotS60() ? SEARCH_LIMIT_LOWEND : SEARCH_LIMIT_S60;
 	
 	static final String NAME = "Unnamed";
 	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
 	static final String[] SETTINGS_CHECKS = new String[] { "Video previews", "Channels in search", "Remember search", "HTTP Proxy Streaming" };
 	
-	static final String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
+	public static String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	
 	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,videoThumbnails,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,authorThumbnails,viewCount";
 	static final String TRENDING_FIELDS = "title,videoId,author";
 	
 	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
 	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;
-	public static final long S40_MEM = 2048 * 1024;
 	
 
 }
