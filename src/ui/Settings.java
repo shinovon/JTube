@@ -12,7 +12,7 @@ import App;
 import Constants;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
-import ru.nnproject.utils.PlatformUtils;
+import cc.nnproject.utils.PlatformUtils;
 
 public class Settings extends Form implements Constants, CommandListener {
 	

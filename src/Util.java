@@ -113,4 +113,18 @@ public class Util implements Constants {
 		return "%" + (s.length() < 2 ? "0" : "") + s;
 	}
 
+	public static String replace(String str, String from, String to) {
+		int j = str.indexOf(from);
+		if (j == -1)
+			return str;
+		final StringBuffer sb = new StringBuffer();
+		int k = 0;
+		for (int i = from.length(); j != -1; j = str.indexOf(from, k)) {
+			sb.append(str.substring(k, j)).append(to);
+			k = j + i;
+		}
+		sb.append(str.substring(k, str.length()));
+		return sb.toString();
+	}
+
 }

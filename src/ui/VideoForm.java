@@ -1,8 +1,8 @@
 package ui;
+
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
@@ -10,12 +10,12 @@ import javax.microedition.lcdui.StringItem;
 
 import App;
 import Constants;
-import models.ILoader;
+import models.AbstractModel;
 import models.VideoModel;
 
-public class VideoForm extends Form implements CommandListener, ItemCommandListener, ILoader, Constants {
+public class VideoForm extends ModelForm implements CommandListener, ItemCommandListener, Constants {
 
-	private static App app = App.midlet;
+	private static App app = App.inst;
 	
 	private VideoModel video;
 
@@ -73,10 +73,6 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 		append(new StringItem("Description", video.getDescription()));
 	}
 
-	public void queueLoad() {
-		App.pageOpen(this);
-	}
-
 	public void load() {
 		try {
 			if(!video.isExtended()) {
@@ -103,7 +99,7 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 			app.disposeVideoForm();
 			return;
 		}
-		App.midlet.commandAction(c, d);
+		App.inst.commandAction(c, d);
 	}
 
 	public void commandAction(Command c, Item arg1) {
@@ -119,6 +115,10 @@ public class VideoForm extends Form implements CommandListener, ItemCommandListe
 
 	public VideoModel getVideo() {
 		return video;
+	}
+
+	public AbstractModel getModel() {
+		return getVideo();
 	}
 
 }

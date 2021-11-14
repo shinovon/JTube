@@ -1,4 +1,4 @@
-package ru.nnproject.utils;
+package cc.nnproject.utils;
 
 public class PlatformUtils {
 

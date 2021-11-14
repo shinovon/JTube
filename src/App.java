@@ -22,16 +22,16 @@ import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONException;
 import cc.nnproject.json.JSONObject;
+import cc.nnproject.ytapp.App2;
+import models.AbstractModel;
 import models.ChannelModel;
 import models.ILoader;
 import models.VideoModel;
-import ui.ChannelForm;
+import ui.ModelForm;
 import ui.Settings;
 import ui.VideoForm;
 
-public class App extends MIDlet implements CommandListener, Constants {
-
-	private static boolean started;
+public class App implements CommandListener, Constants {
 	
 	public static int width;
 	public static int height;
@@ -49,7 +49,8 @@ public class App extends MIDlet implements CommandListener, Constants {
 	public static int startScreen = 0; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
 	
-	public static App midlet;
+	public static App inst;
+	public static App2 midlet;
 	
 	private Form mainForm;
 	private Form searchForm;
@@ -61,7 +62,6 @@ public class App extends MIDlet implements CommandListener, Constants {
 
 	public static boolean asyncLoading;
 
-	private static ChannelForm channelForm;
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
@@ -72,14 +72,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 
 	private Item loadingItem;
 
-	protected void destroyApp(boolean b) {}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) return;
-		midlet = this;
-		started = true;
+	public void startApp() {
 		region = System.getProperty("user.country");
 		if(region == null) {
 			region = System.getProperty("microedition.locale");
@@ -134,13 +127,6 @@ public class App extends MIDlet implements CommandListener, Constants {
 		}
 	}
 
-	private void testCanvas() {
-		Canvas c = new TestCanvas();
-		display(c);
-		width = c.getWidth();
-		height = c.getHeight();
-	}
-
 	private void initForm() {
 		mainForm = new Form(NAME);
 		
@@ -163,7 +149,6 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("//")) return Util.get("http:" + s);
 		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
 		return Util.get(hproxy + Util.url(s));
 	}
@@ -189,7 +174,6 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 
 	private void loadTrends() {
-		stopDoingAsyncTasks();
 		mainForm.addCommand(switchToPopularCmd);
 		try {
 			mainForm.setTitle(NAME + " - Trends");
@@ -216,7 +200,6 @@ public class App extends MIDlet implements CommandListener, Constants {
 	}
 	
 	private void loadPopular() {
-		stopDoingAsyncTasks();
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
 			mainForm.setTitle(NAME + " - Popular");
@@ -247,6 +230,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		searchForm.setCommandListener(this);
 		searchForm.addCommand(backCmd);
 		searchForm.addCommand(settingsCmd);
+		searchForm.addCommand(searchCmd);
 		display(searchForm);
 		stopDoingAsyncTasks();
 		try {
@@ -287,7 +271,7 @@ public class App extends MIDlet implements CommandListener, Constants {
 		if(id.startsWith(www)) id = id.substring(www.length());
 		if(id.startsWith(watch)) id = id.substring(watch.length());
 		try {
-			openVideo(new VideoModel(id).extend());
+			open(new VideoModel(id).extend());
 		} catch (Exception e) {
 			msg(e.toString());
 		}
@@ -364,14 +348,30 @@ public class App extends MIDlet implements CommandListener, Constants {
 		return s;
 	}
 
-	private void openVideo(VideoModel v) {
-		videoForm = new VideoForm(v);
-		display(videoForm);
-		videoForm.queueLoad();
+	public static void open(AbstractModel model) {
+		if(model.isFromSearch() && !rememberSearch) {
+			inst.disposeSearchForm();
+		}
+		inst.stopDoingAsyncTasks();
+		ModelForm form = model.makeForm();
+		display(form);
+		App app = inst;
+		if(form instanceof VideoForm) {
+			app.videoForm = (VideoForm) form;
+		}
+		gc();
+		try {
+			app.stopDoingAsyncTasks();
+			Thread.sleep(150);
+			app.addAsyncLoad(form);
+			app.notifyAsyncTasks();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void download(final String id) {
-		Downloader d = new Downloader(id, videoRes, midlet.videoForm, downloadDir);
+		Downloader d = new Downloader(id, videoRes, inst.videoForm, downloadDir);
 		d.start();
 	}
 	
@@ -396,6 +396,121 @@ public class App extends MIDlet implements CommandListener, Constants {
 			e.printStackTrace();
 			msg(e.toString());
 		}
+	}
+
+	public static void back(Form f) {
+		if(f instanceof ModelForm && ((ModelForm)f).getModel().isFromSearch() && inst.searchForm != null) {
+			App.display(inst.searchForm);
+		} else {
+			App.display(inst.mainForm);
+		}
+	}
+
+	public void commandAction(Command c, Displayable d) {
+		if(c == exitCmd) {
+			midlet.notifyDestroyed();
+		}
+		if(c == settingsCmd) {
+			if(settingsForm == null) {
+				settingsForm = new Settings();
+			}
+			display(settingsForm);
+			settingsForm.show();
+		}
+		if(c == searchCmd && d instanceof Form) {
+			stopDoingAsyncTasks();
+			if(searchCmd != null) {
+				disposeSearchForm();
+			}
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle("Search");
+			t.addCommand(searchOkCmd);
+			t.addCommand(cancelCmd);
+			display(t);
+		}
+		if(c == idCmd && d instanceof Form) {
+			stopDoingAsyncTasks();
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle("Video URL or ID");
+			t.addCommand(goCmd);
+			t.addCommand(cancelCmd);
+			display(t);
+		}
+		/*if(c == browserCmd) {
+			try {
+				platReq(getVideoInfo(video.getVideoId(), videoRes).getString("url"));
+			} catch (Exception e) {
+				e.printStackTrace();
+				msg(e.toString());
+			}
+		}*/
+		if(c == cancelCmd && d instanceof TextBox) {
+			display(mainForm);
+		}
+		if(c == backCmd && d == searchForm) {
+			stopDoingAsyncTasks();
+			display(mainForm);
+			disposeSearchForm();
+		}
+		if(c == goCmd && d instanceof TextBox) {
+			openVideo(((TextBox) d).getString());
+		}
+		if(c == searchOkCmd && d instanceof TextBox) {
+			search(((TextBox) d).getString());
+		}
+		if(c == switchToPopularCmd) {
+			startScreen = 1;
+			stopDoingAsyncTasks();
+			mainForm.deleteAll();
+			d.removeCommand(c);
+			loadPopular();
+			Settings.saveConfig();
+		}
+		if(c == switchToTrendsCmd) {
+			startScreen = 0;
+			stopDoingAsyncTasks();
+			mainForm.deleteAll();
+			d.removeCommand(c);
+			loadTrends();
+			Settings.saveConfig();
+		}
+	}
+
+	public static void msg(String s) {
+		Alert a = new Alert("", s, null, null);
+		a.setTimeout(-2);
+		display(a);
+	}
+	
+	public static void display(Displayable d) {
+		if(d == null) {
+			if(inst.videoForm != null) {
+				d = inst.videoForm;
+			} else if(inst.searchForm != null) {
+				d = inst.searchForm;
+			} else {
+				d = inst.mainForm;
+			}
+		}
+		Display.getDisplay(midlet).setCurrent(d);
+	}
+
+	public void disposeVideoForm() {
+		videoForm.dispose();
+		videoForm = null;
+		gc();
+	}
+	
+	public static void gc() {
+		System.gc();
+	}
+
+	private void disposeSearchForm() {
+		searchForm.deleteAll();
+		searchForm = null;
+		gc();
 	}
 	
 	public static void platReq(String s) throws ConnectionNotFoundException {
@@ -436,148 +551,25 @@ public class App extends MIDlet implements CommandListener, Constants {
 		}
 	}
 
-	public static void msg(String s) {
-		Alert a = new Alert("", s, null, null);
-		a.setTimeout(-2);
-		display(a);
+	private void testCanvas() {
+		Canvas c = new TestCanvas();
+		display(c);
+		width = c.getWidth();
+		height = c.getHeight();
 	}
 	
-	public static void display(Displayable d) {
-		if(d == null) {
-			if(midlet.videoForm != null) {
-				d = midlet.videoForm;
-			} else if(midlet.searchForm != null) {
-				d = midlet.searchForm;
-			} else {
-				d = midlet.mainForm;
+	public static String getThumbUrl(JSONArray arr, int tw) {
+		int s = 0;
+		int ld = 16384;
+		for(int i = 0; i < arr.size(); i++) {
+			JSONObject j = arr.getObject(i);
+			int d = Math.abs(tw - j.getInt("width"));
+			if (d < ld) {
+				ld = d;
+				s = i;
 			}
 		}
-		Display.getDisplay(midlet).setCurrent(d);
-	}
-
-	public static void open(VideoModel v) {
-		if(v.isFromSearch() && !rememberSearch) {
-			midlet.disposeSearchForm();
-		}
-		midlet.openVideo(v);
-	}
-
-	public void commandAction(Command c, Displayable d) {
-		if(c == exitCmd) {
-			notifyDestroyed();
-		}
-		if(c == settingsCmd) {
-			if(settingsForm == null) {
-				settingsForm = new Settings();
-			}
-			display(settingsForm);
-			settingsForm.show();
-		}
-		if(c == searchCmd && d instanceof Form) {
-			stopDoingAsyncTasks();
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle("Search");
-			t.addCommand(searchOkCmd);
-			t.addCommand(cancelCmd);
-			display(t);
-		}
-		if(c == idCmd && d instanceof Form) {
-			stopDoingAsyncTasks();
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle("Video URL or ID");
-			t.addCommand(goCmd);
-			t.addCommand(cancelCmd);
-			display(t);
-		}
-		/*if(c == browserCmd) {
-			try {
-				platReq(getVideoInfo(video.getVideoId(), videoRes).getString("url"));
-			} catch (Exception e) {
-				e.printStackTrace();
-				msg(e.toString());
-			}
-		}*/
-		if(c == cancelCmd && d instanceof TextBox) {
-			display(mainForm);
-		}
-		if(c == backCmd && d == searchForm) {
-			display(mainForm);
-			disposeSearchForm();
-		}
-		if(c == goCmd && d instanceof TextBox) {
-			openVideo(((TextBox) d).getString());
-		}
-		if(c == searchOkCmd && d instanceof TextBox) {
-			search(((TextBox) d).getString());
-		}
-		if(c == switchToPopularCmd) {
-			startScreen = 1;
-			mainForm.deleteAll();
-			d.removeCommand(c);
-			loadPopular();
-			Settings.saveConfig();
-		}
-		if(c == switchToTrendsCmd) {
-			startScreen = 0;
-			mainForm.deleteAll();
-			d.removeCommand(c);
-			loadTrends();
-			Settings.saveConfig();
-		}
-	}
-
-
-	public void disposeVideoForm() {
-		videoForm.dispose();
-		videoForm = null;
-		gc();
-	}
-	
-	public static void gc() {
-		System.gc();
-	}
-
-	private void disposeSearchForm() {
-		searchForm = null;
-		gc();
-	}
-
-	public static void pageOpen(VideoForm vf) {
-		gc();
-		App app = App.midlet;
-		try {
-			app.stopDoingAsyncTasks();
-			Thread.sleep(150);
-			app.addAsyncLoad(vf);
-			app.notifyAsyncTasks();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void back(VideoForm vf) {
-		if(vf.getVideo().isFromSearch() && midlet.searchForm != null) {
-			App.display(midlet.searchForm);
-		} else {
-			App.display(midlet.mainForm);
-		}
-	}
-
-	public static void back(ChannelForm cf) {
-		if(cf.getChannel().isFromSearch() && midlet.searchForm != null) {
-			App.display(midlet.searchForm);
-		} else {
-			App.display(midlet.mainForm);
-		}
-		
-	}
-
-	public static void openChannel(ChannelModel c) {
-		channelForm = new ChannelForm(c);
-		display(channelForm);
-		midlet.stopDoingAsyncTasks();
+		return arr.getObject(s).getString("url");
 	}
 
 }

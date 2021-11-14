@@ -10,13 +10,14 @@ import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 
 import App;
-import Constants;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
+import ui.ModelForm;
+import ui.VideoForm;
 
-public class VideoModel implements ItemCommandListener, ILoader, Constants {
+public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader {
 
 	private String title;
 	private String videoId;
@@ -30,7 +31,8 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 	private int likeCount;
 	private int dislikeCount;
 
-	private JSONArray videoThumbnails;
+	private String thumbnailUrl;
+	private int imageWidth;
 	private ImageItem imageItem;
 	private Image img;
 	private JSONArray authorThumbnails;
@@ -57,24 +59,29 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 		this.extended = extended;
 		videoId = j.getString("videoId");
 		title = j.getNullableString("title");
+		JSONArray videoThumbnails = null;
 		if(App.videoPreviews) {
 			videoThumbnails = j.getNullableArray("videoThumbnails");
-			if(extended)
-				author = j.getNullableString("author");
-		} else {
-			author = j.getNullableString("author");
 		}
+		author = j.getNullableString("author");
+		authorId = j.getNullableString("authorId");
 		if(extended) {
 			viewCount = j.getInt("viewCount", 0);
 			//lengthSeconds = j.getInt("lengthSeconds", 0);
 			
 			description = j.getNullableString("description");
-			authorId = j.getNullableString("authorId");
 			//published = j.getLong("published", 0);
 			publishedText = j.getNullableString("publishedText");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
 			if(App.videoPreviews) authorThumbnails = j.getNullableArray("authorThumbnails");
+		}
+		// это сделает парс дольше но сэкономит память
+		if(videoThumbnails != null) {
+			imageWidth = getPreferredWidth();
+			if (imageWidth <= 0) imageWidth = 220;
+			thumbnailUrl = App.getThumbUrl(videoThumbnails, imageWidth);
+			videoThumbnails = null;	
 		}
 		j = null;
 	}
@@ -109,18 +116,15 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 
 	public void loadImage() {
 		if(img != null) return;
-		if(videoThumbnails == null) return;
+		if(thumbnailUrl == null) return;
 		if(imageItem == null) return;
 		try {
-			int w = getPreferredWidth();
-			if (w <= 0) w = 220;
-			String url = getThumbUrl(w);
-			byte[] b = App.hproxy(url);
+			byte[] b = App.hproxy(thumbnailUrl);
 			img = Image.createImage(b, 0, b.length);
-			int h = (int) ((float) w * ((float) img.getHeight() / (float) img.getWidth()));
-			img = ImageUtils.resize(img, w, h);
+			int h = (int) ((float) imageWidth * ((float) img.getHeight() / (float) img.getWidth()));
+			img = ImageUtils.resize(img, imageWidth, h);
 			imageItem.setImage(img);
-			videoThumbnails = null;
+			thumbnailUrl = null;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
@@ -146,38 +150,30 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 		return (int) (App.width * 2F / 3F);
 	}
 	
-	private String getThumbUrl(int tw) {
-		int s = 0;
-		int ld = 16384;
-		for(int i = 0; i < videoThumbnails.size(); i++) {
-			JSONObject j = videoThumbnails.getObject(i);
-			int d = Math.abs(tw - j.getInt("width"));
-			if (d < ld) {
-				ld = d;
-				s = i;
-			}
-		}
-		return videoThumbnails.getObject(s).getString("url");
-	}
-	
 	private String getAuthorThumbUrl() {
-		if(!extended) return null;
-		int s = 0;
-		int ld = 16384;
-		for(int i = 0; i < authorThumbnails.size(); i++) {
-			JSONObject j = authorThumbnails.getObject(i);
-			int d = Math.abs(VIDEOFORM_AUTHOR_IMAGE_HEIGHT - j.getInt("width"));
-			if (d < ld) {
-				ld = d;
-				s = i;
-			}
+		return App.getThumbUrl(authorThumbnails, VIDEOFORM_AUTHOR_IMAGE_HEIGHT);
+	}
+
+	public Item makeAuthorItem() {
+		if(!App.videoPreviews) {
+			Item i = new StringItem(null, getAuthor());
+			i.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
+			return i;
 		}
-		return authorThumbnails.getObject(s).getString("url");
+		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE, null, Item.BUTTON);
+		authorItem.addCommand(vOpenChannelCmd);
+		authorItem.setItemCommandListener(this);
+		return authorItem;
 	}
 
 	public void commandAction(Command c, Item item) {
 		if(c == vOpenCmd) {
 			App.open(this);
+		}
+		if(c == vOpenChannelCmd) {
+			Image img = null;
+			if(authorItem != null) img = authorItem.getImage();
+			App.open(new ChannelModel(authorId, author, img));
 		}
 	}
 
@@ -224,18 +220,18 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 		}
 	}
 
-	public void dispose() {
-		videoThumbnails = null;
-		img = null;
-		if(imageItem != null) imageItem.setImage(null);
-	}
-
 	public void setFromSearch() {
 		fromSearch = true;
 	}
 	
 	public boolean isFromSearch() {
 		return fromSearch;
+	}
+
+	public void dispose() {
+		thumbnailUrl = null;
+		img = null;
+		if(imageItem != null) imageItem.setImage(null);
 	}
 
 	public void disposeExtendedVars() {
@@ -254,18 +250,12 @@ public class VideoModel implements ItemCommandListener, ILoader, Constants {
 		return dislikeCount;
 	}
 
-	public Item makeAuthorItem() {
-		if(!App.videoPreviews) {
-			Item i = new StringItem(null, getAuthor());
-			i.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
-			return i;
-		}
-		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE, null);
-		return authorItem;
-	}
-
 	public boolean isExtended() {
 		return extended;
+	}
+
+	public ModelForm makeForm() {
+		return new VideoForm(this);
 	}
 
 }
