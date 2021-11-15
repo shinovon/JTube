@@ -25,8 +25,8 @@ public class Settings extends Form implements Constants, CommandListener {
 
 	public Settings() {
 		super("Settings");
-		addCommand(applyCmd);
 		setCommandListener(this);
+		addCommand(applyCmd);
 		videoResChoice = new ChoiceGroup("Preferred video quality", ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
 		append(videoResChoice);
 		regionText = new TextField("Country code (ISO 3166)", App.region, 3, TextField.ANY);
@@ -125,31 +125,36 @@ public class Settings extends Form implements Constants, CommandListener {
 	}
 	
 	private void applySettings() {
-		if(videoResChoice.getSelectedIndex() == 0) {
-			App.videoRes = "144p";
-		} else if(videoResChoice.getSelectedIndex() == 1) {
-			App.videoRes = "360p";
-		} else if(videoResChoice.getSelectedIndex() == 2) {
-			App.videoRes = "720p";
+		try {
+				if(videoResChoice.getSelectedIndex() == 0) {
+					App.videoRes = "144p";
+				} else if(videoResChoice.getSelectedIndex() == 1) {
+					App.videoRes = "360p";
+				} else if(videoResChoice.getSelectedIndex() == 2) {
+					App.videoRes = "720p";
+				}
+				App.region = regionText.getString();
+				App.downloadDir = downloadDirText.getString();
+				boolean[] s = new boolean[checksChoice.size()];
+				checksChoice.getSelectedFlags(s);
+				App.videoPreviews = s[0];
+				App.searchChannels = s[1];
+				App.rememberSearch = s[2];
+				App.httpStream = s[3];
+				//App.apiProxy = s[4];
+				App.serverstream = httpProxyText.getString();
+				App.inv = invidiousText.getString();
+				saveConfig();
+		} catch (Exception e) {
+			e.printStackTrace();
+			App.msg(e.toString());
 		}
-		App.region = regionText.getString();
-		App.downloadDir = downloadDirText.getString();
-		boolean[] s = new boolean[checksChoice.size()];
-		checksChoice.getSelectedFlags(s);
-		App.videoPreviews = s[0];
-		App.searchChannels = s[1];
-		App.rememberSearch = s[2];
-		App.httpStream = s[3];
-		//App.apiProxy = s[4];
-		App.serverstream = httpProxyText.getString();
-		App.inv = invidiousText.getString();
-		saveConfig();
 	}
 	
 	public static void saveConfig() {
 		try {
 			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		}
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
@@ -172,12 +177,10 @@ public class Settings extends Form implements Constants, CommandListener {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void commandAction(Command c, Displayable arg1) {
-		if(c == applyCmd) {
-			applySettings();
-			App.display(null);
-		}
+		applySettings();
+		App.display(null);
 	}
 	
 	public static boolean isLowEndDevice() {

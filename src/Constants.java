@@ -26,7 +26,7 @@ public interface Constants {
 	static final Command cancelCmd = new Command("Cancel", Command.CANCEL, 2);
 	static final Command backCmd = new Command("Back", Command.BACK, 1);
 	
-	static final Command applyCmd = new Command("Apply", Command.BACK, 1);
+	static final Command applyCmd = new Command("Apply", Command.SCREEN, 1);
 	
 	// Video page commands
 	static final Command watchCmd = new Command("Watch", Command.OK, 3);

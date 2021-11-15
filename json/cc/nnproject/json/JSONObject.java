@@ -162,17 +162,20 @@ public class JSONObject extends AbstractJSON {
 	}
 
 	public String build() {
-		if (size() == 0)
+		int l = size();
+		if (l == 0)
 			return "{}";
 		String s = "{";
 		java.util.Enumeration elements = table.keys();
-		int i = 0;
-		while (elements.hasMoreElements()) {
+		while (true) {
 			String k = elements.nextElement().toString();
 			s += "\"" + k + "\":";
 			Object v = null;
 			try {
-				v = get(k);
+				v = table.get(k);
+				if(v instanceof String) {
+					v = JSON.parseJSON((String) v);
+				}
 			} catch (JSONException e) {
 			}
 			if (v instanceof JSONObject) {
@@ -182,12 +185,11 @@ public class JSONObject extends AbstractJSON {
 			} else if (v instanceof String) {
 				s += "\"" + JSON.escape_utf8((String) v) + "\"";
 			} else s += v.toString();
-			i++;
-			if (i < size())
-				s += ",";
+			if(!elements.hasMoreElements()) {
+				return s + "}";
+			}
+			s += ",";
 		}
-		s += "}";
-		return s;
 	}
 	
 	public void put(String name, Object obj) {

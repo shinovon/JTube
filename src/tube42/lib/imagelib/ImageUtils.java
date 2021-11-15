@@ -12,47 +12,7 @@ import javax.microedition.lcdui.*;
 
 
 public final class ImageUtils
-{
-        
-    
-    // ---------------------------------------------
-    
-    /**
-     * blend two images:
-     */
-    public static Image blend(Image img1, Image img2, int value256)
-    {
-        // 0. no change?
-        if(value256 == 0xFF) return img1;
-        if(value256 == 0x00) return img2;
-        
-        // 1. get blended image:
-        int w1 = img1.getWidth();
-        int h1 = img1.getHeight();
-        int w2 = img2.getWidth();
-        int h2 = img2.getHeight();
-        
-        int w0 = Math.min(w1, w2);
-        int h0 = Math.min(h1, h2);        
-        int [] data = new int[w0 * h0];
-        int [] b1 = new int[w0];
-        int [] b2 = new int[w0];
-        
-        value256 &= 0xFF;
-        
-        for(int offset = 0, i = 0; i < h0; i++) {
-            img1.getRGB( b1, 0, w1, 0, i, w0, 1); // get one line from each
-            img2.getRGB( b2, 0, w2, 0, i, w0, 1);
-                        
-            for(int j = 0; j < w0; j++)  // blend all pixels
-                data[offset ++] = ColorUtils.blend( b1[j], b2[j], value256);
-        }
-        
-        Image tmp = Image.createRGBImage(data, w0, h0, true);
-        data = null; // can this help GC at this point?
-        
-        return tmp;
-    }          
+{    
     
     /**
      * resize an image:
@@ -142,13 +102,25 @@ public final class ImageUtils
                 } else {
                     int c2 = buffer2[x_a1];
                     int c4 = buffer2[x_b1];
+
+                    final int v1 = y_d & 0xFF;        
+                    final int a_c2_RB = c1 & 0x00FF00FF;
+                    final int a_c2_AG_org = c1 & 0xFF00FF00;
                     
-                    c12 = ColorUtils.blend(c2, c1, y_d);
-                    c34 = ColorUtils.blend(c4, c3, y_d);
+                    final int b_c2_RB = c3 & 0x00FF00FF;
+                    final int b_c2_AG_org = c3 & 0xFF00FF00;
+                    
+                    c12 = (a_c2_AG_org + ((((c2 >>> 8) & 0x00FF00FF) - (a_c2_AG_org >>> 8)) * v1)) & 0xFF00FF00 | (a_c2_RB + ((((c2 & 0x00FF00FF) - a_c2_RB) * v1) >> 8)) & 0x00FF00FF;
+                    c34 = (b_c2_AG_org + ((((c4 >>> 8) & 0x00FF00FF) - (b_c2_AG_org >>> 8)) * v1)) & 0xFF00FF00 | (b_c2_RB + ((((c4 & 0x00FF00FF) - b_c2_RB) * v1) >> 8)) & 0x00FF00FF;
                 }
                 
                 // final result
-                dst[index1++] = ColorUtils.blend(c34, c12, x_d);
+
+                final int v1 = x_d & 0xFF;    
+                final int c2_RB = c12 & 0x00FF00FF;
+                
+                final int c2_AG_org = c12 & 0xFF00FF00;
+                dst[index1++] = (c2_AG_org + ((((c34 >>> 8) & 0x00FF00FF) - (c2_AG_org >>> 8)) * v1)) & 0xFF00FF00 | (c2_RB + ((((c34 & 0x00FF00FF) - c2_RB) * v1) >> 8)) & 0x00FF00FF;
             }
         }
         

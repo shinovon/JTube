@@ -15,7 +15,6 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.media.Manager;
 import javax.microedition.media.Player;
-import javax.microedition.midlet.MIDlet;
 
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSON;
@@ -184,7 +183,8 @@ public class App implements CommandListener, Constants {
 				}
 			} catch (Exception e) {
 			}
-			for(int i = 0; i < j.size(); i++) {
+			int l = j.size();
+			for(int i = 0; i < l; i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
 				mainForm.append(v.makeItemForList());
@@ -210,7 +210,8 @@ public class App implements CommandListener, Constants {
 				}
 			} catch (Exception e) {
 			}
-			for(int i = 0; i < j.size(); i++) {
+			int l = j.size();
+			for(int i = 0; i < l; i++) {
 				VideoModel v = new VideoModel(j.getObject(i));
 				if(videoPreviews) addAsyncLoad(v);
 				mainForm.append(v.makeItemForList());
@@ -235,7 +236,8 @@ public class App implements CommandListener, Constants {
 		stopDoingAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + (searchChannels ? "&type=all" : ""));
-			for(int i = 0; i < j.size(); i++) {
+			int l = j.size();
+			for(int i = 0; i < l; i++) {
 				JSONObject o = j.getObject(i);
 				String type = o.getNullableString("type");
 				if(type == null) continue;
@@ -287,7 +289,8 @@ public class App implements CommandListener, Constants {
 		JSONObject _360 = null;
 		JSONObject _720 = null;
 		JSONObject other = null;
-		for(int i = 0; i < arr.size(); i++) {
+		int l = arr.size();
+		for(int i = 0; i < l; i++) {
 			JSONObject o = arr.getObject(i);
 			String q = o.getString("qualityLabel");
 			if(q.startsWith("720p")) {
@@ -349,25 +352,19 @@ public class App implements CommandListener, Constants {
 	}
 
 	public static void open(AbstractModel model) {
+		App app = inst;
 		if(model.isFromSearch() && !rememberSearch) {
-			inst.disposeSearchForm();
+			app.disposeSearchForm();
 		}
-		inst.stopDoingAsyncTasks();
+		app.stopDoingAsyncTasks();
 		ModelForm form = model.makeForm();
 		display(form);
-		App app = inst;
 		if(form instanceof VideoForm) {
 			app.videoForm = (VideoForm) form;
 		}
 		gc();
-		try {
-			app.stopDoingAsyncTasks();
-			Thread.sleep(150);
-			app.addAsyncLoad(form);
-			app.notifyAsyncTasks();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		app.addAsyncLoad(form);
+		app.notifyAsyncTasks();
 	}
 	
 	public static void download(final String id) {
@@ -411,6 +408,7 @@ public class App implements CommandListener, Constants {
 			midlet.notifyDestroyed();
 		}
 		if(c == settingsCmd) {
+			stopDoingAsyncTasks();
 			if(settingsForm == null) {
 				settingsForm = new Settings();
 			}
@@ -419,7 +417,7 @@ public class App implements CommandListener, Constants {
 		}
 		if(c == searchCmd && d instanceof Form) {
 			stopDoingAsyncTasks();
-			if(searchCmd != null) {
+			if(searchForm != null) {
 				disposeSearchForm();
 			}
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
@@ -543,12 +541,10 @@ public class App implements CommandListener, Constants {
 	}
 
 	void stopDoingAsyncTasks() {
-		synchronized(lazyLoadLock) {
-			if(t0 != null) t0.pleaseInterrupt();
-			if(t1 != null) t1.pleaseInterrupt();
-			if(t2 != null) t2.pleaseInterrupt();
-			v0.removeAllElements();
-		}
+		if(t0 != null) t0.pleaseInterrupt();
+		if(t1 != null) t1.pleaseInterrupt();
+		if(t2 != null) t2.pleaseInterrupt();
+		v0.removeAllElements();
 	}
 
 	private void testCanvas() {
@@ -559,17 +555,18 @@ public class App implements CommandListener, Constants {
 	}
 	
 	public static String getThumbUrl(JSONArray arr, int tw) {
-		int s = 0;
+		JSONObject s = null;
 		int ld = 16384;
-		for(int i = 0; i < arr.size(); i++) {
+		int l = arr.size();
+		for(int i = 0; i < l; i++) {
 			JSONObject j = arr.getObject(i);
 			int d = Math.abs(tw - j.getInt("width"));
 			if (d < ld) {
 				ld = d;
-				s = i;
+				s = j;
 			}
 		}
-		return arr.getObject(s).getString("url");
+		return s.getString("url");
 	}
 
 }

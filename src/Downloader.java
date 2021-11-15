@@ -41,8 +41,14 @@ public class Downloader implements CommandListener, Constants, Runnable {
 		HttpConnection hc = null;
 		InputStream in = null;
 		try {
-			file = file + id + ".mp4";
-			info(id + ".mp4");
+			String f = id;
+			if(res != null && res.equals("144p")) {
+				f += ".3gp";
+			} else {
+				f += ".mp4";
+			}
+			file = file + f;
+			info(f);
 			
 			String url = App.getVideoLink(id, res);
 			// подождать

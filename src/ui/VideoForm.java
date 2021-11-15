@@ -57,7 +57,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		Item t = new StringItem(null, video.getTitle());
 		t.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
 		append(t);
-		append(video.makeAuthorItem());
+		if(App.videoPreviews) {
+			append(video.makeAuthorItem());
+		}
 		Item author = new StringItem(null, video.getAuthor());
 		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(author);

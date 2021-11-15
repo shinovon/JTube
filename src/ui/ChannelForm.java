@@ -23,7 +23,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 
 	public ChannelForm(ChannelModel c) {
 		super(c.getAuthor());
-		loadingItem = new StringItem("", "Loading");
+		loadingItem = new StringItem(null, "Loading");
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
 		setCommandListener(this);
 		addCommand(backCmd);
