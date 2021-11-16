@@ -16,6 +16,7 @@ import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 import ui.ModelForm;
 import ui.VideoForm;
+import ui.custom.VideoItem;
 
 public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader {
 
@@ -27,7 +28,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private int viewCount;
 	//private long published;
 	private String publishedText;
-	//private int lengthSeconds;
+	private int lengthSeconds;
 	private int likeCount;
 	private int dislikeCount;
 
@@ -41,6 +42,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private boolean fromSearch;
 
 	private ImageItem authorItem;
+	
+	private VideoItem customItem;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -65,9 +68,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		}
 		author = j.getNullableString("author");
 		authorId = j.getNullableString("authorId");
+		lengthSeconds = j.getInt("lengthSeconds", 0);
 		if(extended) {
 			viewCount = j.getInt("viewCount", 0);
-			//lengthSeconds = j.getInt("lengthSeconds", 0);
 			
 			description = j.getNullableString("description");
 			//published = j.getLong("published", 0);
@@ -78,8 +81,12 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		}
 		// это сделает парс дольше но сэкономит память
 		if(videoThumbnails != null) {
-			imageWidth = getPreferredWidth();
-			if (imageWidth <= 0) imageWidth = 220;
+			if(App.customItems) {
+				imageWidth = App.width;
+			} else {
+				imageWidth = getImgItemWidth();
+				if (imageWidth <= 0) imageWidth = 220;
+			}
 			thumbnailUrl = App.getThumbUrl(videoThumbnails, imageWidth);
 			videoThumbnails = null;	
 		}
@@ -95,6 +102,13 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public Item makeItemForList() {
 		//if(imageItem != null) return imageItem;
+		if(App.customItems) {
+			customItem = new VideoItem(this);
+			customItem.addCommand(vOpenCmd);
+			customItem.setDefaultCommand(vOpenCmd);
+			customItem.setItemCommandListener(this);
+			return customItem;
+		}
 		if(!App.videoPreviews) {
 			StringItem i = new StringItem(author, title);
 			i.addCommand(vOpenCmd);
@@ -117,13 +131,27 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public void loadImage() {
 		if(img != null) return;
 		if(thumbnailUrl == null) return;
-		if(imageItem == null) return;
+		if(imageItem == null && customItem == null) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
 			img = Image.createImage(b, 0, b.length);
-			int h = (int) ((float) imageWidth * ((float) img.getHeight() / (float) img.getWidth()));
-			img = ImageUtils.resize(img, imageWidth, h);
-			imageItem.setImage(img);
+			float iw = img.getWidth();
+			float ih = img.getHeight();
+			float nw = (float) imageWidth;
+			int nh = (int) (nw * (ih / iw));
+			img = ImageUtils.resize(img, imageWidth, nh);
+			if(!App.customItems) {
+				imageItem.setImage(img);
+			} else {
+				float f = iw / ih;
+				if(f == 4F / 3F) {
+					// cropping to 16:9
+					float ch = nw * (9F / 16F);
+					int chh = (int) ((nh - ch) / 2F);
+					img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+				}
+				customItem.setImage(img);
+			}
 			thumbnailUrl = null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -146,20 +174,20 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		}
 	}
 	
-	private int getPreferredWidth() {
+	private int getImgItemWidth() {
 		return (int) (App.width * 2F / 3F);
 	}
 	
-	private String getAuthorThumbUrl() {
+	public String getAuthorThumbUrl() {
 		return App.getThumbUrl(authorThumbnails, VIDEOFORM_AUTHOR_IMAGE_HEIGHT);
 	}
 
 	public Item makeAuthorItem() {
-		if(!App.videoPreviews) {
+		/*if(!App.videoPreviews) {
 			Item i = new StringItem(null, getAuthor());
 			i.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
 			return i;
-		}
+		}*/
 		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE, null, Item.BUTTON);
 		authorItem.addCommand(vOpenChannelCmd);
 		authorItem.setItemCommandListener(this);
@@ -209,9 +237,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		return publishedText;
 	}
 
-	//public int getLengthSeconds() {
-	//	return lengthSeconds;
-	//}
+	public int getLengthSeconds() {
+		return lengthSeconds;
+	}
 
 	public void load() {
 		loadImage();
@@ -252,6 +280,10 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public boolean isExtended() {
 		return extended;
+	}
+	
+	public Image getCachedImage() {
+		return img;
 	}
 
 	public ModelForm makeForm() {

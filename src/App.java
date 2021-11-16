@@ -9,6 +9,7 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
@@ -47,6 +48,7 @@ public class App implements CommandListener, Constants {
 	public static boolean httpStream;
 	public static int startScreen = 0; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
+	public static boolean customItems;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -185,9 +187,9 @@ public class App implements CommandListener, Constants {
 			}
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				VideoModel v = new VideoModel(j.getObject(i));
-				if(videoPreviews) addAsyncLoad(v);
-				mainForm.append(v.makeItemForList());
+				Item item = parseAndMakeItem(j.getObject(i), false);
+				if(item == null) continue;
+				searchForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -212,9 +214,9 @@ public class App implements CommandListener, Constants {
 			}
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				VideoModel v = new VideoModel(j.getObject(i));
-				if(videoPreviews) addAsyncLoad(v);
-				mainForm.append(v.makeItemForList());
+				Item item = parseAndMakeItem(j.getObject(i), false);
+				if(item == null) continue;
+				searchForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -238,21 +240,9 @@ public class App implements CommandListener, Constants {
 			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + (searchChannels ? "&type=all" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				JSONObject o = j.getObject(i);
-				String type = o.getNullableString("type");
-				if(type == null) continue;
-				if(type.equals("video")) {
-					VideoModel v = new VideoModel(o);
-					v.setFromSearch();
-					if(videoPreviews) addAsyncLoad(v);
-					searchForm.append(v.makeItemForList());
-				}
-				if(searchChannels && type.equals("channel")) {
-					ChannelModel c = new ChannelModel(o);
-					c.setFromSearch();
-					if(videoPreviews) addAsyncLoad(c);
-					searchForm.append(c.makeItemForList());
-				}
+				Item item = parseAndMakeItem(j.getObject(i), true);
+				if(item == null) continue;
+				searchForm.append(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -261,6 +251,24 @@ public class App implements CommandListener, Constants {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private Item parseAndMakeItem(JSONObject j, boolean search) {
+		String type = j.getNullableString("type");
+		if(type == null) return null;
+		if(type.equals("video")) {
+			VideoModel v = new VideoModel(j);
+			if(search) v.setFromSearch();
+			if(videoPreviews) addAsyncLoad(v);
+			return v.makeItemForList();
+		}
+		if(searchChannels && type.equals("channel")) {
+			ChannelModel c = new ChannelModel(j);
+			if(search) c.setFromSearch();
+			if(videoPreviews) addAsyncLoad(c);
+			return c.makeItemForList();
+		}
+		return null;
 	}
 
 	private void openVideo(String id) {
