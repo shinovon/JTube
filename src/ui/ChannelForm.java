@@ -17,6 +17,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 	private ChannelModel channel;
 	
 	private StringItem loadingItem;
+	private StringItem videosBtn;
 	
 	private int state = 0; // 0 - info 1 - latest videos
 	private int page = 1;
@@ -37,11 +38,9 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 			}
 		} catch (Exception e) {
 		}
-		if(App.videoPreviews) {
-			removeCommand(watchCmd);
-			Item img = channel.makeItemForList();
-			append(img);
-		}
+		Item img = channel.makeItemForPage();
+		append(img);
+		videosBtn = new StringItem(null, "Videos", Item.BUTTON);
 	}
 
 	public void load() {

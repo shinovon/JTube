@@ -13,6 +13,8 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Gauge;
 
+import cc.nnproject.json.JSONObject;
+
 public class Downloader implements CommandListener, Constants, Runnable {
 	
 	private String id;
@@ -50,7 +52,10 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			file = file + f;
 			info(f);
 			
-			String url = App.getVideoLink(id, res);
+			JSONObject o = App.getVideoInfo(id, res);
+			String url = o.getString("url");
+			int contentLength = o.getInt("clen", 0);
+			o = null;
 			// подождать
 			Thread.sleep(500);
 			info("Connecting", 0);
@@ -97,18 +102,30 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			in = hc.openInputStream();
 			info("Connected");
 			int percent = 0;
-			byte[] buf = new byte[128 * 1024];
+			int bufSize = 0;
+			try {
+				bufSize = in.available();
+			} catch (Exception e) {
+			}
+			if(bufSize <= 0) bufSize = 128 * 1024;
+			byte[] buf = new byte[bufSize];
 			int read = 0;
 			int downloaded = 0;
-			int l = (int) hc.getLength();
+			int l = contentLength;
+			if(l <= 0) {
+				try {
+					l = (int) hc.getLength();
+				} catch (Exception e) {
+				}
+			}
 			int i = 0;
 			while((read = in.read(buf)) != -1) {
 				out.write(buf, 0, read);
 				downloaded += read;
-				percent = (int)(((double)downloaded / (double)l) * 100d);
 				if(i++ % 4 == 0) {
+					percent = (int)(((double)downloaded / (double)l) * 100d);
 					Thread.sleep(1);
-					info("Downloading " + percent + "%", percent);
+					info("Downloading", percent);
 				}
 			}
 			done();
@@ -169,8 +186,11 @@ public class Downloader implements CommandListener, Constants, Runnable {
 	}
 
 	private void info(String s, int percent) {
+		if(percent >= 0) {
+			s += " " + s + "%";
+			indicator.setValue(percent);
+		}
 		info(s);
-		indicator.setValue(percent);
 	}
 
 	private void info(String s) {

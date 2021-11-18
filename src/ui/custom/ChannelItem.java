@@ -1,51 +1,84 @@
 package ui.custom;
 
-import javax.microedition.lcdui.CustomItem;
 import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.Image;
 
+import App;
+import cc.nnproject.utils.PlatformUtils;
 import models.ChannelModel;
 
-//TODO
-public class ChannelItem extends CustomItem {
+public class ChannelItem extends CustomButtonItem {
 
 	private ChannelModel channel;
 
-	protected ChannelItem(ChannelModel c) {
-		super(c.getAuthor());
+	private String author;
+
+	private Image img;
+
+	private String subsStr;
+
+	public ChannelItem(ChannelModel c) {
+		super(c);
 		this.channel = c;
+		this.img = c.getImg();
+		this.author = c.getAuthor();
+		subsStr = subsStr(c.getSubCount());
+	}
+
+	protected void paint(Graphics g, int w, int h) {
+		g.setColor(-1);
+		g.fillRect(0, 0, w, h);
+		if(img != null) {
+			g.drawImage(img, 2, 2, 0);
+		}
+		g.setColor(0);
+		g.setFont(mediumfont);
+		int fh = mediumfontheight;
+		int sfh = smallfontheight;
+		int ty = (52 - fh) / 2;
+		if(subsStr != null) {
+			ty -= (sfh + 4) / 2;
+		}
+		g.drawString(author, 54, ty, 0);
+		g.setColor(GRAYTEXT_COLOR);
+		g.setFont(smallfont);
+		if(subsStr != null) {
+			g.drawString(subsStr, 54, ty + fh + 4, 0);
+		}
 	}
 
 	protected int getMinContentHeight() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 48 + 4;
 	}
 
 	protected int getMinContentWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return App.width - 4;
 	}
 
-	protected int getPrefContentHeight(int arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected int getPrefContentHeight(int i) {
+		return 48 + 4;
 	}
 
-	protected int getPrefContentWidth(int arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected int getPrefContentWidth(int i) {
+		if(PlatformUtils.isKemulator) return i;
+		return getMinContentWidth();
 	}
 
-	protected void paint(Graphics arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
-		
+	public void setImage(Image img) {
+		this.img = img;
+		repaint();
 	}
 	
 	protected void showNotify() {
-		
 	}
 	
 	protected void hideNotify() {
-		
+	}
+
+	private String subsStr(int i) {
+		if(i == -1) return null;
+		if(i == 1) return i + " subscriber";
+		return i + " subscribers";
 	}
 
 }

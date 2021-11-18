@@ -16,11 +16,12 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import ui.ChannelForm;
 import ui.ModelForm;
+import ui.custom.ChannelItem;
 
 // TODO
 public class ChannelModel extends AbstractModel implements ILoader, ItemCommandListener {
 	
-	private static final Command cOpenCmd = new Command("Open channel", Command.OK, 3);
+	private static final Command cOpenCmd = new Command("Open", Command.ITEM, 3);
 	
 	private String author;
 	private String authorId;
@@ -31,6 +32,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 
 	private ImageItem item;
 	private Image img;
+	private ChannelItem customItem;
 
 	private boolean extended;
 	private boolean fromSearch;
@@ -54,8 +56,8 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		author = o.getString("author");
 		authorId = o.getString("authorId");
 		authorThumbnails = o.getNullableArray("authorThumbnails");
+		subCount = o.getInt("subCount", -1);
 		if(extended) {
-			subCount = o.getInt("subCount", 0);
 			totalViews = o.getLong("totalViews", 0);
 			description = o.getNullableString("description");
 		}
@@ -68,19 +70,26 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		return this;
 	}
 
-	public Item makeItemForList() {
-		if(!App.videoPreviews) {
-			StringItem i = new StringItem(null, author);
-			i.addCommand(cOpenCmd);
-			i.setDefaultCommand(cOpenCmd);
-			i.setItemCommandListener(this);
-			return i;
+	private Item makeItem() {
+		if(App.customItems) {
+			return customItem = new ChannelItem(this);
 		}
-		item = new ImageItem(author, img, Item.LAYOUT_CENTER, null);
-		item.addCommand(cOpenCmd);
-		item.setDefaultCommand(cOpenCmd);
-		item.setItemCommandListener(this);
-		return item;
+		if(!App.videoPreviews) {
+			return new StringItem(null, author);
+		}
+		return item = new ImageItem(author, img, Item.LAYOUT_CENTER, null);
+	}
+
+	public Item makeItemForList() {
+		Item i = makeItem();
+		i.addCommand(cOpenCmd);
+		i.setDefaultCommand(cOpenCmd);
+		i.setItemCommandListener(this);
+		return i;
+	}
+
+	public Item makeItemForPage() {
+		return makeItem();
 	}
 
 	private String getAuthorThumbUrl() {
@@ -94,11 +103,16 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 
 	public void load() {
 		if(img != null) return;
+		if(item == null && customItem == null) return;
 		if(authorThumbnails == null) return;
 		try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			img = Image.createImage(b, 0, b.length);
-			item.setImage(img);
+			if(customItem != null) {
+				customItem.setImage(img);
+			} else {
+				item.setImage(img);
+			}
 			authorThumbnails = null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,7 +123,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 	}
 
 	public void commandAction(Command c, Item arg1) {
-		if(c == cOpenCmd) {
+		if(c == cOpenCmd || c == null) {
 			App.open(this);
 		}
 	}

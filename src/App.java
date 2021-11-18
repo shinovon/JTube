@@ -9,7 +9,6 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
@@ -33,9 +32,6 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static int width;
-	public static int height;
-	
 	// Settings
 	public static String videoRes;
 	public static String region;
@@ -46,9 +42,10 @@ public class App implements CommandListener, Constants {
 	public static boolean searchChannels;
 	public static boolean rememberSearch;
 	public static boolean httpStream;
-	public static int startScreen = 0; // 0 - Trends 1 - Popular
+	public static int startScreen; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
 	public static boolean customItems;
+	public static String imgproxy = hproxy;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -59,19 +56,21 @@ public class App implements CommandListener, Constants {
 	//private TextField searchText;
 	//private StringItem searchBtn;
 	private VideoForm videoForm;
+	private Item loadingItem;
 	private static PlayerCanvas playerCanv;
 
 	public static boolean asyncLoading;
-
+	
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
 	private LoaderThread t2;
-	public Vector v0;
+	private Vector v0;
 	private Vector v1;
 	private Vector v2;
-
-	private Item loadingItem;
+	
+	public static int width;
+	public static int height;
 
 	public void startApp() {
 		region = System.getProperty("user.country");
@@ -151,7 +150,8 @@ public class App implements CommandListener, Constants {
 	
 	public static byte[] hproxy(String s) throws IOException {
 		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
-		return Util.get(hproxy + Util.url(s));
+		if(imgproxy == null || imgproxy.length() <= 1) return Util.get(s);
+		return Util.get(imgproxy + Util.url(s));
 	}
 
 	public static AbstractJSON invApi(String s) throws InvidiousException, IOException {
@@ -189,7 +189,7 @@ public class App implements CommandListener, Constants {
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), false);
 				if(item == null) continue;
-				searchForm.append(item);
+				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -255,7 +255,13 @@ public class App implements CommandListener, Constants {
 	
 	private Item parseAndMakeItem(JSONObject j, boolean search) {
 		String type = j.getNullableString("type");
-		if(type == null) return null;
+		if(type == null) {
+			// video
+			VideoModel v = new VideoModel(j);
+			if(search) v.setFromSearch();
+			if(videoPreviews) addAsyncLoad(v);
+			return v.makeItemForList();
+		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
 			if(search) v.setFromSearch();

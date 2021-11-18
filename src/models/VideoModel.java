@@ -63,7 +63,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		videoId = j.getString("videoId");
 		title = j.getNullableString("title");
 		JSONArray videoThumbnails = null;
-		if(App.videoPreviews) {
+		if(App.videoPreviews || App.customItems) {
 			videoThumbnails = j.getNullableArray("videoThumbnails");
 		}
 		author = j.getNullableString("author");
@@ -99,33 +99,27 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		}
 		return this;
 	}
-
-	public Item makeItemForList() {
+	private Item makeItem() {
 		//if(imageItem != null) return imageItem;
 		if(App.customItems) {
-			customItem = new VideoItem(this);
-			customItem.addCommand(vOpenCmd);
-			customItem.setDefaultCommand(vOpenCmd);
-			customItem.setItemCommandListener(this);
-			return customItem;
+			return customItem = new VideoItem(this);
 		}
 		if(!App.videoPreviews) {
-			StringItem i = new StringItem(author, title);
-			i.addCommand(vOpenCmd);
-			i.setDefaultCommand(vOpenCmd);
-			i.setItemCommandListener(this);
-			return i;
+			return new StringItem(author, title);
 		}
-		imageItem = new ImageItem(title, img, Item.LAYOUT_CENTER, null, ImageItem.BUTTON);
-		imageItem.addCommand(vOpenCmd);
-		imageItem.setDefaultCommand(vOpenCmd);
-		imageItem.setItemCommandListener(this);
-		return imageItem;
+		return imageItem = new ImageItem(title, img, Item.LAYOUT_CENTER, null, ImageItem.BUTTON);
+	}
+
+	public Item makeItemForList() {
+		Item i = makeItem();
+		i.addCommand(vOpenCmd);
+		i.setDefaultCommand(vOpenCmd);
+		i.setItemCommandListener(this);
+		return i;
 	}
 
 	public ImageItem makeImageItemForPage() {
-		imageItem = new ImageItem(null, img, Item.LAYOUT_CENTER, null);
-		return imageItem;
+		return imageItem = new ImageItem(null, img, Item.LAYOUT_CENTER, null);
 	}
 
 	public void loadImage() {
@@ -142,7 +136,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			img = ImageUtils.resize(img, imageWidth, nh);
 			if(!App.customItems) {
 				imageItem.setImage(img);
-			} else {
+			} else if(customItem != null) {
 				float f = iw / ih;
 				if(f == 4F / 3F) {
 					// cropping to 16:9
@@ -163,7 +157,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private void loadAuthorImg() {
 		if(authorThumbnails == null) return;
 		if(authorItem == null || authorItem.getImage() != null) return;
-			try {
+		try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorItem.setImage(Image.createImage(b, 0, b.length));
 			authorThumbnails = null;
@@ -195,7 +189,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 
 	public void commandAction(Command c, Item item) {
-		if(c == vOpenCmd) {
+		if(c == vOpenCmd || c == null) {
 			App.open(this);
 		}
 		if(c == vOpenChannelCmd) {

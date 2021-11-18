@@ -22,6 +22,8 @@ public class Settings extends Form implements Constants, CommandListener {
 	private TextField httpProxyText;
 	private ChoiceGroup checksChoice;
 	private TextField invidiousText;
+	private TextField imgProxyText;
+	private ChoiceGroup uiChoice;
 
 	public Settings() {
 		super("Settings");
@@ -31,21 +33,29 @@ public class Settings extends Form implements Constants, CommandListener {
 		append(videoResChoice);
 		regionText = new TextField("Country code (ISO 3166)", App.region, 3, TextField.ANY);
 		append(regionText);
+		uiChoice = new ChoiceGroup("Appearance", ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
+		append(uiChoice);
 		checksChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
 		append(checksChoice);
+		downloadDirText = new TextField("Download directory", App.downloadDir, 256, TextField.URL);
+		append(downloadDirText);
 		invidiousText = new TextField("Invidious server", App.inv, 256, TextField.URL);
 		append(invidiousText);
-		downloadDirText = new TextField("Download directory", App.downloadDir, 256, TextField.ANY);
-		append(downloadDirText);
+		append("(Invidious api instance)\n");
 		httpProxyText = new TextField("Stream proxy server", App.serverstream, 256, TextField.URL);
 		append(httpProxyText);
+		append("(Used only if http streaming is on)\n");
+		imgProxyText = new TextField("Images proxy prefix", App.imgproxy, 256, TextField.URL);
+		append(imgProxyText);
+		append("(Leave images proxy empty if HTTPS is supported)\n");
 	}
 	
 	public void show() {
-		checksChoice.setSelectedIndex(0, App.videoPreviews);
-		checksChoice.setSelectedIndex(1, App.searchChannels);
-		checksChoice.setSelectedIndex(2, App.rememberSearch);
-		checksChoice.setSelectedIndex(3, App.httpStream);
+		uiChoice.setSelectedIndex(0, App.customItems);
+		uiChoice.setSelectedIndex(1, App.videoPreviews);
+		uiChoice.setSelectedIndex(2, App.searchChannels);
+		checksChoice.setSelectedIndex(0, App.rememberSearch);
+		checksChoice.setSelectedIndex(1, App.httpStream);
 		//checksChoice.setSelectedIndex(4, App.apiProxy);
 		if(App.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
@@ -81,6 +91,9 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.httpStream = true;
 				App.asyncLoading = true;
 			}
+			if(PlatformUtils.isSymbian3()) {
+				App.customItems = true;
+			}
 			App.rememberSearch = true;
 			App.searchChannels = true;
 			App.videoPreviews = true;
@@ -114,10 +127,12 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.serverstream = j.getString("serverstream");
 			if(j.has("inv"))
 				App.inv = j.getString("inv");
-			//if(j.has("apiProxy"))
-			//	App.apiProxy = j.getBoolean("apiProxy");
-			//if(j.has("serverproxy"))
-			//	App.serverproxy = j.getString("serverproxy");
+			if(j.has("customItems"))
+				App.customItems = j.getBoolean("customItems");
+			if(j.has("imgProxy"))
+				App.imgproxy = j.getString("imgProxy");
+			if(j.has("startScreen"))
+				App.startScreen = j.getInt("startScreen");
 			return;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -126,25 +141,28 @@ public class Settings extends Form implements Constants, CommandListener {
 	
 	private void applySettings() {
 		try {
-				if(videoResChoice.getSelectedIndex() == 0) {
-					App.videoRes = "144p";
-				} else if(videoResChoice.getSelectedIndex() == 1) {
-					App.videoRes = "360p";
-				} else if(videoResChoice.getSelectedIndex() == 2) {
-					App.videoRes = "720p";
-				}
-				App.region = regionText.getString();
-				App.downloadDir = downloadDirText.getString();
-				boolean[] s = new boolean[checksChoice.size()];
-				checksChoice.getSelectedFlags(s);
-				App.videoPreviews = s[0];
-				App.searchChannels = s[1];
-				App.rememberSearch = s[2];
-				App.httpStream = s[3];
-				//App.apiProxy = s[4];
-				App.serverstream = httpProxyText.getString();
-				App.inv = invidiousText.getString();
-				saveConfig();
+			if(videoResChoice.getSelectedIndex() == 0) {
+				App.videoRes = "144p";
+			} else if(videoResChoice.getSelectedIndex() == 1) {
+				App.videoRes = "360p";
+			} else if(videoResChoice.getSelectedIndex() == 2) {
+				App.videoRes = "720p";
+			}
+			App.region = regionText.getString();
+			App.downloadDir = downloadDirText.getString();
+			boolean[] s = new boolean[checksChoice.size()];
+			checksChoice.getSelectedFlags(s);
+			boolean[] ui = new boolean[uiChoice.size()];
+			uiChoice.getSelectedFlags(ui);
+			App.customItems = ui[0];
+			App.videoPreviews = ui[1];
+			App.searchChannels = ui[2];
+			App.rememberSearch = s[0];
+			App.httpStream = s[1];
+			App.serverstream = httpProxyText.getString();
+			App.inv = invidiousText.getString();
+			App.imgproxy = imgProxyText.getString();
+			saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
 			App.msg(e.toString());
@@ -169,6 +187,9 @@ public class Settings extends Form implements Constants, CommandListener {
 			j.put("httpStream", new Boolean(App.httpStream));
 			j.put("serverstream", "\"" + App.serverstream + "\"");
 			j.put("inv", "\"" + App.inv + "\"");
+			j.put("imgProxy", "\"" + App.imgproxy + "\"");
+			j.put("startScreen", new Integer(App.startScreen));
+			j.put("customItems", new Boolean(App.customItems));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

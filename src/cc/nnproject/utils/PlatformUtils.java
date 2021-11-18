@@ -11,8 +11,21 @@ public class PlatformUtils {
 	private static final String[] ashaFullTouchModels = new String[] { "230", "305", "306", "308", "309", "310", "311", "500", "501", "502", "503" };
 	private static final String[] ashaTouchAndTypeModels = new String[] { "202", "203", "300", "303" };
 	
+	public static final boolean isKemulator;
+	
 	public static int width;
 	public static int height;
+	
+	static {
+		boolean b = false;
+		try {
+			Class.forName("emulator.custom.CustomMethod");
+			b = true;
+			
+		} catch (ClassNotFoundException e) {
+		}
+		isKemulator = b;
+	}
 	
 	private static boolean isS60PlatformVersion(String v) {
 		return platform.indexOf("platform_version=" + v) != -1;

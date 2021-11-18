@@ -39,8 +39,10 @@ public interface Constants {
 	static final Command dlOpenCmd = new Command("Open", Command.OK, 1);
 	static final Command dlCancelCmd = new Command("Cancel", Command.CANCEL, 1);
 	
-	public static Command vOpenCmd = new Command("Open video", Command.ITEM, 3);
-	public static Command vOpenChannelCmd = new Command("Open channel", Command.ITEM, 4);
+	public static Command vOpenCmd = new Command("View", Command.ITEM, 3);
+	public static Command vOpenChannelCmd = new Command("View channel", Command.ITEM, 4);
+	
+	public static Command cVideosCmd = new Command("Videos", Command.ITEM, 3);
 	
 	// Limits
 	static final int TRENDS_LIMIT_S60 = 25;
@@ -52,13 +54,14 @@ public interface Constants {
 	
 	static final String NAME = "Unnamed";
 	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
-	static final String[] SETTINGS_CHECKS = new String[] { "Video previews", "Channels in search", "Remember search", "HTTP Proxy Streaming" };
+	static final String[] SETTINGS_CHECKS = new String[] { "Remember search", "HTTP Proxy Streaming" };
+	static final String[] APPEARANCE_CHECKS = new String[] { "Custom items", "Video previews", "Channels in search" };
 	
 	public static String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	
 	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,videoThumbnails,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,authorThumbnails,viewCount";
 	static final String CHANNEL_EXTENDED_FIELDS = "subCount,author,authorId,description,totalViews";
-	static final String TRENDING_FIELDS = "title,videoId,author";
+	static final String TRENDING_FIELDS = "title,videoId,author,lengthSeconds";
 	
 	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
 	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;
