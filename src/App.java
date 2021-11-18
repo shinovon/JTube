@@ -3,6 +3,7 @@ import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -117,13 +118,13 @@ public class App implements CommandListener, Constants {
 			}
 			gc();
 		} catch (InvidiousException e) {
-			msg(e.toString() + "\n JSON: \n" + e.getJSON().toString());
+			error(this, Errors.App_startApp_load, e.toString() + "\n JSON: \n" + e.getJSON().toString());
 		} catch (OutOfMemoryError e) {
 			gc();
-			msg("Out of memory!");
+			error(this, Errors.App_startApp_load, "Out of memory!");
 		} catch (Throwable e) {
 			e.printStackTrace();
-			msg(e.toString());
+			error(this, Errors.App_startApp_load, e.toString());
 		}
 	}
 
@@ -197,7 +198,7 @@ public class App implements CommandListener, Constants {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			msg(e.toString());
+			error(this, Errors.App_loadTrends, e.toString());
 		}
 	}
 	
@@ -224,7 +225,7 @@ public class App implements CommandListener, Constants {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			msg(e.toString());
+			error(this, Errors.App_loadPopular, e.toString());
 		}
 	}
 
@@ -246,10 +247,9 @@ public class App implements CommandListener, Constants {
 				if(i >= SEARCH_LIMIT) break;
 			}
 			notifyAsyncTasks();
-		} catch (RuntimeException e) {
-			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
+			error(this, Errors.App_search, e.toString());
 		}
 	}
 	
@@ -289,7 +289,7 @@ public class App implements CommandListener, Constants {
 		try {
 			open(new VideoModel(id).extend());
 		} catch (Exception e) {
-			msg(e.toString());
+			error(this, Errors.App_openVideo, e.toString());
 		}
 	}
 
@@ -405,7 +405,7 @@ public class App implements CommandListener, Constants {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			msg(e.toString());
+			error(null, Errors.App_watch, e.toString());
 		}
 	}
 
@@ -581,6 +581,15 @@ public class App implements CommandListener, Constants {
 			}
 		}
 		return s.getString("url");
+	}
+
+	public static void error(Object o, int i, String str) {
+		String cls = "null";
+		if(o != null) cls = o.getClass().getName();
+		String s = str + "\ne:" + i + "\nat " + cls + "\nt:" + Thread.currentThread().getName();
+		Alert a = new Alert("", s, null, AlertType.ERROR);
+		a.setTimeout(-2);
+		display(a);
 	}
 
 }

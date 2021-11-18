@@ -9,6 +9,7 @@ import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
 import App;
+import Errors;
 import Constants;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
@@ -39,9 +40,8 @@ public class Settings extends Form implements Constants, CommandListener {
 		append(checksChoice);
 		downloadDirText = new TextField("Download directory", App.downloadDir, 256, TextField.URL);
 		append(downloadDirText);
-		invidiousText = new TextField("Invidious server", App.inv, 256, TextField.URL);
+		invidiousText = new TextField("Invidious API instance", App.inv, 256, TextField.URL);
 		append(invidiousText);
-		append("(Invidious api instance)\n");
 		httpProxyText = new TextField("Stream proxy server", App.serverstream, 256, TextField.URL);
 		append(httpProxyText);
 		append("(Used only if http streaming is on)\n");
@@ -165,7 +165,7 @@ public class Settings extends Form implements Constants, CommandListener {
 			saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
-			App.msg(e.toString());
+			App.error(this, Errors.Settings_apply, e.toString());
 		}
 	}
 	

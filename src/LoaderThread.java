@@ -32,7 +32,7 @@ public class LoaderThread extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Exception in load thread!");
+			App.error(this, Errors.LoaderThread_run, e.toString());
 			e.printStackTrace();
 		}
 	}

@@ -4,15 +4,19 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 
 import App;
+import Errors;
 import Constants;
 import models.AbstractModel;
 import models.ChannelModel;
 
 // TODO
-public class ChannelForm extends ModelForm implements CommandListener, Constants {
+public class ChannelForm extends ModelForm implements CommandListener, Constants, ItemCommandListener {
+
+	private static final Command videosCmd = new Command("Videos", Command.ITEM, 2);
 
 	private ChannelModel channel;
 	
@@ -41,6 +45,9 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		Item img = channel.makeItemForPage();
 		append(img);
 		videosBtn = new StringItem(null, "Videos", Item.BUTTON);
+		videosBtn.addCommand(videosCmd);
+		videosBtn.setDefaultCommand(videosCmd);
+		videosBtn.setItemCommandListener(this);
 	}
 
 	public void load() {
@@ -51,7 +58,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 			}
 			if(App.videoPreviews) channel.load();
 		} catch (Exception e) {
-			App.msg(e.toString());
+			App.error(this, Errors.ChannelForm_load, e.toString());
 		}
 	}
 
@@ -74,5 +81,9 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 
 	public AbstractModel getModel() {
 		return getChannel();
+	}
+
+	public void commandAction(Command c, Item i) {
+		
 	}
 }

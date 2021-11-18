@@ -1,18 +1,21 @@
 package ui.custom;
 
 import javax.microedition.lcdui.CustomItem;
+import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 
 public abstract class CustomButtonItem extends CustomItem implements UIConstants {
 	
-	private ItemCommandListener l;
-	private boolean pressed;
+	//private ItemCommandListener l;
+	//private boolean pressed;
 
 	protected CustomButtonItem(ItemCommandListener l) {
 		super(null);
-		this.l = l;
+		setLayout(Item.LAYOUT_EXPAND);
+		//this.l = l;
 	}
 	
+	/*
 	public void pointerPressed(int x, int y) {
 		pressed = true;
 	}
@@ -33,5 +36,6 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 			l.commandAction(null, this);
 		}
 	}
+	*/
 
 }

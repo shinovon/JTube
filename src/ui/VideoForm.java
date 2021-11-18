@@ -9,6 +9,7 @@ import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 
 import App;
+import Errors;
 import Constants;
 import models.AbstractModel;
 import models.VideoModel;
@@ -83,7 +84,7 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 			}
 			if(App.videoPreviews) video.load();
 		} catch (Exception e) {
-			App.msg(e.toString());
+			App.error(this, Errors.VideoForm_load, e.toString());
 		}
 	}
 
