@@ -20,7 +20,7 @@ public class JSONObject extends AbstractJSON {
 	
 	public Object get(String name) throws JSONException {
 		try {
-			if (table.containsKey(name)) {
+			if (has(name)) {
 				if (JSON.parse_members) {
 					return table.get(name);
 				} else {
@@ -38,6 +38,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public Object get(String name, Object def) {
+		if(!has(name)) return def;
 		try {
 			return get(name);
 		} catch (Exception e) {
@@ -55,7 +56,7 @@ public class JSONObject extends AbstractJSON {
 	
 	public String getString(String name, String def) {
 		try {
-			return get(name).toString();
+			return get(name, def).toString();
 		} catch (Exception e) {
 			return def;
 		}
@@ -74,6 +75,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public JSONObject getNullableObject(String name) {
+		if(!has(name)) return null;
 		try {
 			return getObject(name);
 		} catch (Exception e) {
@@ -90,6 +92,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public JSONArray getNullableArray(String name) {
+		if(!has(name)) return null;
 		try {
 			return getArray(name);
 		} catch (Exception e) {
@@ -106,6 +109,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public int getInt(String name, int def) {
+		if(!has(name)) return def;
 		try {
 			return getInt(name);
 		} catch (Exception e) {
@@ -118,6 +122,7 @@ public class JSONObject extends AbstractJSON {
 	}
 
 	public long getLong(String name, long def) {
+		if(!has(name)) return def;
 		try {
 			return getLong(name);
 		} catch (Exception e) {
@@ -130,6 +135,7 @@ public class JSONObject extends AbstractJSON {
 	}
 
 	public double getDouble(String name, double def) {
+		if(!has(name)) return def;
 		try {
 			return getDouble(name);
 		} catch (Exception e) {
@@ -150,6 +156,7 @@ public class JSONObject extends AbstractJSON {
 	}
 
 	public boolean getBoolean(String name, boolean def) {
+		if(!has(name)) return def;
 		try {
 			return getBoolean(name);
 		} catch (Exception e) {

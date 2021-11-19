@@ -4,6 +4,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import App;
+import Locale;
 import cc.nnproject.utils.PlatformUtils;
 import models.ChannelModel;
 
@@ -22,7 +23,7 @@ public class ChannelItem extends CustomButtonItem {
 		this.channel = c;
 		this.img = c.getImg();
 		this.author = c.getAuthor();
-		subsStr = subsStr(c.getSubCount());
+		subsStr = Locale.subscribers(c.getSubCount());
 	}
 
 	protected void paint(Graphics g, int w, int h) {
@@ -73,12 +74,6 @@ public class ChannelItem extends CustomButtonItem {
 	}
 	
 	protected void hideNotify() {
-	}
-
-	private String subsStr(int i) {
-		if(i == -1) return null;
-		if(i == 1) return i + " subscriber";
-		return i + " subscribers";
 	}
 
 }

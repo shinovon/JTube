@@ -1,23 +1,31 @@
 package ui.custom;
 
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.CustomItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 
 public abstract class CustomButtonItem extends CustomItem implements UIConstants {
 	
-	//private ItemCommandListener l;
-	//private boolean pressed;
+	private ItemCommandListener l;
+	private boolean pressed;
+	private long pressTime;
 
 	protected CustomButtonItem(ItemCommandListener l) {
 		super(null);
 		setLayout(Item.LAYOUT_EXPAND);
-		//this.l = l;
+		this.l = l;
 	}
 	
-	/*
+	public void keyPressed(int i) {
+		if(i == Canvas.FIRE || i == -5) {
+			callCommandOK();
+		}
+	}
+	
 	public void pointerPressed(int x, int y) {
 		pressed = true;
+		pressTime = System.currentTimeMillis();
 	}
 	
 	public void pointerDragged(int x, int y) {
@@ -25,10 +33,11 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 	}
 	
 	public void pointerReleased(int x, int y) {
-		if(pressed) {
+		long l = System.currentTimeMillis() - pressTime;
+		if(pressed && l <= 150) {
 			callCommandOK();
-			pressed = false;
 		}
+		pressed = false;
 	}
 
 	private void callCommandOK() {
@@ -36,6 +45,5 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 			l.commandAction(null, this);
 		}
 	}
-	*/
 
 }

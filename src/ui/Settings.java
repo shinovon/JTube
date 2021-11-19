@@ -10,6 +10,7 @@ import javax.microedition.rms.RecordStore;
 
 import App;
 import Errors;
+import Locale;
 import Constants;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
@@ -30,22 +31,22 @@ public class Settings extends Form implements Constants, CommandListener {
 		super("Settings");
 		setCommandListener(this);
 		addCommand(applyCmd);
-		videoResChoice = new ChoiceGroup("Preferred video quality", ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
+		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
 		append(videoResChoice);
-		regionText = new TextField("Country code (ISO 3166)", App.region, 3, TextField.ANY);
+		regionText = new TextField(Locale.s(SET_CountryCode), App.region, 3, TextField.ANY);
 		append(regionText);
-		uiChoice = new ChoiceGroup("Appearance", ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
+		uiChoice = new ChoiceGroup(Locale.s(SET_Appearance), ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
 		append(uiChoice);
-		checksChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
+		checksChoice = new ChoiceGroup(Locale.s(SET_OtherSettings), ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
 		append(checksChoice);
-		downloadDirText = new TextField("Download directory", App.downloadDir, 256, TextField.URL);
+		downloadDirText = new TextField(Locale.s(SET_DownloadDir), App.downloadDir, 256, TextField.URL);
 		append(downloadDirText);
-		invidiousText = new TextField("Invidious API instance", App.inv, 256, TextField.URL);
+		invidiousText = new TextField(Locale.s(SET_InvAPI), App.inv, 256, TextField.URL);
 		append(invidiousText);
-		httpProxyText = new TextField("Stream proxy server", App.serverstream, 256, TextField.URL);
+		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
 		append(httpProxyText);
 		append("(Used only if http streaming is on)\n");
-		imgProxyText = new TextField("Images proxy prefix", App.imgproxy, 256, TextField.URL);
+		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
 		append("(Leave images proxy empty if HTTPS is supported)\n");
 	}

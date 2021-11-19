@@ -150,7 +150,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
-			e.printStackTrace();
+			App.gc();
+			App.inst.stopDoingAsyncTasks();
+			App.warn(this, "Not enough memory to load video previews!");
 		}
 	}
 

@@ -217,7 +217,7 @@ public class App implements CommandListener, Constants {
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), false);
 				if(item == null) continue;
-				searchForm.append(item);
+				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
 			}
 			notifyAsyncTasks();
@@ -554,7 +554,7 @@ public class App implements CommandListener, Constants {
 		}
 	}
 
-	void stopDoingAsyncTasks() {
+	public void stopDoingAsyncTasks() {
 		if(t0 != null) t0.pleaseInterrupt();
 		if(t1 != null) t1.pleaseInterrupt();
 		if(t2 != null) t2.pleaseInterrupt();
@@ -583,10 +583,19 @@ public class App implements CommandListener, Constants {
 		return s.getString("url");
 	}
 
+	public static void warn(Object o, String str) {
+		String cls = "";
+		if(o != null) cls = "at " + o.getClass().getName();
+		String s = str + " \n\n" + cls + " \nt:" + Thread.currentThread().getName();
+		Alert a = new Alert("", s, null, AlertType.WARNING);
+		a.setTimeout(-2);
+		display(a);
+	}
+
 	public static void error(Object o, int i, String str) {
 		String cls = "null";
 		if(o != null) cls = o.getClass().getName();
-		String s = str + "\ne:" + i + "\nat " + cls + "\nt:" + Thread.currentThread().getName();
+		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName();
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
 		display(a);

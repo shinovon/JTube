@@ -47,7 +47,7 @@ public class VideoItem extends CustomButtonItem {
 		}
 		ih += 4;
 		g.setFont(mediumfont);
-		int tfh = 4 + mediumfontheight;
+		int tfh = mediumfontheight;
 		int t = ih;
 		if(titleArr != null) {
 			if(titleArr[0] != null) g.drawString(titleArr[0], 4, ih, 0);
