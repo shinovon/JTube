@@ -137,7 +137,7 @@ public class VideoItem extends CustomButtonItem {
 
 	public void setImage(Image img) {
 		this.img = img;
-		invalidate();
+		//invalidate();
 		repaint();
 	}
 

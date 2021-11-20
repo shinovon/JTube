@@ -46,7 +46,7 @@ public class Util implements Constants {
 					throw new IOException("Too many redirects!");
 				}
 			}
-			if(r >= 400) throw new IOException(r + " " + hc.getResponseMessage());
+			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openDataInputStream();
 			/*
 			int s = 0;

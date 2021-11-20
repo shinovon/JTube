@@ -11,6 +11,7 @@ import javax.microedition.lcdui.StringItem;
 
 import App;
 import Util;
+import Locale;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
@@ -21,13 +22,12 @@ import ui.custom.ChannelItem;
 // TODO
 public class ChannelModel extends AbstractModel implements ILoader, ItemCommandListener {
 	
-	private static final Command cOpenCmd = new Command("Open", Command.ITEM, 3);
+	private static final Command cOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 3);
 	
 	private String author;
 	private String authorId;
 	private int subCount;
 	private long totalViews;
-	private JSONArray authorThumbnails;
 	private String description;
 
 	private ImageItem item;
@@ -36,6 +36,8 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 
 	private boolean extended;
 	private boolean fromSearch;
+
+	private String imageUrl;
 
 	public ChannelModel(JSONObject o) {
 		parse(o, false);
@@ -55,7 +57,15 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		this.extended = extended;
 		author = o.getString("author");
 		authorId = o.getString("authorId");
-		authorThumbnails = o.getNullableArray("authorThumbnails");
+		if(App.videoPreviews || App.customItems) {
+			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
+			String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
+			//
+			if(u.startsWith("//")) {
+				u = "https:" + Util.replace(u, "s88", "s" + AUTHORITEM_IMAGE_HEIGHT);
+			}
+			imageUrl = u;
+		}
 		subCount = o.getInt("subCount", -1);
 		if(extended) {
 			totalViews = o.getLong("totalViews", 0);
@@ -92,28 +102,19 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		return makeItem();
 	}
 
-	private String getAuthorThumbUrl() {
-		String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
-		//
-		if(u.startsWith("//")) {
-			u = "https:" + Util.replace(u, "s88", "s" + AUTHORITEM_IMAGE_HEIGHT);
-		}
-		return u;
-	}
-
 	public void load() {
 		if(img != null) return;
 		if(item == null && customItem == null) return;
-		if(authorThumbnails == null) return;
+		if(imageUrl == null) return;
 		try {
-			byte[] b = App.hproxy(getAuthorThumbUrl());
+			byte[] b = App.hproxy(imageUrl);
 			img = Image.createImage(b, 0, b.length);
 			if(customItem != null) {
 				customItem.setImage(img);
 			} else {
 				item.setImage(img);
 			}
-			authorThumbnails = null;
+			imageUrl = null;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
@@ -129,7 +130,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 	}
 
 	public void dispose() {
-		authorThumbnails = null;
+		imageUrl = null;
 		img = null;
 		if(item != null) item.setImage(null);
 	}

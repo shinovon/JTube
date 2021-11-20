@@ -103,7 +103,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?fields=" + VIDEO_EXTENDED_FIELDS), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?fields=" + VIDEO_EXTENDED_FIELDS + (App.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
 		}
 		return this;
 	}
@@ -208,6 +208,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(c == vOpenChannelCmd) {
 			if(formContainer != null) {
 				App.display(formContainer);
+				return;
 			}
 			Image img = null;
 			if(authorItem != null) img = authorItem.getImage();
@@ -252,9 +253,13 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 
 	public void load() {
-		loadImage();
-		if(extended) {
-			loadAuthorImg();
+		try {
+			loadImage();
+			if(extended) {
+				loadAuthorImg();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

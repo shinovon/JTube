@@ -3,6 +3,7 @@ package cc.nnproject.utils;
 public class PlatformUtils {
 
 	public static final long S40_MEM = 2048 * 1024;
+	public static final long ASHA_MEM = 2621424;
 	
 	public static final String platform = System.getProperty("microedition.platform");
 	public static final long startMemory = Runtime.getRuntime().totalMemory();
@@ -58,7 +59,7 @@ public class PlatformUtils {
 	}
 
 	public static boolean isS40() {
-		return isNotS60() && platform.startsWith("Nokia") && startMemory == S40_MEM;
+		return isNotS60() && platform.startsWith("Nokia") && (startMemory >= S40_MEM && startMemory <= S40_MEM + 800 * 1024);
 	}
 	
 	public static boolean isAshaFullTouch() {

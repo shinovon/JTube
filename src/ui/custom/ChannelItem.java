@@ -7,7 +7,6 @@ import App;
 import Locale;
 import cc.nnproject.utils.PlatformUtils;
 import models.ChannelModel;
-import models.VideoModel;
 
 public class ChannelItem extends CustomButtonItem {
 

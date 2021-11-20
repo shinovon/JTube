@@ -27,6 +27,7 @@ import models.AbstractModel;
 import models.ChannelModel;
 import models.ILoader;
 import models.VideoModel;
+import ui.ChannelForm;
 import ui.ModelForm;
 import ui.Settings;
 import ui.VideoForm;
@@ -57,6 +58,7 @@ public class App implements CommandListener, Constants {
 	//private TextField searchText;
 	//private StringItem searchBtn;
 	private VideoForm videoForm;
+	private ChannelForm channelForm;
 	private Item loadingItem;
 	private static PlayerCanvas playerCanv;
 
@@ -108,6 +110,10 @@ public class App implements CommandListener, Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock);
 			t0.start();
 		}
+		loadForm();
+	}
+	
+	private void loadForm() {
 		try {
 			loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 			loadingItem.setLayout(Item.LAYOUT_CENTER);
@@ -119,13 +125,13 @@ public class App implements CommandListener, Constants {
 			}
 			gc();
 		} catch (InvidiousException e) {
-			error(this, Errors.App_startApp_load, e + "\n JSON: \n" + e.getJSON());
+			error(this, Errors.App_loadForm, e + "\n JSON: \n" + e.getJSON());
 		} catch (OutOfMemoryError e) {
 			gc();
-			error(this, Errors.App_startApp_load, "Out of memory!");
+			error(this, Errors.App_loadForm, "Out of memory!");
 		} catch (Throwable e) {
 			e.printStackTrace();
-			error(this, Errors.App_startApp_load, e);
+			error(this, Errors.App_loadForm, e);
 		}
 	}
 
@@ -179,10 +185,11 @@ public class App implements CommandListener, Constants {
 	}
 
 	private void loadTrends() {
+		boolean b = needsCheckMemory();
 		mainForm.addCommand(switchToPopularCmd);
 		try {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Trends));
-			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
 				if(mainForm.get(0) == loadingItem) {
 					mainForm.delete(0);
@@ -195,7 +202,9 @@ public class App implements CommandListener, Constants {
 				if(item == null) continue;
 				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
+				if(b) checkMemoryAndGc();
 			}
+			j = null;
 			notifyAsyncTasks();
 		} catch (RuntimeException e) {
 			throw e;
@@ -203,13 +212,26 @@ public class App implements CommandListener, Constants {
 			e.printStackTrace();
 			error(this, Errors.App_loadTrends, e);
 		}
+		gc();
 	}
 	
+	private boolean needsCheckMemory() {
+		return Settings.isLowEndDevice() && !App.videoPreviews;
+	}
+	
+	private void checkMemoryAndGc() {
+		Runtime r = Runtime.getRuntime();
+		if(r.freeMemory() > r.totalMemory() - 500 * 1024) {
+			gc();
+		}
+	}
+
 	private void loadPopular() {
+		boolean b = needsCheckMemory();
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Popular));
-			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
 				if(mainForm.get(0) == loadingItem) {
 					mainForm.delete(0);
@@ -222,7 +244,9 @@ public class App implements CommandListener, Constants {
 				if(item == null) continue;
 				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
+				if(b) checkMemoryAndGc();
 			}
+			j = null;
 			notifyAsyncTasks();
 		} catch (RuntimeException e) {
 			throw e;
@@ -230,30 +254,43 @@ public class App implements CommandListener, Constants {
 			e.printStackTrace();
 			error(this, Errors.App_loadPopular, e);
 		}
+		gc();
 	}
 
 	private void search(String q) {
+		boolean b = needsCheckMemory();
 		searchForm = new Form(NAME + " - " + Locale.s(TITLE_SearchQuery));
 		searchForm.setCommandListener(this);
-		searchForm.addCommand(backCmd);
 		searchForm.addCommand(settingsCmd);
 		searchForm.addCommand(searchCmd);
 		display(searchForm);
+		if(Settings.isLowEndDevice()) {
+			disposeMainForm();
+		}
+		if(mainForm != null) {
+			searchForm.addCommand(backCmd);
+		} else {
+			searchForm.addCommand(switchToTrendsCmd);
+			searchForm.addCommand(switchToPopularCmd);
+		}
 		stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + (searchChannels ? "&type=all" : ""));
+			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + "&fields=" + SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels ? "&type=all" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), true);
 				if(item == null) continue;
 				searchForm.append(item);
 				if(i >= SEARCH_LIMIT) break;
+				if(b) checkMemoryAndGc();
 			}
+			j = null;
 			notifyAsyncTasks();
 		} catch (Exception e) {
 			e.printStackTrace();
 			error(this, Errors.App_search, e);
 		}
+		gc();
 	}
 	
 	private Item parseAndMakeItem(JSONObject j, boolean search) {
@@ -291,6 +328,9 @@ public class App implements CommandListener, Constants {
 		if(id.startsWith(watch)) id = id.substring(watch.length());
 		try {
 			open(new VideoModel(id).extend());
+			if(Settings.isLowEndDevice()) {
+				disposeMainForm();
+			}
 		} catch (Exception e) {
 			error(this, Errors.App_openVideo, e);
 		}
@@ -382,13 +422,15 @@ public class App implements CommandListener, Constants {
 		display(form);
 		if(form instanceof VideoForm) {
 			app.videoForm = (VideoForm) form;
+		} else if(form instanceof ChannelForm) {
+			app.channelForm = (ChannelForm) form;
 		}
 		if(formContainer != null) {
 			form.setFormContainer(formContainer);
 		}
 		gc();
 		try {
-			Thread.sleep(100);
+			Thread.sleep(50);
 		} catch (InterruptedException e) {
 		}
 		app.addAsyncLoad(form);
@@ -426,8 +468,12 @@ public class App implements CommandListener, Constants {
 	public static void back(Form f) {
 		if(f instanceof ModelForm && ((ModelForm)f).getModel().isFromSearch() && inst.searchForm != null) {
 			App.display(inst.searchForm);
-		} else {
+		} else if(inst.mainForm != null) {
 			App.display(inst.mainForm);
+		} else {
+			inst.initForm();
+			App.display(inst.mainForm);
+			inst.loadForm();
 		}
 	}
 
@@ -476,6 +522,7 @@ public class App implements CommandListener, Constants {
 			display(mainForm);
 		}
 		if(c == backCmd && d == searchForm) {
+			if(mainForm == null) return;
 			stopDoingAsyncTasks();
 			display(mainForm);
 			disposeSearchForm();
@@ -489,16 +536,32 @@ public class App implements CommandListener, Constants {
 		if(c == switchToPopularCmd) {
 			startScreen = 1;
 			stopDoingAsyncTasks();
-			mainForm.deleteAll();
-			d.removeCommand(c);
+			if(mainForm != null) {
+				mainForm.deleteAll();
+			} else {
+				initForm();
+			}
+			if(searchForm != null) {
+				disposeSearchForm();
+			} else {
+				d.removeCommand(c);
+			}
 			loadPopular();
 			Settings.saveConfig();
 		}
 		if(c == switchToTrendsCmd) {
 			startScreen = 0;
 			stopDoingAsyncTasks();
-			mainForm.deleteAll();
-			d.removeCommand(c);
+			if(mainForm != null) {
+				mainForm.deleteAll();
+			} else {
+				initForm();
+			}
+			if(searchForm != null) {
+				disposeSearchForm();
+			} else {
+				d.removeCommand(c);
+			}
 			loadTrends();
 			Settings.saveConfig();
 		}
@@ -511,21 +574,42 @@ public class App implements CommandListener, Constants {
 	}
 	
 	public static void display(Displayable d) {
+		boolean b = false;
 		if(d == null) {
 			if(inst.videoForm != null) {
 				d = inst.videoForm;
+			} else if(inst.channelForm != null) {
+				d = inst.channelForm;
 			} else if(inst.searchForm != null) {
 				d = inst.searchForm;
-			} else {
+			} else if(inst.mainForm != null) {
 				d = inst.mainForm;
+			} else {
+				inst.initForm();
+				d = inst.mainForm;
+				b = true;
 			}
 		}
 		Display.getDisplay(midlet).setCurrent(d);
+		if(b) inst.loadForm();
+	}
+
+	void disposeMainForm() {
+		if(mainForm != null) return;
+		mainForm.deleteAll();
+		mainForm = null;
+		gc();
 	}
 
 	public void disposeVideoForm() {
 		videoForm.dispose();
 		videoForm = null;
+		gc();
+	}
+
+	public void disposeChannelForm() {
+		channelForm.dispose();
+		channelForm = null;
 		gc();
 	}
 	

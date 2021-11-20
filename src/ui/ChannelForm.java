@@ -61,16 +61,19 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		lastVideosBtn.addCommand(lastVideosCmd);
 		lastVideosBtn.setDefaultCommand(lastVideosCmd);
 		lastVideosBtn.setItemCommandListener(this);
+		append(lastVideosBtn);
 		searchVideosBtn = new StringItem(null, Locale.s(BTN_SearchVideos), Item.BUTTON);
 		searchVideosBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
 		searchVideosBtn.addCommand(searchVideosCmd);
 		searchVideosBtn.setDefaultCommand(searchVideosCmd);
 		searchVideosBtn.setItemCommandListener(this);
+		append(searchVideosBtn);
 		infoBtn = new StringItem(null, Locale.s(BTN_ChannelInformation), Item.BUTTON);
 		infoBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
 		infoBtn.addCommand(infoCmd);
 		infoBtn.setDefaultCommand(infoCmd);
 		infoBtn.setItemCommandListener(this);
+		append(infoBtn);
 	}
 
 	public void load() {
@@ -86,7 +89,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 	}
 
 	private void latestVideos() {
-		lastVideosForm = new Form(NAME + " - " + Locale.s(BTN_LatestVideos));
+		lastVideosForm = new Form(channel.getAuthor() + " - " + Locale.s(BTN_LatestVideos));
 		lastVideosForm.setCommandListener(this);
 		lastVideosForm.addCommand(backCmd);
 		lastVideosForm.addCommand(settingsCmd);
@@ -94,7 +97,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		App.display(lastVideosForm);
 		App.inst.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest");
+			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?fields=" + VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), false);
@@ -118,7 +121,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		App.display(searchForm);
 		App.inst.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q));
+			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q) + "&fields=" + VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), true);
@@ -144,7 +147,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		if(c == lastVideosCmd) {
 			latestVideos();
 		}
-		if(c == searchCmd && d instanceof Form) {
+		if(c == searchVideosCmd && d instanceof Form) {
 			App.inst.stopDoingAsyncTasks();
 			if(searchForm != null) {
 				disposeSearchForm();
@@ -171,24 +174,29 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		}
 		if(d == this && c == backCmd) {
 			App.back(this);
+			App.inst.disposeChannelForm();
 			return;
 		}
 		App.inst.commandAction(c, d);
 	}
 
 	private void disposeLastVideosForm() {
+		if(lastVideosForm == null) return;
 		lastVideosForm.deleteAll();
 		lastVideosForm = null;
 		App.gc();
 	}
 
 	private void disposeSearchForm() {
+		if(searchForm == null) return;
 		searchForm.deleteAll();
 		searchForm = null;
 		App.gc();
 	}
 
 	public void dispose() {
+		disposeLastVideosForm();
+		disposeSearchForm();
 		channel.disposeExtendedVars();
 		channel = null;
 	}
@@ -202,7 +210,21 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 	}
 
 	public void commandAction(Command c, Item i) {
-		
+		if(c == searchVideosCmd) {
+			App.inst.stopDoingAsyncTasks();
+			if(searchForm != null) {
+				disposeSearchForm();
+			}
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle(Locale.s(CMD_Search));
+			t.addCommand(searchOkCmd);
+			t.addCommand(cancelCmd);
+			App.display(t);
+		}
+		if(c == lastVideosCmd) {
+			latestVideos();
+		}
 	}
 
 	// ignore

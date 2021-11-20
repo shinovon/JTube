@@ -33,8 +33,13 @@ public class LoaderThread extends Thread {
 				}
 				for(int i = 0; i < len; i++) {
 					if(checkInterrupted()) break;
-					ILoader l = ((ILoader) vector.elementAt(0));
-					vector.removeElementAt(0);
+					ILoader l;
+					try {
+						l = ((ILoader) vector.elementAt(0));
+						vector.removeElementAt(0);
+					} catch (ArrayIndexOutOfBoundsException e) {
+						break;
+					}
 					try {
 						l.load();
 					} catch (RuntimeException e) {

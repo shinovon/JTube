@@ -59,9 +59,10 @@ public interface Constants extends LocaleConstants {
 	
 	public static String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	
-	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,videoThumbnails,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,authorThumbnails,viewCount";
+	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,viewCount";
 	static final String CHANNEL_EXTENDED_FIELDS = "subCount,author,authorId,description,totalViews";
-	static final String TRENDING_FIELDS = "title,videoId,author,lengthSeconds";
+	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";
+	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	
 	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
 	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;

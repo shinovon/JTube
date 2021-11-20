@@ -11,16 +11,24 @@ public class Locale implements LocaleConstants {
 		String s = System.getProperty("user.language");
 		if(s == null) {
 			s = System.getProperty("microedition.locale");
-			if(s != null && s.length() >= 2) {
-			s = s.substring(0, 2);
-			} else {
+			if(s == null)  {
 				s = "en";
 			}
 		}
+		if(s.length() >= 2) {
+			s = s.substring(0, 2);
+		}
 		locale = s.toLowerCase();
-		InputStream in = Locale.class.getResourceAsStream("/l." + s);
+		
+		InputStream in = null;
+		try {
+			in = Locale.class.getResourceAsStream("/l." + s);
+		} catch (Exception e) {
+		}
 		if(in == null) {
-			if(s.startsWith("ru") || s.startsWith("kz") || s.startsWith("by") || s.startsWith("ua")) {
+			if(!s.equals("en") && (s.equals("ru")
+					|| s.equals("uk") || s.equals("be") || s.equals("kk")
+					|| s.equals("ua") || s.equals("by") || s.equals("kz"))) {
 				localei = 1;
 			} else {
 				localei = 0;
@@ -88,6 +96,8 @@ public class Locale implements LocaleConstants {
 			case TITLE_Trends:
 				return "Trends";
 			case TITLE_Popular:
+				return "Popular";
+			case TITLE_SearchQuery:
 				return "Search query";
 			case TITLE_Settings:
 				return "Settings";
@@ -164,6 +174,8 @@ public class Locale implements LocaleConstants {
 			case TITLE_Trends:
 				return "Тренды";
 			case TITLE_Popular:
+				return "Популярные";
+			case TITLE_SearchQuery:
 				return "Результаты поиска";
 			case TITLE_Settings:
 				return "Настройки";
