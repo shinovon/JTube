@@ -3,6 +3,7 @@ package models;
 import java.io.IOException;
 
 import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
@@ -44,6 +45,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private ImageItem authorItem;
 	
 	private VideoItem customItem;
+	
+	private Form formContainer;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -56,6 +59,11 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public VideoModel(JSONObject j, boolean extended) {
 		parse(j, extended);
+	}
+
+	public VideoModel(JSONObject j, Form form) {
+		this(j, false);
+		this.formContainer = form;
 	}
 
 	private void parse(JSONObject j, boolean extended) {
@@ -147,6 +155,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 				customItem.setImage(img);
 			}
 			thumbnailUrl = null;
+		} catch (RuntimeException e) {
+			img = null;
+			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
@@ -192,9 +203,12 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public void commandAction(Command c, Item item) {
 		if(c == vOpenCmd || c == null) {
-			App.open(this);
+			App.open(this, formContainer);
 		}
 		if(c == vOpenChannelCmd) {
+			if(formContainer != null) {
+				App.display(formContainer);
+			}
 			Image img = null;
 			if(authorItem != null) img = authorItem.getImage();
 			App.open(new ChannelModel(authorId, author, img));

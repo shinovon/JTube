@@ -85,6 +85,28 @@ public class Locale implements LocaleConstants {
 				return "Images proxy prefix";
 			case SET_CountryCode:
 				return "Country code (ISO 3166)";
+			case TITLE_Trends:
+				return "Trends";
+			case TITLE_Popular:
+				return "Search query";
+			case TITLE_Settings:
+				return "Settings";
+			case BTN_LatestVideos:
+				return "Latest videos";
+			case BTN_SearchVideos:
+				return "Search videos";
+			case TITLE_Loading:
+				return "Loading";
+			case TXT_Views:
+				return "Views";
+			case TXT_LikesDislikes:
+				return "Likes / Dislikes";
+			case TXT_Published:
+				return "Published";
+			case TXT_Description:
+				return "Description";
+			case BTN_ChannelInformation:
+				return "Information";
 			}
 		}
 		case 1: {
@@ -139,6 +161,28 @@ public class Locale implements LocaleConstants {
 				return "Прокси для картинок";
 			case SET_CountryCode:
 				return "Код страны (ISO 3166)";
+			case TITLE_Trends:
+				return "Тренды";
+			case TITLE_Popular:
+				return "Результаты поиска";
+			case TITLE_Settings:
+				return "Настройки";
+			case BTN_LatestVideos:
+				return "Последние видео";
+			case BTN_SearchVideos:
+				return "Поиск видео";
+			case TITLE_Loading:
+				return "Загрузка";
+			case TXT_Views:
+				return "Просмотры";
+			case TXT_LikesDislikes:
+				return "Понравилось / Не понравилось";
+			case TXT_Published:
+				return "Выпущено";
+			case TXT_Description:
+				return "Описание";
+			case BTN_ChannelInformation:
+				return "Информация";
 			}
 		}
 		}

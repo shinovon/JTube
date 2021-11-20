@@ -25,7 +25,7 @@ public interface Constants extends LocaleConstants {
 	static final Command cancelCmd = new Command(Locale.s(CMD_Cancel), Command.CANCEL, 2);
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
 	
-	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.SCREEN, 1);
+	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
 	
 	// Video page commands
 	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 3);
@@ -50,8 +50,9 @@ public interface Constants extends LocaleConstants {
 	static final int SEARCH_LIMIT_LOWEND = 25; 
 	static final int TRENDS_LIMIT = PlatformUtils.isNotS60() ? TRENDS_LIMIT_LOWEND : TRENDS_LIMIT_S60;
 	static final int SEARCH_LIMIT = PlatformUtils.isNotS60() ? SEARCH_LIMIT_LOWEND : SEARCH_LIMIT_S60;
+	static final int LATESTVIDEOS_LIMIT = 30;
 	
-	static final String NAME = "Unnamed";
+	static final String NAME = "JTube";
 	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
 	static final String[] SETTINGS_CHECKS = new String[] { "Remember search", "HTTP Proxy Streaming" };
 	static final String[] APPEARANCE_CHECKS = new String[] { "Custom items", "Video previews", "Channels in search" };

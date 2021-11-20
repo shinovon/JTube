@@ -56,7 +56,11 @@ public class JSONObject extends AbstractJSON {
 	
 	public String getString(String name, String def) {
 		try {
-			return get(name, def).toString();
+			Object o = get(name, def);
+			if(o == null || o instanceof String) {
+				return (String) o;
+			}
+			return o.toString();
 		} catch (Exception e) {
 			return def;
 		}

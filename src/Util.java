@@ -10,21 +10,29 @@ public class Util implements Constants {
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
 			throw new IllegalArgumentException("URL is null");
-		/*boolean isLoader = Thread.currentThread() instanceof LoaderThread;
+		boolean isLoader = Thread.currentThread() instanceof LoaderThread;
 		LoaderThread il = null;
 		if(isLoader) {
 			il = (LoaderThread) Thread.currentThread();
-		}*/
+		}
 		ByteArrayOutputStream o = null;
 		HttpConnection hc = null;
-		DataInputStream i = null;
+		DataInputStream in = null;
 		try {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
 			//hc.setRequestProperty("Accept-Encoding", "identity");
+			if(isLoader) {
+				if(il.checkInterrupted()) {
+					throw new RuntimeException("loader interrupt");
+				}
+			} else {
+				Thread.sleep(1);
+			}
 			int r = hc.getResponseCode();
-			if (r == 301 || r == 302) {
+			int redirects = 0;
+			while (r == 301 || r == 302) {
 				String redir = hc.getHeaderField("Location");
 				if (redir.startsWith("/")) {
 					String tmp = url.substring(url.indexOf("//") + 2);
@@ -34,9 +42,12 @@ public class Util implements Constants {
 				hc.close();
 				hc = (HttpConnection) Connector.open(redir);
 				hc.setRequestMethod("GET");
+				if(redirects++ > 8) {
+					throw new IOException("Too many redirects!");
+				}
 			}
 			if(r >= 400) throw new IOException(r + " " + hc.getResponseMessage());
-			i = hc.openDataInputStream();
+			in = hc.openDataInputStream();
 			/*
 			int s = 0;
 			
@@ -53,14 +64,30 @@ public class Util implements Constants {
 			*/
 			byte[] b = new byte[16384];
 			o = new ByteArrayOutputStream();
-			int c;
+			/*int c;
 			while ((c = i.read(b)) != -1) {
 				o.write(b, 0, c);
+			}*/
+			int read;
+			int i = 0;
+			while((read = in.read(b)) != -1) {
+				o.write(b, 0, read);
+				if(i++ % 4 == 0) {
+					if(isLoader) {
+						if(il.checkInterrupted()) {
+							throw new RuntimeException("loader interrupt");
+						}
+					} else {
+						Thread.sleep(1);
+					}
+				}
 			}
 			return o.toByteArray();
+		} catch (InterruptedException e) {
+			throw new RuntimeException("interrupted");
 		} finally {
 			try {
-				if (i != null) i.close();
+				if (in != null) in.close();
 			} catch (IOException e) {
 			}
 			try {

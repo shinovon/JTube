@@ -3,6 +3,7 @@ package ui;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
@@ -10,6 +11,7 @@ import javax.microedition.lcdui.StringItem;
 
 import App;
 import Errors;
+import Locale;
 import Constants;
 import models.AbstractModel;
 import models.VideoModel;
@@ -22,6 +24,8 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 
 	private StringItem loadingItem;
 
+	private Form formContainer;
+
 	public VideoForm(VideoModel v) {
 		super(v.getTitle());
 		this.video = v;
@@ -30,7 +34,7 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		addCommand(downloadCmd);
 		addCommand(settingsCmd);
 		addCommand(watchCmd);
-		loadingItem = new StringItem("", "Loading");
+		loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
 		//addCommand(browserCmd);
 		if(v.isExtended()) {
@@ -64,16 +68,16 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		Item author = new StringItem(null, video.getAuthor());
 		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(author);
-		Item vi = new StringItem("Views", "" + video.getViewCount());
+		Item vi = new StringItem(Locale.s(TXT_Views), "" + video.getViewCount());
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
-		Item ld = new StringItem("Likes / Dislikes", "" + video.getLikeCount() + " / " + video.getDislikeCount());
+		Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
 		ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(ld);
-		Item date = new StringItem("Published", video.getPublishedText());
+		Item date = new StringItem(Locale.s(TXT_Published), video.getPublishedText());
 		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(date);
-		append(new StringItem("Description", video.getDescription()));
+		append(new StringItem(Locale.s(TXT_Description), video.getDescription()));
 	}
 
 	public void load() {
@@ -98,7 +102,11 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 			return;
 		}
 		if(c == backCmd) {
-			App.back(this);
+			if(formContainer != null) {
+				App.display(formContainer);
+			} else {
+				App.back(this);
+			}
 			app.disposeVideoForm();
 			return;
 		}
@@ -122,6 +130,10 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 
 	public AbstractModel getModel() {
 		return getVideo();
+	}
+
+	public void setFormContainer(Form form) {
+		formContainer = form;
 	}
 
 }

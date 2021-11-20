@@ -12,5 +12,7 @@ public abstract class ModelForm extends Form implements ILoader {
 	}
 
 	public abstract AbstractModel getModel();
+
+	public abstract void setFormContainer(Form form);
 	
 }

@@ -11,5 +11,7 @@ public class Errors {
 	public static final int App_loadTrends = 8;
 	public static final int App_loadPopular = 9;
 	public static final int App_search = 10;
+	public static final int ChannelForm_search = 11;
+	public static final int ChannelForm_latestVideos = 12;
 
 }

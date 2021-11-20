@@ -10,6 +10,12 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 	private ItemCommandListener l;
 	private boolean pressed;
 	private long pressTime;
+	private int pressX;
+	private int pressY;
+
+	protected int width;
+	protected int height;
+	
 
 	protected CustomButtonItem(ItemCommandListener l) {
 		super(null);
@@ -26,6 +32,8 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 	public void pointerPressed(int x, int y) {
 		pressed = true;
 		pressTime = System.currentTimeMillis();
+		pressX = x;
+		pressY = y;
 	}
 	
 	public void pointerDragged(int x, int y) {
@@ -34,8 +42,13 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 	
 	public void pointerReleased(int x, int y) {
 		long l = System.currentTimeMillis() - pressTime;
-		if(pressed && l <= 150) {
-			callCommandOK();
+		if(pressed && l <= 250) {
+			// Symbian^3 does not support CustomItem drag events
+			int ax = Math.abs(x - pressX);
+			int ay = Math.abs(y - pressY);
+			if(ax < 5 && ay < 5) {
+				callCommandOK();
+			}
 		}
 		pressed = false;
 	}

@@ -26,6 +26,10 @@ public class VideoItem extends CustomButtonItem {
 	private int imgHeight;
 	private int textWidth;
 
+	// XXX: DEBUG
+	private static int count;
+	private int id;
+
 	public VideoItem(VideoModel v) {
 		super(v);
 		this.video = v;
@@ -33,9 +37,12 @@ public class VideoItem extends CustomButtonItem {
 		this.lengthStr = timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
+		id = count++;
 	}
 
 	protected void paint(Graphics g, int w, int h) {
+		width = w;
+		height = h;
 		int ih = getImgHeight();
 		g.setColor(-1);
 		g.fillRect(0, 0, w, h);
@@ -49,11 +56,12 @@ public class VideoItem extends CustomButtonItem {
 		g.setFont(mediumfont);
 		int tfh = mediumfontheight;
 		int t = ih;
+		if(title != null && titleArr == null) {
+			makeTitleArr();
+		}
 		if(titleArr != null) {
 			if(titleArr[0] != null) g.drawString(titleArr[0], 4, ih, 0);
 			if(titleArr[1] != null) g.drawString(titleArr[1], 4, t += tfh, 0);
-		} else if(title != null) {
-			makeTitleArr();
 		}
 		g.setColor(GRAYTEXT_COLOR);
 		g.setFont(smallfont);
@@ -61,7 +69,6 @@ public class VideoItem extends CustomButtonItem {
 			g.drawString(author, 4, t + tfh, 0);
 		}
 		if(lengthStr != null) {
-			g.setColor(0);
 			int sw = smallfont.stringWidth(lengthStr) + 4;
 			g.drawString(lengthStr, w - sw, ih, 0);
 		}
@@ -77,6 +84,7 @@ public class VideoItem extends CustomButtonItem {
 				titleArr[1] = arr[1];
 			}
 		}
+		title = null;
 	}
 
 	private int getImgHeight() {
@@ -91,13 +99,17 @@ public class VideoItem extends CustomButtonItem {
 	
 	private int getTextMaxWidth() {
 		if(textWidth > 0) return textWidth;
+		int w = width;
+		if(w <= 0) {
+			w = App.width - 4;
+		}
 		int i;
 		if(lengthStr != null) {
-			i = smallfont.stringWidth(lengthStr) + 4;
+			i = smallfont.stringWidth(lengthStr) + 8;
 		} else {
-			i = smallfont.stringWidth(" AA:AA:AA") + 4;
+			i = smallfont.stringWidth(" AA:AA:AA") + 8;
 		}
-		return textWidth = (App.width - 8) - i;
+		return textWidth = w - i;
 	}
 	
 	private int getTextHeight() {
@@ -151,6 +163,15 @@ public class VideoItem extends CustomButtonItem {
 	}
 	
 	protected void hideNotify() {
+	}
+
+	// XXX: DEBUG
+	public String toString() {
+		return "VideoModel" + id;
+	}
+	
+	public VideoModel getVideo() {
+		return video;
 	}
 	
 	private static String[] getStringArray(String text, int maxWidth, Font font) {

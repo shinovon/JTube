@@ -69,6 +69,7 @@ public class App implements CommandListener, Constants {
 	private Vector v0;
 	private Vector v1;
 	private Vector v2;
+	private Object addLock = new Object();
 	
 	public static int width;
 	public static int height;
@@ -97,18 +98,18 @@ public class App implements CommandListener, Constants {
 		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
-			t0 = new LoaderThread(5, lazyLoadLock, v0);
-			t1 = new LoaderThread(5, lazyLoadLock, v1);
-			t2 = new LoaderThread(5, lazyLoadLock, v2);
+			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock);
+			t1 = new LoaderThread(5, lazyLoadLock, v1, addLock);
+			t2 = new LoaderThread(5, lazyLoadLock, v2, addLock);
 			t0.start();
 			t1.start();
 			t2.start();
 		} else {
-			t0 = new LoaderThread(5, lazyLoadLock, v0);
+			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock);
 			t0.start();
 		}
 		try {
-			loadingItem = new StringItem(null, "Loading");
+			loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 			loadingItem.setLayout(Item.LAYOUT_CENTER);
 			mainForm.append(loadingItem);
 			if(startScreen == 0) {
@@ -118,13 +119,13 @@ public class App implements CommandListener, Constants {
 			}
 			gc();
 		} catch (InvidiousException e) {
-			error(this, Errors.App_startApp_load, e.toString() + "\n JSON: \n" + e.getJSON().toString());
+			error(this, Errors.App_startApp_load, e + "\n JSON: \n" + e.getJSON());
 		} catch (OutOfMemoryError e) {
 			gc();
 			error(this, Errors.App_startApp_load, "Out of memory!");
 		} catch (Throwable e) {
 			e.printStackTrace();
-			error(this, Errors.App_startApp_load, e.toString());
+			error(this, Errors.App_startApp_load, e);
 		}
 	}
 
@@ -152,6 +153,7 @@ public class App implements CommandListener, Constants {
 	public static byte[] hproxy(String s) throws IOException {
 		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
 		if(imgproxy == null || imgproxy.length() <= 1) return Util.get(s);
+		if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
 		return Util.get(imgproxy + Util.url(s));
 	}
 
@@ -163,6 +165,7 @@ public class App implements CommandListener, Constants {
 		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
 			if(((JSONObject) res).has("code")) {
+				System.out.println(res.toString());
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"));
 			}
 			if(((JSONObject) res).has("error")) {
@@ -178,7 +181,7 @@ public class App implements CommandListener, Constants {
 	private void loadTrends() {
 		mainForm.addCommand(switchToPopularCmd);
 		try {
-			mainForm.setTitle(NAME + " - Trends");
+			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Trends));
 			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
 				if(mainForm.get(0) == loadingItem) {
@@ -198,14 +201,14 @@ public class App implements CommandListener, Constants {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			error(this, Errors.App_loadTrends, e.toString());
+			error(this, Errors.App_loadTrends, e);
 		}
 	}
 	
 	private void loadPopular() {
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
-			mainForm.setTitle(NAME + " - Popular");
+			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Popular));
 			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + TRENDING_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
 				if(mainForm.get(0) == loadingItem) {
@@ -225,12 +228,12 @@ public class App implements CommandListener, Constants {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			error(this, Errors.App_loadPopular, e.toString());
+			error(this, Errors.App_loadPopular, e);
 		}
 	}
 
 	private void search(String q) {
-		searchForm = new Form(NAME + " - Search query");
+		searchForm = new Form(NAME + " - " + Locale.s(TITLE_SearchQuery));
 		searchForm.setCommandListener(this);
 		searchForm.addCommand(backCmd);
 		searchForm.addCommand(settingsCmd);
@@ -249,7 +252,7 @@ public class App implements CommandListener, Constants {
 			notifyAsyncTasks();
 		} catch (Exception e) {
 			e.printStackTrace();
-			error(this, Errors.App_search, e.toString());
+			error(this, Errors.App_search, e);
 		}
 	}
 	
@@ -289,7 +292,7 @@ public class App implements CommandListener, Constants {
 		try {
 			open(new VideoModel(id).extend());
 		} catch (Exception e) {
-			error(this, Errors.App_openVideo, e.toString());
+			error(this, Errors.App_openVideo, e);
 		}
 	}
 
@@ -366,6 +369,10 @@ public class App implements CommandListener, Constants {
 	}
 
 	public static void open(AbstractModel model) {
+		open(model, null);
+	}
+
+	public static void open(AbstractModel model, Form formContainer) {
 		App app = inst;
 		if(model.isFromSearch() && !rememberSearch) {
 			app.disposeSearchForm();
@@ -376,7 +383,14 @@ public class App implements CommandListener, Constants {
 		if(form instanceof VideoForm) {
 			app.videoForm = (VideoForm) form;
 		}
+		if(formContainer != null) {
+			form.setFormContainer(formContainer);
+		}
 		gc();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
 		app.addAsyncLoad(form);
 		app.notifyAsyncTasks();
 	}
@@ -405,7 +419,7 @@ public class App implements CommandListener, Constants {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			error(null, Errors.App_watch, e.toString());
+			error(null, Errors.App_watch, e);
 		}
 	}
 
@@ -436,7 +450,7 @@ public class App implements CommandListener, Constants {
 			}
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
 			t.setCommandListener(this);
-			t.setTitle("Search");
+			t.setTitle(Locale.s(CMD_Search));
 			t.addCommand(searchOkCmd);
 			t.addCommand(cancelCmd);
 			display(t);
@@ -529,7 +543,7 @@ public class App implements CommandListener, Constants {
 		midlet.platformRequest(s);
 	}
 	
-	void addAsyncLoad(ILoader v) {
+	public void addAsyncLoad(ILoader v) {
 		synchronized(lazyLoadLock) {
 			if(v1 == null) {
 				v0.addElement(v);
@@ -548,9 +562,21 @@ public class App implements CommandListener, Constants {
 		}
 	}
 	
-	void notifyAsyncTasks() {
+	public void notifyAsyncTasks() {
 		synchronized(lazyLoadLock) {
 			lazyLoadLock.notifyAll();
+		}
+	}
+	
+	void waitAsyncTasks() {
+		synchronized(lazyLoadLock) {
+			lazyLoadLock.notifyAll();
+		}
+		try {
+			synchronized(addLock) {
+				addLock.wait();
+			}
+		} catch (Exception e) {
 		}
 	}
 
@@ -559,6 +585,7 @@ public class App implements CommandListener, Constants {
 		if(t1 != null) t1.pleaseInterrupt();
 		if(t2 != null) t2.pleaseInterrupt();
 		v0.removeAllElements();
+		waitAsyncTasks();
 	}
 
 	private void testCanvas() {
@@ -590,6 +617,10 @@ public class App implements CommandListener, Constants {
 		Alert a = new Alert("", s, null, AlertType.WARNING);
 		a.setTimeout(-2);
 		display(a);
+	}
+
+	public static void error(Object o, int i, Throwable e) {
+		error(o, i, e.toString());
 	}
 
 	public static void error(Object o, int i, String str) {

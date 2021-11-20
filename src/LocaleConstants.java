@@ -30,5 +30,17 @@ public interface LocaleConstants {
 	// subcribers % 10 == 1
 	public static final int TXT_10_1subscribers = 27;
 	public static final int TXT_subscribers = 28;
+	public static final int TITLE_Trends = 29;
+	public static final int TITLE_Popular = 30;
+	public static final int TITLE_SearchQuery = 31;
+	public static final int TITLE_Settings = 32;
+	public static final int BTN_LatestVideos = 33;
+	public static final int BTN_SearchVideos = 34;
+	public static final int TITLE_Loading = 35;
+	public static final int TXT_Views = 36;
+	public static final int TXT_LikesDislikes = 37;
+	public static final int TXT_Published = 38;
+	public static final int TXT_Description = 39;
+	public static final int BTN_ChannelInformation = 40;
 
 }

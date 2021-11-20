@@ -7,6 +7,7 @@ import App;
 import Locale;
 import cc.nnproject.utils.PlatformUtils;
 import models.ChannelModel;
+import models.VideoModel;
 
 public class ChannelItem extends CustomButtonItem {
 
@@ -27,6 +28,8 @@ public class ChannelItem extends CustomButtonItem {
 	}
 
 	protected void paint(Graphics g, int w, int h) {
+		width = w;
+		height = h;
 		g.setColor(-1);
 		g.fillRect(0, 0, w, h);
 		if(img != null) {
@@ -40,11 +43,11 @@ public class ChannelItem extends CustomButtonItem {
 		if(subsStr != null) {
 			ty -= (sfh + 4) / 2;
 		}
-		g.drawString(author, 54, ty, 0);
+		g.drawString(author, 56, ty, 0);
 		g.setColor(GRAYTEXT_COLOR);
 		g.setFont(smallfont);
 		if(subsStr != null) {
-			g.drawString(subsStr, 54, ty + fh + 4, 0);
+			g.drawString(subsStr, 56, ty + fh + 4, 0);
 		}
 	}
 
@@ -68,6 +71,10 @@ public class ChannelItem extends CustomButtonItem {
 	public void setImage(Image img) {
 		this.img = img;
 		repaint();
+	}
+	
+	public ChannelModel getChannel() {
+		return channel;
 	}
 	
 	protected void showNotify() {

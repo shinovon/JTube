@@ -28,7 +28,7 @@ public class Settings extends Form implements Constants, CommandListener {
 	private ChoiceGroup uiChoice;
 
 	public Settings() {
-		super("Settings");
+		super(Locale.s(TITLE_Settings));
 		setCommandListener(this);
 		addCommand(applyCmd);
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);

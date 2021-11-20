@@ -11,7 +11,7 @@ public class TestCanvas extends Canvas {
 	}
 
 	protected void paint(Graphics g) {
-		g.drawString("Testing...", 0, 0, 0);
+		g.drawString("Loading...", 0, 0, 0);
 	}
 	
 	// для того чтобы симбиан поняла что виртуальные кнопки пихать не надо
