@@ -54,7 +54,7 @@ public interface Constants extends LocaleConstants {
 	
 	static final String NAME = "JTube";
 	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p" };
-	static final String[] SETTINGS_CHECKS = new String[] { "Remember search", "HTTP Proxy Streaming" };
+	static final String[] SETTINGS_CHECKS = new String[] { "Remember search", "HTTP Proxy Streaming", "Pre-load previews to RMS" };
 	static final String[] APPEARANCE_CHECKS = new String[] { "Custom items", "Video previews", "Channels in search" };
 	
 	public static String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";

@@ -11,6 +11,7 @@ public class PlatformUtils {
 	
 	private static final String[] ashaFullTouchModels = new String[] { "230", "305", "306", "308", "309", "310", "311", "500", "501", "502", "503" };
 	private static final String[] ashaTouchAndTypeModels = new String[] { "202", "203", "300", "303" };
+	private static final String[] ashaTypeModels = new String[] { "200", "201", "205", "210", "302" };
 	
 	public static final boolean isKemulator;
 	
@@ -59,7 +60,24 @@ public class PlatformUtils {
 	}
 
 	public static boolean isS40() {
-		return isNotS60() && platform.startsWith("Nokia") && (startMemory >= S40_MEM && startMemory <= S40_MEM + 800 * 1024);
+		return isNotS60() && platform.startsWith("Nokia") && startMemory == S40_MEM;
+	}
+	
+	public static boolean isAsha() {
+		if(!isNotS60() || !platform.startsWith("Nokia")) return false;
+		String s = platform.substring(5);
+		if(!(s.length() == 3 || s.charAt(3) == '/' || s.charAt(3) == '(' || s.charAt(3) == ' ')) return false;
+
+		for(int i = 0; i < ashaTypeModels.length; i++) {
+			if(s.startsWith(ashaTouchAndTypeModels[i])) return true;
+		}
+		for(int i = 0; i < ashaFullTouchModels.length; i++) {
+			if(s.startsWith(ashaFullTouchModels[i])) return true;
+		}
+		for(int i = 0; i < ashaTouchAndTypeModels.length; i++) {
+			if(s.startsWith(ashaTouchAndTypeModels[i])) return true;
+		}
+		return false;
 	}
 	
 	public static boolean isAshaFullTouch() {

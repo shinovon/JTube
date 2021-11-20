@@ -7,6 +7,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import App;
+import Records;
 import cc.nnproject.utils.PlatformUtils;
 import models.VideoModel;
 
@@ -25,6 +26,35 @@ public class VideoItem extends CustomButtonItem {
 	// cached values
 	private int imgHeight;
 	private int textWidth;
+	
+	private static int count;
+	private int id;
+
+	private Runnable loadImgRMS = new Runnable() {
+		public void run() {
+			try {
+				Image img = Records.saveOrGetImage(video.getVideoId(), null);
+				if(img == null) {
+					System.out.println("img null " + VideoItem.this.toString());
+					return;
+				}
+				System.out.println("img " + VideoItem.this.toString());
+				setImage(video.customResize(img));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	};
+
+	private Runnable setImgNull = new Runnable() {
+		public void run() {
+			try {
+				setImage(null);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	};
 
 	public VideoItem(VideoModel v) {
 		super(v);
@@ -33,6 +63,7 @@ public class VideoItem extends CustomButtonItem {
 		this.lengthStr = timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
+		id = count++;
 	}
 
 	protected void paint(Graphics g, int w, int h) {
@@ -94,9 +125,9 @@ public class VideoItem extends CustomButtonItem {
 	
 	private int getTextMaxWidth() {
 		if(textWidth > 0) return textWidth;
-		int w = width;
+		int w = width - 4;
 		if(w <= 0) {
-			w = App.width - 4;
+			w = App.width - 8;
 		}
 		int i;
 		if(lengthStr != null) {
@@ -135,6 +166,10 @@ public class VideoItem extends CustomButtonItem {
 		//invalidate();
 		repaint();
 	}
+	
+	public String toString() {
+		return "VideoModel " + id;
+	}
 
 	private static String timeStr(int i) {
 		if(i <= 0) return null;
@@ -155,9 +190,17 @@ public class VideoItem extends CustomButtonItem {
 	}
 	
 	protected void showNotify() {
+		System.out.println("showNotify " + toString());
+		if(App.rmsPreviews) {
+			App.inst.scheduleRunnable(loadImgRMS);
+		}
 	}
 	
 	protected void hideNotify() {
+		System.out.println("hideNotify " + toString());
+		if(App.rmsPreviews) {
+			App.inst.scheduleRunnable(setImgNull);
+		}
 	}
 	
 	public VideoModel getVideo() {

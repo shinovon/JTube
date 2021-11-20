@@ -7,8 +7,11 @@ import App;
 public class App2 extends MIDlet {
 
 	private static boolean started;
+	public boolean running;
 
-	protected void destroyApp(boolean b) {}
+	protected void destroyApp(boolean b) {
+		running = false;
+	}
 
 	protected void pauseApp() {}
 
@@ -16,6 +19,7 @@ public class App2 extends MIDlet {
 		if(started) return;
 		App.midlet = this;
 		started = true;
+		running = true;
 		App.inst = new App();
 		App.inst.startApp();
 	}

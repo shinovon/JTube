@@ -59,12 +59,14 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		authorId = o.getString("authorId");
 		if(App.videoPreviews || App.customItems) {
 			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
-			String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
-			//
-			if(u.startsWith("//")) {
-				u = "https:" + Util.replace(u, "s88", "s" + AUTHORITEM_IMAGE_HEIGHT);
+			if(authorThumbnails != null) {
+				String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
+				//
+				if(u.startsWith("//")) {
+					u = "https:" + Util.replace(u, "s88", "s" + AUTHORITEM_IMAGE_HEIGHT);
+				}
+				imageUrl = u;
 			}
-			imageUrl = u;
 		}
 		subCount = o.getInt("subCount", -1);
 		if(extended) {
@@ -84,7 +86,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		if(App.customItems) {
 			return customItem = new ChannelItem(this);
 		}
-		if(!App.videoPreviews) {
+		if(!App.videoPreviews || App.rmsPreviews) {
 			return new StringItem(null, author);
 		}
 		return item = new ImageItem(author, img, Item.LAYOUT_CENTER, null);

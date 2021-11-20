@@ -48,6 +48,7 @@ public class App implements CommandListener, Constants {
 	public static String inv = iteroni;
 	public static boolean customItems;
 	public static String imgproxy = hproxy;
+	public static boolean rmsPreviews;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -73,6 +74,38 @@ public class App implements CommandListener, Constants {
 	private Vector v2;
 	private Object addLock = new Object();
 	
+	private Vector queuedTasks = new Vector();
+	protected Object tasksLock = new Object();
+	private Thread tasksThread = new Thread() {
+		public void run() {
+			while(midlet.running) {
+				try {
+					synchronized (tasksLock) {
+						tasksLock.wait();
+					}
+				} catch (InterruptedException e) {
+					return;
+				}
+				while(queuedTasks.size() > 0) {
+					try {
+						((Runnable)queuedTasks.elementAt(0)).run();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					queuedTasks.removeElementAt(0);
+					Thread.yield();
+				}
+			}
+		}
+	};
+
+	public void scheduleRunnable(Runnable r) {
+		queuedTasks.addElement(r);
+		synchronized(tasksLock) {
+			tasksLock.notify();
+		}
+	}
+	
 	public static int width;
 	public static int height;
 
@@ -96,6 +129,8 @@ public class App implements CommandListener, Constants {
 		v0 = new Vector();
 		testCanvas();
 		initForm();
+		tasksThread.setPriority(4);
+		tasksThread.start();
 		Settings.loadConfig();
 		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
@@ -159,7 +194,7 @@ public class App implements CommandListener, Constants {
 	public static byte[] hproxy(String s) throws IOException {
 		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
 		if(imgproxy == null || imgproxy.length() <= 1) return Util.get(s);
-		if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
+		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
 		return Util.get(imgproxy + Util.url(s));
 	}
 

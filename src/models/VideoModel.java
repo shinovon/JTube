@@ -11,6 +11,7 @@ import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 
 import App;
+import Records;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
@@ -129,30 +130,44 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public ImageItem makeImageItemForPage() {
 		return imageItem = new ImageItem(null, img, Item.LAYOUT_CENTER, null);
 	}
+	
+	public Image customResize(Image img) {
+		float iw = img.getWidth();
+		float ih = img.getHeight();
+		float nw = (float) imageWidth;
+		int nh = (int) (nw * (ih / iw));
+		img = ImageUtils.resize(img, imageWidth, nh);
+		float f = iw / ih;
+		if(f == 4F / 3F) {
+			// cropping to 16:9
+			float ch = nw * (9F / 16F);
+			int chh = (int) ((nh - ch) / 2F);
+			return ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+		}
+		return img;
+	}
 
 	public void loadImage() {
 		if(img != null) return;
 		if(thumbnailUrl == null) return;
 		if(imageItem == null && customItem == null) return;
 		try {
-			byte[] b = App.hproxy(thumbnailUrl);
-			img = Image.createImage(b, 0, b.length);
-			float iw = img.getWidth();
-			float ih = img.getHeight();
-			float nw = (float) imageWidth;
-			int nh = (int) (nw * (ih / iw));
-			img = ImageUtils.resize(img, imageWidth, nh);
-			if(!App.customItems) {
-				imageItem.setImage(img);
-			} else if(customItem != null) {
-				float f = iw / ih;
-				if(f == 4F / 3F) {
-					// cropping to 16:9
-					float ch = nw * (9F / 16F);
-					int chh = (int) ((nh - ch) / 2F);
-					img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			if(App.rmsPreviews) {
+				Records.save(videoId, thumbnailUrl);
+				App.gc();
+			} else {
+				byte[] b = App.hproxy(thumbnailUrl);
+				img = Image.createImage(b, 0, b.length);
+				if(!App.customItems) {
+					float iw = img.getWidth();
+					float ih = img.getHeight();
+					float nw = (float) imageWidth;
+					int nh = (int) (nw * (ih / iw));
+					img = ImageUtils.resize(img, imageWidth, nh);
+					imageItem.setImage(img);
+				} else if(customItem != null) {
+					customItem.setImage(customResize(img));
 				}
-				customItem.setImage(img);
 			}
 			thumbnailUrl = null;
 		} catch (RuntimeException e) {

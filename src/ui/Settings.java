@@ -57,6 +57,7 @@ public class Settings extends Form implements Constants, CommandListener {
 		uiChoice.setSelectedIndex(2, App.searchChannels);
 		checksChoice.setSelectedIndex(0, App.rememberSearch);
 		checksChoice.setSelectedIndex(1, App.httpStream);
+		checksChoice.setSelectedIndex(2, App.rmsPreviews);
 		//checksChoice.setSelectedIndex(4, App.apiProxy);
 		if(App.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
@@ -71,72 +72,89 @@ public class Settings extends Form implements Constants, CommandListener {
 	
 
 	public static void loadConfig() {
-		// Defaults
-		String downloadDir = System.getProperty("fileconn.dir.videos");
-		if(downloadDir == null)
-			downloadDir = System.getProperty("fileconn.dir.photos");
-		if(downloadDir == null)
-			downloadDir = "C:/";
-		else if(downloadDir.startsWith("file:///"))
-			downloadDir = downloadDir.substring("file:///".length());
-		App.downloadDir = downloadDir;
-		boolean lowEnd = isLowEndDevice();
-		if(lowEnd) {
-			App.httpStream = true;
-			App.rememberSearch = false;
-			App.searchChannels = true;
-			App.videoPreviews = false;
-			//if(isS40()) App.apiProxy = true;
-		} else {
-			if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
-				App.httpStream = true;
-				App.asyncLoading = true;
-			}
-			if(PlatformUtils.isSymbian3()) {
-				App.customItems = true;
-			}
-			App.rememberSearch = true;
-			App.searchChannels = true;
-			App.videoPreviews = true;
-		}
-
-		int min = Math.min(App.width, App.height);
-		if(min < 360) {
-			App.videoRes = "144p";
-		} else {
-			App.videoRes = "360p";
-		}
+		System.out.println("rmsPreviews " + App.rmsPreviews);
+		RecordStore r = null;
 		try {
-			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
-			JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
-			r.closeRecordStore();
-			if(j.has("videoRes"))
-				App.videoRes = j.getString("videoRes");
-			if(j.has("region"))
-				App.region = j.getString("region");
-			if(j.has("downloadDir"))
-				App.downloadDir = j.getString("downloadDir");
-			if(j.has("videoPreviews"))
-				App.videoPreviews = j.getBoolean("videoPreviews");
-			if(j.has("searchChannels"))
-				App.searchChannels = j.getBoolean("searchChannels");
-			if(j.has("rememberSearch"))
-				App.rememberSearch = j.getBoolean("rememberSearch");
-			if(j.has("httpStream"))
-				App.httpStream = j.getBoolean("httpStream");
-			if(j.has("serverstream"))
-				App.serverstream = j.getString("serverstream");
-			if(j.has("inv"))
-				App.inv = j.getString("inv");
-			if(j.has("customItems"))
-				App.customItems = j.getBoolean("customItems");
-			if(j.has("imgProxy"))
-				App.imgproxy = j.getString("imgProxy");
-			if(j.has("startScreen"))
-				App.startScreen = j.getInt("startScreen");
-			return;
+			r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
 		} catch (Exception e) {
-			e.printStackTrace();
+		}
+		if(r == null) {
+			// Defaults
+			String downloadDir = System.getProperty("fileconn.dir.videos");
+			if(downloadDir == null)
+				downloadDir = System.getProperty("fileconn.dir.photos");
+			if(downloadDir == null)
+				downloadDir = "C:/";
+			else if(downloadDir.startsWith("file:///"))
+				downloadDir = downloadDir.substring("file:///".length());
+			App.downloadDir = downloadDir;
+			boolean lowEnd = isLowEndDevice();
+			if(lowEnd) {
+				App.httpStream = true;
+				App.rememberSearch = false;
+				App.searchChannels = true;
+				App.videoPreviews = false;
+			} else {
+				if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
+					App.httpStream = true;
+					App.asyncLoading = true;
+				}
+				if(PlatformUtils.isSymbian3()) {
+					App.customItems = true;
+				}
+				App.rememberSearch = true;
+				App.searchChannels = true;
+				App.videoPreviews = true;
+			}
+
+			if(PlatformUtils.isAsha()) {
+				App.videoPreviews = true;
+				App.customItems = true;
+			} else if(PlatformUtils.isS40() || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
+				App.videoPreviews = true;
+				App.customItems = true;
+				App.rmsPreviews = true;
+			}
+			int min = Math.min(App.width, App.height);
+			if(min < 360) {
+				App.videoRes = "144p";
+			} else {
+				App.videoRes = "360p";
+			}
+		} else {
+			try {
+				JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
+				r.closeRecordStore();
+				if(j.has("videoRes"))
+					App.videoRes = j.getString("videoRes");
+				if(j.has("region"))
+					App.region = j.getString("region");
+				if(j.has("downloadDir"))
+					App.downloadDir = j.getString("downloadDir");
+				if(j.has("videoPreviews"))
+					App.videoPreviews = j.getBoolean("videoPreviews");
+				if(j.has("searchChannels"))
+					App.searchChannels = j.getBoolean("searchChannels");
+				if(j.has("rememberSearch"))
+					App.rememberSearch = j.getBoolean("rememberSearch");
+				if(j.has("httpStream"))
+					App.httpStream = j.getBoolean("httpStream");
+				if(j.has("serverstream"))
+					App.serverstream = j.getString("serverstream");
+				if(j.has("inv"))
+					App.inv = j.getString("inv");
+				if(j.has("customItems"))
+					App.customItems = j.getBoolean("customItems");
+				if(j.has("imgProxy"))
+					App.imgproxy = j.getString("imgProxy");
+				if(j.has("startScreen"))
+					App.startScreen = j.getInt("startScreen");
+				if(j.has("rmsPreviews"))
+					App.rmsPreviews = j.getBoolean("rmsPreviews");
+				return;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -160,6 +178,7 @@ public class Settings extends Form implements Constants, CommandListener {
 			App.searchChannels = ui[2];
 			App.rememberSearch = s[0];
 			App.httpStream = s[1];
+			App.rmsPreviews = s[2];
 			App.serverstream = httpProxyText.getString();
 			App.inv = invidiousText.getString();
 			App.imgproxy = imgProxyText.getString();
@@ -191,6 +210,7 @@ public class Settings extends Form implements Constants, CommandListener {
 			j.put("imgProxy", "\"" + App.imgproxy + "\"");
 			j.put("startScreen", new Integer(App.startScreen));
 			j.put("customItems", new Boolean(App.customItems));
+			j.put("rmsPreviews", new Boolean(App.rmsPreviews));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);
@@ -206,7 +226,7 @@ public class Settings extends Form implements Constants, CommandListener {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return PlatformUtils.isNotS60() && (PlatformUtils.isS40() || App.width < 240);
+		return PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && (PlatformUtils.isS40() || App.width < 240 || PlatformUtils.startMemory < 2048 * 1024);
 	}
 
 }
