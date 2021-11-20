@@ -26,10 +26,6 @@ public class VideoItem extends CustomButtonItem {
 	private int imgHeight;
 	private int textWidth;
 
-	// XXX: DEBUG
-	private static int count;
-	private int id;
-
 	public VideoItem(VideoModel v) {
 		super(v);
 		this.video = v;
@@ -37,7 +33,6 @@ public class VideoItem extends CustomButtonItem {
 		this.lengthStr = timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
-		id = count++;
 	}
 
 	protected void paint(Graphics g, int w, int h) {
@@ -163,11 +158,6 @@ public class VideoItem extends CustomButtonItem {
 	}
 	
 	protected void hideNotify() {
-	}
-
-	// XXX: DEBUG
-	public String toString() {
-		return "VideoModel" + id;
 	}
 	
 	public VideoModel getVideo() {
