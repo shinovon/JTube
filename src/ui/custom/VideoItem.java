@@ -247,4 +247,8 @@ public class VideoItem extends CustomButtonItem {
 		return arr;
 	}
 
+	public Image getImage() {
+		return img;
+	}
+
 }

@@ -48,6 +48,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private VideoItem customItem;
 	
 	private Form formContainer;
+	private int index;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -128,6 +129,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 
 	public ImageItem makeImageItemForPage() {
+		if(customItem != null) {
+			img = customItem.getImage();
+		}
 		return imageItem = new ImageItem(null, img, Item.LAYOUT_CENTER, null);
 	}
 	
@@ -153,7 +157,20 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(imageItem == null && customItem == null) return;
 		try {
 			if(App.rmsPreviews) {
-				Records.save(videoId, thumbnailUrl);
+				if(index <= 1) {
+					if(!App.customItems) {
+						float iw = img.getWidth();
+						float ih = img.getHeight();
+						float nw = (float) imageWidth;
+						int nh = (int) (nw * (ih / iw));
+						img = ImageUtils.resize(Records.saveOrGetImage(videoId, thumbnailUrl), imageWidth, nh);
+						imageItem.setImage(img);
+					} else if(customItem != null) {
+						customItem.setImage(customResize(Records.saveOrGetImage(videoId, thumbnailUrl)));
+					}
+				} else {
+					Records.save(videoId, thumbnailUrl);
+				}
 				App.gc();
 			} else {
 				byte[] b = App.hproxy(thumbnailUrl);
@@ -265,6 +282,10 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public int getLengthSeconds() {
 		return lengthSeconds;
+	}
+	
+	public void setIndex(int i) {
+		this.index = i;
 	}
 
 	public void load() {
