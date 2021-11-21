@@ -186,8 +186,8 @@ public class Downloader implements CommandListener, Constants, Runnable {
 	}
 
 	private void info(String s, int percent) {
-		if(percent >= 0) {
-			s += " " + s + "%";
+		if(percent >= 0 && percent <= 100) {
+			s += " " + percent + "%";
 			indicator.setValue(percent);
 		}
 		info(s);

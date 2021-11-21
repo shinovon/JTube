@@ -33,12 +33,13 @@ public class VideoItem extends CustomButtonItem {
 	private Runnable loadImgRMS = new Runnable() {
 		public void run() {
 			try {
+				if(!drawn) return;
 				Image img = Records.saveOrGetImage(video.getVideoId(), null);
 				if(img == null) {
-					System.out.println("img null " + VideoItem.this.toString());
+					//System.out.println("img null " + VideoItem.this.toString());
 					return;
 				}
-				System.out.println("img " + VideoItem.this.toString());
+				//System.out.println("img " + VideoItem.this.toString());
 				setImage(video.customResize(img));
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -49,12 +50,15 @@ public class VideoItem extends CustomButtonItem {
 	private Runnable setImgNull = new Runnable() {
 		public void run() {
 			try {
+				if(!drawn) return;
 				setImage(null);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	};
+
+	private boolean drawn;
 
 	public VideoItem(VideoModel v) {
 		super(v);
@@ -67,6 +71,7 @@ public class VideoItem extends CustomButtonItem {
 	}
 
 	protected void paint(Graphics g, int w, int h) {
+		drawn = true;
 		width = w;
 		height = h;
 		int ih = getImgHeight();
@@ -107,7 +112,11 @@ public class VideoItem extends CustomButtonItem {
 		if(arr.length > 0) {
 			titleArr[0] = arr[0];
 			if(arr.length > 1) {
-				titleArr[1] = arr[1];
+				if(arr.length > 2) {
+					titleArr[1] = arr[1].concat("...");
+				} else {
+					titleArr[1] = arr[1];
+				}
 			}
 		}
 		title = null;
@@ -125,15 +134,15 @@ public class VideoItem extends CustomButtonItem {
 	
 	private int getTextMaxWidth() {
 		if(textWidth > 0) return textWidth;
-		int w = width - 4;
+		int w = width - 6;
 		if(w <= 0) {
-			w = App.width - 8;
+			w = App.width - 10;
 		}
 		int i;
 		if(lengthStr != null) {
-			i = smallfont.stringWidth(lengthStr) + 8;
+			i = smallfont.stringWidth(lengthStr) + 10;
 		} else {
-			i = smallfont.stringWidth(" AA:AA:AA") + 8;
+			i = smallfont.stringWidth(" AA:AA:AA") + 10;
 		}
 		return textWidth = w - i;
 	}
@@ -190,14 +199,14 @@ public class VideoItem extends CustomButtonItem {
 	}
 	
 	protected void showNotify() {
-		System.out.println("showNotify " + toString());
+		//System.out.println("showNotify " + toString());
 		if(App.rmsPreviews) {
 			App.inst.scheduleRunnable(loadImgRMS);
 		}
 	}
 	
 	protected void hideNotify() {
-		System.out.println("hideNotify " + toString());
+		//System.out.println("hideNotify " + toString());
 		if(App.rmsPreviews) {
 			App.inst.scheduleRunnable(setImgNull);
 		}
@@ -212,34 +221,44 @@ public class VideoItem extends CustomButtonItem {
 			return new String[0];
 		}
 		Vector v = new Vector(3);
-		v.addElement(text);
-		for (int i = 0; i < v.size(); i++) {
-			String s = (String) v.elementAt(i);
-			if(font.stringWidth(s) >= maxWidth) {
+		final int max = 3;
+		v: {
+			if (font.stringWidth(text) > maxWidth) {
 				int i1 = 0;
-				for (int i2 = 0; i2 < s.length(); i2++) {
-					if (font.stringWidth(s.substring(i1, i2)) >= maxWidth) {
-						boolean space = false;
-						for (int j = i2; j > i1; j--) {
-							char c = s.charAt(j);
-							if (c == ' ' || (c >= ',' && c <= '/')) {
-								space = true;
-								v.setElementAt(s.substring(i1, j + 1), i);
-								v.insertElementAt(s.substring(j + 1), i + 1);
-								i += 1;
-								i2 = i1 = j + 1;
-								break;
+				for (int i2 = 0; i2 < text.length(); i2++) {
+					if(v.size() >= max) break v;
+					if (text.charAt(i2) == '\n') {
+						v.addElement(text.substring(i1, i2));
+						i2 = i1 = i2 + 1;
+					} else {
+						if (text.length() - i2 <= 1) {
+							v.addElement(text.substring(i1, text.length()));
+							break;
+						} else if (font.stringWidth(text.substring(i1, i2)) >= maxWidth) {
+							boolean space = false;
+							for (int j = i2; j > i1; j--) {
+								char c = text.charAt(j);
+								if (c == ' ' || (c >= ',' && c <= '/')) {
+									String s = text.substring(i1, j + 1);
+									if(font.stringWidth(s) >= maxWidth - 1) {
+										continue;
+									}
+									space = true;
+									v.addElement(s);
+									i2 = i1 = j + 1;
+									break;
+								}
 							}
-						}
-						if (!space) {
-							i2 = i2 - 2;
-							v.setElementAt(s.substring(i1, i2), i);
-							v.insertElementAt(s.substring(i2), i +1);
-							i2 = i1 = i2 + 1;
-							i += 1;
+							if (!space) {
+								i2 = i2 - 2;
+								v.addElement(text.substring(i1, i2));
+								i2 = i1 = i2 + 1;
+							}
 						}
 					}
 				}
+			} else {
+				return new String[] { text };
 			}
 		}
 		String[] arr = new String[v.size()];

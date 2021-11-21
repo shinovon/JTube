@@ -72,7 +72,12 @@ public class Settings extends Form implements Constants, CommandListener {
 	
 
 	public static void loadConfig() {
-		System.out.println("rmsPreviews " + App.rmsPreviews);
+		/*
+		String s = System.getProperty("kemulator.libvlc.supported");
+		if(s != null && s.equals("true")) {
+			App.watchMethod = 1;
+		}
+		*/
 		RecordStore r = null;
 		try {
 			r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);

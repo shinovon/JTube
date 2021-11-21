@@ -25,7 +25,7 @@ public class Records {
 			RecordStore rs = null;
 			try {
 				rs = RecordStore.openRecordStore(id, true);
-				System.out.println(id + " " + rs + " " + rs.getNumRecords());
+				//System.out.println(id + " " + rs + " " + rs.getNumRecords());
 				if(rs.getNumRecords() > 0) {
 					b = rs.getRecord(1);
 				}

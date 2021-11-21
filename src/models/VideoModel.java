@@ -48,7 +48,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private VideoItem customItem;
 	
 	private Form formContainer;
-	private int index;
+	
+	private int index = -1;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -132,6 +133,12 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(customItem != null) {
 			img = customItem.getImage();
 		}
+		if(img == null && App.rmsPreviews) {
+			try {
+				img = Records.saveOrGetImage(videoId, thumbnailUrl);
+			} catch (IOException e) {
+			}
+		}
 		return imageItem = new ImageItem(null, img, Item.LAYOUT_CENTER, null);
 	}
 	
@@ -154,11 +161,11 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public void loadImage() {
 		if(img != null) return;
 		if(thumbnailUrl == null) return;
-		if(imageItem == null && customItem == null) return;
+		if(imageItem == null && customItem == null && !extended) return;
 		try {
 			if(App.rmsPreviews) {
-				if(index <= 1) {
-					if(!App.customItems) {
+				if(index <= 1 && index != -1) {
+					if(imageItem != null) {
 						float iw = img.getWidth();
 						float ih = img.getHeight();
 						float nw = (float) imageWidth;
@@ -175,7 +182,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			} else {
 				byte[] b = App.hproxy(thumbnailUrl);
 				img = Image.createImage(b, 0, b.length);
-				if(!App.customItems) {
+				if(imageItem != null) {
 					float iw = img.getWidth();
 					float ih = img.getHeight();
 					float nw = (float) imageWidth;

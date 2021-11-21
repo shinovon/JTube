@@ -75,7 +75,7 @@ public class App implements CommandListener, Constants {
 	private Object addLock = new Object();
 	
 	private Vector queuedTasks = new Vector();
-	protected Object tasksLock = new Object();
+	private Object tasksLock = new Object();
 	private Thread tasksThread = new Thread() {
 		public void run() {
 			while(midlet.running) {
@@ -83,23 +83,24 @@ public class App implements CommandListener, Constants {
 					synchronized (tasksLock) {
 						tasksLock.wait();
 					}
+					while(queuedTasks.size() > 0) {
+						try {
+							((Runnable)queuedTasks.elementAt(0)).run();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						queuedTasks.removeElementAt(0);
+						Thread.yield();
+					}
 				} catch (InterruptedException e) {
 					return;
-				}
-				while(queuedTasks.size() > 0) {
-					try {
-						((Runnable)queuedTasks.elementAt(0)).run();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					queuedTasks.removeElementAt(0);
-					Thread.yield();
 				}
 			}
 		}
 	};
 
 	public void scheduleRunnable(Runnable r) {
+		if(queuedTasks.contains(r)) return;
 		queuedTasks.addElement(r);
 		synchronized(tasksLock) {
 			tasksLock.notify();
@@ -226,14 +227,14 @@ public class App implements CommandListener, Constants {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Trends));
 			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
-				if(mainForm.get(0) == loadingItem) {
+				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
 					mainForm.delete(0);
 				}
 			} catch (Exception e) {
 			}
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				Item item = parseAndMakeItem(j.getObject(i), false);
+				Item item = parseAndMakeItem(j.getObject(i), false, i);
 				if(item == null) continue;
 				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
@@ -268,14 +269,14 @@ public class App implements CommandListener, Constants {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Popular));
 			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
-				if(mainForm.get(0) == loadingItem) {
+				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
 					mainForm.delete(0);
 				}
 			} catch (Exception e) {
 			}
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				Item item = parseAndMakeItem(j.getObject(i), false);
+				Item item = parseAndMakeItem(j.getObject(i), false, i);
 				if(item == null) continue;
 				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
@@ -313,8 +314,9 @@ public class App implements CommandListener, Constants {
 			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + "&fields=" + SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels ? "&type=all" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				Item item = parseAndMakeItem(j.getObject(i), true);
+				Item item = parseAndMakeItem(j.getObject(i), true, i);
 				if(item == null) continue;
+				
 				searchForm.append(item);
 				if(i >= SEARCH_LIMIT) break;
 				if(b) checkMemoryAndGc();
@@ -328,17 +330,19 @@ public class App implements CommandListener, Constants {
 		gc();
 	}
 	
-	private Item parseAndMakeItem(JSONObject j, boolean search) {
+	private Item parseAndMakeItem(JSONObject j, boolean search, int i) {
 		String type = j.getNullableString("type");
 		if(type == null) {
 			// video
 			VideoModel v = new VideoModel(j);
+			v.setIndex(i);
 			if(search) v.setFromSearch();
 			if(videoPreviews) addAsyncLoad(v);
 			return v.makeItemForList();
 		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
+			v.setIndex(i);
 			if(search) v.setFromSearch();
 			if(videoPreviews) addAsyncLoad(v);
 			return v.makeItemForList();
