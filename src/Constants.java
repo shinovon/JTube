@@ -66,5 +66,7 @@ public interface Constants extends LocaleConstants {
 	
 	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
 	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;
+	
+	public static String Path_separator = "/";
 
 }

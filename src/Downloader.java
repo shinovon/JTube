@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.file.FileConnection;
@@ -33,7 +32,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 		this.d = d;
 		this.file = "file:///" + downloadDir;
 		if(!(file.endsWith("/") || file.endsWith("\\"))) {
-			file += "/";
+			file += Path_separator;
 		}
 	}
 	
@@ -203,12 +202,13 @@ public class Downloader implements CommandListener, Constants, Runnable {
 		}
 		if(c == dlCancelCmd) {
 			t.interrupt();
+			App.display(d);
 		}
 		if(c == dlOpenCmd) {
 			try {
 				App.platReq(file);
 				App.display(d);
-			} catch (ConnectionNotFoundException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				info(e.toString());
 			}

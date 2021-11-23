@@ -9,6 +9,7 @@ import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
 import App;
+import Util;
 import Errors;
 import Locale;
 import Constants;
@@ -104,7 +105,7 @@ public class Settings extends Form implements Constants, CommandListener {
 					App.httpStream = true;
 					App.asyncLoading = true;
 				}
-				if(PlatformUtils.isSymbian3()) {
+				if(PlatformUtils.isSymbianTouch()) {
 					App.customItems = true;
 				}
 				App.rememberSearch = true;
@@ -121,7 +122,8 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.rmsPreviews = true;
 			}
 			int min = Math.min(App.width, App.height);
-			if(min < 360) {
+			// Symbian 9.4 can't handle H.264/AVC
+			if(min < 360 || PlatformUtils.isSymbian94()) {
 				App.videoRes = "144p";
 			} else {
 				App.videoRes = "360p";
@@ -173,7 +175,13 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.videoRes = "720p";
 			}
 			App.region = regionText.getString();
-			App.downloadDir = downloadDirText.getString();
+			String dir = downloadDirText.getString();
+			//dir = Util.replace(dir, "/", dirsep);
+			dir = Util.replace(dir, "\\", Path_separator);
+			while (dir.endsWith(Path_separator)) {
+				dir = dir.substring(0, dir.length() - 1);
+			}
+			App.downloadDir = dir;
 			boolean[] s = new boolean[checksChoice.size()];
 			checksChoice.getSelectedFlags(s);
 			boolean[] ui = new boolean[uiChoice.size()];
