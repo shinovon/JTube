@@ -26,6 +26,7 @@ import cc.nnproject.ytapp.App2;
 import models.AbstractModel;
 import models.ChannelModel;
 import models.ILoader;
+import models.PlaylistModel;
 import models.VideoModel;
 import ui.ChannelForm;
 import ui.ModelForm;
@@ -49,6 +50,7 @@ public class App implements CommandListener, Constants {
 	public static boolean customItems;
 	public static String imgproxy = hproxy;
 	public static boolean rmsPreviews;
+	public static boolean searchPlaylists = true;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -311,7 +313,7 @@ public class App implements CommandListener, Constants {
 		}
 		stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + "&fields=" + SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels ? "&type=all" : ""));
+			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + "&fields=" + SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels || searchPlaylists ? ",authorThumbnails,playlistId,videoCount&type=all" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), true, i);
@@ -352,6 +354,12 @@ public class App implements CommandListener, Constants {
 			if(search) c.setFromSearch();
 			if(videoPreviews) addAsyncLoad(c);
 			return c.makeItemForList();
+		}
+		if(searchPlaylists && type.equals("playlist")) {
+			PlaylistModel p = new PlaylistModel(j);
+			if(search) p.setFromSearch();
+			if(videoPreviews) addAsyncLoad(p);
+			return p.makeItemForList();
 		}
 		return null;
 	}
