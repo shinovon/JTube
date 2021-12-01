@@ -31,7 +31,9 @@ public class ChannelItem extends CustomButtonItem {
 		height = h;
 		g.setColor(-1);
 		g.fillRect(0, 0, w, h);
+		boolean i = false;
 		if(img != null) {
+			i = true;
 			g.drawImage(img, 2, 2, 0);
 		}
 		g.setColor(0);
@@ -42,11 +44,12 @@ public class ChannelItem extends CustomButtonItem {
 		if(subsStr != null) {
 			ty -= (sfh + 4) / 2;
 		}
-		g.drawString(author, 56, ty, 0);
+		int x = i ? 56 : 0;
+		g.drawString(author, x, ty, 0);
 		g.setColor(GRAYTEXT_COLOR);
 		g.setFont(smallfont);
 		if(subsStr != null) {
-			g.drawString(subsStr, 56, ty + fh + 4, 0);
+			g.drawString(subsStr, x, ty + fh + 4, 0);
 		}
 	}
 

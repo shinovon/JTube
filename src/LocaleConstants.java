@@ -42,5 +42,16 @@ public interface LocaleConstants {
 	public static final int TXT_Published = 38;
 	public static final int TXT_Description = 39;
 	public static final int BTN_ChannelInformation = 40;
+	public static final int TXT_Connecting = 41;
+	public static final int TXT_Waiting = 42;
+	public static final int TXT_ConnectionRetry = 43;
+	public static final int TXT_Redirected = 44;
+	public static final int TXT_Connected = 45;
+	public static final int TXT_Downloading = 46;
+	public static final int TXT_Downloaded = 47;
+	public static final int TXT_Canceled = 48;
+	public static final int TXT_DownloadFailed = 49;
+	public static final int TXT_Initializing = 50;
+	public static final int TXT_Done = 51;
 
 }

@@ -119,6 +119,26 @@ public class Locale implements LocaleConstants {
 				return "Description";
 			case BTN_ChannelInformation:
 				return "Information";
+			case TXT_Waiting:
+				return "Error! Waiting for retry...";
+			case TXT_ConnectionRetry:
+				return "Connection retry";
+			case TXT_Redirected:
+				return "Redirected";
+			case TXT_Connected:
+				return "Connected";
+			case TXT_Downloading:
+				return "Downloading";
+			case TXT_Downloaded:
+				return "Downloaded";
+			case TXT_Canceled:
+				return "Canceled";
+			case TXT_DownloadFailed:
+				return "Download failed";
+			case TXT_Initializing:
+				return "Initializing";
+			case TXT_Done:
+				return "Done";
 			}
 		}
 		case 1: {
@@ -197,6 +217,26 @@ public class Locale implements LocaleConstants {
 				return "Описание";
 			case BTN_ChannelInformation:
 				return "Информация";
+			case TXT_Waiting:
+				return "Ошибка подключения! Ожидание...";
+			case TXT_ConnectionRetry:
+				return "Повторная попытка подключения";
+			case TXT_Redirected:
+				return "Перенаправлен";
+			case TXT_Connected:
+				return "Подключен";
+			case TXT_Downloading:
+				return "Скачивание";
+			case TXT_Downloaded:
+				return "Скачано";
+			case TXT_Canceled:
+				return "Отменено";
+			case TXT_DownloadFailed:
+				return "Скачивание не удалось";
+			case TXT_Initializing:
+				return "Инициализация";
+			case TXT_Done:
+				return "Готово";
 			}
 		}
 		}

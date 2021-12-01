@@ -25,6 +25,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 	
 	private String file;
 	private Thread t;
+	private boolean cancel;
 
 	public Downloader(String vid, String res, Displayable d, String downloadDir) {
 		this.id = vid;
@@ -57,7 +58,6 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			o = null;
 			// подождать
 			Thread.sleep(500);
-			info("Connecting", 0);
 			fc = (FileConnection) Connector.open(file, Connector.READ_WRITE);
 			
 			if (fc.exists()) {
@@ -67,17 +67,18 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				}
 			}
 			fc.create();
+			info(Locale.s(TXT_Connecting));
 			out = fc.openOutputStream();
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestProperty("User-Agent", userAgent);
-
 			int r;
 			try {
 				r = hc.getResponseCode();
 			} catch (IOException e) {
-				info("Waiting...");
+				info(Locale.s(TXT_Waiting));
 				hc.close();
 				Thread.sleep(2000);
+				info("Connection retry");
 				hc = (HttpConnection) Connector.open(url);
 				hc.setRequestMethod("GET");
 				hc.setRequestProperty("User-Agent", userAgent);
@@ -85,7 +86,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			}
 			int redirectCount = 0;
 			while (r == 301 || r == 302) {
-				info("Redirected (" + redirectCount++ + ")");
+				info(Locale.s(TXT_Redirected) + " (" + redirectCount++ + ")");
 				String redir = hc.getHeaderField("Location");
 				if (redir.startsWith("/")) {
 					String tmp = url.substring(url.indexOf("//") + 2);
@@ -99,7 +100,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				r = hc.getResponseCode();
 			}
 			in = hc.openInputStream();
-			info("Connected");
+			info(Locale.s(TXT_Connected));
 			int percent = 0;
 			int bufSize = 0;
 			try {
@@ -115,24 +116,35 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				try {
 					l = (int) hc.getLength();
 				} catch (Exception e) {
+			
 				}
+			}
+			boolean ind = true;
+			if(l <= 0) {
+				// indicator unavailable
+				alert.setIndicator(null);
+				ind = false;
 			}
 			int i = 0;
 			while((read = in.read(buf)) != -1) {
 				out.write(buf, 0, read);
 				downloaded += read;
 				if(i++ % 4 == 0) {
-					percent = (int)(((double)downloaded / (double)l) * 100d);
-					Thread.sleep(1);
-					info("Downloading", percent);
+					if(cancel) return;
+					if(ind) {
+						percent = (int)(((double)downloaded / (double)l) * 100d);
+						info(Locale.s(TXT_Downloading), percent);
+					} else {
+						info(Locale.s(TXT_Downloaded) + " " + (downloaded / 1024) + " KBytes");
+					}
 				}
 			}
 			done();
 		} catch (InterruptedException e) {
-			fail("Canceled", "");
+			fail(Locale.s(TXT_Canceled), "");
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail(e.toString(), "Download failed");
+			fail(e.toString(), Locale.s(TXT_DownloadFailed));
 		} finally {
 			try {
 				if(out != null) out.close();
@@ -154,7 +166,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 	}
 	
 	public void start() {
-		alert = new Alert("", "Initializing", null, AlertType.INFO);
+		alert = new Alert("", Locale.s(TXT_Initializing), null, null);
 		alert.addCommand(cancelCmd);
 		alert.setTimeout(Alert.FOREVER);
 		App.display(alert);
@@ -167,7 +179,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 
 	private void done() {
 		hideIndicator();
-		info("Done");
+		info(Locale.s(TXT_Done));
 		alert.addCommand(dlOkCmd);
 		alert.addCommand(dlOpenCmd);
 	}
@@ -179,13 +191,14 @@ public class Downloader implements CommandListener, Constants, Runnable {
 
 	private void fail(String s, String title) {
 		hideIndicator();
+		alert.setType(AlertType.ERROR);
 		alert.setTitle(title);
 		alert.setString(s);
 		alert.addCommand(dlOkCmd);
 	}
 
 	private void info(String s, int percent) {
-		if(percent >= 0 && percent <= 100) {
+		if(indicator != null && percent >= 0 && percent <= 100) {
 			s += " " + percent + "%";
 			indicator.setValue(percent);
 		}
@@ -201,6 +214,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			App.display(d);
 		}
 		if(c == dlCancelCmd) {
+			cancel = true;
 			t.interrupt();
 			App.display(d);
 		}
