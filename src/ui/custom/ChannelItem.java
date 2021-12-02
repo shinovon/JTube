@@ -44,7 +44,7 @@ public class ChannelItem extends CustomButtonItem {
 		if(subsStr != null) {
 			ty -= (sfh + 4) / 2;
 		}
-		int x = i ? 56 : 0;
+		int x = i ? 56 : 2;
 		g.drawString(author, x, ty, 0);
 		g.setColor(GRAYTEXT_COLOR);
 		g.setFont(smallfont);

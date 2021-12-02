@@ -17,6 +17,7 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 import ui.ModelForm;
+import ui.PlaylistForm;
 import ui.VideoForm;
 import ui.custom.VideoItem;
 
@@ -42,6 +43,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	private boolean extended;
 	private boolean fromSearch;
+	private boolean fromPlaylist;
 
 	private ImageItem authorItem;
 	
@@ -67,6 +69,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public VideoModel(JSONObject j, Form form) {
 		this(j, false);
 		this.formContainer = form;
+		this.fromPlaylist = form instanceof PlaylistForm;
 	}
 
 	private void parse(JSONObject j, boolean extended) {
@@ -245,12 +248,12 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			App.open(this, formContainer);
 		}
 		if(c == vOpenChannelCmd) {
-			if(formContainer != null) {
+			if(formContainer != null && !fromPlaylist) {
 				App.display(formContainer);
 				return;
 			}
 			Image img = null;
-			if(authorItem != null) img = authorItem.getImage();
+			//if(authorItem != null) img = authorItem.getImage();
 			App.open(new ChannelModel(authorId, author, img));
 		}
 	}
@@ -301,6 +304,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			if(extended) {
 				loadAuthorImg();
 			}
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -312,6 +317,10 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	
 	public boolean isFromSearch() {
 		return fromSearch;
+	}
+	
+	public boolean isFromPlaylist() {
+		return fromPlaylist;
 	}
 
 	public void dispose() {
@@ -346,6 +355,11 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public ModelForm makeForm() {
 		return new VideoForm(this);
+	}
+
+	public void setFormContainer(Form form) {
+		this.formContainer = form;
+		this.fromPlaylist = form instanceof PlaylistForm;
 	}
 
 }

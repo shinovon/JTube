@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mtjMetadata jad="JTube.jad" version="2.0.1.201509042315">
-   <device group="Nokia Symbian Belle SDK v1.0 " name="SymbianEmulator"/>
+   <device group="Series 40 5th Edition SDK" name="S40_5th_Edition_SDK"/>
    <signing projectSpecific="false" signProject="false">
       <alias/>
    </signing>
@@ -32,6 +32,180 @@
             <symbol name="a_3D_API" value="1.1"/>
             <symbol name="MMAPI" value="1.1"/>
             <symbol name="screen.canvas.height" value="248"/>
+            <symbol name="JSR75" value="1.0"/>
+         </symbolSet>
+      </configuration>
+      <configuration active="false" name="S60Emulator">
+         <device group="S60 3rd Edition FP1 SDK for MIDP" name="S60Emulator"/>
+         <symbolSet name="S60Emulator">
+            <symbol name="screen.bitDepth" value="12"/>
+            <symbol name="screen.isTouch" value="false"/>
+            <symbol name="WMA" value="2.0"/>
+            <symbol name="Nokia_UI" value="1.1"/>
+            <symbol name="MIDP" value="2.0"/>
+            <symbol name="screen.height" value="320"/>
+            <symbol name="JSR226" value="1.0"/>
+            <symbol name="JSR179" value="1.0"/>
+            <symbol name="JSR234" value="1.0"/>
+            <symbol name="JSR177" value="1.0"/>
+            <symbol name="CLDC" value="1.1"/>
+            <symbol name="screen.width" value="240"/>
+            <symbol name="JSR82" value="1.1"/>
+            <symbol name="JSR184" value="1.1"/>
+            <symbol name="MMAPI" value="1.1"/>
+            <symbol name="JSR172" value="1.0"/>
+            <symbol name="screen.isColor" value="true"/>
+            <symbol name="JSR75" value="1.0"/>
+            <symbol name="JSR180" value="1.0"/>
+         </symbolSet>
+      </configuration>
+      <configuration active="false" name="S60Device">
+         <device group="S60 3rd Edition FP1 SDK for MIDP" name="S60Device"/>
+         <symbolSet name="S60Device">
+            <symbol name="screen.bitDepth" value="12"/>
+            <symbol name="screen.isTouch" value="false"/>
+            <symbol name="WMA" value="2.0"/>
+            <symbol name="Nokia_UI" value="1.1"/>
+            <symbol name="MIDP" value="2.0"/>
+            <symbol name="screen.height" value="320"/>
+            <symbol name="JSR226" value="1.0"/>
+            <symbol name="JSR179" value="1.0"/>
+            <symbol name="JSR234" value="1.0"/>
+            <symbol name="JSR177" value="1.0"/>
+            <symbol name="CLDC" value="1.1"/>
+            <symbol name="screen.width" value="240"/>
+            <symbol name="JSR82" value="1.1"/>
+            <symbol name="JSR184" value="1.1"/>
+            <symbol name="MMAPI" value="1.1"/>
+            <symbol name="JSR172" value="1.0"/>
+            <symbol name="screen.isColor" value="true"/>
+            <symbol name="JSR75" value="1.0"/>
+            <symbol name="JSR180" value="1.0"/>
+         </symbolSet>
+      </configuration>
+      <configuration active="false" name="Nokia_SDK_2_0_Java">
+         <device group="Nokia SDK 2.0 for Java" name="Nokia_SDK_2_0_Java"/>
+         <symbolSet name="Nokia_SDK_2_0_Java">
+            <symbol name="SATSA-CRYPTO" value="1.0"/>
+            <symbol name="SVG" value="1.1"/>
+            <symbol name="version.profile" value="MIDP-2.1"/>
+            <symbol name="screen.isTouch" value="true"/>
+            <symbol name="AMMS" value="1.1"/>
+            <symbol name="MIDP" value="2.1"/>
+            <symbol name="screen.canvas.width" value="240"/>
+            <symbol name="jsr172_rpc" value="1.1"/>
+            <symbol name="JSR205" value="2.0"/>
+            <symbol name="Mobile_Sensor_API" value="1.0"/>
+            <symbol name="screen.height" value="400"/>
+            <symbol name="JSR184" value="1.1"/>
+            <symbol name="JSR82" value="1.1"/>
+            <symbol name="model" value="Nokia SDK 2.0 for Java"/>
+            <symbol name="screen.isColor" value="true"/>
+            <symbol name="NOKIAUI" value="1.6"/>
+            <symbol name="SATSA-APDU" value="1.0"/>
+            <symbol name="version.configuration" value="CDLC-1.1"/>
+            <symbol name="screen.bitDepth" value="16"/>
+            <symbol name="screen.canvas.x" value="0"/>
+            <symbol name="screen.canvas.y" value="40"/>
+            <symbol name="WMA" value="1.1"/>
+            <symbol name="JSR135" value="1.2"/>
+            <symbol name="JSR179" value="1.0"/>
+            <symbol name="CLDC" value="1.1"/>
+            <symbol name="JSR211" value="1.0"/>
+            <symbol name="screen.width" value="240"/>
+            <symbol name="IN-APP-PURCHASE" value="1.0"/>
+            <symbol name="screen.canvas.height" value="248"/>
+            <symbol name="JSR75" value="1.0"/>
+            <symbol name="jsr172_xmlparser" value="1.1"/>
+         </symbolSet>
+      </configuration>
+      <configuration active="false" name="Symbian">
+         <device group="Nokia Symbian Belle SDK v1.0 " name="SymbianEmulator"/>
+         <symbolSet name="SymbianEmulator">
+            <symbol name="JSR257_Extensions" value="0.0"/>
+            <symbol name="screen.isTouch" value="true"/>
+            <symbol name="MIDP" value="2.1"/>
+            <symbol name="JSR205" value="2.0"/>
+            <symbol name="screen.height" value="640"/>
+            <symbol name="JSR226" value="1.1"/>
+            <symbol name="JSR184" value="1.0"/>
+            <symbol name="JSR82" value="1.1"/>
+            <symbol name="screen.isColor" value="true"/>
+            <symbol name="NOKIAUI" value="1.4"/>
+            <symbol name="screen.bitDepth" value="12"/>
+            <symbol name="ESWT" value="1.0"/>
+            <symbol name="Mobile_Broadcast" value="1.0"/>
+            <symbol name="JSR135" value="1.2"/>
+            <symbol name="JSR179" value="1.0"/>
+            <symbol name="JSR234" value="1.1"/>
+            <symbol name="JSR256" value="1.2"/>
+            <symbol name="JSR257" value="1.0"/>
+            <symbol name="JSR177" value="1.0"/>
+            <symbol name="CLDC" value="1.1"/>
+            <symbol name="JSR211" value="0.0"/>
+            <symbol name="screen.width" value="360"/>
+            <symbol name="Java_API_for_Central_Repository" value="0.0"/>
+            <symbol name="IAPINFO" value="1.0"/>
+            <symbol name="JSR172" value="1.0"/>
+            <symbol name="JSR75" value="1.0"/>
+         </symbolSet>
+      </configuration>
+      <configuration active="false" name="S40_6th_Edition_SDK">
+         <device group="Series 40 6th Edition SDK" name="S40_6th_Edition_SDK"/>
+         <symbolSet name="S40_6th_Edition_SDK">
+            <symbol name="SATSA-CRYPTO" value="1.0"/>
+            <symbol name="SVG" value="1.1"/>
+            <symbol name="version.profile" value="MIDP-2.1"/>
+            <symbol name="screen.isTouch" value="false"/>
+            <symbol name="MIDP" value="1.0"/>
+            <symbol name="AMMS" value="1.0"/>
+            <symbol name="screen.canvas.width" value="320"/>
+            <symbol name="screen.height" value="480"/>
+            <symbol name="JSR82" value="1.1"/>
+            <symbol name="model" value="Series 40 6th Edition SDK"/>
+            <symbol name="screen.isColor" value="true"/>
+            <symbol name="NOKIAUI" value="1.1"/>
+            <symbol name="SATSA-APDU" value="1.0"/>
+            <symbol name="version.configuration" value="CDLC-1.1"/>
+            <symbol name="screen.bitDepth" value="16"/>
+            <symbol name="J2ME-XMLRPC" value="1.0"/>
+            <symbol name="screen.canvas.x" value="0"/>
+            <symbol name="screen.canvas.y" value="40"/>
+            <symbol name="WMA" value="1.1"/>
+            <symbol name="JSR179" value="1.0"/>
+            <symbol name="CLDC" value="1.0"/>
+            <symbol name="JSR211" value="1.0"/>
+            <symbol name="screen.width" value="320"/>
+            <symbol name="a_3D_API" value="1.1"/>
+            <symbol name="MMAPI" value="1.2"/>
+            <symbol name="screen.canvas.height" value="328"/>
+            <symbol name="JSR75" value="1.0"/>
+         </symbolSet>
+      </configuration>
+      <configuration active="false" name="SymbianDevice">
+         <device group="Nokia Symbian3 SDK v1.0 " name="SymbianDevice"/>
+         <symbolSet name="SymbianDevice">
+            <symbol name="NOKIAUI" value="1.4"/>
+            <symbol name="screen.bitDepth" value="12"/>
+            <symbol name="screen.isTouch" value="true"/>
+            <symbol name="ESWT" value="1.0"/>
+            <symbol name="Mobile_Broadcast" value="1.0"/>
+            <symbol name="MIDP" value="2.1"/>
+            <symbol name="JSR205" value="2.0"/>
+            <symbol name="screen.height" value="640"/>
+            <symbol name="JSR226" value="1.1"/>
+            <symbol name="JSR135" value="1.2"/>
+            <symbol name="JSR179" value="1.0"/>
+            <symbol name="JSR234" value="1.1"/>
+            <symbol name="JSR256" value="1.2"/>
+            <symbol name="JSR177" value="1.0"/>
+            <symbol name="CLDC" value="1.1"/>
+            <symbol name="screen.width" value="360"/>
+            <symbol name="JSR184" value="1.0"/>
+            <symbol name="JSR82" value="1.1"/>
+            <symbol name="IAPINFO" value="1.0"/>
+            <symbol name="JSR172" value="1.0"/>
+            <symbol name="screen.isColor" value="true"/>
             <symbol name="JSR75" value="1.0"/>
          </symbolSet>
       </configuration>

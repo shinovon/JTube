@@ -358,7 +358,7 @@ public class App implements CommandListener, Constants {
 		if(searchPlaylists && type.equals("playlist")) {
 			PlaylistModel p = new PlaylistModel(j);
 			if(search) p.setFromSearch();
-			if(videoPreviews) addAsyncLoad(p);
+			//if(videoPreviews) addAsyncLoad(p);
 			return p.makeItemForList();
 		}
 		return null;
@@ -675,6 +675,7 @@ public class App implements CommandListener, Constants {
 	}
 	
 	public void addAsyncLoad(ILoader v) {
+		if(v == null) throw new NullPointerException("l");
 		synchronized(lazyLoadLock) {
 			if(v1 == null) {
 				v0.addElement(v);

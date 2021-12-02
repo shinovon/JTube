@@ -13,5 +13,7 @@ public class Errors {
 	public static final int App_search = 10;
 	public static final int ChannelForm_search = 11;
 	public static final int ChannelForm_latestVideos = 12;
+	public static final int PlaylistForm_load = 13;
+	public static final int PlaylistForm_init = 14;
 
 }

@@ -34,6 +34,11 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		addCommand(downloadCmd);
 		addCommand(settingsCmd);
 		addCommand(watchCmd);
+		if(v.isFromPlaylist()) {
+			addCommand(openPlaylistCmd);
+			addCommand(prevCmd);
+			addCommand(nextCmd);
+		}
 		loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
 		//addCommand(browserCmd);
@@ -95,6 +100,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(c == openPlaylistCmd && formContainer != null) {
+			App.display(formContainer);
+		}
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());
 			return;
@@ -115,7 +123,7 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		App.inst.commandAction(c, d);
 	}
 
-	public void commandAction(Command c, Item arg1) {
+	public void commandAction(Command c, Item i) {
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());
 		}

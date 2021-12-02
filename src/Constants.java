@@ -28,9 +28,12 @@ public interface Constants extends LocaleConstants {
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
 	
 	// Video page commands
-	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 3);
-	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 2);
+	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 10);
+	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 9);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);
+	public static Command openPlaylistCmd = new Command("open playlist", Command.SCREEN, 5); // TODO: localize
+	public static Command nextCmd = new Command("next", Command.SCREEN, 4); // TODO: localize
+	public static Command prevCmd = new Command("prev", Command.SCREEN, 3); // TODO: localize
 	
 	// Downloader alert commands
 	static final Command dlOkCmd = new Command(Locale.s(CMD_OK), Command.CANCEL, 1);
@@ -61,6 +64,7 @@ public interface Constants extends LocaleConstants {
 	
 	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,viewCount";
 	static final String CHANNEL_EXTENDED_FIELDS = "subCount,author,authorId,description,totalViews";
+	static final String PLAYLIST_EXTENDED_FIELDS = "author,authorId,videoCount,videos,title,videoId,videoThumbnails,playlistId,index";
 	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";
 	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	

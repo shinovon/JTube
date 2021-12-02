@@ -262,4 +262,13 @@ public class Locale implements LocaleConstants {
 		return null;
 	}
 
+	public static String videos(int i) {
+		if(i <= 0) return null;
+		if(localei == 1) {
+			return i + " видео";
+		}
+		if(i == 1) return i + " video";
+		return i + " videos";
+	}
+
 }

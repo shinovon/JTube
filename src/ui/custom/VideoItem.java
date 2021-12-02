@@ -26,9 +26,6 @@ public class VideoItem extends CustomButtonItem {
 	// cached values
 	private int imgHeight;
 	private int textWidth;
-	
-	private static int count;
-	private int id;
 
 	private Runnable loadImgRMS = new Runnable() {
 		public void run() {
@@ -67,7 +64,6 @@ public class VideoItem extends CustomButtonItem {
 		this.lengthStr = timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
-		id = count++;
 	}
 
 	protected void paint(Graphics g, int w, int h) {
@@ -79,7 +75,7 @@ public class VideoItem extends CustomButtonItem {
 		g.fillRect(0, 0, w, h);
 		g.setColor(0);
 		if(img != null) {
-			g.drawImage(img, 0, 0, 0);
+			g.drawImage(img, -2, 0, 0);
 		} else {
 			g.fillRect(0, 0, w, ih);
 		}
@@ -175,10 +171,6 @@ public class VideoItem extends CustomButtonItem {
 		//invalidate();
 		repaint();
 	}
-	
-	public String toString() {
-		return "VideoModel " + id;
-	}
 
 	private static String timeStr(int i) {
 		if(i <= 0) return null;
@@ -216,12 +208,12 @@ public class VideoItem extends CustomButtonItem {
 		return video;
 	}
 	
-	private static String[] getStringArray(String text, int maxWidth, Font font) {
+	static String[] getStringArray(String text, int maxWidth, Font font) {
 		if (text == null || text.length() == 0 || text.equals(" ")) {
 			return new String[0];
 		}
-		Vector v = new Vector(3);
 		final int max = 3;
+		Vector v = new Vector(max);
 		v: {
 			if (font.stringWidth(text) > maxWidth) {
 				int i1 = 0;
