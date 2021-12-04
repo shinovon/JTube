@@ -193,7 +193,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 					img = ImageUtils.resize(img, imageWidth, nh);
 					imageItem.setImage(img);
 				} else if(customItem != null) {
-					customItem.setImage(customResize(img));
+					customItem.setImage(img = customResize(img));
 				}
 			}
 			thumbnailUrl = null;

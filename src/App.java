@@ -16,6 +16,7 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.media.Manager;
 import javax.microedition.media.Player;
+import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSON;
@@ -50,7 +51,7 @@ public class App implements CommandListener, Constants {
 	public static boolean customItems;
 	public static String imgproxy = hproxy;
 	public static boolean rmsPreviews;
-	public static boolean searchPlaylists = true;
+	public static boolean searchPlaylists = false;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -175,7 +176,6 @@ public class App implements CommandListener, Constants {
 
 	private void initForm() {
 		mainForm = new Form(NAME);
-		
 		/*
 		searchText = new TextField("", "", 256, TextField.ANY);
 		searchText.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_2);
@@ -187,6 +187,7 @@ public class App implements CommandListener, Constants {
 		mainForm.append(searchBtn);
 		*/
 		mainForm.setCommandListener(this);
+		mainForm.addCommand(aboutCmd);
 		mainForm.addCommand(searchCmd);
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
@@ -525,8 +526,32 @@ public class App implements CommandListener, Constants {
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(d instanceof Alert) {
+			return;
+		}
 		if(c == exitCmd) {
+			try {
+				String[] a = RecordStore.listRecordStores();
+				for(int i = 0; i < a.length; i++) {
+					if(a[i].equals(CONFIG_RECORD_NAME)) continue;
+					RecordStore.deleteRecordStore(a[i]);
+				}
+			} catch (Exception e) {
+			}
 			midlet.notifyDestroyed();
+			return;
+		}
+		if(c == aboutCmd) {
+			Alert a = new Alert("", "", null, null);
+			a.setTimeout(-2);
+			a.setString("JTube v" + midlet.getAppProperty("MIDlet-Version") + " \n"
+					+ "By Shinovon (nnproject.cc) \n"
+					+ "t.me/nnmidletschat \n\n"
+					+ "Thanks to ales_alte, Jazmin Rocio, Feodor0090");
+			a.setCommandListener(this);
+			a.addCommand(new Command("OK", Command.OK, 1));
+			display(a);
+			return;
 		}
 		if(c == settingsCmd) {
 			stopDoingAsyncTasks();

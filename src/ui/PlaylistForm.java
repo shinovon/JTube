@@ -26,6 +26,8 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 
 	private StringItem loadingItem;
 
+	//private int page = 1;
+
 	public PlaylistForm(PlaylistModel p) {
 		super(p.getTitle());
 		loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
@@ -43,7 +45,9 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 		} catch (Exception e) {
 		}
 		try {
+			/*
 			VideoModel[] videos = playlist.getVideos();
+			System.gc();
 			int l = videos.length;;
 			System.out.println(l);
 			for(int i = 0; i < l; i++) {
@@ -52,7 +56,22 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 				append(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
-		} catch (Exception e) {
+			try {
+				if(App.videoPreviews) {
+					for(int i = 0; i < l; i++) {
+						videos[i].load();
+					}
+				}
+			} catch (RuntimeException e) {
+				throw e;
+			} catch (Throwable e) {
+				e.printStackTrace();
+				App.error(this, Errors.PlaylistForm_init_previews, e);
+			}
+			*/
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Throwable e) {
 			e.printStackTrace();
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
@@ -60,7 +79,7 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 
 	private Item item(VideoModel v) {
 		v.setFormContainer(this);
-		if(App.videoPreviews) App.inst.addAsyncLoad(v);
+		//if(App.videoPreviews) App.inst.addAsyncLoad(v);
 		return v.makeItemForList();
 	}
 
@@ -85,10 +104,9 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 
 	public void load() {
 		try {
-			if(!playlist.isExtended()) {
-				playlist.extend();
-				init();
-			}
+			init();
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.PlaylistForm_load, e.toString());
 		}

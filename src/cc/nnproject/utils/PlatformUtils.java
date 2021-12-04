@@ -8,6 +8,7 @@ public class PlatformUtils {
 	public static final String platform = System.getProperty("microedition.platform");
 	public static final long startMemory = Runtime.getRuntime().totalMemory();
 	public static final String os = System.getProperty("os.name");
+	public static final String vendor = System.getProperty("java.vendor");
 	
 	private static final String[] ashaFullTouchModels = new String[] { "230", "305", "306", "308", "309", "310", "311", "500", "501", "502", "503" };
 	private static final String[] ashaTouchAndTypeModels = new String[] { "202", "203", "300", "303" };
@@ -17,6 +18,8 @@ public class PlatformUtils {
 	
 	public static int width;
 	public static int height;
+	
+	private static int isS603rd;
 	
 	static {
 		boolean b = false;
@@ -50,13 +53,19 @@ public class PlatformUtils {
 	}
 	
 	public static boolean isS603rd() {
+		if(isS603rd != -1) return isS603rd == 1;
 		String s = platform.substring(5);
-		return isS60PlatformVersion("3") || (platform.startsWith("Nokia") && 
+		boolean b = isS60PlatformVersion("3") || (platform.startsWith("Nokia") && 
 				(s.startsWith("N73") || s.startsWith("N95") || s.startsWith("E90") || 
 				s.startsWith("N93") || s.startsWith("N82") || s.startsWith("E71") || 
 				s.startsWith("E70") || s.startsWith("N80") || s.startsWith("E63") || 
 				s.startsWith("E66") || s.startsWith("E51") || s.startsWith("E50") || 
-				s.startsWith("E65") || s.startsWith("E61") || s.startsWith("E60")));
+				s.startsWith("E65") || s.startsWith("E61") || s.startsWith("E60") ||
+				s.startsWith("N91") || s.startsWith("E62") || s.startsWith("N78") ||
+				s.startsWith("3250") || s.startsWith("N71") || s.startsWith("N75") ||
+				s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500")));
+		isS603rd = b ? 1 : 0;
+		return b;
 	}
 
 	public static boolean isS40() {
@@ -102,6 +111,10 @@ public class PlatformUtils {
 	
 	public static boolean supportsTouch() {
 		return isSymbianTouch() || isAshaFullTouch() || isAshaTouchAndType();
+	}
+
+	public static boolean isJ2ML() {
+		return os != null && os.equals("Linux") && vendor != null && vendor.equals("The Android Project");
 	}
 
 }

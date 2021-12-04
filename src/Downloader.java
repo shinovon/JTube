@@ -103,11 +103,11 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			info(Locale.s(TXT_Connected));
 			int percent = 0;
 			int bufSize = 0;
-			try {
+			/*try {
 				bufSize = in.available();
 			} catch (Exception e) {
 			}
-			if(bufSize <= 0) bufSize = 128 * 1024;
+			if(bufSize <= 0) */bufSize = 128 * 1024;
 			byte[] buf = new byte[bufSize];
 			int read = 0;
 			int downloaded = 0;
@@ -167,7 +167,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 	
 	public void start() {
 		alert = new Alert("", Locale.s(TXT_Initializing), null, null);
-		alert.addCommand(cancelCmd);
+		alert.addCommand(dlCancelCmd);
 		alert.setTimeout(Alert.FOREVER);
 		App.display(alert);
 		alert.setCommandListener(this);

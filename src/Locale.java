@@ -139,6 +139,8 @@ public class Locale implements LocaleConstants {
 				return "Initializing";
 			case TXT_Done:
 				return "Done";
+			case CMD_About:
+				return "About";
 			}
 		}
 		case 1: {
@@ -237,6 +239,8 @@ public class Locale implements LocaleConstants {
 				return "Инициализация";
 			case TXT_Done:
 				return "Готово";
+			case CMD_About:
+				return "О программе";
 			}
 		}
 		}

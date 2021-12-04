@@ -32,14 +32,12 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	
 	private PlaylistItem customItem;
 
-	private int page = 1;
-
 	public PlaylistModel(JSONObject o) {
 		parse(o, false);
 	}
 
 	public PlaylistModel(JSONObject o, boolean extended) {
-		parse(o, false);
+		parse(o, extended);
 	}
 	
 	private void parse(JSONObject o, boolean extended) {
@@ -49,6 +47,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 		author = o.getString("author");
 		authorId = o.getString("authorId");
 		videoCount = o.getInt("videoCount", 0);
+		/*
 		if(extended) {
 			JSONArray vids = o.getNullableArray("videos");
 			if(vids != null) {
@@ -59,12 +58,13 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 				}
 			}
 		}
+		*/
 	}
 	
 	public PlaylistModel extend() throws InvidiousException, IOException {
-		if(!extended) {
+		/*if(!extended) {
 			parse((JSONObject) App.invApi("v1/playlists/" + playlistId + "?fields=" + PLAYLIST_EXTENDED_FIELDS + "&page=" + page), true);
-		}
+		}*/
 		return this;
 	}
 
@@ -131,10 +131,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 
 	public int getVideoCount() {
 		return videoCount;
-	}
-
-	public VideoModel[] getVideos() {
-		return videos;
 	}
 
 }

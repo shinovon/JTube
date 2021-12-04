@@ -1,5 +1,8 @@
 package ui;
 
+import java.util.Enumeration;
+
+import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -86,47 +89,76 @@ public class Settings extends Form implements Constants, CommandListener {
 		}
 		if(r == null) {
 			// Defaults
-			String downloadDir = System.getProperty("fileconn.dir.videos");
-			if(downloadDir == null)
-				downloadDir = System.getProperty("fileconn.dir.photos");
-			if(downloadDir == null)
-				downloadDir = "C:/";
-			else if(downloadDir.startsWith("file:///"))
-				downloadDir = downloadDir.substring("file:///".length());
-			App.downloadDir = downloadDir;
-			boolean lowEnd = isLowEndDevice();
-			if(lowEnd) {
-				App.httpStream = true;
-				App.rememberSearch = false;
-				App.searchChannels = true;
-				App.videoPreviews = false;
-			} else {
-				if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
-					App.httpStream = true;
-					App.asyncLoading = true;
-				}
-				if(PlatformUtils.isSymbianTouch()) {
-					App.customItems = true;
-				}
-				App.rememberSearch = true;
-				App.searchChannels = true;
-				App.videoPreviews = true;
-			}
 
-			if(PlatformUtils.isAsha()) {
+			if(PlatformUtils.isJ2ML()) {
 				App.videoPreviews = true;
 				App.customItems = true;
-			} else if(PlatformUtils.isS40() || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
-				App.videoPreviews = true;
-				App.customItems = true;
-				App.rmsPreviews = true;
-			}
-			int min = Math.min(App.width, App.height);
-			// Symbian 9.4 can't handle H.264/AVC
-			if(min < 360 || PlatformUtils.isSymbian94()) {
-				App.videoRes = "144p";
-			} else {
+				App.httpStream = false;
 				App.videoRes = "360p";
+				App.downloadDir = "C:/";
+			} else {
+				if(!PlatformUtils.isNotS60() || PlatformUtils.isS603rd()) {
+					Enumeration roots = FileSystemRegistry.listRoots();
+					String root = "";
+					while(roots.hasMoreElements()) {
+						String s = (String) roots.nextElement();
+						if(s.startsWith("file:///")) s = s.substring("file:///".length());
+						if(s.startsWith("SDCard")) {
+							root = s;
+							break;
+						}
+						if(s.startsWith("F:")) {
+							root = s;
+							break;
+						}
+						if(s.startsWith("E:")) {
+							root = s;
+						}
+						App.downloadDir = root;
+					}
+				} else {
+					String downloadDir = System.getProperty("fileconn.dir.videos");
+					if(downloadDir == null)
+						downloadDir = System.getProperty("fileconn.dir.photos");
+					if(downloadDir == null)
+						downloadDir = "C:/";
+					else if(downloadDir.startsWith("file:///"))
+						downloadDir = downloadDir.substring("file:///".length());
+					App.downloadDir = downloadDir;
+				}
+				boolean lowEnd = isLowEndDevice();
+				if(lowEnd) {
+					App.httpStream = true;
+					App.rememberSearch = false;
+					App.searchChannels = true;
+					App.videoPreviews = false;
+				} else {
+					if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
+						App.httpStream = true;
+						App.asyncLoading = true;
+					}
+					if(PlatformUtils.isSymbianTouch()) {
+						App.customItems = true;
+					}
+					App.rememberSearch = true;
+					App.searchChannels = true;
+					App.videoPreviews = true;
+				}
+				if(PlatformUtils.isAsha()) {
+					App.videoPreviews = true;
+					App.customItems = true;
+				} else if(PlatformUtils.isS40() || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
+					App.videoPreviews = true;
+					App.customItems = true;
+					App.rmsPreviews = true;
+				}
+				int min = Math.min(App.width, App.height);
+				// Symbian 9.4 can't handle H.264/AVC
+				if(min < 360 || PlatformUtils.isSymbian94()) {
+					App.videoRes = "144p";
+				} else {
+					App.videoRes = "360p";
+				}
 			}
 		} else {
 			try {
