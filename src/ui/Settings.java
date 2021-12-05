@@ -152,10 +152,13 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 					App.httpStream = true;
 					App.rememberSearch = false;
 					App.searchChannels = true;
+					App.asyncLoading = false;
 					App.videoPreviews = false;
 				} else {
 					if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
 						App.httpStream = true;
+						App.asyncLoading = false;
+					} else {
 						App.asyncLoading = true;
 					}
 					if(PlatformUtils.isSymbianTouch()) {

@@ -263,7 +263,10 @@ public class Locale implements LocaleConstants {
 	}
 	
 	public static String views(int i) {
-		return null;
+		if(i >= 1000000) {
+			return ((int) ((i / 1000000D) * 100) / 100) + "M";
+		}
+		return "" + i;
 	}
 
 	public static String videos(int i) {

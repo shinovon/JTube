@@ -198,7 +198,7 @@ public class App implements CommandListener, Constants {
 	}
 	
 	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
+		if(s.startsWith("/")) return Util.get(inv + s.substring(1));
 		if(imgproxy == null || imgproxy.length() <= 1) return Util.get(s);
 		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
 		return Util.get(imgproxy + Util.url(s));
