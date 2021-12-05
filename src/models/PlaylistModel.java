@@ -9,7 +9,6 @@ import javax.microedition.lcdui.ItemCommandListener;
 import App;
 import InvidiousException;
 import Locale;
-import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import ui.ModelForm;
 import ui.PlaylistForm;
@@ -28,7 +27,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	private String authorId;
 	private int videoCount;
 	
-	private VideoModel[] videos;
+	//private VideoModel[] videos;
 	
 	private PlaylistItem customItem;
 
@@ -99,7 +98,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	}
 
 	public void disposeExtendedVars() {
-		videos = null;
+	//	videos = null;
 		extended = false;
 	}
 

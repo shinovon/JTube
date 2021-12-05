@@ -36,7 +36,7 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static String ver = "r1";
+	public static String ver = "patch1";
 	
 	// Settings
 	public static String videoRes;
@@ -464,6 +464,10 @@ public class App implements CommandListener, Constants {
 
 	public static void open(AbstractModel model, Form formContainer) {
 		App app = inst;
+		// check if already loading
+		if(formContainer == null && app.videoForm != null) {
+			return;
+		}
 		if(model.isFromSearch() && !rememberSearch) {
 			app.disposeSearchForm();
 		}
@@ -492,27 +496,34 @@ public class App implements CommandListener, Constants {
 		d.start();
 	}
 	
-	public static void watch(String id) {
-		// TODO other variants
-		try {
-			String url = getVideoLink(id, videoRes);
-			switch(watchMethod) {
-			case 0: {
-				platReq(url);
-				break;
+	public static void watch(final String id) {
+		ILoader r = new ILoader() {
+			public void load() {
+				// TODO other variants
+				try {
+					String url = getVideoLink(id, videoRes);
+					switch(watchMethod) {
+					case 0: {
+						platReq(url);
+						break;
+					}
+					case 1: {
+						Player p = Manager.createPlayer(url);
+						playerCanv = new PlayerCanvas(p);
+						display(playerCanv);
+						playerCanv.init();
+						break;
+					}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					error(null, Errors.App_watch, e);
+				}
 			}
-			case 1: {
-				Player p = Manager.createPlayer(url);
-				playerCanv = new PlayerCanvas(p);
-				display(playerCanv);
-				playerCanv.init();
-				break;
-			}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			error(null, Errors.App_watch, e);
-		}
+		};
+		inst.stopDoingAsyncTasks();
+		inst.addAsyncLoad(r);
+		inst.notifyAsyncTasks();
 	}
 
 	public static void back(Form f) {
@@ -554,6 +565,15 @@ public class App implements CommandListener, Constants {
 			a.setCommandListener(this);
 			a.addCommand(new Command("OK", Command.OK, 1));
 			display(a);
+			return;
+		}
+
+		if(c == goCmd && d instanceof TextBox) {
+			openVideo(((TextBox) d).getString());
+			return;
+		}
+		if(c == searchOkCmd && d instanceof TextBox) {
+			search(((TextBox) d).getString());
 			return;
 		}
 		if(c == settingsCmd) {
@@ -601,12 +621,6 @@ public class App implements CommandListener, Constants {
 			stopDoingAsyncTasks();
 			display(mainForm);
 			disposeSearchForm();
-		}
-		if(c == goCmd && d instanceof TextBox) {
-			openVideo(((TextBox) d).getString());
-		}
-		if(c == searchOkCmd && d instanceof TextBox) {
-			search(((TextBox) d).getString());
 		}
 		if(c == switchToPopularCmd) {
 			startScreen = 1;
@@ -746,7 +760,9 @@ public class App implements CommandListener, Constants {
 		if(t0 != null) t0.pleaseInterrupt();
 		if(t1 != null) t1.pleaseInterrupt();
 		if(t2 != null) t2.pleaseInterrupt();
-		v0.removeAllElements();
+		if(v0 != null) v0.removeAllElements();
+		if(v1 != null) v1.removeAllElements();
+		if(v2 != null) v2.removeAllElements();
 		waitAsyncTasks();
 	}
 

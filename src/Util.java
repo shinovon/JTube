@@ -7,7 +7,7 @@ import javax.microedition.io.HttpConnection;
 
 public class Util implements Constants {
 	
-	private final static boolean b = true;
+	private final static boolean b = false;
 
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
