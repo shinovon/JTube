@@ -76,9 +76,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		Item vi = new StringItem(Locale.s(TXT_Views), Locale.views(video.getViewCount()));
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
-		Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
-		ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
-		append(ld);
+		//Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
+		//ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		//append(ld);
 		Item date = new StringItem(Locale.s(TXT_Published), video.getPublishedText());
 		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(date);

@@ -36,7 +36,7 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static String ver = "patch1";
+	public static String ver = "patch2";
 	
 	// Settings
 	public static String videoRes;
