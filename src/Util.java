@@ -7,6 +7,8 @@ import javax.microedition.io.HttpConnection;
 
 public class Util implements Constants {
 	
+	private final static boolean b = true;
+
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
 			throw new IllegalArgumentException("URL is null");
@@ -62,14 +64,27 @@ public class Util implements Constants {
 			}
 			s = 16384;
 			*/
-			byte[] b = new byte[16384];
+			int i = 0;
+			int read;
 			o = new ByteArrayOutputStream();
+			if(b) {
+				read = in.read();
+				while(read != -1) {
+					o.write(read);
+					if(i++ % 2000 == 0 && isLoader) {
+						if(il.checkInterrupted()) {
+							throw new RuntimeException("loader interrupt");
+						}
+					}
+					read = in.read();
+				}
+				return o.toByteArray();
+			}
+			byte[] b = new byte[16384];
 			/*int c;
 			while ((c = i.read(b)) != -1) {
 				o.write(b, 0, c);
 			}*/
-			int read;
-			int i = 0;
 			while((read = in.read(b)) != -1) {
 				o.write(b, 0, read);
 				if(i++ % 4 == 0) {

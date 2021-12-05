@@ -12,15 +12,13 @@ import Constants;
 import Errors;
 import Locale;
 import models.AbstractModel;
-import models.ChannelModel;
 import models.PlaylistModel;
-import models.VideoModel;
 
 public class PlaylistForm extends ModelForm implements CommandListener, Constants {
 
 	private PlaylistModel playlist;
 	
-	private ChannelModel channel;
+	//private ChannelModel channel;
 
 	private Form formContainer;
 
@@ -76,13 +74,13 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
 	}
-
+/*
 	private Item item(VideoModel v) {
 		v.setFormContainer(this);
 		//if(App.videoPreviews) App.inst.addAsyncLoad(v);
 		return v.makeItemForList();
 	}
-
+*/
 	public void commandAction(Command c, Displayable d) {
 		if(c == backCmd) {
 			if(formContainer != null) {
@@ -98,7 +96,7 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 		deleteAll();
 		playlist.disposeExtendedVars();
 		playlist = null;
-		channel = null;
+		//channel = null;
 		App.gc();
 	}
 
@@ -118,9 +116,9 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 
 	public void setFormContainer(Form form) {
 		this.formContainer = form;
-		if(form instanceof ChannelForm) {
-			channel = ((ChannelForm) form).getChannel();
-		}
+		//if(form instanceof ChannelForm) {
+		//	channel = ((ChannelForm) form).getChannel();
+		//}
 	}
 
 }

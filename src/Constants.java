@@ -13,12 +13,12 @@ public interface Constants extends LocaleConstants {
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
 	// Main form commands
-	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 2);
-	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 4);
-	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 5);
-	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 1);
-	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 10);
-	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 10);
+	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 4);
+	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 8);
+	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 7);
+	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 3);
+	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 3);
+	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 3);
 	
 	static final Command searchOkCmd = new Command(Locale.s(CMD_Search), Command.OK, 1);
 	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 2);
@@ -42,7 +42,7 @@ public interface Constants extends LocaleConstants {
 	static final Command dlOpenCmd = new Command(Locale.s(CMD_Open), Command.OK, 1);
 	static final Command dlCancelCmd = new Command(Locale.s(CMD_Cancel), Command.CANCEL, 1);
 	
-	public static Command vOpenCmd = new Command(Locale.s(CMD_View), Command.ITEM, 3);
+	public static Command vOpenCmd = new Command(Locale.s(CMD_View), Command.ITEM, 10);
 	public static Command vOpenChannelCmd = new Command(Locale.s(CMD_ViewChannel), Command.ITEM, 4);
 	
 	public static Command cVideosCmd = new Command(Locale.s(CMD_Videos), Command.ITEM, 3);

@@ -38,6 +38,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 	}
 	
 	public void run() {
+		if(cancel) return;
 		FileConnection fc = null;
 		OutputStream out = null;
 		HttpConnection hc = null;
@@ -54,6 +55,9 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			
 			JSONObject o = App.getVideoInfo(id, res);
 			String url = o.getString("url");
+			if(App.httpStream) {
+				url = App.serverstream + "?url=" + Util.url(url);
+			}
 			int contentLength = o.getInt("clen", 0);
 			o = null;
 			// подождать
@@ -68,7 +72,6 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			}
 			fc.create();
 			info(Locale.s(TXT_Connecting));
-			out = fc.openOutputStream();
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestProperty("User-Agent", userAgent);
 			int r;
@@ -84,6 +87,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
+			if(cancel) return;
 			int redirectCount = 0;
 			while (r == 301 || r == 302) {
 				info(Locale.s(TXT_Redirected) + " (" + redirectCount++ + ")");
@@ -99,6 +103,8 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
+			if(cancel) return;
+			out = fc.openOutputStream();
 			in = hc.openInputStream();
 			info(Locale.s(TXT_Connected));
 			int percent = 0;
@@ -125,18 +131,29 @@ public class Downloader implements CommandListener, Constants, Runnable {
 				alert.setIndicator(null);
 				ind = false;
 			}
+			if(cancel) return;
+			String sizeStr = "" + ((int) (((double)l / 1024 / 1024) * 10)) / 10D;
+			long t = System.currentTimeMillis();
+			int s = 0;
 			int i = 0;
 			while((read = in.read(buf)) != -1) {
 				out.write(buf, 0, read);
 				downloaded += read;
 				if(i++ % 4 == 0) {
 					if(cancel) return;
+					long t2 = System.currentTimeMillis();
+					String spd = "(" + ((int) (((((double) (downloaded - s) / (t2 - t)) * 1000) / 1024D) * 10) / 10D) + " KB/s)";
 					if(ind) {
 						percent = (int)(((double)downloaded / (double)l) * 100d);
-						info(Locale.s(TXT_Downloading), percent);
+						info(Locale.s(TXT_Downloading) + " \n" + 
+						((int) ((downloaded / 1024D / 1024D) * 100)) / 100D + " / " + sizeStr + " MB\n"
+								+ spd + " " + percent + "%"
+								, percent);
 					} else {
-						info(Locale.s(TXT_Downloaded) + " " + (downloaded / 1024) + " KBytes");
+						info(Locale.s(TXT_Downloaded) + " " + (downloaded / 1024) + " Kbytes \n" + spd);
 					}
+					t = t2;
+					s = downloaded;
 				}
 			}
 			done();
@@ -179,7 +196,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 
 	private void done() {
 		hideIndicator();
-		info(Locale.s(TXT_Done));
+		info(Locale.s(TXT_Done) + "\n" + file);
 		alert.addCommand(dlOkCmd);
 		alert.addCommand(dlOpenCmd);
 	}
@@ -199,7 +216,6 @@ public class Downloader implements CommandListener, Constants, Runnable {
 
 	private void info(String s, int percent) {
 		if(indicator != null && percent >= 0 && percent <= 100) {
-			s += " " + percent + "%";
 			indicator.setValue(percent);
 		}
 		info(s);

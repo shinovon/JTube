@@ -78,7 +78,7 @@ public class PlatformUtils {
 		if(!(s.length() == 3 || s.charAt(3) == '/' || s.charAt(3) == '(' || s.charAt(3) == ' ')) return false;
 
 		for(int i = 0; i < ashaTypeModels.length; i++) {
-			if(s.startsWith(ashaTouchAndTypeModels[i])) return true;
+			if(s.startsWith(ashaTypeModels[i])) return true;
 		}
 		for(int i = 0; i < ashaFullTouchModels.length; i++) {
 			if(s.startsWith(ashaFullTouchModels[i])) return true;

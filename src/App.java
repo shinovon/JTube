@@ -36,6 +36,8 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
+	public static String ver = "r1";
+	
 	// Settings
 	public static String videoRes;
 	public static String region;
@@ -527,6 +529,7 @@ public class App implements CommandListener, Constants {
 
 	public void commandAction(Command c, Displayable d) {
 		if(d instanceof Alert) {
+			display(mainForm);
 			return;
 		}
 		if(c == exitCmd) {
@@ -544,7 +547,7 @@ public class App implements CommandListener, Constants {
 		if(c == aboutCmd) {
 			Alert a = new Alert("", "", null, null);
 			a.setTimeout(-2);
-			a.setString("JTube v" + midlet.getAppProperty("MIDlet-Version") + " \n"
+			a.setString("JTube v" + midlet.getAppProperty("MIDlet-Version") + "(" + ver + ") \n"
 					+ "By Shinovon (nnproject.cc) \n"
 					+ "t.me/nnmidletschat \n\n"
 					+ "Thanks to ales_alte, Jazmin Rocio, Feodor0090");
@@ -696,7 +699,9 @@ public class App implements CommandListener, Constants {
 	}
 	
 	public static void platReq(String s) throws ConnectionNotFoundException {
-		midlet.platformRequest(s);
+		if(midlet.platformRequest(s)) {
+			midlet.notifyDestroyed();
+		}
 	}
 	
 	public void addAsyncLoad(ILoader v) {

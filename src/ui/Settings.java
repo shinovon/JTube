@@ -2,12 +2,16 @@ package ui;
 
 import java.util.Enumeration;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
@@ -20,7 +24,9 @@ import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 
-public class Settings extends Form implements Constants, CommandListener {
+public class Settings extends Form implements Constants, CommandListener, ItemCommandListener {
+
+	//private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -30,6 +36,7 @@ public class Settings extends Form implements Constants, CommandListener {
 	private TextField invidiousText;
 	private TextField imgProxyText;
 	private ChoiceGroup uiChoice;
+	//private StringItem dirBtn;
 
 	public Settings() {
 		super(Locale.s(TITLE_Settings));
@@ -45,6 +52,11 @@ public class Settings extends Form implements Constants, CommandListener {
 		append(checksChoice);
 		downloadDirText = new TextField(Locale.s(SET_DownloadDir), App.downloadDir, 256, TextField.URL);
 		append(downloadDirText);
+		//dirBtn = new StringItem(null, "...", Item.BUTTON);
+		//dirBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
+		//dirBtn.setDefaultCommand(dirCmd);
+		//dirBtn.setItemCommandListener(this);
+		//append(dirBtn);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), App.inv, 256, TextField.URL);
 		append(invidiousText);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
@@ -97,7 +109,7 @@ public class Settings extends Form implements Constants, CommandListener {
 				App.videoRes = "360p";
 				App.downloadDir = "C:/";
 			} else {
-				if(!PlatformUtils.isNotS60() || PlatformUtils.isS603rd()) {
+				if(!PlatformUtils.isS40()) {
 					Enumeration roots = FileSystemRegistry.listRoots();
 					String root = "";
 					while(roots.hasMoreElements()) {
@@ -114,7 +126,16 @@ public class Settings extends Form implements Constants, CommandListener {
 						if(s.startsWith("E:")) {
 							root = s;
 						}
-						App.downloadDir = root;
+					}
+					if(!root.endsWith("/")) root += "/";
+					App.downloadDir = root;
+					try {
+						FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
+						if(fc.exists()) {
+							App.downloadDir = root + "videos/";
+						}
+						fc.close();
+					} catch (Exception e) {
 					}
 				} else {
 					String downloadDir = System.getProperty("fileconn.dir.videos");
@@ -272,6 +293,10 @@ public class Settings extends Form implements Constants, CommandListener {
 	
 	public static boolean isLowEndDevice() {
 		return PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && (PlatformUtils.isS40() || App.width < 240 || PlatformUtils.startMemory < 2048 * 1024);
+	}
+
+	public void commandAction(Command c, Item item) {
+		
 	}
 
 }

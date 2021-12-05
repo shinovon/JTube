@@ -50,8 +50,10 @@ public final class JSON {
 		if (str.length() < 2) {
 			return str;
 		} else {
+			str = str.trim();
 			char first = str.charAt(0);
-			char last = str.charAt(str.length() - 1);
+			int length = str.length() - 1;
+			char last = str.charAt(length);
 			if (first == '{' && last != '}' || first == '[' && last != ']' || first == '"' && last != '"') {
 				throw new JSONException("Unexpected end of text");
 			} else if (first == '"') {
@@ -240,7 +242,6 @@ public final class JSON {
 				int unclosed = 0;
 				boolean object = first == '{';
 				int i = 1;
-				int length = str.length() - 1;
 				char nextDelimiter = object ? ':' : ',';
 				boolean escape = false;
 				String key = null;

@@ -1,7 +1,6 @@
 package cc.nnproject.ytapp;
 
 import javax.microedition.midlet.MIDlet;
-import javax.microedition.rms.RecordStore;
 
 import App;
 
