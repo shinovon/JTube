@@ -1,7 +1,10 @@
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
@@ -23,6 +26,7 @@ import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONException;
 import cc.nnproject.json.JSONObject;
+import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.ytapp.App2;
 import models.AbstractModel;
 import models.ChannelModel;
@@ -36,12 +40,12 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static String ver = "patch2";
+	public static String ver = "r2patch1";
 	
 	// Settings
 	public static String videoRes;
 	public static String region;
-	public static int watchMethod; // 0 - platform request 1 - mmapi player
+	public static int watchMethod = 0; // 0 - platform request 1 - mmapi player
 	public static String downloadDir;
 	public static String serverstream = streamphp;
 	public static boolean videoPreviews;
@@ -387,66 +391,90 @@ public class App implements CommandListener, Constants {
 	}
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
-		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?fields=formatStreams");
-		JSONArray arr = j.getArray("formatStreams");
+		boolean combined = res == null || res.charAt(0) != '_';
+		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?fields=" + (combined ? "formatStreams" : "adaptiveFormats"));
+		JSONArray arr = j.getArray(combined ? "formatStreams" : "adaptiveFormats");
 		if(j.size() == 0) {
 			throw new RuntimeException("failed to get link for video: " + id);
 		}
-		JSONObject _144 = null;
-		JSONObject _360 = null;
-		JSONObject _720 = null;
-		JSONObject other = null;
 		int l = arr.size();
-		for(int i = 0; i < l; i++) {
-			JSONObject o = arr.getObject(i);
-			String q = o.getString("qualityLabel");
-			if(q.startsWith("720p")) {
-				_720 = o;
-			} else if(q.startsWith("360p")) {
-				_360 = o;
-			} else if(q.startsWith("144p")) {
-				_144 = o;
-			} else {
-				other = o;
+		if(combined) {
+			JSONObject _144 = null;
+			JSONObject _360 = null;
+			JSONObject _720 = null;
+			JSONObject other = null;
+			for(int i = 0; i < l; i++) {
+				JSONObject o = arr.getObject(i);
+				String q = o.getString("qualityLabel");
+				if(q.startsWith("720p")) {
+					_720 = o;
+				} else if(q.startsWith("360p")) {
+					_360 = o;
+				} else if(q.startsWith("144p")) {
+					_144 = o;
+				} else {
+					other = o;
+				}
 			}
-		}
-		JSONObject o = null;
-		if(res == null) {
-			if(_360 != null) {
-				o = _360;
-			} else if(other != null) {
-				o = other;
-			} else if(_144 != null) {
-				o = _144;
-			} 
-		} else if(res.equals("144p")) {
-			if(_144 != null) {
-				o = _144;
-			} else if(_360 != null) {
-				o = _360;
-			} else if(other != null) {
-				o = other;
+			JSONObject o = null;
+			if(res == null) {
+				if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			} else if(res.equals("144p")) {
+				if(_144 != null) {
+					o = _144;
+				} else if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				}
+			} else if(res.equals("360p")) {
+				if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
+			} else if(res.equals("720p")) {
+				if(_720 != null) {
+					o = _720;
+				} else if(_360 != null) {
+					o = _360;
+				} else if(other != null) {
+					o = other;
+				} else if(_144 != null) {
+					o = _144;
+				} 
 			}
-		} else if(res.equals("360p")) {
-			if(_360 != null) {
-				o = _360;
-			} else if(other != null) {
-				o = other;
-			} else if(_144 != null) {
-				o = _144;
-			} 
-		} else if(res.equals("720p")) {
-			if(_720 != null) {
-				o = _720;
-			} else if(_360 != null) {
-				o = _360;
-			} else if(other != null) {
-				o = other;
-			} else if(_144 != null) {
-				o = _144;
-			} 
+			return o;
+		} else {
+			JSONObject r = null;
+			int k = 0;
+			if(res.equals("_m4alow"))
+				k = Integer.MAX_VALUE;
+			for(int i = 0; i < l; i++) {
+				JSONObject o = arr.getObject(i);
+				if(res.equals("_m4alow")) {
+					int n = o.getInt("bitrate", 0);
+					if(n < k) r = o;
+				}
+				if(res.equals("_m4ahigh")) {
+					int n = o.getInt("bitrate", 0);
+					if(n > k) r = o;
+				}
+				String q = o.getNullableString("qualityLabel");
+				if(q != null && q.startsWith("240p")) {
+					r = o;
+				}
+			}
+			return r;
 		}
-		return o;
 	}
 
 	public static String getVideoLink(String id, String res) throws JSONException, IOException {
@@ -512,6 +540,37 @@ public class App implements CommandListener, Constants {
 						playerCanv = new PlayerCanvas(p);
 						display(playerCanv);
 						playerCanv.init();
+						break;
+					}
+					case 2: {
+						String file = "file:///" + downloadDir;
+						if(!file.endsWith("/") && !file.endsWith("\\")) file += "/";
+						if(PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
+							file += "watch.ram";
+						} else if(PlatformUtils.isS603rd()) {
+							file += "watch.m3u";
+						} else {
+							platReq(url);
+							break;
+						}
+						FileConnection fc = null;
+						OutputStream o = null;
+						try {
+							fc = (FileConnection) Connector.open(file);
+							if(fc.exists()) 
+								fc.delete();
+							fc.create();
+							o = fc.openDataOutputStream();
+							o.write(url.getBytes());
+							o.flush();
+						} finally {
+							try {
+								if(o != null) o.close();
+								if(fc != null) fc.close();
+							} catch (Exception e) {
+							}
+						}
+						platReq(file);
 						break;
 					}
 					}

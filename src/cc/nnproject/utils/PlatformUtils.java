@@ -63,13 +63,24 @@ public class PlatformUtils {
 				s.startsWith("E65") || s.startsWith("E61") || s.startsWith("E60") ||
 				s.startsWith("N91") || s.startsWith("E62") || s.startsWith("N78") ||
 				s.startsWith("3250") || s.startsWith("N71") || s.startsWith("N75") ||
-				s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500")));
+				s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500") ||
+				s.startsWith("5700") ||s.startsWith("6110") ||s.startsWith("612") ||
+				s.startsWith("6290") ||s.startsWith("N76") ||s.startsWith("N81")
+				));
 		isS603rd = b ? 1 : 0;
 		return b;
 	}
 
 	public static boolean isS40() {
 		return isNotS60() && platform.startsWith("Nokia") && startMemory == S40_MEM;
+	}
+	
+	public static boolean isBada() {
+		String s2;
+		return platform.startsWith("SAMSUNG-GT-") &&
+				((s2 = platform.substring("SAMSUNG-GT-".length())).startsWith("538")
+				|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
+				|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86"));
 	}
 	
 	public static boolean isAsha() {

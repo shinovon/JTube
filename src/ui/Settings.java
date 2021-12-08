@@ -1,6 +1,8 @@
 package ui;
 
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -12,6 +14,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
+import javax.microedition.lcdui.List;
+import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
@@ -26,7 +30,9 @@ import cc.nnproject.utils.PlatformUtils;
 
 public class Settings extends Form implements Constants, CommandListener, ItemCommandListener {
 
-	//private static final Command dirCmd = new Command("...", Command.ITEM, 1);
+	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
+
+	private static Vector rootsVector;
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -36,7 +42,14 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 	private TextField invidiousText;
 	private TextField imgProxyText;
 	private ChoiceGroup uiChoice;
-	//private StringItem dirBtn;
+	private StringItem dirBtn;
+
+	private List dirList;
+
+	private String curDir;
+
+	private final static Command dirOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 1);
+	private final static Command dirSelectCmd = new Command(Locale.s(CMD_Apply), Command.OK, 2);
 
 	public Settings() {
 		super(Locale.s(TITLE_Settings));
@@ -52,11 +65,11 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		append(checksChoice);
 		downloadDirText = new TextField(Locale.s(SET_DownloadDir), App.downloadDir, 256, TextField.URL);
 		append(downloadDirText);
-		//dirBtn = new StringItem(null, "...", Item.BUTTON);
-		//dirBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
-		//dirBtn.setDefaultCommand(dirCmd);
-		//dirBtn.setItemCommandListener(this);
-		//append(dirBtn);
+		dirBtn = new StringItem(null, "...", Item.BUTTON);
+		dirBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
+		dirBtn.setDefaultCommand(dirCmd);
+		dirBtn.setItemCommandListener(this);
+		append(dirBtn);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), App.inv, 256, TextField.URL);
 		append(invidiousText);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
@@ -86,6 +99,17 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		}
 	}
 	
+	private static void getRoots() {
+		if(rootsVector != null) return;
+		rootsVector = new Vector();
+		Enumeration roots = FileSystemRegistry.listRoots();
+		while(roots.hasMoreElements()) {
+			String s = (String) roots.nextElement();
+			if(s.startsWith("file:///")) s = s.substring("file:///".length());
+			rootsVector.addElement(s);
+		}
+	}
+	
 
 	public static void loadConfig() {
 		/*
@@ -110,11 +134,15 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				App.downloadDir = "C:/";
 			} else {
 				if(!PlatformUtils.isS40()) {
-					Enumeration roots = FileSystemRegistry.listRoots();
+					getRoots();
 					String root = "";
-					while(roots.hasMoreElements()) {
-						String s = (String) roots.nextElement();
+					for(int i = 0; i < rootsVector.size(); i++) {
+						String s = (String) rootsVector.elementAt(i);
 						if(s.startsWith("file:///")) s = s.substring("file:///".length());
+						if(s.startsWith("Video")) {
+							root = s;
+							break;
+						}
 						if(s.startsWith("SDCard")) {
 							root = s;
 							break;
@@ -155,13 +183,13 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 					App.asyncLoading = false;
 					App.videoPreviews = false;
 				} else {
-					if(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) {
+					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
 						App.httpStream = true;
 						App.asyncLoading = false;
 					} else {
 						App.asyncLoading = true;
 					}
-					if(PlatformUtils.isSymbianTouch()) {
+					if(PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
 						App.customItems = true;
 					}
 					App.rememberSearch = true;
@@ -223,12 +251,17 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 	
 	private void applySettings() {
 		try {
-			if(videoResChoice.getSelectedIndex() == 0) {
+			int i = videoResChoice.getSelectedIndex();
+			if(i == 0) {
 				App.videoRes = "144p";
-			} else if(videoResChoice.getSelectedIndex() == 1) {
+			} else if(i == 1) {
 				App.videoRes = "360p";
-			} else if(videoResChoice.getSelectedIndex() == 2) {
+			} else if(i == 2) {
 				App.videoRes = "720p";
+			} else if(i == 3) {
+				App.videoRes = "_m4ahigh";
+			} else if(i == 4) {
+				App.videoRes = "_240p";
 			}
 			App.region = regionText.getString();
 			String dir = downloadDirText.getString();
@@ -289,7 +322,83 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		}
 	}
 	
-	public void commandAction(Command c, Displayable arg1) {
+	private void dirListOpen(String f, String title) {
+		dirList = new List(title, List.IMPLICIT);
+		dirList.addCommand(backCmd);
+		dirList.setCommandListener(this);
+		dirList.addCommand(dirSelectCmd);
+		dirList.append("- " + Locale.s(CMD_Select), null);
+		try {
+			FileConnection fc = (FileConnection) Connector.open("file:///" + f);
+			Enumeration list = fc.list();
+			while(list.hasMoreElements()) {
+				String s = (String) list.nextElement();
+				if(s.endsWith("/")) {
+					dirList.append(s.substring(0, s.length() - 1), null);
+				}
+			}
+			fc.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		App.display(dirList);
+	}
+	
+	public void commandAction(Command c, Displayable d) {
+		if(d == dirList) {
+			if(c == backCmd) {
+				if(curDir == null) {
+					dirList = null;
+					App.display(this);
+				} else {
+					if(curDir.indexOf("/") == -1) {
+						dirList = new List("", List.IMPLICIT);
+						dirList.addCommand(backCmd);
+						dirList.setCommandListener(this);
+						for(int i = 0; i < rootsVector.size(); i++) {
+							String s = (String) rootsVector.elementAt(i);
+							if(s.startsWith("file:///")) s = s.substring("file:///".length());
+							if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
+							dirList.append(s, null);
+						}
+						curDir = null;
+						App.display(dirList);
+						return;
+					}
+					String sub = curDir.substring(0, curDir.lastIndexOf('/'));
+					String fn = "";
+					if(sub.indexOf('/') != -1) {
+						fn = sub.substring(sub.lastIndexOf('/'));
+					}
+					curDir = sub;
+					dirListOpen(sub, fn);
+				}
+			}
+			if(c == dirOpenCmd || c == List.SELECT_COMMAND) {
+				String fs = curDir;
+				String f = "";
+				if(fs != null) f += curDir + "/";
+				String is = dirList.getString(dirList.getSelectedIndex());
+				if(is.equals("- " + Locale.s(CMD_Select))) {
+					dirList = null;
+					downloadDirText.setString(f);
+					curDir = null;
+					App.display(this);
+					return;
+				}
+				f += is;
+				curDir = f;
+				dirListOpen(f, is);
+				return;
+			}
+			if(c == dirSelectCmd) {
+				dirList = null;
+				downloadDirText.setString(curDir + "/");
+				curDir = null;
+				App.display(this);
+			}
+			return;
+		}
 		applySettings();
 		App.display(null);
 	}
@@ -299,7 +408,19 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 	}
 
 	public void commandAction(Command c, Item item) {
-		
+		if(c == dirCmd) {
+			dirList = new List("", List.IMPLICIT);
+			getRoots();
+			for(int i = 0; i < rootsVector.size(); i++) {
+				String s = (String) rootsVector.elementAt(i);
+				if(s.startsWith("file:///")) s = s.substring("file:///".length());
+				if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
+				dirList.append(s, null);
+			}
+			dirList.addCommand(backCmd);
+			dirList.setCommandListener(this);
+			App.display(dirList);
+		}
 	}
 
 }

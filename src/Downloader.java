@@ -45,11 +45,17 @@ public class Downloader implements CommandListener, Constants, Runnable {
 		InputStream in = null;
 		try {
 			String f = id;
-			if(res != null && res.equals("144p")) {
-				f += ".3gp";
+			if(res != null) {
+				if(res.equals("144p")) {
+					f += ".3gp";
+				} else if(res.equals("_audio")) {
+					f += ".aac";
+				} else {
+					f += ".mp4";
+				}
 			} else {
 				f += ".mp4";
-			}
+			} 
 			file = file + f;
 			info(f);
 			

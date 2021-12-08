@@ -37,16 +37,16 @@ public abstract class CustomButtonItem extends CustomItem implements UIConstants
 	}
 	
 	public void pointerDragged(int x, int y) {
-		pressed = false;
+		//pressed = false;
 	}
 	
 	public void pointerReleased(int x, int y) {
 		long l = System.currentTimeMillis() - pressTime;
-		if(pressed && l <= 250) {
+		if(pressed && l <= 275) {
 			// Symbian^3 does not support CustomItem drag events
 			int ax = Math.abs(x - pressX);
 			int ay = Math.abs(y - pressY);
-			if(ax < 5 && ay < 5) {
+			if(ax <= 6 && ay <= 6) {
 				callCommandOK();
 			}
 		}

@@ -126,8 +126,10 @@ public final class JSON {
 									break loop;
 								}
 								try {
-									if(str.charAt(i + 1) == 'b' && str.charAt(i + 2) == 'r' && str.charAt(i + 3) == '>') 
+									if(str.charAt(i + 1) == 'b' && str.charAt(i + 2) == 'r' && str.charAt(i + 3) == '>') {
+										i++;
 										break;
+									}
 								} catch (Exception e) {
 								}
 								sb.append(c);

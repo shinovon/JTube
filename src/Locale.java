@@ -141,6 +141,8 @@ public class Locale implements LocaleConstants {
 				return "Done";
 			case CMD_About:
 				return "About";
+			case CMD_Select:
+				return "Select";
 			}
 		}
 		case 1: {
@@ -241,6 +243,8 @@ public class Locale implements LocaleConstants {
 				return "Готово";
 			case CMD_About:
 				return "О программе";
+			case CMD_Select:
+				return "Выбрать";
 			}
 		}
 		}
