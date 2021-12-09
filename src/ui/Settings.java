@@ -96,6 +96,10 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			videoResChoice.setSelectedIndex(1, true);
 		} else if(App.videoRes.equals("720p")) {
 			videoResChoice.setSelectedIndex(2, true);
+		} else if(App.videoRes.equals("_audiohigh")) {
+			videoResChoice.setSelectedIndex(3, true);
+		} else if(App.videoRes.equals("_240p")) {
+			videoResChoice.setSelectedIndex(4, true);
 		}
 	}
 	
@@ -259,7 +263,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			} else if(i == 2) {
 				App.videoRes = "720p";
 			} else if(i == 3) {
-				App.videoRes = "_m4ahigh";
+				App.videoRes = "_audiohigh";
 			} else if(i == 4) {
 				App.videoRes = "_240p";
 			}

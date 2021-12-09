@@ -48,9 +48,9 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			if(res != null) {
 				if(res.equals("144p")) {
 					f += ".3gp";
-				} else if(res.equals("_audio")) {
+				} /*else if(res.startsWith("_audio")) {
 					f += ".aac";
-				} else {
+				} */else {
 					f += ".mp4";
 				}
 			} else {

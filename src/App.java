@@ -40,7 +40,7 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static String ver = "r2patch1";
+	public static String ver = "r2patch2";
 	
 	// Settings
 	public static String videoRes;
@@ -207,10 +207,17 @@ public class App implements CommandListener, Constants {
 		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
 		return Util.get(imgproxy + Util.url(s));
 	}
-
+	
 	public static AbstractJSON invApi(String s) throws InvidiousException, IOException {
+		return invApi(s, null);
+	}
+
+	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		if(!s.endsWith("?")) s = s.concat("&");
 		s = s.concat("region=" + region);
+		if(fields != null) {
+			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
+		}
 		s = Util.getUtf(inv + "api/" + s);
 		AbstractJSON res;
 		if(s.charAt(0) == '{') {
@@ -234,7 +241,12 @@ public class App implements CommandListener, Constants {
 		mainForm.addCommand(switchToPopularCmd);
 		try {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Trends));
-			JSONArray j = (JSONArray) invApi("v1/trending?fields=" + VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			AbstractJSON r = invApi("v1/trending?", VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			if(r instanceof JSONObject) {
+				error(this, Errors.App_loadTrends, "Wrong response", r.toString());
+				return;
+			}
+			JSONArray j = (JSONArray) r;
 			try {
 				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
 					mainForm.delete(0);
@@ -276,7 +288,7 @@ public class App implements CommandListener, Constants {
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Popular));
-			JSONArray j = (JSONArray) invApi("v1/popular?fields=" + VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) invApi("v1/popular?", VIDEO_FIELDS + (videoPreviews ? ",videoThumbnails" : ""));
 			try {
 				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
 					mainForm.delete(0);
@@ -320,7 +332,7 @@ public class App implements CommandListener, Constants {
 		}
 		stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + "&fields=" + SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels || searchPlaylists ? ",authorThumbnails,playlistId,videoCount&type=all" : ""));
+			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q), SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels || searchPlaylists ? ",authorThumbnails,playlistId,videoCount&type=all" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), true, i);
@@ -392,7 +404,7 @@ public class App implements CommandListener, Constants {
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
 		boolean combined = res == null || res.charAt(0) != '_';
-		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?fields=" + (combined ? "formatStreams" : "adaptiveFormats"));
+		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?", (combined ? "formatStreams" : "adaptiveFormats"));
 		JSONArray arr = j.getArray(combined ? "formatStreams" : "adaptiveFormats");
 		if(j.size() == 0) {
 			throw new RuntimeException("failed to get link for video: " + id);
@@ -456,21 +468,27 @@ public class App implements CommandListener, Constants {
 		} else {
 			JSONObject r = null;
 			int k = 0;
-			if(res.equals("_m4alow"))
+			if(res.equals("_audiolow"))
 				k = Integer.MAX_VALUE;
 			for(int i = 0; i < l; i++) {
 				JSONObject o = arr.getObject(i);
-				if(res.equals("_m4alow")) {
-					int n = o.getInt("bitrate", 0);
-					if(n < k) r = o;
+				String t = o.getNullableString("type");
+				if(t != null && t.startsWith("audio")) {
+					if(res.equals("_audiolow")) {
+						int n = o.getInt("bitrate", 0);
+						if(n < k) r = o;
+					}
+					if(res.equals("_audiohigh")) {
+						int n = o.getInt("bitrate", 0);
+						if(n > k) r = o;
+					}
 				}
-				if(res.equals("_m4ahigh")) {
-					int n = o.getInt("bitrate", 0);
-					if(n > k) r = o;
-				}
-				String q = o.getNullableString("qualityLabel");
-				if(q != null && q.startsWith("240p")) {
-					r = o;
+				if(res.equals("_240p")) {
+					String q = o.getNullableString("qualityLabel");
+					String c = o.getNullableString("container");
+					if(q != null && q.startsWith("240p") && c != null && c.startsWith("mp4")) {
+						r = o;
+					}
 				}
 			}
 			return r;
@@ -857,13 +875,17 @@ public class App implements CommandListener, Constants {
 	}
 
 	public static void error(Object o, int i, Throwable e) {
-		error(o, i, e.toString());
+		error(o, i, e.toString(), null);
 	}
 
 	public static void error(Object o, int i, String str) {
+		error(o, i, str, null);
+	}
+
+	public static void error(Object o, int i, String str, String str2) {
 		String cls = "null";
 		if(o != null) cls = o.getClass().getName();
-		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName();
+		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName() + (str2 != null ? " \n" + str2 : "");
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
 		display(a);

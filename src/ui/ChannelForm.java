@@ -97,7 +97,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		App.display(lastVideosForm);
 		App.inst.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?fields=" + VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), false);
@@ -121,7 +121,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		App.display(searchForm);
 		App.inst.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q) + "&fields=" + VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), true);

@@ -96,7 +96,7 @@ public class Locale implements LocaleConstants {
 			case SET_CountryCode:
 				return "Country code (ISO 3166)";
 			case TITLE_Trends:
-				return "Trends";
+				return "Trending";
 			case TITLE_Popular:
 				return "Popular";
 			case TITLE_SearchQuery:

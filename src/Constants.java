@@ -57,7 +57,7 @@ public interface Constants extends LocaleConstants {
 	static final int LATESTVIDEOS_LIMIT = 30;
 	
 	static final String NAME = "JTube";
-	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p", "m4a Audio", "240p (no audio)" };
+	static final String[] VIDEO_QUALITIES = new String[] { "144p", "360p", "720p", "audio only",  "240p (no audio)" };
 	static final String[] SETTINGS_CHECKS = new String[] { "Remember search", "HTTP Proxy Streaming", "Pre-load previews to RMS" };
 	static final String[] APPEARANCE_CHECKS = new String[] { "Custom items", "Video previews", "Channels in search" };
 	

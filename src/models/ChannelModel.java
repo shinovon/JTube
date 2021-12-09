@@ -77,7 +77,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 	
 	public ChannelModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/channels/" + authorId + "?fields=" + CHANNEL_EXTENDED_FIELDS), true);
+			parse((JSONObject) App.invApi("v1/channels/" + authorId, CHANNEL_EXTENDED_FIELDS), true);
 		}
 		return this;
 	}

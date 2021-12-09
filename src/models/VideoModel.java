@@ -109,7 +109,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?fields=" + VIDEO_EXTENDED_FIELDS + (App.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId, (App.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
 		}
 		return this;
 	}

@@ -62,7 +62,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	
 	public PlaylistModel extend() throws InvidiousException, IOException {
 		/*if(!extended) {
-			parse((JSONObject) App.invApi("v1/playlists/" + playlistId + "?fields=" + PLAYLIST_EXTENDED_FIELDS + "&page=" + page), true);
+			parse((JSONObject) App.invApi("v1/playlists/" + playlistId, PLAYLIST_EXTENDED_FIELDS + "&page=" + page), true);
 		}*/
 		return this;
 	}
