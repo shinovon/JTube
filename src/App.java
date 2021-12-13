@@ -40,7 +40,7 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static String ver = "r2patch2";
+	public static final String ver = "test";
 	
 	// Settings
 	public static String videoRes;
@@ -170,7 +170,7 @@ public class App implements CommandListener, Constants {
 			}
 			gc();
 		} catch (InvidiousException e) {
-			error(this, Errors.App_loadForm, e + "\n JSON: \n" + e.getJSON());
+			error(this, Errors.App_loadForm, e);
 		} catch (OutOfMemoryError e) {
 			gc();
 			error(this, Errors.App_loadForm, "Out of memory!");
@@ -195,6 +195,7 @@ public class App implements CommandListener, Constants {
 		mainForm.setCommandListener(this);
 		mainForm.addCommand(aboutCmd);
 		mainForm.addCommand(searchCmd);
+		mainForm.addCommand(qrCmd);
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
 		mainForm.addCommand(exitCmd);
@@ -213,22 +214,24 @@ public class App implements CommandListener, Constants {
 	}
 
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
+		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
 		s = s.concat("region=" + region);
 		if(fields != null) {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
+		String dbg = "Region=" + region + " Fields=" + fields;
 		s = Util.getUtf(inv + "api/" + s);
 		AbstractJSON res;
 		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
 			if(((JSONObject) res).has("code")) {
 				System.out.println(res.toString());
-				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"));
+				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, dbg);
 			}
 			if(((JSONObject) res).has("error")) {
 				System.out.println(res.toString());
-				throw new InvidiousException((JSONObject) res);
+				throw new InvidiousException((JSONObject) res, null, url, dbg);
 			}
 		} else {
 			res = JSON.getArray(s);
@@ -332,7 +335,7 @@ public class App implements CommandListener, Constants {
 		}
 		stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q), SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels || searchPlaylists ? ",authorThumbnails,playlistId,videoCount&type=all" : ""));
+			JSONArray j = (JSONArray) invApi("v1/search?q=" + Util.url(q) + "&type=all", SEARCH_FIELDS + ",type" + (videoPreviews ? ",videoThumbnails" : "") + (searchChannels || searchPlaylists ? ",authorThumbnails,playlistId,videoCount" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				Item item = parseAndMakeItem(j.getObject(i), true, i);
@@ -660,6 +663,7 @@ public class App implements CommandListener, Constants {
 			}
 			display(settingsForm);
 			settingsForm.show();
+			return;
 		}
 		if(c == searchCmd && d instanceof Form) {
 			stopDoingAsyncTasks();
@@ -672,6 +676,7 @@ public class App implements CommandListener, Constants {
 			t.addCommand(searchOkCmd);
 			t.addCommand(cancelCmd);
 			display(t);
+			return;
 		}
 		if(c == idCmd && d instanceof Form) {
 			stopDoingAsyncTasks();
@@ -681,6 +686,11 @@ public class App implements CommandListener, Constants {
 			t.addCommand(goCmd);
 			t.addCommand(cancelCmd);
 			display(t);
+			return;
+		}
+		if(c == qrCmd) {
+			msg("don't touch it.");
+			return;
 		}
 		/*if(c == browserCmd) {
 			try {
@@ -692,12 +702,14 @@ public class App implements CommandListener, Constants {
 		}*/
 		if(c == cancelCmd && d instanceof TextBox) {
 			display(mainForm);
+			return;
 		}
 		if(c == backCmd && d == searchForm) {
 			if(mainForm == null) return;
 			stopDoingAsyncTasks();
 			display(mainForm);
 			disposeSearchForm();
+			return;
 		}
 		if(c == switchToPopularCmd) {
 			startScreen = 1;
@@ -714,6 +726,7 @@ public class App implements CommandListener, Constants {
 			}
 			loadPopular();
 			Settings.saveConfig();
+			return;
 		}
 		if(c == switchToTrendsCmd) {
 			startScreen = 0;
@@ -875,6 +888,10 @@ public class App implements CommandListener, Constants {
 	}
 
 	public static void error(Object o, int i, Throwable e) {
+		if(e instanceof InvidiousException) {
+			error(o, i, e.toString(), ((InvidiousException)e).toErrMsg());
+			return;
+		}
 		error(o, i, e.toString(), null);
 	}
 

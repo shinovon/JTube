@@ -1,6 +1,5 @@
 package ui;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -328,7 +327,10 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 	
 	private void dirListOpen(String f, String title) {
 		dirList = new List(title, List.IMPLICIT);
+		dirList.setTitle(title);
 		dirList.addCommand(backCmd);
+		dirList.addCommand(List.SELECT_COMMAND);
+		dirList.setSelectCommand(List.SELECT_COMMAND);
 		dirList.setCommandListener(this);
 		dirList.addCommand(dirSelectCmd);
 		dirList.append("- " + Locale.s(CMD_Select), null);
@@ -342,7 +344,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				}
 			}
 			fc.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		App.display(dirList);
@@ -358,6 +360,9 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 					if(curDir.indexOf("/") == -1) {
 						dirList = new List("", List.IMPLICIT);
 						dirList.addCommand(backCmd);
+						dirList.setTitle("");
+						dirList.addCommand(List.SELECT_COMMAND);
+						dirList.setSelectCommand(List.SELECT_COMMAND);
 						dirList.setCommandListener(this);
 						for(int i = 0; i < rootsVector.size(); i++) {
 							String s = (String) rootsVector.elementAt(i);
@@ -372,10 +377,12 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 					String sub = curDir.substring(0, curDir.lastIndexOf('/'));
 					String fn = "";
 					if(sub.indexOf('/') != -1) {
-						fn = sub.substring(sub.lastIndexOf('/'));
+						fn = sub.substring(sub.lastIndexOf('/') + 1);
+					} else {
+						fn = sub;
 					}
 					curDir = sub;
-					dirListOpen(sub, fn);
+					dirListOpen(sub + "/", fn);
 				}
 			}
 			if(c == dirOpenCmd || c == List.SELECT_COMMAND) {
@@ -392,7 +399,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				}
 				f += is;
 				curDir = f;
-				dirListOpen(f, is);
+				dirListOpen(f + "/", is);
 				return;
 			}
 			if(c == dirSelectCmd) {
@@ -421,6 +428,8 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
 				dirList.append(s, null);
 			}
+			dirList.addCommand(List.SELECT_COMMAND);
+			dirList.setSelectCommand(List.SELECT_COMMAND);
 			dirList.addCommand(backCmd);
 			dirList.setCommandListener(this);
 			App.display(dirList);

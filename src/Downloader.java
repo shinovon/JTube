@@ -145,7 +145,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 			while((read = in.read(buf)) != -1) {
 				out.write(buf, 0, read);
 				downloaded += read;
-				if(i++ % 4 == 0) {
+				if(i++ % 10 == 0) {
 					if(cancel) return;
 					long t2 = System.currentTimeMillis();
 					String spd = "(" + ((int) (((((double) (downloaded - s) / (t2 - t)) * 1000) / 1024D) * 10) / 10D) + " KB/s)";
