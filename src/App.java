@@ -40,7 +40,7 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static final String ver = "test";
+	public static final String ver = "release2patch4";
 	
 	// Settings
 	public static String videoRes;
@@ -119,6 +119,8 @@ public class App implements CommandListener, Constants {
 	public static int width;
 	public static int height;
 
+	private static Displayable lastd;
+
 	public void startApp() {
 		region = System.getProperty("user.country");
 		if(region == null) {
@@ -128,8 +130,6 @@ public class App implements CommandListener, Constants {
 			} else if(region.length() == 5) {
 				region = region.substring(3, 5);
 			} else if(region.length() > 2) {
-				region = region.substring(0, 2);
-			} else {
 				region = "US";
 			}
 		} else if(region.length() > 2) {
@@ -142,6 +142,9 @@ public class App implements CommandListener, Constants {
 		tasksThread.setPriority(4);
 		tasksThread.start();
 		Settings.loadConfig();
+		if(region.toLowerCase().equals("en")) {
+			region = "US";
+		}
 		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
@@ -195,7 +198,6 @@ public class App implements CommandListener, Constants {
 		mainForm.setCommandListener(this);
 		mainForm.addCommand(aboutCmd);
 		mainForm.addCommand(searchCmd);
-		mainForm.addCommand(qrCmd);
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
 		mainForm.addCommand(exitCmd);
@@ -221,7 +223,11 @@ public class App implements CommandListener, Constants {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
 		String dbg = "Region=" + region + " Fields=" + fields;
-		s = Util.getUtf(inv + "api/" + s);
+		try {
+			s = Util.getUtf(inv + "api/" + s);
+		} catch (IOException e) {
+			throw new NetRequestException(e, s);
+		}
 		AbstractJSON res;
 		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
@@ -769,7 +775,12 @@ public class App implements CommandListener, Constants {
 				b = true;
 			}
 		}
-		Display.getDisplay(midlet).setCurrent(d);
+		if(!(d instanceof Alert)) {
+			lastd = d;
+			Display.getDisplay(midlet).setCurrent(d);
+		} else {
+			Display.getDisplay(midlet).setCurrent((Alert) d, lastd);
+		}
 		if(b) inst.loadForm();
 	}
 
@@ -890,6 +901,11 @@ public class App implements CommandListener, Constants {
 	public static void error(Object o, int i, Throwable e) {
 		if(e instanceof InvidiousException) {
 			error(o, i, e.toString(), ((InvidiousException)e).toErrMsg());
+			return;
+		}
+		if(e instanceof NetRequestException) {
+			NetRequestException e2 = (NetRequestException) e;
+			error(o, i, e2.getCause().toString(), "URL: " + e2.getUrl());
 			return;
 		}
 		error(o, i, e.toString(), null);

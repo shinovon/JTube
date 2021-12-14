@@ -136,7 +136,8 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				App.videoRes = "360p";
 				App.downloadDir = "C:/";
 			} else {
-				if(!PlatformUtils.isS40()) {
+				boolean s40 = PlatformUtils.isS40();
+				if(!s40) {
 					getRoots();
 					String root = "";
 					for(int i = 0; i < rootsVector.size(); i++) {
@@ -202,10 +203,10 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				if(PlatformUtils.isAsha()) {
 					App.videoPreviews = true;
 					App.customItems = true;
-				} else if(PlatformUtils.isS40() || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
+				} else if(s40 || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
 					App.videoPreviews = true;
 					App.customItems = true;
-					App.rmsPreviews = true;
+					if(s40) App.rmsPreviews = true;
 				}
 				int min = Math.min(App.width, App.height);
 				// Symbian 9.4 can't handle H.264/AVC
