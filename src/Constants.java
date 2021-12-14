@@ -47,6 +47,8 @@ public interface Constants extends LocaleConstants {
 	
 	public static Command cVideosCmd = new Command(Locale.s(CMD_Videos), Command.ITEM, 3);
 	
+	public static Command qrCmd = new Command("qr scan", Command.SCREEN, 1);
+	
 	// Limits
 	static final int TRENDS_LIMIT_S60 = 25;
 	static final int SEARCH_LIMIT_S60 = 35; 
