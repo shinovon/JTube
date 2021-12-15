@@ -1,10 +1,14 @@
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Hashtable;
 
 public class Locale implements LocaleConstants {
 	
 	public static final String locale;
 	private static boolean loaded;
 	private static int localei;
+	private static Hashtable table;
 	
 	static {
 		// J9, JRE language property
@@ -22,7 +26,7 @@ public class Locale implements LocaleConstants {
 		
 		InputStream in = null;
 		try {
-			in = Locale.class.getResourceAsStream("/l." + s);
+			in = Locale.class.getResourceAsStream("/jtlng." + s);
 		} catch (Exception e) {
 		}
 		if(in == null) {
@@ -35,12 +39,29 @@ public class Locale implements LocaleConstants {
 			}
 		} else {
 			// TODO
+			DataInputStream d = new DataInputStream(in);
+			table = new Hashtable();
+			try {
+				try {
+					int i;
+					while( (i = d.readShort()) != -1) {
+						table.put(new Integer(i), d.readUTF());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					d.close();
+				}
+				loaded = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
 		}
 	}
 	
 	public static String s(int c) {
 		if(loaded) {
-			return null;
+			return (String) table.get(new Integer(c));
 		}
 		switch(localei) {
 		case 0: {
@@ -119,6 +140,8 @@ public class Locale implements LocaleConstants {
 				return "Description";
 			case BTN_ChannelInformation:
 				return "Information";
+			case TXT_Connecting:
+				return "Connecting";
 			case TXT_Waiting:
 				return "Error! Waiting for retry...";
 			case TXT_ConnectionRetry:
@@ -143,6 +166,12 @@ public class Locale implements LocaleConstants {
 				return "About";
 			case CMD_Select:
 				return "Select";
+			case CMD_OpenPlaylist:
+				return "Open playlist";
+			case CMD_Next:
+				return "Next video";
+			case CMD_Prev:
+				return "Prev. video";
 			}
 		}
 		case 1: {
@@ -221,6 +250,8 @@ public class Locale implements LocaleConstants {
 				return "Описание";
 			case BTN_ChannelInformation:
 				return "Информация";
+			case TXT_Connecting:
+				return "Соединение";
 			case TXT_Waiting:
 				return "Ошибка подключения! Ожидание...";
 			case TXT_ConnectionRetry:
@@ -245,6 +276,12 @@ public class Locale implements LocaleConstants {
 				return "О программе";
 			case CMD_Select:
 				return "Выбрать";
+			case CMD_OpenPlaylist:
+				return "Откр. плейлист";
+			case CMD_Next:
+				return "След. видео";
+			case CMD_Prev:
+				return "Пред. видео";
 			}
 		}
 		}

@@ -40,7 +40,7 @@ import ui.VideoForm;
 
 public class App implements CommandListener, Constants {
 	
-	public static final String ver = "release2patch4";
+	public static final String ver = "r3";
 	
 	// Settings
 	public static String videoRes;
@@ -57,7 +57,7 @@ public class App implements CommandListener, Constants {
 	public static boolean customItems;
 	public static String imgproxy = hproxy;
 	public static boolean rmsPreviews;
-	public static boolean searchPlaylists = false;
+	public static boolean searchPlaylists = true;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -523,10 +523,18 @@ public class App implements CommandListener, Constants {
 		if(formContainer == null && app.videoForm != null) {
 			return;
 		}
+		if(model instanceof PlaylistModel) {
+			if(((PlaylistModel) model).getVideoCount() > 100) {
+				msg(">100 videos!!!");
+				return;
+			}
+		}
 		if(model.isFromSearch() && !rememberSearch) {
 			app.disposeSearchForm();
 		}
+		System.out.println("stop doung tasks");
 		app.stopDoingAsyncTasks();
+		System.out.println("stop doung tasks done");
 		ModelForm form = model.makeForm();
 		display(form);
 		if(form instanceof VideoForm) {
@@ -542,8 +550,11 @@ public class App implements CommandListener, Constants {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 		}
+		System.out.println("addin async load");
 		app.addAsyncLoad(form);
+		System.out.println("notyfin async thread");
 		app.notifyAsyncTasks();
+		System.out.println("async thread notyfied");
 	}
 	
 	public static void download(final String id) {
@@ -905,7 +916,7 @@ public class App implements CommandListener, Constants {
 		}
 		if(e instanceof NetRequestException) {
 			NetRequestException e2 = (NetRequestException) e;
-			error(o, i, e2.getCause().toString(), "URL: " + e2.getUrl());
+			error(o, i, e2.getTheCause().toString(), "URL: " + e2.getUrl());
 			return;
 		}
 		error(o, i, e.toString(), null);

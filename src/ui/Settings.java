@@ -291,7 +291,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
-			App.error(this, Errors.Settings_apply, e.toString());
+			App.error(this, Errors.Settings_apply, e);
 		}
 	}
 	

@@ -55,7 +55,7 @@ public class LoaderThread extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			App.error(this, Errors.LoaderThread_run, e.toString());
+			App.error(this, Errors.LoaderThread_run, e);
 			e.printStackTrace();
 		}
 	}

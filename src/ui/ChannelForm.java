@@ -84,7 +84,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 			}
 			if(App.videoPreviews) channel.load();
 		} catch (Exception e) {
-			App.error(this, Errors.ChannelForm_load, e.toString());
+			App.error(this, Errors.ChannelForm_load, e);
 		}
 	}
 

@@ -95,13 +95,40 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			App.error(this, Errors.VideoForm_load, e.toString());
+			App.error(this, Errors.VideoForm_load, e);
 		}
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(c == openPlaylistCmd && formContainer != null) {
-			App.display(formContainer);
+		if(formContainer != null && video.isFromPlaylist()) {
+			if(c == openPlaylistCmd) {
+				App.display(formContainer);
+				return;
+			}
+			if(c == nextCmd || c == prevCmd) {
+				boolean next = c == nextCmd;
+				PlaylistForm p = (PlaylistForm) formContainer;
+				int cur = video.getIndex();
+				int l = p.getLength();
+				int i = 0;
+				if(next) {
+					if(cur + 1 < l) {
+						i = cur + 1;
+					} else {
+						i = 0;
+					}
+				} else {
+					if(cur - 1 > 0) {
+						i = cur - 1;
+					} else {
+						i = l - 1;
+					}
+				}
+				VideoModel nv = p.getVideo(i);
+				App.open(nv, formContainer);
+				dispose();
+				return;
+			}
 		}
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());

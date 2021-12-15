@@ -197,6 +197,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 				}
 			}
 			thumbnailUrl = null;
+		} catch (NullPointerException e) {
+			img = null;
 		} catch (RuntimeException e) {
 			img = null;
 			throw e;
@@ -360,6 +362,10 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public void setFormContainer(Form form) {
 		this.formContainer = form;
 		this.fromPlaylist = form instanceof PlaylistForm;
+	}
+
+	public int getIndex() {
+		return index;
 	}
 
 }

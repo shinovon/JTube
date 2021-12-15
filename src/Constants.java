@@ -32,9 +32,9 @@ public interface Constants extends LocaleConstants {
 	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 10);
 	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 9);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);
-	public static Command openPlaylistCmd = new Command("open playlist", Command.SCREEN, 5); // TODO: localize
-	public static Command nextCmd = new Command("next", Command.SCREEN, 4); // TODO: localize
-	public static Command prevCmd = new Command("prev", Command.SCREEN, 3); // TODO: localize
+	public static Command openPlaylistCmd = new Command(Locale.s(CMD_OpenPlaylist), Command.SCREEN, 7);
+	public static Command nextCmd = new Command(Locale.s(CMD_Next), Command.SCREEN, 6);
+	public static Command prevCmd = new Command(Locale.s(CMD_Prev), Command.SCREEN, 5);
 	
 	// Downloader alert commands
 	static final Command dlOkCmd = new Command(Locale.s(CMD_OK), Command.CANCEL, 1);

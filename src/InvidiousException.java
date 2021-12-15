@@ -31,7 +31,7 @@ public class InvidiousException extends RuntimeException {
 		boolean bt = j && json.has("backtrace");
 		boolean u = url != null;
 		boolean m2 = msg2 != null;
-		return  (j ? "Raw json: " + json.build() : "") + (u ? " \nAPI request: " + url : "") + (m2 ? " \n" + msg2 : "") + (bt ? " \nBacktrace: " + json.getString("backtrace") : "");
+		return  (!bt && j ? "Raw json: " + json.build() : "") + (u ? " \nAPI request: " + url : "") + (m2 ? " \n" + msg2 : "") + (bt ? " \nBacktrace: " + json.getString("backtrace") : "");
 	}
 	
 	public String getUrl() {

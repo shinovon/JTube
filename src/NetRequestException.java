@@ -15,7 +15,7 @@ public class NetRequestException extends IOException {
 		return url;
 	}
 	
-	public IOException getCause() {
+	public IOException getTheCause() {
 		return cause;
 	}
 

@@ -55,5 +55,8 @@ public interface LocaleConstants {
 	public static final int TXT_Done = 51;
 	public static final int CMD_About = 52;
 	public static final int CMD_Select = 53;
+	public static final int CMD_OpenPlaylist = 54;
+	public static final int CMD_Next = 55;
+	public static final int CMD_Prev = 56;
 
 }

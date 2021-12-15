@@ -126,8 +126,8 @@ public final class JSON {
 									break loop;
 								}
 								try {
-									if(str.charAt(i + 1) == 'b' && str.charAt(i + 2) == 'r' && str.charAt(i + 3) == '>') {
-										i++;
+									if(str.charAt(i + 2) == 'b' && str.charAt(i + 3) == 'r' && str.charAt(i + 4) == '>') {
+										i += 4;
 										break;
 									}
 								} catch (Exception e) {
@@ -253,7 +253,7 @@ public final class JSON {
 				
 				for (int splIndex; i < length; i = splIndex + 1) {
 					// skip all spaces
-					for (char ci; i < length - 1 && ((ci = str.charAt(i)) == ' ' || ci == '\n' || ci == '\r' || ci == '	'); i++);
+					for (; i < length - 1 && str.charAt(i) <= ' '; i++);
 
 					splIndex = i;
 					boolean quotes = false;
