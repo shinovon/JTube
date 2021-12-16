@@ -58,6 +58,7 @@ public class App implements CommandListener, Constants {
 	public static String imgproxy = hproxy;
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists = true;
+	public static String customLocale;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -142,6 +143,7 @@ public class App implements CommandListener, Constants {
 		tasksThread.setPriority(4);
 		tasksThread.start();
 		Settings.loadConfig();
+		Locale.init();
 		if(region.toLowerCase().equals("en")) {
 			region = "US";
 		}

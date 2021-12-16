@@ -5,7 +5,7 @@ import java.util.Hashtable;
 
 public class Locale implements LocaleConstants {
 	
-	public static final String locale;
+	public static final String systemLocale;
 	private static boolean loaded;
 	private static int localei;
 	private static Hashtable table;
@@ -22,22 +22,28 @@ public class Locale implements LocaleConstants {
 		if(s.length() >= 2) {
 			s = s.substring(0, 2);
 		}
-		locale = s.toLowerCase();
-		
+		systemLocale = s.toLowerCase();
+		if(!s.equals("en") && (s.equals("ru")
+				|| s.equals("uk") || s.equals("be") || s.equals("kk")
+				|| s.equals("ua") || s.equals("by") || s.equals("kz"))) {
+			localei = 1;
+		} else {
+			localei = 0;
+		}
+	}
+	
+	public static void init() {
+		String s = App.customLocale;
+		if(s == null) {
+			s = systemLocale;
+		}
 		InputStream in = null;
 		try {
-			in = Locale.class.getResourceAsStream("/jtlng." + s);
+			in = Locale.class.getResourceAsStream("/jtlng." + s.toLowerCase());
 		} catch (Exception e) {
 		}
-		if(in == null) {
-			if(!s.equals("en") && (s.equals("ru")
-					|| s.equals("uk") || s.equals("be") || s.equals("kk")
-					|| s.equals("ua") || s.equals("by") || s.equals("kz"))) {
-				localei = 1;
-			} else {
-				localei = 0;
-			}
-		} else {
+		s = null;
+		if(in != null) {
 			// TODO
 			DataInputStream d = new DataInputStream(in);
 			table = new Hashtable();
@@ -172,6 +178,8 @@ public class Locale implements LocaleConstants {
 				return "Next video";
 			case CMD_Prev:
 				return "Prev. video";
+			case SET_CustomLocaleId:
+				return "Custom locale identificator";
 			}
 		}
 		case 1: {
@@ -282,6 +290,8 @@ public class Locale implements LocaleConstants {
 				return "След. видео";
 			case CMD_Prev:
 				return "Пред. видео";
+			case SET_CustomLocaleId:
+				return "Идентификатор польз. локализации";
 			}
 		}
 		}
@@ -305,13 +315,17 @@ public class Locale implements LocaleConstants {
 	
 	public static String views(int i) {
 		if(i >= 1000000) {
-			return ((int) ((i / 1000000D) * 100) / 100) + "M";
+			return ((int) ((i / 1000000D) * 100) / 100D) + " M";
 		}
 		return "" + i;
 	}
 
 	public static String videos(int i) {
 		if(i <= 0) return null;
+		if(loaded) {
+			if(i == 1) return i + " " + s(TXT_1video);
+			return i + " " + s(TXT_videos);
+		}
 		if(localei == 1) {
 			return i + " видео";
 		}

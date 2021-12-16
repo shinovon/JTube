@@ -42,9 +42,9 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 	private TextField imgProxyText;
 	private ChoiceGroup uiChoice;
 	private StringItem dirBtn;
+	private TextField customLocaleText;
 
 	private List dirList;
-
 	private String curDir;
 
 	private final static Command dirOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 1);
@@ -77,6 +77,8 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
 		append("(Leave images proxy empty if HTTPS is supported)\n");
+		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), App.customLocale, 8, TextField.ANY);
+		append(customLocaleText);
 	}
 	
 	public void show() {
@@ -246,6 +248,8 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 					App.startScreen = j.getInt("startScreen");
 				if(j.has("rmsPreviews"))
 					App.rmsPreviews = j.getBoolean("rmsPreviews");
+				if(j.has("customLocale"))
+					App.customLocale = j.getString("customLocale");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -288,6 +292,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			App.serverstream = httpProxyText.getString();
 			App.inv = invidiousText.getString();
 			App.imgproxy = imgProxyText.getString();
+			App.customLocale = customLocaleText.getString().trim().toLowerCase();
 			saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -317,6 +322,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			j.put("startScreen", new Integer(App.startScreen));
 			j.put("customItems", new Boolean(App.customItems));
 			j.put("rmsPreviews", new Boolean(App.rmsPreviews));
+			j.put("customLocale", "\"" + App.customLocale + "\"");
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);
