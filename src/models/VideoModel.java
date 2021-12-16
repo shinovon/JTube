@@ -12,16 +12,18 @@ import javax.microedition.lcdui.StringItem;
 
 import App;
 import Records;
+import Constants;
+import ui.AppUI;
+import ui.ModelForm;
+import ui.VideoForm;
+import ui.PlaylistForm;
 import InvidiousException;
+import ui.custom.VideoItem;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
-import ui.ModelForm;
-import ui.PlaylistForm;
-import ui.VideoForm;
-import ui.custom.VideoItem;
 
-public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader {
+public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader, Constants {
 
 	private String title;
 	private String videoId;
@@ -96,7 +98,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		// это сделает парс дольше но сэкономит память
 		if(videoThumbnails != null) {
 			if(App.customItems) {
-				imageWidth = App.width;
+				imageWidth = VideoItem.getImageWidth();
 			} else {
 				imageWidth = getImgItemWidth();
 				if (imageWidth <= 0) imageWidth = 220;
@@ -116,7 +118,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private Item makeItem() {
 		//if(imageItem != null) return imageItem;
 		if(App.customItems) {
-			return customItem = new VideoItem(this);
+			customItem = new VideoItem(this);
+			imageWidth = VideoItem.getImageWidth();
+			return customItem;
 		}
 		if(!App.videoPreviews) {
 			return new StringItem(author, title);
@@ -197,6 +201,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 				}
 			}
 			thumbnailUrl = null;
+		} catch (NullPointerException e) {
+			img = null;
 		} catch (RuntimeException e) {
 			img = null;
 			throw e;
@@ -245,16 +251,16 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public void commandAction(Command c, Item item) {
 		if(c == vOpenCmd || c == null) {
-			App.open(this, formContainer);
+			AppUI.open(this, formContainer);
 		}
 		if(c == vOpenChannelCmd) {
 			if(formContainer != null && !fromPlaylist) {
-				App.display(formContainer);
+				AppUI.display(formContainer);
 				return;
 			}
 			Image img = null;
 			//if(authorItem != null) img = authorItem.getImage();
-			App.open(new ChannelModel(authorId, author, img));
+			AppUI.open(new ChannelModel(authorId, author, img));
 		}
 	}
 
@@ -360,6 +366,10 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public void setFormContainer(Form form) {
 		this.formContainer = form;
 		this.fromPlaylist = form instanceof PlaylistForm;
+	}
+
+	public int getIndex() {
+		return index;
 	}
 
 }

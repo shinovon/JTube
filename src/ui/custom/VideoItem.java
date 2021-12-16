@@ -8,10 +8,13 @@ import javax.microedition.lcdui.Image;
 
 import App;
 import Records;
-import cc.nnproject.utils.PlatformUtils;
+import ui.AppUI;
 import models.VideoModel;
+import cc.nnproject.utils.PlatformUtils;
 
 public class VideoItem extends CustomButtonItem {
+	
+	private static int globalWidth;
 	
 	private VideoModel video;
 	
@@ -67,6 +70,7 @@ public class VideoItem extends CustomButtonItem {
 	}
 
 	protected void paint(Graphics g, int w, int h) {
+		globalWidth = w;
 		drawn = true;
 		width = w;
 		height = h;
@@ -152,7 +156,7 @@ public class VideoItem extends CustomButtonItem {
 	}
 
 	protected int getMinContentWidth() {
-		return App.width - 4;
+		return App.width - AppUI.getPlatformWidthOffset();
 	}
 
 	protected int getPrefContentHeight(int i) {
@@ -180,11 +184,7 @@ public class VideoItem extends CustomButtonItem {
 		if(m.length() < 2) m = "0" + m;
 		int h = i / 3600;
 		if(h > 0) {
-			if(h >= 10) {
-				return "0" + h + ":" + m + ":" + s;
-			} else {
-				return h + ":" + m + ":" + s;
-			}
+			return h + ":" + m + ":" + s;
 		} else {
 			return m + ":" + s;
 		}
@@ -260,6 +260,11 @@ public class VideoItem extends CustomButtonItem {
 
 	public Image getImage() {
 		return img;
+	}
+
+	public static int getImageWidth() {
+		if(globalWidth > 0) return globalWidth;
+		return App.width - 4;
 	}
 
 }

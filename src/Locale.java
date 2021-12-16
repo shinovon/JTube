@@ -1,10 +1,15 @@
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Hashtable;
 
 public class Locale implements LocaleConstants {
 	
-	public static final String locale;
-	private static boolean loaded;
+	public static final String systemLocale;
+	public static boolean loaded;
 	private static int localei;
+	private static Hashtable table;
+	public static String l;
 	
 	static {
 		// J9, JRE language property
@@ -18,29 +23,70 @@ public class Locale implements LocaleConstants {
 		if(s.length() >= 2) {
 			s = s.substring(0, 2);
 		}
-		locale = s.toLowerCase();
-		
+		systemLocale = s.toLowerCase();
+		if(!s.equals("en") && (s.equals("ru")
+				|| s.equals("uk") || s.equals("be") || s.equals("kk")
+				|| s.equals("ua") || s.equals("by") || s.equals("kz"))) {
+			localei = 1;
+			l = "ru";
+		} else {
+			localei = 0;
+			l = "en";
+		}
+	}
+	
+	public static void init() {
+		String s = App.customLocale;
+		boolean b = true;
+		if(s == null || (s = s.trim()).length() == 0) {
+			s = systemLocale;
+			b = false;
+		}
 		InputStream in = null;
 		try {
-			in = Locale.class.getResourceAsStream("/l." + s);
+			in = Locale.class.getResourceAsStream("/jtlng." + s.toLowerCase());
 		} catch (Exception e) {
 		}
-		if(in == null) {
-			if(!s.equals("en") && (s.equals("ru")
-					|| s.equals("uk") || s.equals("be") || s.equals("kk")
-					|| s.equals("ua") || s.equals("by") || s.equals("kz"))) {
-				localei = 1;
-			} else {
-				localei = 0;
-			}
+		if(in != null) {
+			DataInputStream d = new DataInputStream(in);
+			table = new Hashtable();
+			try {
+				try {
+					int i;
+					while( (i = d.readShort()) != -1) {
+						table.put(new Integer(i), d.readUTF());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					d.close();
+				}
+				loaded = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
 		} else {
-			// TODO
+			if(b) {
+				if(s.equals("ru")) {
+					localei = 1;
+				} else if(s.equals("en")) {
+					localei = 0;
+				}
+			} else {
+				s = localei == 0 ? "en" : localei == 1 ? "ru" : "unk";
+			}
 		}
+		l = s;
+		s = null;
 	}
 	
 	public static String s(int c) {
 		if(loaded) {
-			return null;
+			return (String) table.get(new Integer(c));
+		}
+		// Автор
+		if(c == 0) {
+			return "Shinovon";
 		}
 		switch(localei) {
 		case 0: {
@@ -119,6 +165,8 @@ public class Locale implements LocaleConstants {
 				return "Description";
 			case BTN_ChannelInformation:
 				return "Information";
+			case TXT_Connecting:
+				return "Connecting";
 			case TXT_Waiting:
 				return "Error! Waiting for retry...";
 			case TXT_ConnectionRetry:
@@ -143,6 +191,36 @@ public class Locale implements LocaleConstants {
 				return "About";
 			case CMD_Select:
 				return "Select";
+			case CMD_OpenPlaylist:
+				return "Open playlist";
+			case CMD_Next:
+				return "Next video";
+			case CMD_Prev:
+				return "Prev. video";
+			case SET_CustomLocaleId:
+				return "Custom locale identificator";
+			case SET_CustomItems:
+				return "Better items";
+			case SET_HTTPProxy:
+				return "HTTP Proxy Streaming";
+			case SET_PreLoadRMS:
+				return "Pre-load images to RMS";
+			case SET_RememberSearch:
+				return "Remember search";
+			case SET_VideoPreviews:
+				return "Video previews";
+			case SET_SearchChannels:
+				return "Search channels";
+			case SET_SearchPlaylists:
+				return "Search playlists";
+			case SET_VQ_AudioOnly:
+				return "Audio only";
+			case SET_VQ_NoAudio:
+				return "no audio";
+			case SET_Tip1:
+				return "(Used only if http streaming is on)";
+			case SET_Tip2:
+				return "(Leave images proxy empty if HTTPS is supported)";
 			}
 		}
 		case 1: {
@@ -221,6 +299,8 @@ public class Locale implements LocaleConstants {
 				return "Описание";
 			case BTN_ChannelInformation:
 				return "Информация";
+			case TXT_Connecting:
+				return "Соединение";
 			case TXT_Waiting:
 				return "Ошибка подключения! Ожидание...";
 			case TXT_ConnectionRetry:
@@ -245,6 +325,36 @@ public class Locale implements LocaleConstants {
 				return "О программе";
 			case CMD_Select:
 				return "Выбрать";
+			case CMD_OpenPlaylist:
+				return "Откр. плейлист";
+			case CMD_Next:
+				return "След. видео";
+			case CMD_Prev:
+				return "Пред. видео";
+			case SET_CustomLocaleId:
+				return "Идентификатор польз. локализации";
+			case SET_CustomItems:
+				return "Улучшенный вид";
+			case SET_HTTPProxy:
+				return "HTTP прокси стриминг";
+			case SET_PreLoadRMS:
+				return "Предзагрузка изображений в RMS";
+			case SET_RememberSearch:
+				return "Запоминание поиска";
+			case SET_VideoPreviews:
+				return "Изображения";
+			case SET_SearchChannels:
+				return "Поиск каналов";
+			case SET_SearchPlaylists:
+				return "Поиск плейлистов";
+			case SET_VQ_AudioOnly:
+				return "Только аудио";
+			case SET_VQ_NoAudio:
+				return "без звука";
+			case SET_Tip1:
+				return "(Использован только если включен HTTP стриминг через прокси)";
+			case SET_Tip2:
+				return "(Оставьте пустым если ваше устройство поддерживает HTTPS)";
 			}
 		}
 		}
@@ -268,13 +378,17 @@ public class Locale implements LocaleConstants {
 	
 	public static String views(int i) {
 		if(i >= 1000000) {
-			return ((int) ((i / 1000000D) * 100) / 100) + "M";
+			return ((int) ((i / 1000000D) * 100) / 100D) + " M";
 		}
 		return "" + i;
 	}
 
 	public static String videos(int i) {
 		if(i <= 0) return null;
+		if(loaded) {
+			if(i == 1) return i + " " + s(TXT_1video);
+			return i + " " + s(TXT_videos);
+		}
 		if(localei == 1) {
 			return i + " видео";
 		}

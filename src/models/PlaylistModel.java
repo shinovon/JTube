@@ -6,13 +6,13 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 
-import App;
-import InvidiousException;
 import Locale;
-import cc.nnproject.json.JSONObject;
+import ui.AppUI;
 import ui.ModelForm;
 import ui.PlaylistForm;
+import InvidiousException;
 import ui.custom.PlaylistItem;
+import cc.nnproject.json.JSONObject;
 
 public class PlaylistModel extends AbstractModel implements ILoader, ItemCommandListener {
 	
@@ -108,7 +108,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 
 	public void commandAction(Command c, Item i) {
 		if(c == pOpenCmd || c == null) {
-			App.open(this);
+			AppUI.open(this);
 		}
 	}
 	

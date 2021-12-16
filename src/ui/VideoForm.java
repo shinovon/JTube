@@ -10,15 +10,12 @@ import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 
 import App;
-import Errors;
 import Locale;
-import Constants;
-import models.AbstractModel;
+import Errors;
 import models.VideoModel;
+import models.AbstractModel;
 
-public class VideoForm extends ModelForm implements CommandListener, ItemCommandListener, Constants {
-
-	private static App app = App.inst;
+public class VideoForm extends ModelForm implements CommandListener, ItemCommandListener, Commands {
 	
 	private VideoModel video;
 
@@ -56,32 +53,39 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 			}
 		} catch (Exception e) {
 		}
+		if(video == null) return;
 		if(App.videoPreviews) {
 			removeCommand(watchCmd);
+			if(video == null) return;
 			ImageItem img = video.makeImageItemForPage();
 			img.addCommand(watchCmd);
 			img.setDefaultCommand(watchCmd);
 			img.setItemCommandListener(this);
 			append(img);
 		}
+		if(video == null) return;
 		Item t = new StringItem(null, video.getTitle());
 		t.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
 		append(t);
 		if(App.videoPreviews) {
 			append(video.makeAuthorItem());
 		}
+		if(video == null) return;
 		Item author = new StringItem(null, video.getAuthor());
 		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(author);
+		if(video == null) return;
 		Item vi = new StringItem(Locale.s(TXT_Views), Locale.views(video.getViewCount()));
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
 		//Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
 		//ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		//append(ld);
+		if(video == null) return;
 		Item date = new StringItem(Locale.s(TXT_Published), video.getPublishedText());
 		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(date);
+		if(video == null) return;
 		append(new StringItem(Locale.s(TXT_Description), video.getDescription()));
 	}
 
@@ -95,13 +99,40 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			App.error(this, Errors.VideoForm_load, e.toString());
+			App.error(this, Errors.VideoForm_load, e);
 		}
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(c == openPlaylistCmd && formContainer != null) {
-			App.display(formContainer);
+		if(formContainer != null && video.isFromPlaylist()) {
+			if(c == openPlaylistCmd) {
+				AppUI.display(formContainer);
+				return;
+			}
+			if(c == nextCmd || c == prevCmd) {
+				boolean next = c == nextCmd;
+				PlaylistForm p = (PlaylistForm) formContainer;
+				int cur = video.getIndex();
+				int l = p.getLength();
+				int i = 0;
+				if(next) {
+					if(cur + 1 < l) {
+						i = cur + 1;
+					} else {
+						i = 0;
+					}
+				} else {
+					if(cur - 1 > 0) {
+						i = cur - 1;
+					} else {
+						i = l - 1;
+					}
+				}
+				VideoModel nv = p.getVideo(i);
+				AppUI.open(nv, formContainer);
+				dispose();
+				return;
+			}
 		}
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());
@@ -113,14 +144,14 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		if(c == backCmd) {
 			if(formContainer != null) {
-				App.display(formContainer);
+				AppUI.display(formContainer);
 			} else {
-				App.back(this);
+				AppUI.back(this);
 			}
-			app.disposeVideoForm();
+			AppUI.inst.disposeVideoForm();
 			return;
 		}
-		App.inst.commandAction(c, d);
+		AppUI.inst.commandAction(c, d);
 	}
 
 	public void commandAction(Command c, Item i) {
