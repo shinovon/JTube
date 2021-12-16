@@ -9,7 +9,7 @@ public class LoaderThread extends Thread {
 	private boolean myInterrupt;
 	private Vector vector;
 
-	public LoaderThread(int priority, Object lock, Vector v, Object lock2) {
+	public LoaderThread(int priority, Object lock, Vector v, Object lock2, int i) {
 		super();
 		this.lock = lock;
 		this.vector = v;
@@ -23,7 +23,7 @@ public class LoaderThread extends Thread {
 				synchronized(lock) {
 					lock.wait();
 				}
-				checkInterrupted();
+				if(checkInterrupted()) continue;
 				int len = vector.size();
 				if(len == 0) {
 					synchronized(lock2) {
@@ -43,7 +43,9 @@ public class LoaderThread extends Thread {
 					try {
 						l.load();
 					} catch (RuntimeException e) {
-						System.out.println(e.toString());
+						if(!e.getClass().equals(RuntimeException.class)) {
+							throw e;
+						}
 						String msg = e.getMessage();
 						if(msg != null && (msg.endsWith("interrupt") || msg.endsWith("interrupted"))) {
 							break;

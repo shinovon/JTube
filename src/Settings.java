@@ -28,6 +28,7 @@ public class Settings implements Constants {
 	
 
 	public static void loadConfig() {
+		App.customLocale = Locale.l;
 		/*
 		String s = System.getProperty("kemulator.libvlc.supported");
 		if(s != null && s.equals("true")) {
@@ -41,7 +42,6 @@ public class Settings implements Constants {
 		}
 		if(r == null) {
 			// Defaults
-
 			if(PlatformUtils.isJ2ML()) {
 				App.videoPreviews = true;
 				App.customItems = true;

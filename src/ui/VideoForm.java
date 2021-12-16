@@ -53,32 +53,39 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 			}
 		} catch (Exception e) {
 		}
+		if(video == null) return;
 		if(App.videoPreviews) {
 			removeCommand(watchCmd);
+			if(video == null) return;
 			ImageItem img = video.makeImageItemForPage();
 			img.addCommand(watchCmd);
 			img.setDefaultCommand(watchCmd);
 			img.setItemCommandListener(this);
 			append(img);
 		}
+		if(video == null) return;
 		Item t = new StringItem(null, video.getTitle());
 		t.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
 		append(t);
 		if(App.videoPreviews) {
 			append(video.makeAuthorItem());
 		}
+		if(video == null) return;
 		Item author = new StringItem(null, video.getAuthor());
 		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(author);
+		if(video == null) return;
 		Item vi = new StringItem(Locale.s(TXT_Views), Locale.views(video.getViewCount()));
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
 		//Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
 		//ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		//append(ld);
+		if(video == null) return;
 		Item date = new StringItem(Locale.s(TXT_Published), video.getPublishedText());
 		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(date);
+		if(video == null) return;
 		append(new StringItem(Locale.s(TXT_Description), video.getDescription()));
 	}
 

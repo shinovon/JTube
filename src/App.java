@@ -126,14 +126,14 @@ public class App implements Constants {
 		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
-			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock);
-			t1 = new LoaderThread(5, lazyLoadLock, v1, addLock);
-			t2 = new LoaderThread(5, lazyLoadLock, v2, addLock);
+			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
+			t1 = new LoaderThread(5, lazyLoadLock, v1, addLock, 1);
+			t2 = new LoaderThread(5, lazyLoadLock, v2, addLock, 2);
 			t0.start();
 			t1.start();
 			t2.start();
 		} else {
-			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock);
+			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
 		ui.loadForm();

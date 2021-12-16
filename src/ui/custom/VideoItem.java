@@ -184,11 +184,7 @@ public class VideoItem extends CustomButtonItem {
 		if(m.length() < 2) m = "0" + m;
 		int h = i / 3600;
 		if(h > 0) {
-			if(h >= 10) {
-				return "0" + h + ":" + m + ":" + s;
-			} else {
-				return h + ":" + m + ":" + s;
-			}
+			return h + ":" + m + ":" + s;
 		} else {
 			return m + ":" + s;
 		}
