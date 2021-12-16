@@ -297,7 +297,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 			a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + "(" + App.ver + ") \n"
 					+ "By Shinovon (nnproject.cc) \n"
 					+ "t.me/nnmidletschat \n\n"
-					+ "Thanks to ales_alte, Jazmin Rocio, Feodor0090 \n'"+ Locale.l +"' locale author: " + Locale.s(0));
+					+ "Thanks to ales_alte, Jazmin Rocio, Feodor0090" + (Locale.loaded ? " \n\nLocalization Author (" + Locale.l +"): " + Locale.s(0) : ""));
 			a.setCommandListener(this);
 			a.addCommand(new Command("OK", Command.OK, 1));
 			display(a);

@@ -6,7 +6,7 @@ import java.util.Hashtable;
 public class Locale implements LocaleConstants {
 	
 	public static final String systemLocale;
-	private static boolean loaded;
+	public static boolean loaded;
 	private static int localei;
 	private static Hashtable table;
 	public static String l;
