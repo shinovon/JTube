@@ -8,21 +8,20 @@ import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.StringItem;
 
 import App;
-import Constants;
 import Errors;
 import Locale;
+import Constants;
+import models.VideoModel;
+import models.AbstractModel;
+import models.PlaylistModel;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
-import models.AbstractModel;
-import models.ChannelModel;
-import models.PlaylistModel;
-import models.VideoModel;
 
-public class PlaylistForm extends ModelForm implements CommandListener, Constants {
+public class PlaylistForm extends ModelForm implements CommandListener, Commands, Constants {
 
 	private PlaylistModel playlist;
 	
-	private ChannelModel channel;
+	//private ChannelModel channel;
 
 	private Form formContainer;
 
@@ -105,9 +104,9 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 	public void commandAction(Command c, Displayable d) {
 		if(c == backCmd) {
 			if(formContainer != null) {
-				App.display(formContainer);
+				AppUI.display(formContainer);
 			} else {
-				App.back(this);
+				AppUI.back(this);
 			}
 			dispose();
 		}
@@ -139,9 +138,9 @@ public class PlaylistForm extends ModelForm implements CommandListener, Constant
 
 	public void setFormContainer(Form form) {
 		this.formContainer = form;
-		if(form instanceof ChannelForm) {
-			channel = ((ChannelForm) form).getChannel();
-		}
+		//if(form instanceof ChannelForm) {
+		//	channel = ((ChannelForm) form).getChannel();
+		//}
 	}
 
 	public int getLength() {

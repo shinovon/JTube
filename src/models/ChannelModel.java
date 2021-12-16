@@ -12,15 +12,17 @@ import javax.microedition.lcdui.StringItem;
 import App;
 import Util;
 import Locale;
+import ui.AppUI;
+import Constants;
+import ui.ModelForm;
+import ui.ChannelForm;
 import InvidiousException;
+import ui.custom.ChannelItem;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
-import ui.ChannelForm;
-import ui.ModelForm;
-import ui.custom.ChannelItem;
 
 // TODO
-public class ChannelModel extends AbstractModel implements ILoader, ItemCommandListener {
+public class ChannelModel extends AbstractModel implements ILoader, ItemCommandListener, Constants {
 	
 	private static final Command cOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 3);
 	
@@ -127,7 +129,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 
 	public void commandAction(Command c, Item arg1) {
 		if(c == cOpenCmd || c == null) {
-			App.open(this);
+			AppUI.open(this);
 		}
 	}
 

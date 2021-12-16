@@ -10,15 +10,12 @@ import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 
 import App;
-import Errors;
 import Locale;
-import Constants;
-import models.AbstractModel;
+import Errors;
 import models.VideoModel;
+import models.AbstractModel;
 
-public class VideoForm extends ModelForm implements CommandListener, ItemCommandListener, Constants {
-
-	private static App app = App.inst;
+public class VideoForm extends ModelForm implements CommandListener, ItemCommandListener, Commands {
 	
 	private VideoModel video;
 
@@ -102,7 +99,7 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	public void commandAction(Command c, Displayable d) {
 		if(formContainer != null && video.isFromPlaylist()) {
 			if(c == openPlaylistCmd) {
-				App.display(formContainer);
+				AppUI.display(formContainer);
 				return;
 			}
 			if(c == nextCmd || c == prevCmd) {
@@ -125,7 +122,7 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 					}
 				}
 				VideoModel nv = p.getVideo(i);
-				App.open(nv, formContainer);
+				AppUI.open(nv, formContainer);
 				dispose();
 				return;
 			}
@@ -140,14 +137,14 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		if(c == backCmd) {
 			if(formContainer != null) {
-				App.display(formContainer);
+				AppUI.display(formContainer);
 			} else {
-				App.back(this);
+				AppUI.back(this);
 			}
-			app.disposeVideoForm();
+			AppUI.inst.disposeVideoForm();
 			return;
 		}
-		App.inst.commandAction(c, d);
+		AppUI.inst.commandAction(c, d);
 	}
 
 	public void commandAction(Command c, Item i) {

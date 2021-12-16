@@ -2,10 +2,10 @@ package models;
 
 import javax.microedition.lcdui.Item;
 
-import Constants;
+import ui.Commands;
 import ui.ModelForm;
 
-public abstract class AbstractModel implements Constants {
+public abstract class AbstractModel implements Commands {
 	
 	public abstract Item makeItemForList();
 

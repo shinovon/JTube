@@ -11,18 +11,18 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
 import App;
+import Util;
 import Errors;
 import Locale;
-import Util;
+import Constants;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
-import Constants;
 import models.AbstractModel;
 import models.ChannelModel;
 import models.VideoModel;
 
 // TODO
-public class ChannelForm extends ModelForm implements CommandListener, Constants, ItemCommandListener {
+public class ChannelForm extends ModelForm implements CommandListener, Commands, ItemCommandListener, Constants {
 
 	private static final Command lastVideosCmd = new Command(Locale.s(BTN_LatestVideos), Command.ITEM, 2);
 	private static final Command searchVideosCmd = new Command(Locale.s(BTN_SearchVideos), Command.ITEM, 3);
@@ -94,7 +94,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		lastVideosForm.addCommand(backCmd);
 		lastVideosForm.addCommand(settingsCmd);
 		lastVideosForm.addCommand(searchCmd);
-		App.display(lastVideosForm);
+		AppUI.display(lastVideosForm);
 		App.inst.stopDoingAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
@@ -118,7 +118,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 		searchForm.addCommand(backCmd);
 		searchForm.addCommand(settingsCmd);
 		searchForm.addCommand(searchCmd);
-		App.display(searchForm);
+		AppUI.display(searchForm);
 		App.inst.stopDoingAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
@@ -157,27 +157,27 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 			t.setTitle(Locale.s(CMD_Search));
 			t.addCommand(searchOkCmd);
 			t.addCommand(cancelCmd);
-			App.display(t);
+			AppUI.display(t);
 		}
 		if(c == searchOkCmd && d instanceof TextBox) {
 			search(((TextBox) d).getString());
 		}
 		if(d == searchForm && c == backCmd) {
-			App.display(this);
+			AppUI.display(this);
 			disposeSearchForm();
 			return;
 		}
 		if(d == lastVideosForm && c == backCmd) {
-			App.display(this);
+			AppUI.display(this);
 			disposeLastVideosForm();
 			return;
 		}
 		if(d == this && c == backCmd) {
-			App.back(this);
-			App.inst.disposeChannelForm();
+			AppUI.back(this);
+			AppUI.inst.disposeChannelForm();
 			return;
 		}
-		App.inst.commandAction(c, d);
+		AppUI.inst.commandAction(c, d);
 	}
 
 	private void disposeLastVideosForm() {
@@ -220,7 +220,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Constants
 			t.setTitle(Locale.s(CMD_Search));
 			t.addCommand(searchOkCmd);
 			t.addCommand(cancelCmd);
-			App.display(t);
+			AppUI.display(t);
 		}
 		if(c == lastVideosCmd) {
 			latestVideos();

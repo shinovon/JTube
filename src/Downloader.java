@@ -13,8 +13,10 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Gauge;
 
 import cc.nnproject.json.JSONObject;
+import ui.AppUI;
+import ui.Commands;
 
-public class Downloader implements CommandListener, Constants, Runnable {
+public class Downloader implements CommandListener, Commands, Runnable, Constants {
 	
 	private String id;
 	private String res;
@@ -192,7 +194,7 @@ public class Downloader implements CommandListener, Constants, Runnable {
 		alert = new Alert("", Locale.s(TXT_Initializing), null, null);
 		alert.addCommand(dlCancelCmd);
 		alert.setTimeout(Alert.FOREVER);
-		App.display(alert);
+		AppUI.display(alert);
 		alert.setCommandListener(this);
 		this.indicator = new Gauge(null, false, 100, 0); 
 		alert.setIndicator(indicator);
@@ -233,17 +235,17 @@ public class Downloader implements CommandListener, Constants, Runnable {
 
 	public void commandAction(Command c, Displayable _d) {
 		if(c == dlOkCmd) {
-			App.display(d);
+			AppUI.display(d);
 		}
 		if(c == dlCancelCmd) {
 			cancel = true;
 			t.interrupt();
-			App.display(d);
+			AppUI.display(d);
 		}
 		if(c == dlOpenCmd) {
 			try {
 				App.platReq(file);
-				App.display(d);
+				AppUI.display(d);
 			} catch (Exception e) {
 				e.printStackTrace();
 				info(e.toString());

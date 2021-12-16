@@ -61,5 +61,16 @@ public interface LocaleConstants {
 	public static final int SET_CustomLocaleId = 57;
 	public static final int TXT_1video = 58;
 	public static final int TXT_videos = 59;
+	public static final int SET_CustomItems = 60;
+	public static final int SET_HTTPProxy = 61;
+	public static final int SET_PreLoadRMS = 62;
+	public static final int SET_RememberSearch = 63;
+	public static final int SET_VideoPreviews = 64;
+	public static final int SET_SearchChannels = 65;
+	public static final int SET_SearchPlaylists = 66;
+	public static final int SET_VQ_AudioOnly = 67;
+	public static final int SET_VQ_NoAudio = 68;
+	public static final int SET_Tip1 = 69;
+	public static final int SET_Tip2 = 70;
 
 }

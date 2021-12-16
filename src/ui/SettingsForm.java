@@ -1,11 +1,9 @@
 package ui;
 
 import java.util.Enumeration;
-import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -16,22 +14,31 @@ import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
-import javax.microedition.rms.RecordStore;
 
 import App;
 import Util;
 import Errors;
 import Locale;
+import Settings;
 import Constants;
-import cc.nnproject.json.JSON;
-import cc.nnproject.json.JSONObject;
-import cc.nnproject.utils.PlatformUtils;
 
-public class Settings extends Form implements Constants, CommandListener, ItemCommandListener {
-
-	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
-
-	private static Vector rootsVector;
+public class SettingsForm extends Form implements CommandListener, ItemCommandListener, Commands, Constants {
+	
+	static final String[] VIDEO_QUALITIES = new String[] { 
+			"144p", 
+			"360p", 
+			"720p", 
+			Locale.s(SET_VQ_AudioOnly), 
+			"240p (" + Locale.s(SET_VQ_NoAudio) + ")" };
+	static final String[] SETTINGS_CHECKS = new String[] { 
+			Locale.s(SET_RememberSearch), 
+			Locale.s(SET_HTTPProxy), 
+			Locale.s(SET_PreLoadRMS) };
+	static final String[] APPEARANCE_CHECKS = new String[] { 
+			Locale.s(SET_CustomItems), 
+			Locale.s(SET_VideoPreviews), 
+			Locale.s(SET_SearchChannels), 
+			Locale.s(SET_SearchPlaylists) };
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -47,10 +54,12 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 	private List dirList;
 	private String curDir;
 
+	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
+
 	private final static Command dirOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 1);
 	private final static Command dirSelectCmd = new Command(Locale.s(CMD_Apply), Command.OK, 2);
 
-	public Settings() {
+	public SettingsForm() {
 		super(Locale.s(TITLE_Settings));
 		setCommandListener(this);
 		addCommand(applyCmd);
@@ -73,10 +82,10 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		append(invidiousText);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
 		append(httpProxyText);
-		append("(Used only if http streaming is on)\n");
+		append(Locale.s(SET_Tip1) + "\n");
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
-		append("(Leave images proxy empty if HTTPS is supported)\n");
+		append(Locale.s(SET_Tip2) + "\n");
 		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), App.customLocale, 8, TextField.ANY);
 		append(customLocaleText);
 	}
@@ -85,6 +94,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		uiChoice.setSelectedIndex(0, App.customItems);
 		uiChoice.setSelectedIndex(1, App.videoPreviews);
 		uiChoice.setSelectedIndex(2, App.searchChannels);
+		uiChoice.setSelectedIndex(3, App.searchPlaylists);
 		checksChoice.setSelectedIndex(0, App.rememberSearch);
 		checksChoice.setSelectedIndex(1, App.httpStream);
 		checksChoice.setSelectedIndex(2, App.rmsPreviews);
@@ -101,159 +111,6 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			videoResChoice.setSelectedIndex(3, true);
 		} else if(App.videoRes.equals("_240p")) {
 			videoResChoice.setSelectedIndex(4, true);
-		}
-	}
-	
-	private static void getRoots() {
-		if(rootsVector != null) return;
-		rootsVector = new Vector();
-		Enumeration roots = FileSystemRegistry.listRoots();
-		while(roots.hasMoreElements()) {
-			String s = (String) roots.nextElement();
-			if(s.startsWith("file:///")) s = s.substring("file:///".length());
-			rootsVector.addElement(s);
-		}
-	}
-	
-
-	public static void loadConfig() {
-		/*
-		String s = System.getProperty("kemulator.libvlc.supported");
-		if(s != null && s.equals("true")) {
-			App.watchMethod = 1;
-		}
-		*/
-		RecordStore r = null;
-		try {
-			r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
-		} catch (Exception e) {
-		}
-		if(r == null) {
-			// Defaults
-
-			if(PlatformUtils.isJ2ML()) {
-				App.videoPreviews = true;
-				App.customItems = true;
-				App.httpStream = false;
-				App.videoRes = "360p";
-				App.downloadDir = "C:/";
-			} else {
-				boolean s40 = PlatformUtils.isS40();
-				if(!s40) {
-					getRoots();
-					String root = "";
-					for(int i = 0; i < rootsVector.size(); i++) {
-						String s = (String) rootsVector.elementAt(i);
-						if(s.startsWith("file:///")) s = s.substring("file:///".length());
-						if(s.startsWith("Video")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("SDCard")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("F:")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("E:")) {
-							root = s;
-						}
-					}
-					if(!root.endsWith("/")) root += "/";
-					App.downloadDir = root;
-					try {
-						FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
-						if(fc.exists()) {
-							App.downloadDir = root + "videos/";
-						}
-						fc.close();
-					} catch (Exception e) {
-					}
-				} else {
-					String downloadDir = System.getProperty("fileconn.dir.videos");
-					if(downloadDir == null)
-						downloadDir = System.getProperty("fileconn.dir.photos");
-					if(downloadDir == null)
-						downloadDir = "C:/";
-					else if(downloadDir.startsWith("file:///"))
-						downloadDir = downloadDir.substring("file:///".length());
-					App.downloadDir = downloadDir;
-				}
-				boolean lowEnd = isLowEndDevice();
-				if(lowEnd) {
-					App.httpStream = true;
-					App.rememberSearch = false;
-					App.searchChannels = true;
-					App.asyncLoading = false;
-					App.videoPreviews = false;
-				} else {
-					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
-						App.httpStream = true;
-						App.asyncLoading = false;
-					} else {
-						App.asyncLoading = true;
-					}
-					if(PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
-						App.customItems = true;
-					}
-					App.rememberSearch = true;
-					App.searchChannels = true;
-					App.videoPreviews = true;
-				}
-				if(PlatformUtils.isAsha()) {
-					App.videoPreviews = true;
-					App.customItems = true;
-				} else if(s40 || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
-					App.videoPreviews = true;
-					App.customItems = true;
-					if(s40) App.rmsPreviews = true;
-				}
-				int min = Math.min(App.width, App.height);
-				// Symbian 9.4 can't handle H.264/AVC
-				if(min < 360 || PlatformUtils.isSymbian94()) {
-					App.videoRes = "144p";
-				} else {
-					App.videoRes = "360p";
-				}
-			}
-		} else {
-			try {
-				JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
-				r.closeRecordStore();
-				if(j.has("videoRes"))
-					App.videoRes = j.getString("videoRes");
-				if(j.has("region"))
-					App.region = j.getString("region");
-				if(j.has("downloadDir"))
-					App.downloadDir = j.getString("downloadDir");
-				if(j.has("videoPreviews"))
-					App.videoPreviews = j.getBoolean("videoPreviews");
-				if(j.has("searchChannels"))
-					App.searchChannels = j.getBoolean("searchChannels");
-				if(j.has("rememberSearch"))
-					App.rememberSearch = j.getBoolean("rememberSearch");
-				if(j.has("httpStream"))
-					App.httpStream = j.getBoolean("httpStream");
-				if(j.has("serverstream"))
-					App.serverstream = j.getString("serverstream");
-				if(j.has("inv"))
-					App.inv = j.getString("inv");
-				if(j.has("customItems"))
-					App.customItems = j.getBoolean("customItems");
-				if(j.has("imgProxy"))
-					App.imgproxy = j.getString("imgProxy");
-				if(j.has("startScreen"))
-					App.startScreen = j.getInt("startScreen");
-				if(j.has("rmsPreviews"))
-					App.rmsPreviews = j.getBoolean("rmsPreviews");
-				if(j.has("customLocale"))
-					App.customLocale = j.getString("customLocale");
-				return;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 	
@@ -286,6 +143,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			App.customItems = ui[0];
 			App.videoPreviews = ui[1];
 			App.searchChannels = ui[2];
+			App.searchPlaylists = ui[3];
 			App.rememberSearch = s[0];
 			App.httpStream = s[1];
 			App.rmsPreviews = s[2];
@@ -293,42 +151,10 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			App.inv = invidiousText.getString();
 			App.imgproxy = imgProxyText.getString();
 			App.customLocale = customLocaleText.getString().trim().toLowerCase();
-			saveConfig();
+			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
 			App.error(this, Errors.Settings_apply, e);
-		}
-	}
-	
-	public static void saveConfig() {
-		try {
-			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
-		} catch (Throwable e) {
-		}
-		try {
-			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
-			JSONObject j = new JSONObject();
-			j.put("v", "\"v1\"");
-			j.put("videoRes", "\"" + App.videoRes + "\"");
-			j.put("region", "\"" + App.region + "\"");
-			j.put("downloadDir", "\"" + App.downloadDir + "\"");
-			j.put("videoPreviews", new Boolean(App.videoPreviews));
-			j.put("searchChannels", new Boolean(App.searchChannels));
-			j.put("rememberSearch", new Boolean(App.rememberSearch));
-			j.put("httpStream", new Boolean(App.httpStream));
-			j.put("serverstream", "\"" + App.serverstream + "\"");
-			j.put("inv", "\"" + App.inv + "\"");
-			j.put("imgProxy", "\"" + App.imgproxy + "\"");
-			j.put("startScreen", new Integer(App.startScreen));
-			j.put("customItems", new Boolean(App.customItems));
-			j.put("rmsPreviews", new Boolean(App.rmsPreviews));
-			j.put("customLocale", "\"" + App.customLocale + "\"");
-			byte[] b = j.build().getBytes("UTF-8");
-			
-			r.addRecord(b, 0, b.length);
-			r.closeRecordStore();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -354,7 +180,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		App.display(dirList);
+		AppUI.display(dirList);
 	}
 	
 	public void commandAction(Command c, Displayable d) {
@@ -362,7 +188,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			if(c == backCmd) {
 				if(curDir == null) {
 					dirList = null;
-					App.display(this);
+					AppUI.display(this);
 				} else {
 					if(curDir.indexOf("/") == -1) {
 						dirList = new List("", List.IMPLICIT);
@@ -371,14 +197,14 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 						dirList.addCommand(List.SELECT_COMMAND);
 						dirList.setSelectCommand(List.SELECT_COMMAND);
 						dirList.setCommandListener(this);
-						for(int i = 0; i < rootsVector.size(); i++) {
-							String s = (String) rootsVector.elementAt(i);
+						for(int i = 0; i < Settings.rootsVector.size(); i++) {
+							String s = (String) Settings.rootsVector.elementAt(i);
 							if(s.startsWith("file:///")) s = s.substring("file:///".length());
 							if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
 							dirList.append(s, null);
 						}
 						curDir = null;
-						App.display(dirList);
+						AppUI.display(dirList);
 						return;
 					}
 					String sub = curDir.substring(0, curDir.lastIndexOf('/'));
@@ -401,7 +227,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 					dirList = null;
 					downloadDirText.setString(f);
 					curDir = null;
-					App.display(this);
+					AppUI.display(this);
 					return;
 				}
 				f += is;
@@ -413,24 +239,20 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 				dirList = null;
 				downloadDirText.setString(curDir + "/");
 				curDir = null;
-				App.display(this);
+				AppUI.display(this);
 			}
 			return;
 		}
 		applySettings();
-		App.display(null);
-	}
-	
-	public static boolean isLowEndDevice() {
-		return PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && (PlatformUtils.isS40() || App.width < 240 || PlatformUtils.startMemory < 2048 * 1024);
+		AppUI.display(null);
 	}
 
 	public void commandAction(Command c, Item item) {
 		if(c == dirCmd) {
 			dirList = new List("", List.IMPLICIT);
-			getRoots();
-			for(int i = 0; i < rootsVector.size(); i++) {
-				String s = (String) rootsVector.elementAt(i);
+			Settings.getRoots();
+			for(int i = 0; i < Settings.rootsVector.size(); i++) {
+				String s = (String) Settings.rootsVector.elementAt(i);
 				if(s.startsWith("file:///")) s = s.substring("file:///".length());
 				if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
 				dirList.append(s, null);
@@ -439,7 +261,7 @@ public class Settings extends Form implements Constants, CommandListener, ItemCo
 			dirList.setSelectCommand(List.SELECT_COMMAND);
 			dirList.addCommand(backCmd);
 			dirList.setCommandListener(this);
-			App.display(dirList);
+			AppUI.display(dirList);
 		}
 	}
 

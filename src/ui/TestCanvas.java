@@ -1,3 +1,4 @@
+package ui;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
 
@@ -6,7 +7,7 @@ import javax.microedition.lcdui.Graphics;
  */
 public class TestCanvas extends Canvas {
 	
-	TestCanvas() {
+	public TestCanvas() {
 		setFullScreenMode(true);
 	}
 
