@@ -10,9 +10,10 @@ import App;
 import Records;
 import ui.AppUI;
 import models.VideoModel;
+import IScheduledShowHide;
 import cc.nnproject.utils.PlatformUtils;
 
-public class VideoItem extends CustomButtonItem {
+public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	
 	private static int globalWidth;
 	
@@ -30,40 +31,14 @@ public class VideoItem extends CustomButtonItem {
 	private int imgHeight;
 	private int textWidth;
 
-	private Runnable loadImgRMS = new Runnable() {
-		public void run() {
-			try {
-				if(!drawn) return;
-				Image img = Records.saveOrGetImage(video.getVideoId(), null);
-				if(img == null) {
-					//System.out.println("img null " + VideoItem.this.toString());
-					return;
-				}
-				//System.out.println("img " + VideoItem.this.toString());
-				setImage(video.customResize(img));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	};
-
-	private Runnable setImgNull = new Runnable() {
-		public void run() {
-			try {
-				if(!drawn) return;
-				setImage(null);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	};
-
 	private boolean drawn;
+	
+	private Object showmsg = new Object[] {this, new Boolean(true)};
+	private Object hidemsg = new Object[] {this, new Boolean(false)};
 
 	public VideoItem(VideoModel v) {
 		super(v);
 		this.video = v;
-		this.img = v.getCachedImage();
 		this.lengthStr = timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
@@ -80,6 +55,7 @@ public class VideoItem extends CustomButtonItem {
 		g.setColor(0);
 		if(img != null) {
 			g.drawImage(img, -2, 0, 0);
+			if(PlatformUtils.isS40() || PlatformUtils.isS603rd() || !PlatformUtils.isNotS60()) disposeImage();
 		} else {
 			g.fillRect(0, 0, w, ih);
 		}
@@ -105,6 +81,10 @@ public class VideoItem extends CustomButtonItem {
 		}
 	}
 	
+	private void disposeImage() {
+		img = null;
+	}
+
 	private void makeTitleArr() {
 		int w = getTextMaxWidth();
 		String[] arr = getStringArray(title, w, mediumfont);
@@ -193,14 +173,14 @@ public class VideoItem extends CustomButtonItem {
 	protected void showNotify() {
 		//System.out.println("showNotify " + toString());
 		if(App.rmsPreviews) {
-			App.inst.scheduleRunnable(loadImgRMS);
+			App.inst.schedule(showmsg);
 		}
 	}
 	
 	protected void hideNotify() {
 		//System.out.println("hideNotify " + toString());
 		if(App.rmsPreviews) {
-			App.inst.scheduleRunnable(setImgNull);
+			App.inst.schedule(hidemsg);
 		}
 	}
 	
@@ -265,6 +245,29 @@ public class VideoItem extends CustomButtonItem {
 	public static int getImageWidth() {
 		if(globalWidth > 0) return globalWidth;
 		return App.width - 4;
+	}
+
+	public void show() {
+		try {
+			if(!drawn) return;
+			Image img = Records.saveOrGetImage(video.getVideoId(), null);
+			if(img == null) {
+				//System.out.println("img null " + VideoItem.this.toString());
+				return;
+			}
+			//System.out.println("img " + VideoItem.this.toString());
+			setImage(video.customResize(img));
+		} catch (Exception e) {
+		}
+		
+	}
+
+	public void hide() {
+		try {
+			if(!drawn) return;
+			setImage(null);
+		} catch (Exception e) {
+		}
 	}
 
 }

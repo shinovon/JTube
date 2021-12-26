@@ -157,6 +157,7 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	public void commandAction(Command c, Item i) {
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());
+			return;
 		}
 	}
 

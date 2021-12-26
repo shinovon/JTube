@@ -106,7 +106,7 @@ public class Settings implements Constants {
 					} else {
 						App.asyncLoading = true;
 					}
-					if(PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
+					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
 						App.customItems = true;
 					}
 					App.rememberSearch = true;
@@ -117,10 +117,10 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					App.videoPreviews = true;
 					App.customItems = true;
-				} else if(s40 || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)) {
+				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					App.videoPreviews = true;
 					App.customItems = true;
-					if(s40) App.rmsPreviews = true;
+					App.rmsPreviews = true;
 				}
 				int min = Math.min(App.width, App.height);
 				// Symbian 9.4 can't handle H.264/AVC
@@ -164,6 +164,8 @@ public class Settings implements Constants {
 					App.customLocale = j.getString("customLocale");
 				if(j.has("searchPlaylists"))
 					App.searchPlaylists = j.getBoolean("searchPlaylists");
+				if(j.has("debugMemory"))
+					App.debugMemory = j.getBoolean("debugMemory");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -195,6 +197,7 @@ public class Settings implements Constants {
 			j.put("rmsPreviews", new Boolean(App.rmsPreviews));
 			j.put("customLocale", "\"" + App.customLocale + "\"");
 			j.put("searchPlaylists", new Boolean(App.searchPlaylists));
+			j.put("debugMemory", new Boolean(App.debugMemory));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

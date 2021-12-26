@@ -72,5 +72,6 @@ public interface LocaleConstants {
 	public static final int SET_VQ_NoAudio = 68;
 	public static final int SET_Tip1 = 69;
 	public static final int SET_Tip2 = 70;
+	public static final int BTN_Playlists = 71;
 
 }

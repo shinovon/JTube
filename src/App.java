@@ -1,16 +1,13 @@
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Display;
-import javax.microedition.media.Manager;
-import javax.microedition.media.Player;
+import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
 
 import ui.AppUI;
 import ui.TestCanvas;
@@ -21,11 +18,10 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSONException;
-import cc.nnproject.utils.PlatformUtils;
 
 public class App implements Constants {
 	
-	public static final String ver = "r3";
+	public static final String ver = "r3 patch2";
 	
 	// Settings
 	public static String videoRes;
@@ -44,12 +40,13 @@ public class App implements Constants {
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists;
 	public static String customLocale;
+	public static boolean debugMemory;
 	
 	public static App inst;
 	public static App2 midlet;
 	private AppUI ui;
 	
-	private static PlayerCanvas playerCanv;
+	//private static PlayerCanvas playerCanv;
 
 	public static boolean asyncLoading;
 	
@@ -72,12 +69,22 @@ public class App implements Constants {
 						tasksLock.wait();
 					}
 					while(queuedTasks.size() > 0) {
-						try {
-							((Runnable)queuedTasks.elementAt(0)).run();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						Object o = queuedTasks.elementAt(0);
 						queuedTasks.removeElementAt(0);
+						try {
+							if(o instanceof Runnable) ((Runnable)o).run();
+							else if(o instanceof Object[]) {
+								Object[] oo = (Object[]) o;
+								IScheduledShowHide i = (IScheduledShowHide) oo[0];
+								boolean b = ((Boolean) oo[1]).booleanValue();
+								if(b) {
+									i.show();
+								} else {
+									i.hide();
+								}
+							}
+						} catch (Exception e) {
+						}
 						Thread.yield();
 					}
 				} catch (InterruptedException e) {
@@ -87,9 +94,11 @@ public class App implements Constants {
 		}
 	};
 
-	public void scheduleRunnable(Runnable r) {
-		if(queuedTasks.contains(r)) return;
-		queuedTasks.addElement(r);
+	private int startSys;
+
+	public void schedule(Object o) {
+		if(queuedTasks.contains(o)) return;
+		queuedTasks.addElement(o);
 		synchronized(tasksLock) {
 			tasksLock.notify();
 		}
@@ -99,6 +108,10 @@ public class App implements Constants {
 	public static int height;
 
 	public void startApp() {
+		String p = System.getProperty("com.nokia.memoryramfree");
+		if(p != null) {
+			startSys = Integer.parseInt(p)/1024;
+		}
 		region = System.getProperty("user.country");
 		if(region == null) {
 			region = System.getProperty("microedition.locale");
@@ -137,6 +150,41 @@ public class App implements Constants {
 			t0.start();
 		}
 		ui.loadForm();
+		if(debugMemory) {
+			Thread t = new Thread() {
+				public void run() {
+					try {
+						while(true) {
+							Displayable d = AppUI.display.getCurrent();
+							if(d != null && d instanceof Form) {
+								Runtime r = Runtime.getRuntime();
+								int t = (int) (r.totalMemory() / 1024);
+								int f = (int) (r.freeMemory() / 1024);
+								int m = t - f;
+								String p = System.getProperty("com.nokia.memoryramfree");
+								String sys = "";
+								if(p != null) {
+									int sy = Integer.parseInt(p)/1024;
+									String sysfree = "" + (int)((sy/1024D)*10)/10D;
+									String syst = "" + (startSys/1024);
+									String sysalloc = "" + (startSys - sy)/1024;
+									sys = sysalloc + "/" + syst+ "-" + sysfree;
+								}
+								//long gt = System.currentTimeMillis();
+								App.gc();
+								//gt = System.currentTimeMillis() - gt;
+								String s = ((int)((m/1024D)*10)/10D) + "/" + ((int)((t/1024D)*10)/10D) + "-" + ((int)((f/1024D)*10)/10D) + " s:" + sys/* + " gc:" + gt*/;
+								((Form)d).setTitle(s);
+							}
+							Thread.sleep(1000);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			};
+			t.start();
+		}
 	}
 	
 	private void initUI() {
@@ -304,16 +352,17 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		ILoader r = new ILoader() {
+		System.out.println("watch");
+		/*ILoader r = new ILoader() {
 			public void load() {
-				// TODO other variants
+				// TODO other variants*/
 				try {
 					String url = getVideoLink(id, videoRes);
-					switch(watchMethod) {
-					case 0: {
+					//switch(watchMethod) {
+					//case 0: {
 						platReq(url);
-						break;
-					}
+						//break;
+					/*}
 					case 1: {
 						Player p = Manager.createPlayer(url);
 						playerCanv = new PlayerCanvas(p);
@@ -352,16 +401,17 @@ public class App implements Constants {
 						platReq(file);
 						break;
 					}
-					}
+					}*/
 				} catch (Exception e) {
 					e.printStackTrace();
 					error(null, Errors.App_watch, e);
 				}
-			}
+			/*}
 		};
-		inst.stopDoingAsyncTasks();
 		inst.addAsyncLoad(r);
 		inst.notifyAsyncTasks();
+		*/
+		inst.stopDoingAsyncTasks();
 	}
 	
 	public static void gc() {

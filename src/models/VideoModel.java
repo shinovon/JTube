@@ -40,7 +40,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private String thumbnailUrl;
 	private int imageWidth;
 	private ImageItem imageItem;
-	private Image img;
 	private JSONArray authorThumbnails;
 
 	private boolean extended;
@@ -54,6 +53,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private Form formContainer;
 	
 	private int index = -1;
+	private boolean imgLoaded;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -125,7 +125,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(!App.videoPreviews) {
 			return new StringItem(author, title);
 		}
-		return imageItem = new ImageItem(title, img, Item.LAYOUT_CENTER, null, ImageItem.BUTTON);
+		return imageItem = new ImageItem(title, null, Item.LAYOUT_CENTER, null, ImageItem.BUTTON);
 	}
 
 	public Item makeItemForList() {
@@ -137,12 +137,30 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 
 	public ImageItem makeImageItemForPage() {
+		Image img = null;
 		if(customItem != null) {
 			img = customItem.getImage();
 		}
 		if(img == null && App.rmsPreviews) {
 			try {
 				img = Records.saveOrGetImage(videoId, thumbnailUrl);
+			} catch (IOException e) {
+			}
+		}
+		if(img == null && imageItem != null) {
+			img = imageItem.getImage();
+		}
+		if(img == null) {
+			try {
+				byte[] b = App.hproxy(thumbnailUrl);
+				img = Image.createImage(b, 0, b.length);
+				b = null;
+				App.gc();
+				float iw = img.getWidth();
+				float ih = img.getHeight();
+				float nw = (float) imageWidth;
+				int nh = (int) (nw * (ih / iw));
+				img = ImageUtils.resize(img, imageWidth, nh);
 			} catch (IOException e) {
 			}
 		}
@@ -155,6 +173,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		float nw = (float) imageWidth;
 		int nh = (int) (nw * (ih / iw));
 		img = ImageUtils.resize(img, imageWidth, nh);
+		App.gc();
 		float f = iw / ih;
 		if(f == 4F / 3F) {
 			// cropping to 16:9
@@ -166,45 +185,50 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 
 	public void loadImage() {
-		if(img != null) return;
+		if(imgLoaded) return;
+		imgLoaded = true;
 		if(thumbnailUrl == null) return;
 		if(imageItem == null && customItem == null && !extended) return;
 		try {
-			if(App.rmsPreviews) {
+			if(App.rmsPreviews && App.customItems) {
 				if(index <= 1 && index != -1) {
-					if(imageItem != null) {
+					/*if(imageItem != null) {
 						float iw = img.getWidth();
 						float ih = img.getHeight();
 						float nw = (float) imageWidth;
 						int nh = (int) (nw * (ih / iw));
 						img = ImageUtils.resize(Records.saveOrGetImage(videoId, thumbnailUrl), imageWidth, nh);
 						imageItem.setImage(img);
-					} else if(customItem != null) {
+					} else */if(customItem != null) {
 						customItem.setImage(customResize(Records.saveOrGetImage(videoId, thumbnailUrl)));
 					}
 				} else {
 					Records.save(videoId, thumbnailUrl);
 				}
-				App.gc();
 			} else {
 				byte[] b = App.hproxy(thumbnailUrl);
-				img = Image.createImage(b, 0, b.length);
+				Image img = Image.createImage(b, 0, b.length);
+				b = null;
+				App.gc();
 				if(imageItem != null) {
-					float iw = img.getWidth();
-					float ih = img.getHeight();
-					float nw = (float) imageWidth;
-					int nh = (int) (nw * (ih / iw));
-					img = ImageUtils.resize(img, imageWidth, nh);
+					if(App.width >= 480) {
+						img = customResize(img);
+					} else {
+						float iw = img.getWidth();
+						float ih = img.getHeight();
+						float nw = (float) imageWidth;
+						int nh = (int) (nw * (ih / iw));
+						img = ImageUtils.resize(img, imageWidth, nh);
+					}
 					imageItem.setImage(img);
 				} else if(customItem != null) {
-					customItem.setImage(img = customResize(img));
+					customItem.setImage(customResize(img));
 				}
 			}
 			thumbnailUrl = null;
+			App.gc();
 		} catch (NullPointerException e) {
-			img = null;
 		} catch (RuntimeException e) {
-			img = null;
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -230,6 +254,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 	
 	private int getImgItemWidth() {
+		//if(App.width >= 480) {
+		//	return (int) (App.height);
+		//}
 		return (int) (App.width * 2F / 3F);
 	}
 	
@@ -331,7 +358,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public void dispose() {
 		thumbnailUrl = null;
-		img = null;
 		if(imageItem != null) imageItem.setImage(null);
 	}
 
@@ -353,10 +379,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public boolean isExtended() {
 		return extended;
-	}
-	
-	public Image getCachedImage() {
-		return img;
 	}
 
 	public ModelForm makeForm() {

@@ -26,14 +26,14 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 
 	private static final Command lastVideosCmd = new Command(Locale.s(BTN_LatestVideos), Command.ITEM, 2);
 	private static final Command searchVideosCmd = new Command(Locale.s(BTN_SearchVideos), Command.ITEM, 3);
-	private static final Command infoCmd = new Command(Locale.s(BTN_ChannelInformation), Command.ITEM, 4);
+	private static final Command playlistsCmd = new Command(Locale.s(BTN_Playlists), Command.ITEM, 4);
 
 	private ChannelModel channel;
 	
 	private StringItem loadingItem;
 	private StringItem lastVideosBtn;
 	private StringItem searchVideosBtn;
-	private StringItem infoBtn;
+	private StringItem playlistsBtn;
 	
 	private Form lastVideosForm;
 	private Form searchForm;
@@ -68,12 +68,12 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 		searchVideosBtn.setDefaultCommand(searchVideosCmd);
 		searchVideosBtn.setItemCommandListener(this);
 		append(searchVideosBtn);
-		infoBtn = new StringItem(null, Locale.s(BTN_ChannelInformation), Item.BUTTON);
-		infoBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
-		infoBtn.addCommand(infoCmd);
-		infoBtn.setDefaultCommand(infoCmd);
-		infoBtn.setItemCommandListener(this);
-		append(infoBtn);
+		playlistsBtn = new StringItem(null, Locale.s(BTN_Playlists), Item.BUTTON);
+		playlistsBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
+		playlistsBtn.addCommand(playlistsCmd);
+		playlistsBtn.setDefaultCommand(playlistsCmd);
+		playlistsBtn.setItemCommandListener(this);
+		append(playlistsBtn);
 	}
 
 	public void load() {
@@ -146,6 +146,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 	public void commandAction(Command c, Displayable d) {
 		if(c == lastVideosCmd) {
 			latestVideos();
+			return;
 		}
 		if(c == searchVideosCmd && d instanceof Form) {
 			App.inst.stopDoingAsyncTasks();
@@ -158,9 +159,15 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 			t.addCommand(searchOkCmd);
 			t.addCommand(cancelCmd);
 			AppUI.display(t);
+			return;
 		}
 		if(c == searchOkCmd && d instanceof TextBox) {
 			search(((TextBox) d).getString());
+			return;
+		}
+		if(c == cancelCmd && d instanceof TextBox) {
+			AppUI.display(this);
+			return;
 		}
 		if(d == searchForm && c == backCmd) {
 			AppUI.display(this);
@@ -178,6 +185,11 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 			return;
 		}
 		AppUI.inst.commandAction(c, d);
+	}
+
+	private void playlists() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void disposeLastVideosForm() {
@@ -221,6 +233,11 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 			t.addCommand(searchOkCmd);
 			t.addCommand(cancelCmd);
 			AppUI.display(t);
+			return;
+		}
+		if(c == playlistsCmd) {
+			playlists();
+			return;
 		}
 		if(c == lastVideosCmd) {
 			latestVideos();

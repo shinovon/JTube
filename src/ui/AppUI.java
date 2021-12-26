@@ -29,7 +29,7 @@ import models.PlaylistModel;
 
 public class AppUI implements CommandListener, Commands, Constants {
 	
-	private static final Display display = Display.getDisplay(App.midlet);
+	public static final Display display = Display.getDisplay(App.midlet);
 
 	public static AppUI inst;
 	
@@ -122,6 +122,11 @@ public class AppUI implements CommandListener, Commands, Constants {
 			j = null;
 			app.notifyAsyncTasks();
 		} catch (RuntimeException e) {
+			if(!e.getClass().equals(RuntimeException.class)) {
+				e.printStackTrace();
+				App.error(this, Errors.App_loadPopular, e);
+				return;
+			}
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,6 +158,11 @@ public class AppUI implements CommandListener, Commands, Constants {
 			j = null;
 			app.notifyAsyncTasks();
 		} catch (RuntimeException e) {
+			if(!e.getClass().equals(RuntimeException.class)) {
+				e.printStackTrace();
+				App.error(this, Errors.App_loadPopular, e);
+				return;
+			}
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -464,9 +474,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		if(model.isFromSearch() && !App.rememberSearch) {
 			ui.disposeSearchForm();
 		}
-		System.out.println("stop doung tasks");
 		app.stopDoingAsyncTasks();
-		System.out.println("stop doung tasks done");
 		ModelForm form = model.makeForm();
 		AppUI.display(form);
 		if(form instanceof VideoForm) {
@@ -482,17 +490,17 @@ public class AppUI implements CommandListener, Commands, Constants {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 		}
-		System.out.println("addin async load");
 		app.addAsyncLoad(form);
-		System.out.println("notyfin async thread");
 		app.notifyAsyncTasks();
-		System.out.println("async thread notyfied");
 	}
 
 	public static int getPlatformWidthOffset() {
 		if(PlatformUtils.isKemulator) return 5;
-		if(PlatformUtils.isS40()) return 8;
-		if(PlatformUtils.isSymbian94()) return 8;
+		if(PlatformUtils.isAshaFullTouch()) return 24;
+		if(PlatformUtils.isS40()) return 12;
+		if(PlatformUtils.isSymbianAnna()) return 38;
+		if(PlatformUtils.isSymbian94()) return 32;
+		if(PlatformUtils.isSymbian3Based()) return 20;
 		return 4;
 	}
 

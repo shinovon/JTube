@@ -54,7 +54,10 @@ public class Locale implements LocaleConstants {
 				try {
 					int i;
 					while( (i = d.readShort()) != -1) {
-						table.put(new Integer(i), d.readUTF());
+						Integer n = new Integer(i);
+						String sl = d.readUTF();
+						if(table.containsKey(n)) continue;
+						table.put(n, sl);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -81,11 +84,12 @@ public class Locale implements LocaleConstants {
 	}
 	
 	public static String s(int c) {
-		if(loaded) {
-			return (String) table.get(new Integer(c));
+		Integer i = new Integer(c);
+		if(loaded && table.containsKey(i)) {
+			return (String) table.get(i);
 		}
 		// Автор
-		if(c == 0) {
+		if(c == 0 && !loaded) {
 			return "Shinovon";
 		}
 		switch(localei) {
@@ -221,6 +225,8 @@ public class Locale implements LocaleConstants {
 				return "(Used only if http streaming is on)";
 			case SET_Tip2:
 				return "(Leave images proxy empty if HTTPS is supported)";
+			case BTN_Playlists:
+				return "Playlists";
 			}
 		}
 		case 1: {
@@ -254,7 +260,7 @@ public class Locale implements LocaleConstants {
 			case CMD_Videos:
 				return "Видео";
 			case CMD_ViewChannel:
-				return "View channel";
+				return "Открыть канал";
 			case CMD_SwitchToPopular:
 				return "Сменить на популярные";
 			case CMD_SwitchToTrends:

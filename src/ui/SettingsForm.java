@@ -39,6 +39,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_VideoPreviews), 
 			Locale.s(SET_SearchChannels), 
 			Locale.s(SET_SearchPlaylists) };
+	static final String[] DEBUG_CHECKS = new String[] { 
+			"Debug memory"
+			};
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -50,6 +53,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup uiChoice;
 	private StringItem dirBtn;
 	private TextField customLocaleText;
+	private ChoiceGroup debugChoice;
 
 	private List dirList;
 	private String curDir;
@@ -88,6 +92,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(Locale.s(SET_Tip2) + "\n");
 		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), App.customLocale, 8, TextField.ANY);
 		append(customLocaleText);
+		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
+		append(debugChoice);
 	}
 	
 	public void show() {
@@ -98,6 +104,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checksChoice.setSelectedIndex(0, App.rememberSearch);
 		checksChoice.setSelectedIndex(1, App.httpStream);
 		checksChoice.setSelectedIndex(2, App.rmsPreviews);
+		debugChoice.setSelectedIndex(0, App.debugMemory);
 		//checksChoice.setSelectedIndex(4, App.apiProxy);
 		if(App.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
@@ -151,6 +158,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			App.inv = invidiousText.getString();
 			App.imgproxy = imgProxyText.getString();
 			App.customLocale = customLocaleText.getString().trim().toLowerCase();
+			App.debugMemory = debugChoice.isSelected(0);
 			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();

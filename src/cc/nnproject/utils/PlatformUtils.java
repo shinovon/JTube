@@ -41,15 +41,23 @@ public class PlatformUtils {
 	}
 	
 	public static boolean isSymbianTouch() {
-		return !isNotS60() && (isS60PlatformVersion("5"));
+		return !isNotS60() && isS60PlatformVersion("5");
 	}
 	
-	public static boolean isSymbian3() {
-		return !isNotS60() && (isS60PlatformVersion("5.1") || isS60PlatformVersion("5.2") || isS60PlatformVersion("5.3") || isS60PlatformVersion("5.4") || isS60PlatformVersion("5.5"));
+	public static boolean isSymbian3Based() {
+		return isSymbianTouch() && !isS60PlatformVersion("5.0");
 	}
 	
 	public static boolean isSymbian94() {
 		return !isNotS60() && isS60PlatformVersion("5.0");
+	}
+
+	public static boolean isSymbianAnna() {
+		return !isNotS60() && isS60PlatformVersion("5.2");
+	}
+	
+	public static boolean isSymbian93() {
+		return isS60PlatformVersion("3.2");
 	}
 	
 	public static boolean isS603rd() {
