@@ -63,7 +63,7 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 		g.setColor(0);
 		if(img != null) {
 			g.drawImage(img, -2, 0, 0);
-			if((PlatformUtils.isS603rd() || !PlatformUtils.isNotS60()) && !PlatformUtils.isS40() && !PlatformUtils.isKemulator && !App.rmsPreviews) {
+			if(PlatformUtils.isSymbian94() /*&& !PlatformUtils.isS40()*/ && !PlatformUtils.isKemulator && !App.rmsPreviews) {
 				disposeImage();
 			}
 		} else {
