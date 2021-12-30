@@ -19,6 +19,7 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import models.AbstractModel;
 import models.ChannelModel;
+import models.PlaylistModel;
 import models.VideoModel;
 
 // TODO
@@ -37,6 +38,7 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 	
 	private Form lastVideosForm;
 	private Form searchForm;
+	private Form playlistsForm;
 
 	public ChannelForm(ChannelModel c) {
 		super(c.getAuthor());
@@ -169,14 +171,9 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 			AppUI.display(this);
 			return;
 		}
-		if(d == searchForm && c == backCmd) {
+		if((d == searchForm || d == lastVideosForm || d == playlistsForm) && c == backCmd) {
 			AppUI.display(this);
 			disposeSearchForm();
-			return;
-		}
-		if(d == lastVideosForm && c == backCmd) {
-			AppUI.display(this);
-			disposeLastVideosForm();
 			return;
 		}
 		if(d == this && c == backCmd) {
@@ -188,8 +185,32 @@ public class ChannelForm extends ModelForm implements CommandListener, Commands,
 	}
 
 	private void playlists() {
-		// TODO Auto-generated method stub
-		
+		playlistsForm = new Form(channel.getAuthor() + " - " + Locale.s(BTN_Playlists));
+		playlistsForm.setCommandListener(this);
+		playlistsForm.addCommand(backCmd);
+		playlistsForm.addCommand(settingsCmd);
+		playlistsForm.addCommand(searchCmd);
+		AppUI.display(playlistsForm);
+		App.inst.stopDoingAsyncTasks();
+		try {
+			JSONArray j = ((JSONObject) App.invApi("v1/channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount" + (App.videoPreviews ? ",videoThumbnails" : ""))).getArray("playlists");
+			int l = j.size();
+			for(int i = 0; i < l; i++) {
+				Item item = playlist(j.getObject(i));
+				if(item == null) continue;
+				playlistsForm.append(item);
+				if(i >= SEARCH_LIMIT) break;
+			}
+			App.inst.notifyAsyncTasks();
+		} catch (Exception e) {
+			e.printStackTrace();
+			App.error(this, Errors.ChannelForm_search, e);
+		}
+	}
+	
+	private Item playlist(JSONObject j) {
+		PlaylistModel p = new PlaylistModel(j, playlistsForm, channel);
+		return p.makeItemForList();
 	}
 
 	private void disposeLastVideosForm() {

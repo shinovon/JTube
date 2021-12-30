@@ -11,8 +11,8 @@ public interface Constants {
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
 	// Limits
-	static final int TRENDS_LIMIT_S60 = 25;
-	static final int SEARCH_LIMIT_S60 = 35; 
+	static final int TRENDS_LIMIT_S60 = 23;
+	static final int SEARCH_LIMIT_S60 = 30; 
 	static final int TRENDS_LIMIT_LOWEND = 20;
 	static final int SEARCH_LIMIT_LOWEND = 25; 
 	static final int TRENDS_LIMIT = PlatformUtils.isNotS60() ? TRENDS_LIMIT_LOWEND : TRENDS_LIMIT_S60;

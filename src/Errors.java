@@ -16,5 +16,6 @@ public class Errors {
 	public static final int PlaylistForm_load = 13;
 	public static final int PlaylistForm_init = 14;
 	public static final int PlaylistForm_init_previews = 15;
+	public static final int App_commandAction_switchCmd = 16;
 
 }

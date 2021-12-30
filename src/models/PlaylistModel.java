@@ -3,9 +3,12 @@ package models;
 import java.io.IOException;
 
 import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
+import javax.microedition.lcdui.StringItem;
 
+import App;
 import Locale;
 import ui.AppUI;
 import ui.ModelForm;
@@ -31,6 +34,8 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	
 	private PlaylistItem customItem;
 
+	private Form formContainer;
+
 	public PlaylistModel(JSONObject o) {
 		parse(o, false);
 	}
@@ -39,12 +44,19 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 		parse(o, extended);
 	}
 	
+	public PlaylistModel(JSONObject j, Form form, ChannelModel channel) {
+		this(j, false);
+		this.formContainer = form;
+		//this.channel = channel;
+		authorId = channel.getAuthorId();
+	}
+
 	private void parse(JSONObject o, boolean extended) {
 		this.extended = extended;
 		title = o.getString("title");
 		playlistId = o.getString("playlistId");
-		author = o.getString("author");
-		authorId = o.getString("authorId");
+		author = o.getNullableString("author");
+		authorId = o.getNullableString("authorId");
 		videoCount = o.getInt("videoCount", 0);
 		/*
 		if(extended) {
@@ -71,6 +83,13 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	}
 
 	public Item makeItemForList() {
+		if(!App.customItems) {
+			StringItem item = new StringItem(title, Locale.videos(getVideoCount()) + (formContainer == null ? "\n" + author : ""));
+			item.addCommand(pOpenCmd);
+			item.setDefaultCommand(pOpenCmd);
+			item.setItemCommandListener(this);
+			return item;
+		}
 		customItem = new PlaylistItem(this);
 		customItem.addCommand(pOpenCmd);
 		customItem.setDefaultCommand(pOpenCmd);
@@ -130,6 +149,10 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 
 	public int getVideoCount() {
 		return videoCount;
+	}
+
+	public Form getFormContainer() {
+		return formContainer;
 	}
 
 }

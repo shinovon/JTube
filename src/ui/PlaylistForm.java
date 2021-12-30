@@ -37,6 +37,7 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 
 	public PlaylistForm(PlaylistModel p) {
 		super(p.getTitle());
+		formContainer = p.getFormContainer();
 		loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
 		this.playlist = p;

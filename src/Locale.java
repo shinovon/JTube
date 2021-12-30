@@ -361,6 +361,8 @@ public class Locale implements LocaleConstants {
 				return "(Использован только если включен HTTP стриминг через прокси)";
 			case SET_Tip2:
 				return "(Оставьте пустым если ваше устройство поддерживает HTTPS)";
+			case BTN_Playlists:
+				return "Плейлисты";
 			}
 		}
 		}

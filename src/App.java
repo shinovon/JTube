@@ -21,7 +21,7 @@ import cc.nnproject.json.JSONException;
 
 public class App implements Constants {
 	
-	public static final String ver = "r3 patch2";
+	public static final String ver = "r3.2";
 	
 	// Settings
 	public static String videoRes;
@@ -474,7 +474,7 @@ public class App implements Constants {
 
 	private void testCanvas() {
 		Canvas c = new TestCanvas();
-		Display.getDisplay(midlet).setCurrent(c);
+		//Display.getDisplay(midlet).setCurrent(c);
 		width = c.getWidth();
 		height = c.getHeight();
 	}

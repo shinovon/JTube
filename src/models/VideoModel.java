@@ -272,6 +272,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		}*/
 		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE, null, Item.BUTTON);
 		authorItem.addCommand(vOpenChannelCmd);
+		authorItem.setDefaultCommand(vOpenChannelCmd);
 		authorItem.setItemCommandListener(this);
 		return authorItem;
 	}

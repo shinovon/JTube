@@ -1,4 +1,6 @@
 package ui;
+import java.io.IOException;
+
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -61,6 +63,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 			} else {
 				loadPopular();
 			}
+			display(mainForm);
 			App.gc();
 		} catch (InvidiousException e) {
 			App.error(this, Errors.App_loadForm, e);
@@ -91,10 +94,9 @@ public class AppUI implements CommandListener, Commands, Constants {
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
 		mainForm.addCommand(exitCmd);
-		display(mainForm);
 	}
 
-	public void loadTrends() {
+	public void loadTrends() throws IOException {
 		boolean b = App.needsCheckMemory();
 		mainForm.addCommand(switchToPopularCmd);
 		try {
@@ -128,14 +130,14 @@ public class AppUI implements CommandListener, Commands, Constants {
 				return;
 			}
 			throw e;
-		} catch (Exception e) {
+		}/* catch (Exception e) {
 			e.printStackTrace();
 			App.error(this, Errors.App_loadTrends, e);
-		}
+		}*/
 		App.gc();
 	}
 
-	void loadPopular() {
+	void loadPopular() throws IOException {
 		boolean b = App.needsCheckMemory();
 		mainForm.addCommand(switchToTrendsCmd);
 		try {
@@ -164,10 +166,10 @@ public class AppUI implements CommandListener, Commands, Constants {
 				return;
 			}
 			throw e;
-		} catch (Exception e) {
+		}/* catch (Exception e) {
 			e.printStackTrace();
 			App.error(this, Errors.App_loadPopular, e);
-		}
+		}*/
 		App.gc();
 	}
 
@@ -178,7 +180,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		searchForm.addCommand(settingsCmd);
 		searchForm.addCommand(searchCmd);
 		display(searchForm);
-		if(Settings.isLowEndDevice()) {
+		if(Settings.isLowEndDevice() || !App.rememberSearch) {
 			disposeMainForm();
 		}
 		if(mainForm != null) {
@@ -251,7 +253,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		if(id.startsWith(watch)) id = id.substring(watch.length());
 		try {
 			open(new VideoModel(id).extend());
-			if(Settings.isLowEndDevice()) {
+			if(Settings.isLowEndDevice() || !App.rememberSearch) {
 				disposeMainForm();
 			}
 		} catch (Exception e) {
@@ -260,7 +262,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 	}
 
 	void disposeMainForm() {
-		if(mainForm != null) return;
+		if(mainForm == null) return;
 		mainForm.deleteAll();
 		mainForm = null;
 		App.gc();
@@ -373,43 +375,47 @@ public class AppUI implements CommandListener, Commands, Constants {
 			disposeSearchForm();
 			return;
 		}
-		if(c == switchToPopularCmd) {
-			App.startScreen = 1;
-			app.stopDoingAsyncTasks();
-			if(mainForm != null) {
-				mainForm.deleteAll();
-			} else {
-				initForm();
+		try {
+			if(c == switchToPopularCmd) {
+				App.startScreen = 1;
+				app.stopDoingAsyncTasks();
+				if(mainForm != null) {
+					mainForm.deleteAll();
+				} else {
+					initForm();
+				}
+				if(searchForm != null) {
+					disposeSearchForm();
+				} else {
+					d.removeCommand(c);
+				}
+				loadPopular();
+				Settings.saveConfig();
+				return;
 			}
-			if(searchForm != null) {
-				disposeSearchForm();
-			} else {
-				d.removeCommand(c);
+			if(c == switchToTrendsCmd) {
+				App.startScreen = 0;
+				app.stopDoingAsyncTasks();
+				if(mainForm != null) {
+					mainForm.deleteAll();
+				} else {
+					initForm();
+				}
+				if(searchForm != null) {
+					disposeSearchForm();
+				} else {
+					d.removeCommand(c);
+				}
+				loadTrends();
+				Settings.saveConfig();
 			}
-			loadPopular();
-			Settings.saveConfig();
-			return;
-		}
-		if(c == switchToTrendsCmd) {
-			App.startScreen = 0;
-			app.stopDoingAsyncTasks();
-			if(mainForm != null) {
-				mainForm.deleteAll();
-			} else {
-				initForm();
-			}
-			if(searchForm != null) {
-				disposeSearchForm();
-			} else {
-				d.removeCommand(c);
-			}
-			loadTrends();
-			Settings.saveConfig();
+		} catch (Exception e) {
+			App.error(this, Errors.App_commandAction_switchCmd, e);
+			e.printStackTrace();
 		}
 	}
 	
 	public static void display(Displayable d) {
-		boolean b = false;
 		AppUI ui = inst;
 		if(d == null) {
 			if(ui.videoForm != null) {
@@ -422,17 +428,16 @@ public class AppUI implements CommandListener, Commands, Constants {
 				d = ui.mainForm;
 			} else {
 				ui.initForm();
-				d = ui.mainForm;
-				b = true;
+				ui.loadForm();
+				return;
 			}
 		}
 		if(!(d instanceof Alert)) {
 			lastd = d;
 			display.setCurrent(d);
 		} else {
-			display.setCurrent((Alert) d, lastd);
+			display.setCurrent((Alert) d, lastd == null ? ui.mainForm : lastd);
 		}
-		if(b) ui.loadForm();
 	}
 
 	public static void back(Form f) {
@@ -443,7 +448,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 			AppUI.display(ui.mainForm);
 		} else {
 			ui.initForm();
-			AppUI.display(ui.mainForm);
+			//AppUI.display(ui.mainForm);
 			ui.loadForm();
 		}
 	}
@@ -471,8 +476,12 @@ public class AppUI implements CommandListener, Commands, Constants {
 				return;
 			}
 		}
-		if(model.isFromSearch() && !App.rememberSearch) {
-			ui.disposeSearchForm();
+		if(!App.rememberSearch) {
+			if(model.isFromSearch()) {
+				ui.disposeSearchForm();
+			} else if(ui.mainForm != null) {
+				ui.disposeMainForm();
+			}
 		}
 		app.stopDoingAsyncTasks();
 		ModelForm form = model.makeForm();
@@ -496,6 +505,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 
 	public static int getPlatformWidthOffset() {
 		if(PlatformUtils.isKemulator) return 5;
+		if(PlatformUtils.isJ2ML()) return 0;
 		if(PlatformUtils.isAshaFullTouch()) return 24;
 		if(PlatformUtils.isS40()) return 12;
 		if(PlatformUtils.isSymbianAnna()) return 38;

@@ -36,6 +36,14 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	private Object showmsg = new Object[] {this, new Boolean(true)};
 	private Object hidemsg = new Object[] {this, new Boolean(false)};
 
+	//private boolean shown = true;
+
+	private boolean shown;
+
+	//private static int count = 0;
+
+	//private int id = count++;
+
 	public VideoItem(VideoModel v) {
 		super(v);
 		this.video = v;
@@ -55,7 +63,9 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 		g.setColor(0);
 		if(img != null) {
 			g.drawImage(img, -2, 0, 0);
-			if(PlatformUtils.isS40() || PlatformUtils.isS603rd() || !PlatformUtils.isNotS60()) disposeImage();
+			if((PlatformUtils.isS603rd() || !PlatformUtils.isNotS60()) && !PlatformUtils.isS40() && !PlatformUtils.isKemulator && !App.rmsPreviews) {
+				disposeImage();
+			}
 		} else {
 			g.fillRect(0, 0, w, ih);
 		}
@@ -104,7 +114,7 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 
 	private int getImgHeight() {
 		if(imgHeight > 0) return imgHeight;
-		int ih = App.width * 9 / 16;
+		int ih = getImageWidth() * 9 / 16;
 		if(img != null) {
 			ih = img.getHeight();
 			imgHeight = ih;
@@ -116,7 +126,7 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 		if(textWidth > 0) return textWidth;
 		int w = width - 6;
 		if(w <= 0) {
-			w = App.width - 10;
+			w = getImageWidth() - 6;
 		}
 		int i;
 		if(lengthStr != null) {
@@ -171,6 +181,12 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	}
 	
 	protected void showNotify() {
+		//if(!drawn && !preShown) {
+		//	preShown = true;
+		//	return;
+		//}
+		if(shown) return;
+		shown = true;
 		//System.out.println("showNotify " + toString());
 		if(App.rmsPreviews) {
 			App.inst.schedule(showmsg);
@@ -178,6 +194,8 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	}
 	
 	protected void hideNotify() {
+		if(!shown) return;
+		shown = false;
 		//System.out.println("hideNotify " + toString());
 		if(App.rmsPreviews) {
 			App.inst.schedule(hidemsg);
@@ -244,15 +262,17 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 
 	public static int getImageWidth() {
 		if(globalWidth > 0) return globalWidth;
-		return App.width - 4;
+		return App.width - AppUI.getPlatformWidthOffset();
 	}
 
 	public void show() {
+		if(img != null) return;
+		//shown = true;
 		try {
 			if(!drawn) return;
 			Image img = Records.saveOrGetImage(video.getVideoId(), null);
 			if(img == null) {
-				//System.out.println("img null " + VideoItem.this.toString());
+				//System.out.println("img null " + toString());
 				return;
 			}
 			//System.out.println("img " + VideoItem.this.toString());
@@ -263,11 +283,20 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	}
 
 	public void hide() {
+		if(shown) return;
+		if(img == null) return;
+		//System.out.println("hide " + toString());
+		//shown = false;
 		try {
 			if(!drawn) return;
 			setImage(null);
 		} catch (Exception e) {
 		}
 	}
+	
+	//public String toString() {
+	//	if(titleArr != null) return titleArr[0];
+	//	return "VI" + id ;
+	//}
 
 }
