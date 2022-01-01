@@ -1,22 +1,8 @@
 # JTube
 Youtube client based on Invidious API for Java devices with MIDP 2.0 support
 ## Setting up your own server
-First you need to install NGINX server if you don't already have it installed
-
-Also curl-ext is important in php
-
-stream.php, Http streamer (https://github.com/Athlon1600/youtube-downloader must be installed):
-```<?php
-include(__DIR__. '/../vendor/autoload.php');
-set_time_limit(0);
-$url = isset($_GET['url']) ? $_GET['url'] : null;
-if ($url == false) {
-    die("No url provided");
-}
-$youtube = new \YouTube\YouTubeStreamer();
-$youtube->stream($url);
-?>
-```
+stream.php (HTTP Streaming proxy):
+https://github.com/Athlon1600/youtube-downloader
 
 hproxy.php (Image proxy):
 ```
