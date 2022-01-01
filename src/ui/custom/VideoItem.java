@@ -289,7 +289,7 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 		//shown = false;
 		try {
 			if(!drawn) return;
-			setImage(null);
+			disposeImage();
 		} catch (Exception e) {
 		}
 	}
