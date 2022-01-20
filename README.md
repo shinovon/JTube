@@ -14,9 +14,9 @@ function reqHeaders($arr, $url = null) {
 		$lk = strtolower($k);
 		if($lk == 'host' && isset($url)) {
 			$dom = '';
-			if(startsWith($url, 'http://')) {
+			if(strpos($url, 'http://') == 0) {
 				$dom = substr($url, 7);
-			} else if(startsWith($url, 'https://')) {
+			} else if(strpos($url, 'https://') == 0) {
 				$dom = substr($url, 8);
 			} else {
 				$dom = $url;
