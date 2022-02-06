@@ -42,7 +42,7 @@ import cc.nnproject.json.JSONException;
 
 public class App implements Constants {
 	
-	public static final String ver = "r3.2";
+	public static final String ver = "r3.3";
 	
 	// Settings
 	public static String videoRes;
@@ -129,6 +129,7 @@ public class App implements Constants {
 	public static int height;
 
 	public void startApp() {
+		AppUI.display(new Form("Loading"));
 		String p = System.getProperty("com.nokia.memoryramfree");
 		if(p != null) {
 			startSys = Integer.parseInt(p)/1024;
