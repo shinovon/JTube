@@ -248,6 +248,8 @@ public class Locale implements LocaleConstants {
 				return "(Leave images proxy empty if HTTPS is supported)";
 			case BTN_Playlists:
 				return "Playlists";
+			case CMD_ShowLink:
+				return "Show link";
 			}
 		}
 		case 1: {
@@ -384,6 +386,8 @@ public class Locale implements LocaleConstants {
 				return "(Оставьте пустым если ваше устройство поддерживает HTTPS)";
 			case BTN_Playlists:
 				return "Плейлисты";
+			case CMD_ShowLink:
+				return "Показать ссылку";
 			}
 		}
 		}

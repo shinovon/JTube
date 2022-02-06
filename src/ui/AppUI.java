@@ -111,10 +111,10 @@ public class AppUI implements CommandListener, Commands, Constants {
 		mainForm.append(searchBtn);
 		*/
 		mainForm.setCommandListener(this);
-		mainForm.addCommand(aboutCmd);
 		mainForm.addCommand(searchCmd);
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
+		mainForm.addCommand(aboutCmd);
 		mainForm.addCommand(exitCmd);
 	}
 

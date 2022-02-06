@@ -29,6 +29,8 @@ import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
+import javax.microedition.lcdui.TextBox;
+import javax.microedition.lcdui.TextField;
 
 import App;
 import Locale;
@@ -49,8 +51,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		this.video = v;
 		setCommandListener(this);
 		addCommand(backCmd);
-		addCommand(downloadCmd);
 		addCommand(settingsCmd);
+		addCommand(showLinkCmd);
+		addCommand(downloadCmd);
 		addCommand(watchCmd);
 		if(v.isFromPlaylist()) {
 			addCommand(openPlaylistCmd);
@@ -161,6 +164,12 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		if(c == downloadCmd) {
 			App.download(video.getVideoId());
+			return;
+		}
+		if(c == showLinkCmd) {
+			TextBox t = new TextBox("", "", 64, TextField.URL);
+			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId());
+			AppUI.display(t);
 			return;
 		}
 		if(c == backCmd) {
