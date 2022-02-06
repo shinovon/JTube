@@ -128,6 +128,10 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(d instanceof TextBox) {
+			if(c == backCmd) AppUI.display(this);
+			return;
+		}
 		if(formContainer != null && video.isFromPlaylist()) {
 			if(c == openPlaylistCmd) {
 				AppUI.display(formContainer);
@@ -169,6 +173,8 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		if(c == showLinkCmd) {
 			TextBox t = new TextBox("", "", 64, TextField.URL);
 			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId());
+			t.addCommand(backCmd);
+			t.setCommandListener(this);
 			AppUI.display(t);
 			return;
 		}
