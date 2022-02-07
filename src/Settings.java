@@ -228,7 +228,13 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && (PlatformUtils.isS40() || App.width < 240 || PlatformUtils.startMemory < 2048 * 1024);
+		return PlatformUtils.isNotS60() && 
+				!PlatformUtils.isS603rd() && 
+				!PlatformUtils.isS603rd() && 
+				(PlatformUtils.isS40() || 
+						App.width < 240 || 
+						PlatformUtils.startMemory < 2048 * 1024 ||
+						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
 	}
 
 }

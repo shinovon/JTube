@@ -85,6 +85,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 			} else {
 				loadPopular();
 			}
+			app.setLoadingState("Start page loaded");
 			display(mainForm);
 			App.gc();
 		} catch (InvidiousException e) {
@@ -119,15 +120,20 @@ public class AppUI implements CommandListener, Commands, Constants {
 	}
 
 	public void loadTrends() throws IOException {
+		app.setLoadingState("Loading trends (0)");
 		boolean b = App.needsCheckMemory();
 		mainForm.addCommand(switchToPopularCmd);
+		app.setLoadingState("Loading trends (1)");
 		try {
 			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Trends));
+			app.setLoadingState("Loading trends (2)");
 			AbstractJSON r = App.invApi("v1/trending?", VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
+			app.setLoadingState("Loading trends (3)");
 			if(r instanceof JSONObject) {
 				App.error(this, Errors.App_loadTrends, "Wrong response", r.toString());
 				return;
 			}
+			app.setLoadingState("Loading trends (4)");
 			JSONArray j = (JSONArray) r;
 			try {
 				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
@@ -135,16 +141,20 @@ public class AppUI implements CommandListener, Commands, Constants {
 				}
 			} catch (Exception e) {
 			}
+			app.setLoadingState("Loading trends (5)");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
+				app.setLoadingState("Parsing trends (" + i + "/" + l + ")");
 				Item item = parseAndMakeItem(j.getObject(i), false, i);
 				if(item == null) continue;
 				mainForm.append(item);
 				if(i >= TRENDS_LIMIT) break;
 				if(b) App.checkMemoryAndGc();
 			}
+			app.setLoadingState("Loading trends (6)");
 			j = null;
 			app.notifyAsyncTasks();
+			app.setLoadingState("Loading trends (7)");
 		} catch (RuntimeException e) {
 			if(!e.getClass().equals(RuntimeException.class)) {
 				e.printStackTrace();

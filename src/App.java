@@ -28,6 +28,7 @@ import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.StringItem;
 
 import ui.AppUI;
 import ui.IScheduledShowHide;
@@ -117,6 +118,8 @@ public class App implements Constants {
 
 	private int startSys;
 
+	private StringItem loadingItem;
+
 	public void schedule(Object o) {
 		if(queuedTasks.contains(o)) return;
 		queuedTasks.addElement(o);
@@ -129,35 +132,50 @@ public class App implements Constants {
 	public static int height;
 
 	public void startApp() {
-		AppUI.display(new Form("Loading"));
-		String p = System.getProperty("com.nokia.memoryramfree");
-		if(p != null) {
-			startSys = Integer.parseInt(p)/1024;
+		loadingItem = new StringItem("", "");
+		Form f = new Form("Loading");
+		f.append(loadingItem);
+		AppUI.display(f);
+		try {
+			String p = System.getProperty("com.nokia.memoryramfree");
+			if(p != null) {
+				startSys = Integer.parseInt(p)/1024;
+			}
+		} catch (Exception e) {
 		}
+		setLoadingState("Getting device region");
 		region = System.getProperty("user.country");
 		if(region == null) {
 			region = System.getProperty("microedition.locale");
 			if(region == null) {
 				region = "US";
-			} else if(region.length() == 5) {
-				region = region.substring(3, 5);
-			} else if(region.length() > 2) {
-				region = "US";
+			} else {
+				if(region.length() == 5) {
+					region = region.substring(3, 5);
+				} else if(region.length() > 2) {
+					region = "US";
+				}
 			}
 		} else if(region.length() > 2) {
 			region = region.substring(0, 2);
 		}
 		region = region.toUpperCase();
-		v0 = new Vector();
+		setLoadingState("Testing screen size");
 		testCanvas();
+		setLoadingState("Initializing tasks thread");
+		v0 = new Vector();
 		tasksThread.setPriority(4);
 		tasksThread.start();
+		setLoadingState("Loading config");
 		Settings.loadConfig();
+		setLoadingState("Initializing locales");
 		Locale.init();
+		setLoadingState("Initializing UI");
 		initUI();
 		if(region.toLowerCase().equals("en")) {
 			region = "US";
 		}
+		setLoadingState("Initializing loader thread");
 		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
@@ -171,6 +189,7 @@ public class App implements Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
+		setLoadingState("Loading start page");
 		ui.loadForm();
 		if(debugMemory) {
 			Thread t = new Thread() {
@@ -206,6 +225,12 @@ public class App implements Constants {
 				}
 			};
 			t.start();
+		}
+	}
+	
+	public void setLoadingState(String s) {
+		if(loadingItem != null) {
+			loadingItem.setText(s);
 		}
 	}
 	
