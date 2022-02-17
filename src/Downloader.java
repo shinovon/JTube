@@ -85,7 +85,7 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 			JSONObject o = App.getVideoInfo(id, res);
 			String url = o.getString("url");
 			if(App.httpStream) {
-				url = App.serverstream + "?url=" + Util.url(url);
+				url = App.serverstream + Util.url(url);
 			}
 			int contentLength = o.getInt("clen", 0);
 			o = null;

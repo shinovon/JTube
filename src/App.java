@@ -20,9 +20,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
 import javax.microedition.io.ConnectionNotFoundException;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
@@ -40,17 +43,18 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSONException;
+import cc.nnproject.utils.PlatformUtils;
 
 public class App implements Constants {
 	
-	public static final String ver = "r3.3";
+	public static final String ver = "r4";
 	
 	// Settings
 	public static String videoRes;
 	public static String region;
-	public static int watchMethod = 0; // 0 - platform request 1 - mmapi player
+	public static int watchMethod = 1;
 	public static String downloadDir;
-	public static String serverstream = streamphp;
+	public static String serverstream = glype;
 	public static boolean videoPreviews;
 	public static boolean searchChannels;
 	public static boolean rememberSearch;
@@ -384,13 +388,17 @@ public class App implements Constants {
 		}
 	}
 
-	public static String getVideoLink(String id, String res) throws JSONException, IOException {
+	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
 		JSONObject o = getVideoInfo(id, res);
 		String s = o.getString("url");
-		if(httpStream) {
-			s = serverstream + "?url=" + Util.url(s);
+		if(httpStream || forceProxy) {
+			s = serverstream + Util.url(s);
 		}
 		return s;
+	}
+
+	public static String getVideoLink(String id, String res) throws JSONException, IOException {
+		return getVideoLink(id, res, false);
 	}
 	
 	public static void download(final String id) {
@@ -399,7 +407,7 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		System.out.println("watch");
+		/*
 		try {
 			String url = getVideoLink(id, videoRes);
 			platReq(url);
@@ -407,70 +415,70 @@ public class App implements Constants {
 			e.printStackTrace();
 			error(null, Errors.App_watch, e);
 		}
-		/*
-		ILoader r = new ILoader() {
-			public void load() {
+		*/
+		inst.stopDoingAsyncTasks();
+		try {
+			switch (watchMethod) {
+			case 0: {
+				String url = getVideoLink(id, videoRes);
 				try {
-					switch(watchMethod) {
-					case 0: {
-						try {
-							String url = getVideoLink(id, videoRes);
-							platReq(url);
-						} catch (Exception e) {
-							e.printStackTrace();
-							error(null, Errors.App_watch, e);
-						}
-						break;
-					}
-					case 1: {
-						Player p = Manager.createPlayer(url);
-						playerCanv = new PlayerCanvas(p);
-						AppUI.display(playerCanv);
-						playerCanv.init();
-						break;
-					}
-					case 2: {
-						String file = "file:///" + downloadDir;
-						if(!file.endsWith("/") && !file.endsWith("\\")) file += "/";
-						if(PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
-							file += "watch.ram";
-						} else if(PlatformUtils.isS603rd()) {
-							file += "watch.m3u";
-						} else {
-							platReq(url);
-							break;
-						}
-						FileConnection fc = null;
-						OutputStream o = null;
-						try {
-							fc = (FileConnection) Connector.open(file);
-							if(fc.exists()) 
-								fc.delete();
-							fc.create();
-							o = fc.openDataOutputStream();
-							o.write(url.getBytes());
-							o.flush();
-						} finally {
-							try {
-								if(o != null) o.close();
-								if(fc != null) fc.close();
-							} catch (Exception e) {
-							}
-						}
-						platReq(file);
-						break;
-					}
-					}
+					platReq(url);
 				} catch (Exception e) {
 					e.printStackTrace();
 					error(null, Errors.App_watch, e);
 				}
+				break;
 			}
-		};
-		inst.addAsyncLoad(r);
-		inst.notifyAsyncTasks();
-		*/
-		inst.stopDoingAsyncTasks();
+			/*
+			case 1: {
+				Player p = Manager.createPlayer(url);
+				playerCanv = new PlayerCanvas(p);
+				AppUI.display(playerCanv);
+				playerCanv.init();
+				break;
+			}
+			*/
+			case 1: {
+				String url = getVideoLink(id, videoRes, true);
+				String file = "file:///" + downloadDir;
+				if (!file.endsWith("/") && !file.endsWith("\\"))
+					file += "/";
+				if (PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
+					file += "watch.ram";
+				} else if (PlatformUtils.isS603rd()) {
+					file += "watch.m3u";
+				} else {
+					platReq(url);
+					break;
+				}
+				System.out.println(file);
+				FileConnection fc = null;
+				OutputStream o = null;
+				try {
+					fc = (FileConnection) Connector.open(file);
+					if (fc.exists())
+						fc.delete();
+					fc.create();
+					o = fc.openDataOutputStream();
+					o.write((url).getBytes("UTF-8"));
+					o.flush();
+				} finally {
+					try {
+						if (o != null)
+							o.close();
+						if (fc != null)
+							fc.close();
+					} catch (Exception e) {
+					}
+				}
+				platReq(file);
+				break;
+			}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			error(null, Errors.App_watch, e);
+		}
 	}
 	
 	public static void gc() {

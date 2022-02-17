@@ -30,6 +30,7 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
@@ -51,7 +52,7 @@ import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
 
-public class AppUI implements CommandListener, Commands, Constants {
+public class AppUI implements CommandListener, Commands, Constants, ItemCommandListener {
 	
 	public static final Display display = Display.getDisplay(App.midlet);
 
@@ -67,6 +68,8 @@ public class AppUI implements CommandListener, Commands, Constants {
 	private Form mainForm;
 	private Form searchForm;
 	private SettingsForm settingsForm;
+	private TextField searchText;
+	private StringItem searchBtn;
 	public VideoForm videoForm;
 	public ChannelForm channelForm;
 	private Item loadingItem;
@@ -99,8 +102,17 @@ public class AppUI implements CommandListener, Commands, Constants {
 
 	public void initForm() {
 		mainForm = new Form(NAME);
+		searchText = new TextField("", "", 100, TextField.ANY);
+		searchText.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_2);
+		mainForm.append(searchText);
+		searchBtn = new StringItem(null, Locale.s(CMD_Search), StringItem.BUTTON);
+		searchBtn.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_RIGHT | Item.LAYOUT_2);
+		searchBtn.addCommand(searchCmd);
+		searchBtn.setItemCommandListener(this);
+		searchBtn.setDefaultCommand(searchCmd);
+		mainForm.append(searchBtn);
 		mainForm.setCommandListener(this);
-		mainForm.addCommand(searchCmd);
+		//mainForm.addCommand(searchCmd);
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
 		mainForm.addCommand(aboutCmd);
@@ -124,8 +136,8 @@ public class AppUI implements CommandListener, Commands, Constants {
 			app.setLoadingState("Loading trends (4)");
 			JSONArray j = (JSONArray) r;
 			try {
-				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
-					mainForm.delete(0);
+				if(mainForm.size() > 2 && mainForm.get(2) == loadingItem) {
+					mainForm.delete(2);
 				}
 			} catch (Exception e) {
 			}
@@ -532,6 +544,13 @@ public class AppUI implements CommandListener, Commands, Constants {
 		if(PlatformUtils.isSymbian94()) return 32;
 		if(PlatformUtils.isSymbian3Based()) return 20;
 		return 4;
+	}
+
+	public void commandAction(Command c, Item item) {
+		if(c == searchCmd) {
+			app.stopDoingAsyncTasks();
+			search(searchText.getString());
+		}
 	}
 
 }

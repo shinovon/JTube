@@ -122,6 +122,8 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 				init();
 			}
 			if(App.videoPreviews) video.load();
+		} catch (NullPointerException e) {
+			// ignore
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

@@ -94,5 +94,9 @@ public interface LocaleConstants {
 	public static final int SET_Tip2 = 70;
 	public static final int BTN_Playlists = 71;
 	public static final int CMD_ShowLink = 72;
+	public static final int SET_Tip3 = 73;
+	public static final int SET_PlaybackMethod = 74;
+	public static final int SET_SymbianOnline = 75;
+	public static final int SET_Browser = 76;
 
 }
