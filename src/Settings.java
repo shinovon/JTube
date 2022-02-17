@@ -60,6 +60,7 @@ public class Settings implements Constants {
 			r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
 		} catch (Exception e) {
 		}
+		
 		if(r == null) {
 			// Defaults
 			if(PlatformUtils.isJ2ML()) {
@@ -168,8 +169,13 @@ public class Settings implements Constants {
 					App.rememberSearch = j.getBoolean("rememberSearch");
 				if(j.has("httpStream"))
 					App.httpStream = j.getBoolean("httpStream");
-				if(j.has("serverstream"))
+				if(j.has("serverstream")) {
 					App.serverstream = j.getString("serverstream");
+					// replace old proxy
+					if(App.serverstream.endsWith("/stream.php")) {
+						App.serverstream = glype;
+					}
+				}
 				if(j.has("inv"))
 					App.inv = j.getString("inv");
 				if(j.has("customItems"))
@@ -186,6 +192,8 @@ public class Settings implements Constants {
 					App.searchPlaylists = j.getBoolean("searchPlaylists");
 				if(j.has("debugMemory"))
 					App.debugMemory = j.getBoolean("debugMemory");
+				if(j.has("watchMethod"))
+					App.watchMethod = j.getInt("watchMethod");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -218,6 +226,7 @@ public class Settings implements Constants {
 			j.put("customLocale", "\"" + App.customLocale + "\"");
 			j.put("searchPlaylists", new Boolean(App.searchPlaylists));
 			j.put("debugMemory", new Boolean(App.debugMemory));
+			j.put("watchMethod", new Integer(App.watchMethod));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);
@@ -228,7 +237,13 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && (PlatformUtils.isS40() || App.width < 240 || PlatformUtils.startMemory < 2048 * 1024);
+		return PlatformUtils.isNotS60() && 
+				!PlatformUtils.isS603rd() && 
+				!PlatformUtils.isS603rd() && 
+				(PlatformUtils.isS40() || 
+						App.width < 240 || 
+						PlatformUtils.startMemory < 2048 * 1024 ||
+						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
 	}
 
 }

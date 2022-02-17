@@ -109,7 +109,7 @@ public class Locale implements LocaleConstants {
 		if(loaded && table.containsKey(i)) {
 			return (String) table.get(i);
 		}
-		// Автор
+		// Author
 		if(c == 0 && !loaded) {
 			return "Shinovon";
 		}
@@ -248,6 +248,16 @@ public class Locale implements LocaleConstants {
 				return "(Leave images proxy empty if HTTPS is supported)";
 			case BTN_Playlists:
 				return "Playlists";
+			case CMD_ShowLink:
+				return "Show link";
+			case SET_Tip3:
+				return "(Always used for online playback, and for downloading if HTTP streaming is enabled)";
+			case SET_PlaybackMethod:
+				return "Playback method";
+			case SET_SymbianOnline:
+				return "Online player (Symbian/Bada)";
+			case SET_Browser:
+				return "Via browser";
 			}
 		}
 		case 1: {
@@ -384,6 +394,16 @@ public class Locale implements LocaleConstants {
 				return "(Оставьте пустым если ваше устройство поддерживает HTTPS)";
 			case BTN_Playlists:
 				return "Плейлисты";
+			case CMD_ShowLink:
+				return "Показать ссылку";
+			case SET_Tip3:
+				return "(Используется всегда при онлайн проигрывании, и для скачивания если включен HTTP стриминг)";
+			case SET_PlaybackMethod:
+				return "Способ проигрывания";
+			case SET_SymbianOnline:
+				return "Онлайн плеер (Symbian/Bada)";
+			case SET_Browser:
+				return "Через браузер";
 			}
 		}
 		}

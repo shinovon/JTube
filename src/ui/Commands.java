@@ -29,12 +29,12 @@ import LocaleConstants;
 public interface Commands extends LocaleConstants {
 	
 	// Main form commands
-	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 4);
-	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 8);
-	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 7);
-	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 2);
-	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 5);
-	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 5);
+	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 9);
+	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 6);
+	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 2);
+	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 10);
+	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 4);
+	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 4);
 	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 2);
 	
 	static final Command searchOkCmd = new Command(Locale.s(CMD_Search), Command.OK, 1);
@@ -46,7 +46,8 @@ public interface Commands extends LocaleConstants {
 	
 	// Video page commands
 	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 10);
-	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 9);
+	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 8);
+	static final Command showLinkCmd = new Command(Locale.s(CMD_ShowLink), Command.SCREEN, 6);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);
 	public static Command openPlaylistCmd = new Command(Locale.s(CMD_OpenPlaylist), Command.SCREEN, 7);
 	public static Command nextCmd = new Command(Locale.s(CMD_Next), Command.SCREEN, 6);

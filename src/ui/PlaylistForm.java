@@ -41,8 +41,6 @@ import cc.nnproject.json.JSONObject;
 public class PlaylistForm extends ModelForm implements CommandListener, Commands, Constants {
 
 	private PlaylistModel playlist;
-	
-	//private ChannelModel channel;
 
 	private Form formContainer;
 
@@ -51,10 +49,6 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 	private JSONArray vidsjson;
 
 	private VideoModel[] videos;
-
-	//private Vector vmodels = new Vector();
-
-	//private int page = 1;
 
 	public PlaylistForm(PlaylistModel p) {
 		super(p.getTitle());
@@ -88,12 +82,6 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 			App.gc();
 			try {
 				if(App.videoPreviews) {
-					/*
-					while(vmodels.size() > 0) {
-						((VideoModel) vmodels.elementAt(0)).load();
-						vmodels.removeElementAt(0);
-					}
-					*/
 					for(int i = 0; i < l && i < 20; i++) {
 						if(videos[i] == null) continue;
 						videos[i].loadImage();
@@ -118,8 +106,6 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 		v.setIndex(i);
 		v.setFormContainer(this);
 		videos[i] = v;
-		//if(App.videoPreviews) vmodels.addElement(v);
-		//if(App.videoPreviews) App.inst.addAsyncLoad(v);
 		return v.makeItemForList();
 	}
 
@@ -138,7 +124,6 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 		deleteAll();
 		playlist.disposeExtendedVars();
 		playlist = null;
-		//channel = null;
 		App.gc();
 	}
 
@@ -160,9 +145,6 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 
 	public void setFormContainer(Form form) {
 		this.formContainer = form;
-		//if(form instanceof ChannelForm) {
-		//	channel = ((ChannelForm) form).getChannel();
-		//}
 	}
 
 	public int getLength() {

@@ -44,7 +44,7 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 
-public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader, Constants {
+public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader, Constants, Runnable {
 
 	private String title;
 	private String videoId;
@@ -52,7 +52,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private String authorId;
 	private String description;
 	private int viewCount;
-	//private long published;
 	private String publishedText;
 	private int lengthSeconds;
 	private int likeCount;
@@ -75,6 +74,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	
 	private int index = -1;
 	private boolean imgLoaded;
+	
+	private byte[] tempImgBytes;
+	
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -110,13 +112,11 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			viewCount = j.getInt("viewCount", 0);
 			
 			description = j.getNullableString("description");
-			//published = j.getLong("published", 0);
 			publishedText = j.getNullableString("publishedText");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
 			if(App.videoPreviews) authorThumbnails = j.getNullableArray("authorThumbnails");
 		}
-		// это сделает парс дольше но сэкономит память
 		if(videoThumbnails != null) {
 			if(App.customItems) {
 				imageWidth = VideoItem.getImageWidth();
@@ -137,7 +137,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		return this;
 	}
 	private Item makeItem() {
-		//if(imageItem != null) return imageItem;
 		if(App.customItems) {
 			customItem = new VideoItem(this);
 			imageWidth = VideoItem.getImageWidth();
@@ -211,23 +210,16 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(thumbnailUrl == null) return;
 		if(imageItem == null && customItem == null && !extended) return;
 		try {
+			byte[] b = App.hproxy(thumbnailUrl);
 			if(App.rmsPreviews && App.customItems) {
-				if(index <= 1 && index != -1) {
-					/*if(imageItem != null) {
-						float iw = img.getWidth();
-						float ih = img.getHeight();
-						float nw = (float) imageWidth;
-						int nh = (int) (nw * (ih / iw));
-						img = ImageUtils.resize(Records.saveOrGetImage(videoId, thumbnailUrl), imageWidth, nh);
-						imageItem.setImage(img);
-					} else */if(customItem != null) {
-						customItem.setImage(customResize(Records.saveOrGetImage(videoId, thumbnailUrl)));
-					}
-				} else {
-					Records.save(videoId, thumbnailUrl);
+				tempImgBytes = b;
+				App.inst.schedule(this);
+				if(index <= 2 && index != -1) {
+					Image img = Image.createImage(b, 0, b.length);
+					App.gc();
+					customItem.setImage(customResize(img));
 				}
 			} else {
-				byte[] b = App.hproxy(thumbnailUrl);
 				Image img = Image.createImage(b, 0, b.length);
 				b = null;
 				App.gc();
@@ -275,9 +267,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 	
 	private int getImgItemWidth() {
-		//if(App.width >= 480) {
-		//	return (int) (App.height);
-		//}
 		return (int) (App.width * 2F / 3F);
 	}
 	
@@ -336,10 +325,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public int getViewCount() {
 		return viewCount;
 	}
-
-	//public long getPublished() {
-	//	return published;
-	//}
 
 	public String getPublishedText() {
 		return publishedText;
@@ -414,6 +399,14 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public int getIndex() {
 		return index;
+	}
+
+	// Cache image to RMS
+	public void run() {
+		if(tempImgBytes != null) {
+			Records.save(videoId, tempImgBytes);
+			tempImgBytes = null;
+		}
 	}
 
 }

@@ -29,6 +29,8 @@ import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
+import javax.microedition.lcdui.TextBox;
+import javax.microedition.lcdui.TextField;
 
 import App;
 import Locale;
@@ -49,8 +51,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		this.video = v;
 		setCommandListener(this);
 		addCommand(backCmd);
-		addCommand(downloadCmd);
 		addCommand(settingsCmd);
+		addCommand(showLinkCmd);
+		addCommand(downloadCmd);
 		addCommand(watchCmd);
 		if(v.isFromPlaylist()) {
 			addCommand(openPlaylistCmd);
@@ -59,7 +62,6 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
-		//addCommand(browserCmd);
 		if(v.isExtended()) {
 			init();
 		} else {
@@ -99,9 +101,12 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		Item vi = new StringItem(Locale.s(TXT_Views), Locale.views(video.getViewCount()));
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
-		//Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
-		//ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
-		//append(ld);
+		// YouTube doesn't show ratings anymore
+		/*
+		Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
+		ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		append(ld);
+		*/
 		if(video == null) return;
 		Item date = new StringItem(Locale.s(TXT_Published), video.getPublishedText());
 		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
@@ -117,6 +122,8 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 				init();
 			}
 			if(App.videoPreviews) video.load();
+		} catch (NullPointerException e) {
+			// ignore
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -125,6 +132,10 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(d instanceof TextBox) {
+			if(c == backCmd) AppUI.display(this);
+			return;
+		}
 		if(formContainer != null && video.isFromPlaylist()) {
 			if(c == openPlaylistCmd) {
 				AppUI.display(formContainer);
@@ -161,6 +172,14 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		if(c == downloadCmd) {
 			App.download(video.getVideoId());
+			return;
+		}
+		if(c == showLinkCmd) {
+			TextBox t = new TextBox("", "", 64, TextField.URL);
+			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId());
+			t.addCommand(backCmd);
+			t.setCommandListener(this);
+			AppUI.display(t);
 			return;
 		}
 		if(c == backCmd) {

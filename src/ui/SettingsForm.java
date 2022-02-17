@@ -63,6 +63,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug memory"
 			};
+	static final String[] PLAYBACK_METHODS = new String[] { 
+			Locale.s(SET_Browser),
+			Locale.s(SET_SymbianOnline)
+			};
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -75,6 +79,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private StringItem dirBtn;
 	private TextField customLocaleText;
 	private ChoiceGroup debugChoice;
+	private ChoiceGroup playMethodChoice;
 
 	private List dirList;
 	private String curDir;
@@ -96,6 +101,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(uiChoice);
 		checksChoice = new ChoiceGroup(Locale.s(SET_OtherSettings), ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
 		append(checksChoice);
+		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.EXCLUSIVE, PLAYBACK_METHODS, null);
+		append(playMethodChoice);
 		downloadDirText = new TextField(Locale.s(SET_DownloadDir), App.downloadDir, 256, TextField.URL);
 		append(downloadDirText);
 		dirBtn = new StringItem(null, "...", Item.BUTTON);
@@ -107,14 +114,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(invidiousText);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
 		append(httpProxyText);
-		append(Locale.s(SET_Tip1) + "\n");
+		append(Locale.s(SET_Tip3) + "\n");
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
 		append(Locale.s(SET_Tip2) + "\n");
 		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), App.customLocale, 8, TextField.ANY);
 		append(customLocaleText);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
-		append(debugChoice);
+		//append(debugChoice);
 	}
 	
 	public void show() {
@@ -126,6 +133,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checksChoice.setSelectedIndex(1, App.httpStream);
 		checksChoice.setSelectedIndex(2, App.rmsPreviews);
 		debugChoice.setSelectedIndex(0, App.debugMemory);
+		playMethodChoice.setSelectedIndex(App.watchMethod, true);
 		//checksChoice.setSelectedIndex(4, App.apiProxy);
 		if(App.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
@@ -180,6 +188,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			App.imgproxy = imgProxyText.getString();
 			App.customLocale = customLocaleText.getString().trim().toLowerCase();
 			App.debugMemory = debugChoice.isSelected(0);
+			App.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();

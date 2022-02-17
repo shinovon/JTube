@@ -157,4 +157,8 @@ public class PlatformUtils {
 		return os != null && os.equals("Linux") && vendor != null && vendor.equals("The Android Project");
 	}
 
+	public static boolean isSamsung() {
+		return platform.toLowerCase().startsWith("samsung");
+	}
+
 }

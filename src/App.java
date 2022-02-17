@@ -20,14 +20,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Vector;
 
+import javax.microedition.io.Connector;
 import javax.microedition.io.ConnectionNotFoundException;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.StringItem;
 
 import ui.AppUI;
 import ui.IScheduledShowHide;
@@ -39,17 +43,18 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSONException;
+import cc.nnproject.utils.PlatformUtils;
 
 public class App implements Constants {
 	
-	public static final String ver = "r3.2";
+	public static final String ver = "r4";
 	
 	// Settings
 	public static String videoRes;
 	public static String region;
-	public static int watchMethod = 0; // 0 - platform request 1 - mmapi player
+	public static int watchMethod = 1;
 	public static String downloadDir;
-	public static String serverstream = streamphp;
+	public static String serverstream = glype;
 	public static boolean videoPreviews;
 	public static boolean searchChannels;
 	public static boolean rememberSearch;
@@ -117,6 +122,8 @@ public class App implements Constants {
 
 	private int startSys;
 
+	private StringItem loadingItem;
+
 	public void schedule(Object o) {
 		if(queuedTasks.contains(o)) return;
 		queuedTasks.addElement(o);
@@ -129,34 +136,50 @@ public class App implements Constants {
 	public static int height;
 
 	public void startApp() {
-		String p = System.getProperty("com.nokia.memoryramfree");
-		if(p != null) {
-			startSys = Integer.parseInt(p)/1024;
+		loadingItem = new StringItem("", "");
+		Form f = new Form("Loading");
+		f.append(loadingItem);
+		AppUI.display(f);
+		try {
+			String p = System.getProperty("com.nokia.memoryramfree");
+			if(p != null) {
+				startSys = Integer.parseInt(p)/1024;
+			}
+		} catch (Exception e) {
 		}
+		setLoadingState("Getting device region");
 		region = System.getProperty("user.country");
 		if(region == null) {
 			region = System.getProperty("microedition.locale");
 			if(region == null) {
 				region = "US";
-			} else if(region.length() == 5) {
-				region = region.substring(3, 5);
-			} else if(region.length() > 2) {
-				region = "US";
+			} else {
+				if(region.length() == 5) {
+					region = region.substring(3, 5);
+				} else if(region.length() > 2) {
+					region = "US";
+				}
 			}
 		} else if(region.length() > 2) {
 			region = region.substring(0, 2);
 		}
 		region = region.toUpperCase();
-		v0 = new Vector();
+		setLoadingState("Testing screen size");
 		testCanvas();
+		setLoadingState("Initializing tasks thread");
+		v0 = new Vector();
 		tasksThread.setPriority(4);
 		tasksThread.start();
+		setLoadingState("Loading config");
 		Settings.loadConfig();
+		setLoadingState("Initializing locales");
 		Locale.init();
+		setLoadingState("Initializing UI");
 		initUI();
 		if(region.toLowerCase().equals("en")) {
 			region = "US";
 		}
+		setLoadingState("Initializing loader thread");
 		if(!Settings.isLowEndDevice() && asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
@@ -170,6 +193,7 @@ public class App implements Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
+		setLoadingState("Loading start page");
 		ui.loadForm();
 		if(debugMemory) {
 			Thread t = new Thread() {
@@ -205,6 +229,12 @@ public class App implements Constants {
 				}
 			};
 			t.start();
+		}
+	}
+	
+	public void setLoadingState(String s) {
+		if(loadingItem != null) {
+			loadingItem.setText(s);
 		}
 	}
 	
@@ -358,13 +388,17 @@ public class App implements Constants {
 		}
 	}
 
-	public static String getVideoLink(String id, String res) throws JSONException, IOException {
+	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
 		JSONObject o = getVideoInfo(id, res);
 		String s = o.getString("url");
-		if(httpStream) {
-			s = serverstream + "?url=" + Util.url(s);
+		if(httpStream || forceProxy) {
+			s = serverstream + Util.url(s);
 		}
 		return s;
+	}
+
+	public static String getVideoLink(String id, String res) throws JSONException, IOException {
+		return getVideoLink(id, res, false);
 	}
 	
 	public static void download(final String id) {
@@ -373,66 +407,78 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		System.out.println("watch");
-		/*ILoader r = new ILoader() {
-			public void load() {
-				// TODO other variants*/
+		/*
+		try {
+			String url = getVideoLink(id, videoRes);
+			platReq(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+			error(null, Errors.App_watch, e);
+		}
+		*/
+		inst.stopDoingAsyncTasks();
+		try {
+			switch (watchMethod) {
+			case 0: {
+				String url = getVideoLink(id, videoRes);
 				try {
-					String url = getVideoLink(id, videoRes);
-					//switch(watchMethod) {
-					//case 0: {
-						platReq(url);
-						//break;
-					/*}
-					case 1: {
-						Player p = Manager.createPlayer(url);
-						playerCanv = new PlayerCanvas(p);
-						AppUI.display(playerCanv);
-						playerCanv.init();
-						break;
-					}
-					case 2: {
-						String file = "file:///" + downloadDir;
-						if(!file.endsWith("/") && !file.endsWith("\\")) file += "/";
-						if(PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
-							file += "watch.ram";
-						} else if(PlatformUtils.isS603rd()) {
-							file += "watch.m3u";
-						} else {
-							platReq(url);
-							break;
-						}
-						FileConnection fc = null;
-						OutputStream o = null;
-						try {
-							fc = (FileConnection) Connector.open(file);
-							if(fc.exists()) 
-								fc.delete();
-							fc.create();
-							o = fc.openDataOutputStream();
-							o.write(url.getBytes());
-							o.flush();
-						} finally {
-							try {
-								if(o != null) o.close();
-								if(fc != null) fc.close();
-							} catch (Exception e) {
-							}
-						}
-						platReq(file);
-						break;
-					}
-					}*/
+					platReq(url);
 				} catch (Exception e) {
 					e.printStackTrace();
 					error(null, Errors.App_watch, e);
 				}
-			/*}
-		};
-		inst.addAsyncLoad(r);
-		inst.notifyAsyncTasks();
-		*/
-		inst.stopDoingAsyncTasks();
+				break;
+			}
+			/*
+			case 1: {
+				Player p = Manager.createPlayer(url);
+				playerCanv = new PlayerCanvas(p);
+				AppUI.display(playerCanv);
+				playerCanv.init();
+				break;
+			}
+			*/
+			case 1: {
+				String url = getVideoLink(id, videoRes, true);
+				String file = "file:///" + downloadDir;
+				if (!file.endsWith("/") && !file.endsWith("\\"))
+					file += "/";
+				if (PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
+					file += "watch.ram";
+				} else if (PlatformUtils.isS603rd()) {
+					file += "watch.m3u";
+				} else {
+					platReq(url);
+					break;
+				}
+				System.out.println(file);
+				FileConnection fc = null;
+				OutputStream o = null;
+				try {
+					fc = (FileConnection) Connector.open(file);
+					if (fc.exists())
+						fc.delete();
+					fc.create();
+					o = fc.openDataOutputStream();
+					o.write((url).getBytes("UTF-8"));
+					o.flush();
+				} finally {
+					try {
+						if (o != null)
+							o.close();
+						if (fc != null)
+							fc.close();
+					} catch (Exception e) {
+					}
+				}
+				platReq(file);
+				break;
+			}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			error(null, Errors.App_watch, e);
+		}
 	}
 	
 	public static void gc() {
@@ -495,7 +541,6 @@ public class App implements Constants {
 
 	private void testCanvas() {
 		Canvas c = new TestCanvas();
-		//Display.getDisplay(midlet).setCurrent(c);
 		width = c.getWidth();
 		height = c.getHeight();
 	}

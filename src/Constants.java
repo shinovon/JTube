@@ -24,10 +24,9 @@ import cc.nnproject.utils.PlatformUtils;
 public interface Constants {
 	
 	// urls
-	static final String getlinksphp = "http://nnproject.cc/getlinks.php";
 	static final String hproxy = "http://nnproject.cc/hproxy.php?";
 	static final String iteroni = "http://iteroni.com/";
-	static final String streamphp = "http://nnproject.cc/stream.php";
+	static final String glype = "http://nnproject.cc/glype/browse.php?u=";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
