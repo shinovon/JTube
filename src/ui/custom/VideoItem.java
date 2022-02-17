@@ -57,13 +57,7 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	private Object showmsg = new Object[] {this, new Boolean(true)};
 	private Object hidemsg = new Object[] {this, new Boolean(false)};
 
-	//private boolean shown = true;
-
 	private boolean shown;
-
-	//private static int count = 0;
-
-	//private int id = count++;
 
 	public VideoItem(VideoModel v) {
 		super(v);
@@ -171,13 +165,11 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	}
 
 	protected int getPrefContentHeight(int i) {
-		//if(w > 1) return (w * 9 / 16) + getTextHeight();
 		return getMinContentHeight();
 	}
 
 	protected int getPrefContentWidth(int i) {
 		if(PlatformUtils.isKemulator) return i;
-		//if(h > 1) return (h * 16 / 9) + getTextHeight();
 		return getMinContentWidth();
 	}
 
@@ -202,13 +194,8 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	}
 	
 	protected void showNotify() {
-		//if(!drawn && !preShown) {
-		//	preShown = true;
-		//	return;
-		//}
 		if(shown) return;
 		shown = true;
-		//System.out.println("showNotify " + toString());
 		if(App.rmsPreviews) {
 			App.inst.schedule(showmsg);
 		}
@@ -217,7 +204,6 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	protected void hideNotify() {
 		if(!shown) return;
 		shown = false;
-		//System.out.println("hideNotify " + toString());
 		if(App.rmsPreviews) {
 			App.inst.schedule(hidemsg);
 		}
@@ -288,15 +274,12 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 
 	public void show() {
 		if(img != null) return;
-		//shown = true;
 		try {
 			if(!drawn) return;
 			Image img = Records.saveOrGetImage(video.getVideoId(), null);
 			if(img == null) {
-				//System.out.println("img null " + toString());
 				return;
 			}
-			//System.out.println("img " + VideoItem.this.toString());
 			setImage(video.customResize(img));
 		} catch (Exception e) {
 		}
@@ -306,18 +289,11 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	public void hide() {
 		if(shown) return;
 		if(img == null) return;
-		//System.out.println("hide " + toString());
-		//shown = false;
 		try {
 			if(!drawn) return;
 			disposeImage();
 		} catch (Exception e) {
 		}
 	}
-	
-	//public String toString() {
-	//	if(titleArr != null) return titleArr[0];
-	//	return "VI" + id ;
-	//}
 
 }

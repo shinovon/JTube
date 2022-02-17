@@ -62,7 +62,6 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER | Item.LAYOUT_2);
-		//addCommand(browserCmd);
 		if(v.isExtended()) {
 			init();
 		} else {
@@ -102,9 +101,12 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		Item vi = new StringItem(Locale.s(TXT_Views), Locale.views(video.getViewCount()));
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(vi);
-		//Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
-		//ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
-		//append(ld);
+		// YouTube doesn't show ratings anymore
+		/*
+		Item ld = new StringItem(Locale.s(TXT_LikesDislikes), "" + video.getLikeCount() + " / " + video.getDislikeCount());
+		ld.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		append(ld);
+		*/
 		if(video == null) return;
 		Item date = new StringItem(Locale.s(TXT_Published), video.getPublishedText());
 		date.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);

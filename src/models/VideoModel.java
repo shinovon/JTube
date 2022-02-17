@@ -52,7 +52,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private String authorId;
 	private String description;
 	private int viewCount;
-	//private long published;
 	private String publishedText;
 	private int lengthSeconds;
 	private int likeCount;
@@ -113,13 +112,11 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			viewCount = j.getInt("viewCount", 0);
 			
 			description = j.getNullableString("description");
-			//published = j.getLong("published", 0);
 			publishedText = j.getNullableString("publishedText");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
 			if(App.videoPreviews) authorThumbnails = j.getNullableArray("authorThumbnails");
 		}
-		// это сделает парс дольше но сэкономит память
 		if(videoThumbnails != null) {
 			if(App.customItems) {
 				imageWidth = VideoItem.getImageWidth();
@@ -140,7 +137,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		return this;
 	}
 	private Item makeItem() {
-		//if(imageItem != null) return imageItem;
 		if(App.customItems) {
 			customItem = new VideoItem(this);
 			imageWidth = VideoItem.getImageWidth();
@@ -271,9 +267,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	}
 	
 	private int getImgItemWidth() {
-		//if(App.width >= 480) {
-		//	return (int) (App.height);
-		//}
 		return (int) (App.width * 2F / 3F);
 	}
 	
@@ -332,10 +325,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public int getViewCount() {
 		return viewCount;
 	}
-
-	//public long getPublished() {
-	//	return published;
-	//}
 
 	public String getPublishedText() {
 		return publishedText;

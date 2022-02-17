@@ -109,7 +109,7 @@ public class Locale implements LocaleConstants {
 		if(loaded && table.containsKey(i)) {
 			return (String) table.get(i);
 		}
-		// Автор
+		// Author
 		if(c == 0 && !loaded) {
 			return "Shinovon";
 		}

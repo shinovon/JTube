@@ -21,8 +21,6 @@ SOFTWARE.
 */
 package models;
 
-import java.io.IOException;
-
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
@@ -34,7 +32,6 @@ import Locale;
 import ui.AppUI;
 import ui.ModelForm;
 import ui.PlaylistForm;
-import InvidiousException;
 import ui.custom.PlaylistItem;
 import cc.nnproject.json.JSONObject;
 
@@ -51,8 +48,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	private String authorId;
 	private int videoCount;
 	
-	//private VideoModel[] videos;
-	
 	private PlaylistItem customItem;
 
 	private Form formContainer;
@@ -68,7 +63,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	public PlaylistModel(JSONObject j, Form form, ChannelModel channel) {
 		this(j, false);
 		this.formContainer = form;
-		//this.channel = channel;
 		authorId = channel.getAuthorId();
 	}
 
@@ -79,25 +73,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 		author = o.getNullableString("author");
 		authorId = o.getNullableString("authorId");
 		videoCount = o.getInt("videoCount", 0);
-		/*
-		if(extended) {
-			JSONArray vids = o.getNullableArray("videos");
-			if(vids != null) {
-				int l = vids.size();
-				this.videos = new VideoModel[l];
-				for(int i = 0; i < l; i++) {
-					this.videos[i] = new VideoModel(vids.getObject(i));
-				}
-			}
-		}
-		*/
-	}
-	
-	public PlaylistModel extend() throws InvidiousException, IOException {
-		/*if(!extended) {
-			parse((JSONObject) App.invApi("v1/playlists/" + playlistId, PLAYLIST_EXTENDED_FIELDS + "&page=" + page), true);
-		}*/
-		return this;
 	}
 
 	public void load() {
@@ -138,7 +113,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	}
 
 	public void disposeExtendedVars() {
-	//	videos = null;
 		extended = false;
 	}
 

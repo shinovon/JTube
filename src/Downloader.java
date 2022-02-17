@@ -89,7 +89,7 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 			}
 			int contentLength = o.getInt("clen", 0);
 			o = null;
-			// подождать
+			// wait
 			Thread.sleep(500);
 			fc = (FileConnection) Connector.open(file, Connector.READ_WRITE);
 			

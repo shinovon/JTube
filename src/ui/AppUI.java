@@ -67,8 +67,6 @@ public class AppUI implements CommandListener, Commands, Constants {
 	private Form mainForm;
 	private Form searchForm;
 	private SettingsForm settingsForm;
-	//private TextField searchText;
-	//private StringItem searchBtn;
 	public VideoForm videoForm;
 	public ChannelForm channelForm;
 	private Item loadingItem;
@@ -101,16 +99,6 @@ public class AppUI implements CommandListener, Commands, Constants {
 
 	public void initForm() {
 		mainForm = new Form(NAME);
-		/*
-		searchText = new TextField("", "", 256, TextField.ANY);
-		searchText.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_2);
-		mainForm.append(searchText);
-		searchBtn = new StringItem(null, "Поиск", StringItem.BUTTON);
-		searchBtn.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_RIGHT | Item.LAYOUT_2);
-		searchBtn.addCommand(searchCmd);
-		searchBtn.setDefaultCommand(searchCmd);
-		mainForm.append(searchBtn);
-		*/
 		mainForm.setCommandListener(this);
 		mainForm.addCommand(searchCmd);
 		mainForm.addCommand(idCmd);

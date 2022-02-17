@@ -25,6 +25,7 @@ import javax.microedition.media.MediaException;
 import javax.microedition.media.Player;
 import javax.microedition.media.control.VideoControl;
 
+//TODO
 public class PlayerCanvas extends Canvas {
 
 	private Player p;

@@ -400,16 +400,28 @@ public class App implements Constants {
 	
 	public static void watch(final String id) {
 		System.out.println("watch");
-		/*ILoader r = new ILoader() {
+		try {
+			String url = getVideoLink(id, videoRes);
+			platReq(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+			error(null, Errors.App_watch, e);
+		}
+		/*
+		ILoader r = new ILoader() {
 			public void load() {
-				// TODO other variants*/
 				try {
-					String url = getVideoLink(id, videoRes);
-					//switch(watchMethod) {
-					//case 0: {
-						platReq(url);
-						//break;
-					/*}
+					switch(watchMethod) {
+					case 0: {
+						try {
+							String url = getVideoLink(id, videoRes);
+							platReq(url);
+						} catch (Exception e) {
+							e.printStackTrace();
+							error(null, Errors.App_watch, e);
+						}
+						break;
+					}
 					case 1: {
 						Player p = Manager.createPlayer(url);
 						playerCanv = new PlayerCanvas(p);
@@ -448,12 +460,12 @@ public class App implements Constants {
 						platReq(file);
 						break;
 					}
-					}*/
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 					error(null, Errors.App_watch, e);
 				}
-			/*}
+			}
 		};
 		inst.addAsyncLoad(r);
 		inst.notifyAsyncTasks();
@@ -521,7 +533,6 @@ public class App implements Constants {
 
 	private void testCanvas() {
 		Canvas c = new TestCanvas();
-		//Display.getDisplay(midlet).setCurrent(c);
 		width = c.getWidth();
 		height = c.getHeight();
 	}
