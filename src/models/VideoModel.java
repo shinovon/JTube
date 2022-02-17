@@ -44,7 +44,7 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 
-public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader, Constants {
+public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader, Constants, Runnable {
 
 	private String title;
 	private String videoId;
@@ -75,6 +75,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	
 	private int index = -1;
 	private boolean imgLoaded;
+	
+	private byte[] tempImgBytes;
+	
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -211,23 +214,16 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(thumbnailUrl == null) return;
 		if(imageItem == null && customItem == null && !extended) return;
 		try {
+			byte[] b = App.hproxy(thumbnailUrl);
 			if(App.rmsPreviews && App.customItems) {
-				if(index <= 1 && index != -1) {
-					/*if(imageItem != null) {
-						float iw = img.getWidth();
-						float ih = img.getHeight();
-						float nw = (float) imageWidth;
-						int nh = (int) (nw * (ih / iw));
-						img = ImageUtils.resize(Records.saveOrGetImage(videoId, thumbnailUrl), imageWidth, nh);
-						imageItem.setImage(img);
-					} else */if(customItem != null) {
-						customItem.setImage(customResize(Records.saveOrGetImage(videoId, thumbnailUrl)));
-					}
-				} else {
-					Records.save(videoId, thumbnailUrl);
+				tempImgBytes = b;
+				App.inst.schedule(this);
+				if(index <= 2 && index != -1) {
+					Image img = Image.createImage(b, 0, b.length);
+					App.gc();
+					customItem.setImage(customResize(img));
 				}
 			} else {
-				byte[] b = App.hproxy(thumbnailUrl);
 				Image img = Image.createImage(b, 0, b.length);
 				b = null;
 				App.gc();
@@ -414,6 +410,14 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public int getIndex() {
 		return index;
+	}
+
+	// Cache image to RMS
+	public void run() {
+		if(tempImgBytes != null) {
+			Records.save(videoId, tempImgBytes);
+			tempImgBytes = null;
+		}
 	}
 
 }

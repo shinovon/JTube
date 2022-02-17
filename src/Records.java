@@ -26,6 +26,18 @@ import javax.microedition.rms.RecordStore;
 
 public class Records {
 	
+	public static void save(String id, byte[] b) {
+		try {
+			RecordStore rs = RecordStore.openRecordStore(id, true);
+			if(rs.getNumRecords() <= 0) {
+				rs.addRecord(b, 0, b.length);
+			}
+			rs.closeRecordStore();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void save(String id, String url) {
 		try {
 			RecordStore rs = RecordStore.openRecordStore(id, true);
