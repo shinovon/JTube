@@ -63,7 +63,5 @@ public interface Commands extends LocaleConstants {
 	public static Command vOpenChannelCmd = new Command(Locale.s(CMD_ViewChannel), Command.ITEM, 4);
 	
 	public static Command cVideosCmd = new Command(Locale.s(CMD_Videos), Command.ITEM, 3);
-	
-	public static Command qrCmd = new Command("qr scan", Command.SCREEN, 1);
 
 }

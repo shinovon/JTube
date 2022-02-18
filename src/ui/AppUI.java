@@ -30,7 +30,6 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
@@ -52,7 +51,7 @@ import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
 
-public class AppUI implements CommandListener, Commands, Constants, ItemCommandListener {
+public class AppUI implements CommandListener, Commands, Constants {
 	
 	public static final Display display = Display.getDisplay(App.midlet);
 
@@ -68,8 +67,8 @@ public class AppUI implements CommandListener, Commands, Constants, ItemCommandL
 	private Form mainForm;
 	private Form searchForm;
 	private SettingsForm settingsForm;
-	private TextField searchText;
-	private StringItem searchBtn;
+	//private TextField searchText;
+	//private StringItem searchBtn;
 	public VideoForm videoForm;
 	public ChannelForm channelForm;
 	private Item loadingItem;
@@ -102,6 +101,7 @@ public class AppUI implements CommandListener, Commands, Constants, ItemCommandL
 
 	public void initForm() {
 		mainForm = new Form(NAME);
+		/*
 		searchText = new TextField("", "", 100, TextField.ANY);
 		searchText.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_2);
 		mainForm.append(searchText);
@@ -111,8 +111,9 @@ public class AppUI implements CommandListener, Commands, Constants, ItemCommandL
 		searchBtn.setItemCommandListener(this);
 		searchBtn.setDefaultCommand(searchCmd);
 		mainForm.append(searchBtn);
+		*/
 		mainForm.setCommandListener(this);
-		//mainForm.addCommand(searchCmd);
+		mainForm.addCommand(searchCmd);
 		mainForm.addCommand(idCmd);
 		mainForm.addCommand(settingsCmd);
 		mainForm.addCommand(aboutCmd);
@@ -544,13 +545,6 @@ public class AppUI implements CommandListener, Commands, Constants, ItemCommandL
 		if(PlatformUtils.isSymbian94()) return 32;
 		if(PlatformUtils.isSymbian3Based()) return 20;
 		return 4;
-	}
-
-	public void commandAction(Command c, Item item) {
-		if(c == searchCmd) {
-			app.stopDoingAsyncTasks();
-			search(searchText.getString());
-		}
 	}
 
 }
