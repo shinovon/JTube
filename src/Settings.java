@@ -113,6 +113,7 @@ public class Settings implements Constants {
 						downloadDir = downloadDir.substring("file:///".length());
 					App.downloadDir = downloadDir;
 				}
+				App.watchMethod = PlatformUtils.isSymbianTouch() || PlatformUtils.isBada() || PlatformUtils.isS603rd() ? 1 : 0;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					App.httpStream = true;

@@ -449,6 +449,7 @@ public class App implements Constants {
 					file += "watch.m3u";
 				} else {
 					platReq(url);
+					platReq(url);
 					break;
 				}
 				System.out.println(file);
