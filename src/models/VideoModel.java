@@ -33,6 +33,7 @@ import javax.microedition.lcdui.StringItem;
 
 import App;
 import Records;
+import Settings;
 import Constants;
 import ui.AppUI;
 import ui.ModelForm;
@@ -212,12 +213,24 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
 			if(App.rmsPreviews && App.customItems) {
-				tempImgBytes = b;
-				App.inst.schedule(this);
-				if(index <= 2 && index != -1) {
-					Image img = Image.createImage(b, 0, b.length);
-					App.gc();
-					customItem.setImage(customResize(img));
+				if(Settings.isLowEndDevice()) {
+					Records.save(videoId, b);
+					if(index <= 1 && index != -1) {
+						Image img = Image.createImage(b, 0, b.length);
+						b = null;
+						App.gc();
+						customItem.setImage(customResize(img));
+					}
+					b = null;
+				} else {
+					tempImgBytes = b;
+					
+					App.inst.schedule(this);
+					if(index <= 2 && index != -1) {
+						Image img = Image.createImage(b, 0, b.length);
+						App.gc();
+						customItem.setImage(customResize(img));
+					}
 				}
 			} else {
 				Image img = Image.createImage(b, 0, b.length);
