@@ -137,8 +137,8 @@ public class AppUI implements CommandListener, Commands, Constants {
 			app.setLoadingState("Loading trends (4)");
 			JSONArray j = (JSONArray) r;
 			try {
-				if(mainForm.size() > 2 && mainForm.get(2) == loadingItem) {
-					mainForm.delete(2);
+				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
+					mainForm.delete(0);
 				}
 			} catch (Exception e) {
 			}

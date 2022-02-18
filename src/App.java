@@ -47,7 +47,7 @@ import cc.nnproject.utils.PlatformUtils;
 
 public class App implements Constants {
 	
-	public static final String ver = "r4";
+	public static final String ver = "r4.1";
 	
 	// Settings
 	public static String videoRes;
