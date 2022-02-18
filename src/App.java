@@ -448,7 +448,7 @@ public class App implements Constants {
 				} else if (PlatformUtils.isS603rd()) {
 					file += "watch.m3u";
 				} else {
-					platReq(url);
+					App.watchMethod = 0;
 					platReq(url);
 					break;
 				}
