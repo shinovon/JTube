@@ -1,5 +1,8 @@
 # JTube
 Youtube client based on Invidious API for Java devices with MIDP 2.0 support
+
+JTube Lite:
+https://github.com/shinovon/JTubeLite
 ## Building
 
 ```
@@ -31,7 +34,10 @@ Then press "Finish"<br>
 Builded JAR & JAD files will appear at \<project path\>/deployed/S40_5th_Edition_SDK/
 
 ## Setting up your own server
-stream.php (HTTP Streaming proxy):
+Glype proxy:
+https://github.com/vincentclee/glype
+
+stream.php (HTTP Streaming proxy for older versions):
 https://github.com/Athlon1600/youtube-downloader
 
 hproxy.php (Image proxy):
