@@ -69,7 +69,6 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 		}
 		try {
 			int l = vidsjson.size();
-			System.out.println(l);
 			App.gc();
 			videos = new VideoModel[l];
 			for(int i = 0; i < l; i++) {

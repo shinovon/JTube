@@ -29,6 +29,8 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
@@ -122,7 +124,9 @@ public class App implements Constants {
 
 	private int startSys;
 
+	public static Form loadingForm;
 	private StringItem loadingItem;
+	private Command loadingExitCmd;
 
 	public void schedule(Object o) {
 		if(queuedTasks.contains(o)) return;
@@ -136,10 +140,20 @@ public class App implements Constants {
 	public static int height;
 
 	public void startApp() {
+		loadingForm = new Form("Loading");
 		loadingItem = new StringItem("", "");
-		Form f = new Form("Loading");
-		f.append(loadingItem);
-		AppUI.display(f);
+		loadingForm.append(loadingItem);
+		loadingForm.addCommand(loadingExitCmd = new Command("Exit", Command.EXIT, 0));
+		loadingForm.setCommandListener(new CommandListener() {
+
+			public void commandAction(Command c, Displayable d) {
+				if(c == loadingExitCmd) {
+					midlet.notifyDestroyed();
+				}
+			}
+			
+		});
+		AppUI.display(loadingForm);
 		try {
 			String p = System.getProperty("com.nokia.memoryramfree");
 			if(p != null) {
@@ -271,11 +285,9 @@ public class App implements Constants {
 		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
 			if(((JSONObject) res).has("code")) {
-				System.out.println(res.toString());
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, dbg);
 			}
 			if(((JSONObject) res).has("error")) {
-				System.out.println(res.toString());
 				throw new InvidiousException((JSONObject) res, null, url, dbg);
 			}
 		} else {
@@ -452,7 +464,6 @@ public class App implements Constants {
 					platReq(url);
 					break;
 				}
-				System.out.println(file);
 				FileConnection fc = null;
 				OutputStream o = null;
 				try {

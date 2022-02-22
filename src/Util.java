@@ -138,7 +138,12 @@ public class Util implements Constants {
 	}
 	
 	public static String getUtf(String url) throws IOException {
-		return new String(get(url), "UTF-8");
+		byte[] b = get(url);
+		try {
+			return new String(b, "UTF-8");
+		} catch (Exception e) {
+			return new String(b);
+		}
 	}
 	
 	public static String url(String url) {
