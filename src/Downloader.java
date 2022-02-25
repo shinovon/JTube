@@ -108,7 +108,10 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 				r = hc.getResponseCode();
 			} catch (IOException e) {
 				info(Locale.s(TXT_Waiting));
-				hc.close();
+				try {
+					hc.close();
+				} catch (Exception e2) {
+				}
 				Thread.sleep(2000);
 				info("Connection retry");
 				hc = (HttpConnection) Connector.open(url);

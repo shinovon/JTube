@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -40,7 +40,7 @@ public class Util implements Constants {
 		}
 		ByteArrayOutputStream o = null;
 		HttpConnection hc = null;
-		DataInputStream in = null;
+		InputStream in = null;
 		try {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
@@ -70,7 +70,7 @@ public class Util implements Constants {
 				}
 			}
 			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
-			in = hc.openDataInputStream();
+			in = hc.openInputStream();
 			/*
 			int s = 0;
 			

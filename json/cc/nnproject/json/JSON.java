@@ -59,74 +59,24 @@ public final class JSON {
 			} else if (first == '"') {
 				// String
 				str = str.substring(1, str.length() - 1);
+				char[] chars = str.toCharArray();
+				str = null;
 				try {
-					int l = str.length();
+					int l = chars.length;
 					StringBuffer sb = new StringBuffer();
 					int i = 0;
 					// Parse string escape chars
 					loop: {
 						while (i < l) {
-							char c = str.charAt(i);
+							char c = chars[i];
 							switch (c) {
-							/*
-							case '&': {
-								next: {
-									replaced: {
-										if(str.length() < i + 1) {
-											sb.append(c);
-											break loop;
-										}
-										try {
-											switch (str.charAt(i + 1)) {
-											case 'a':
-												if(str.charAt(i + 2) == 'm' && str.charAt(i + 3) == 'p' && str.charAt(i + 4) == ';') {
-													i += 5;
-													sb.append('&');
-													break replaced;
-												}
-												break next;
-											case 'l':
-												if(str.charAt(i + 2) == 't' && str.charAt(i + 3) == ';') {
-													i += 4;
-													sb.append('<');
-													break replaced;
-												}
-												break next;
-											case 'g':
-												if(str.charAt(i + 2) == 't' && str.charAt(i + 3) == ';') {
-													i += 4;
-													sb.append('>');
-													break replaced;
-												}
-												break next;
-											case 'q':
-												if(str.charAt(i + 2) == 'u' && str.charAt(i + 3) == 'o' && str.charAt(i + 4) == 't' && str.charAt(i + 5) == ';') {
-													i += 6;
-													sb.append('\"');
-													break replaced;
-												}
-												break next;
-											default:
-												break next;
-											}
-										} catch (Exception e) {
-											break next;
-										}
-									}
-									break;
-								}
-								sb.append(c);
-								i++;
-								break;
-							}
-							*/
 							case '<' : {
-								if(str.length() < i + 1) {
+								if(l < i + 1) {
 									sb.append(c);
 									break loop;
 								}
 								try {
-									if(str.charAt(i + 2) == 'b' && str.charAt(i + 3) == 'r' && str.charAt(i + 4) == '>') {
+									if(chars[i + 1] == 'b' && chars[i + 2] == 'r' && chars[i + 3] == '>') {
 										i += 4;
 										break;
 									}
@@ -139,20 +89,20 @@ public final class JSON {
 							case '\\': {
 								next: {
 									replaced: {
-										if(str.length() < i + 1) {
+										if(l < i + 1) {
 											sb.append(c);
 											break loop;
 										}
-										char c1 = str.charAt(i + 1);
+										char c1 = chars[i + 1];
 										switch (c1) {
 										case 'u':
-											i++;
-											String u = "" + str.charAt(i++) + str.charAt(i++) + str.charAt(i++) + str.charAt(i++);
+											i+=2;
+											String u = "" + chars[i++] + chars[i++] + chars[i++] + chars[i++];
 											sb.append((char) Integer.parseInt(u, 16));
 											break replaced;
 										case 'x':
-											i++;
-											String x = "" + str.charAt(i++) + str.charAt(i++);
+											i+=2;
+											String x = "" + chars[i++] + chars[i++];
 											sb.append((char) Integer.parseInt(x, 16));
 											break replaced;
 										case 'n':
@@ -199,6 +149,7 @@ public final class JSON {
 						}
 					}
 					str = sb.toString();
+					sb = null;
 				} catch (Exception e) {
 				}
 
