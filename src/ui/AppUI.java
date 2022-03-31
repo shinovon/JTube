@@ -490,6 +490,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		if(form instanceof VideoForm) {
 			ui.videoForm = (VideoForm) form;
 		} else if(form instanceof ChannelForm) {
+			ui.videoForm = null;
 			ui.channelForm = (ChannelForm) form;
 		}
 		if(formContainer != null) {
