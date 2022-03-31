@@ -29,6 +29,7 @@ import javax.microedition.io.HttpConnection;
 public class Util implements Constants {
 	
 	private final static boolean b = false;
+	private static int buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
 
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
@@ -71,24 +72,11 @@ public class Util implements Constants {
 			}
 			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
-			/*
-			int s = 0;
-			
-			try {
-				s = (int) hc.getLength();
-			} catch (Exception e) {
-			}
-			if(s > 0) {
-				byte[] b = new byte[s];
-				i.readFully(b);
-				return b;
-			}
-			s = 16384;
-			*/
-			int i = 0;
+			System.out.println("available: " + in.available());
+			//int i = 0;
 			int read;
 			o = new ByteArrayOutputStream();
-			if(b) {
+			/*if(b) {
 				read = in.read();
 				while(read != -1) {
 					o.write(read);
@@ -100,23 +88,10 @@ public class Util implements Constants {
 					read = in.read();
 				}
 				return o.toByteArray();
-			}
-			byte[] b = new byte[16384];
-			/*int c;
-			while ((c = i.read(b)) != -1) {
-				o.write(b, 0, c);
 			}*/
+			byte[] b = new byte[buffer_size];
 			while((read = in.read(b)) != -1) {
 				o.write(b, 0, read);
-				if(i++ % 4 == 0) {
-					if(isLoader) {
-						if(il.checkInterrupted()) {
-							throw new RuntimeException("loader interrupt");
-						}
-					} else {
-						Thread.sleep(1);
-					}
-				}
 			}
 			return o.toByteArray();
 		} catch (InterruptedException e) {
