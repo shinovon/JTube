@@ -24,10 +24,10 @@ import cc.nnproject.utils.PlatformUtils;
 public interface Constants {
 	
 	// urls
-	static final String hproxy = "http://nnproject.cc/hproxy.php?";
+	static final String hproxy = "http://nnp.nnchan.ru/hproxy.php?";
 	static final String iteroni = "http://iteroni.com/";
-	static final String stream = "http://nnproject.cc/stream.php?url=";
-	static final String glype = "http://nnproject.cc/glype/browse.php?u=";
+	static final String stream = "http://nnp.nnchan.ru/stream.php?url=";
+	static final String glype = "http://nnp.nnchan.ru/glype/browse.php?u=";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	

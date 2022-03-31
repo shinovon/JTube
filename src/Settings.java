@@ -132,7 +132,6 @@ public class Settings implements Constants {
 					}
 					if(PlatformUtils.isSymbian3Based()) {
 						App.asyncLoading = true;
-						
 					}
 					App.rememberSearch = true;
 					App.searchChannels = true;
@@ -206,6 +205,13 @@ public class Settings implements Constants {
 					App.asyncLoading = j.getBoolean("asyncLoading");
 				if(j.has("downloadBuffer"))
 					App.downloadBuffer = j.getInt("downloadBuffer");
+				if((App.serverstream != null && App.serverstream.indexOf("nnproject.cc") != -1)
+						|| (App.imgproxy != null && App.imgproxy.indexOf("nnproject.cc") != -1)) {
+					if(App.serverstream != null)
+						App.serverstream = Util.replace(App.serverstream, "nnproject.cc", "nnp.nnchan.ru");
+					if(App.imgproxy != null)
+						App.imgproxy = Util.replace(App.imgproxy, "nnproject.cc", "nnp.nnchan.ru");
+				}
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
