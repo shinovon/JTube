@@ -28,7 +28,6 @@ import javax.microedition.io.HttpConnection;
 
 public class Util implements Constants {
 	
-	private final static boolean b = false;
 	private static int buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
 
 	public static byte[] get(String url) throws IOException {
@@ -46,7 +45,6 @@ public class Util implements Constants {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
-			//hc.setRequestProperty("Accept-Encoding", "identity");
 			if(isLoader) {
 				if(il.checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");
@@ -72,23 +70,8 @@ public class Util implements Constants {
 			}
 			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
-			System.out.println("available: " + in.available());
-			//int i = 0;
 			int read;
 			o = new ByteArrayOutputStream();
-			/*if(b) {
-				read = in.read();
-				while(read != -1) {
-					o.write(read);
-					if(i++ % 2000 == 0 && isLoader) {
-						if(il.checkInterrupted()) {
-							throw new RuntimeException("loader interrupt");
-						}
-					}
-					read = in.read();
-				}
-				return o.toByteArray();
-			}*/
 			byte[] b = new byte[buffer_size];
 			while((read = in.read(b)) != -1) {
 				o.write(b, 0, read);

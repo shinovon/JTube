@@ -69,14 +69,14 @@ public class App implements Constants {
 	public static boolean searchPlaylists;
 	public static String customLocale;
 	public static boolean debugMemory;
+	public static int downloadBuffer = 1024;
+	public static boolean asyncLoading;
 	
 	public static App inst;
 	public static App2 midlet;
 	private AppUI ui;
 	
 	//private static PlayerCanvas playerCanv;
-
-	public static boolean asyncLoading;
 	
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
@@ -126,7 +126,6 @@ public class App implements Constants {
 
 	public static Form loadingForm;
 	private StringItem loadingItem;
-	private Command loadingExitCmd;
 
 	public void schedule(Object o) {
 		if(queuedTasks.contains(o)) return;
@@ -143,13 +142,19 @@ public class App implements Constants {
 		loadingForm = new Form("Loading");
 		loadingItem = new StringItem("", "");
 		loadingForm.append(loadingItem);
-		loadingForm.addCommand(loadingExitCmd = new Command("Exit", Command.EXIT, 0));
+		final Command loadingExitCmd;
+		loadingForm.addCommand(loadingExitCmd = new Command("Exit", Command.EXIT, 1));
+		//final Command loadingSetsCmd;
+		//loadingForm.addCommand(loadingSetsCmd = new Command("Settings", Command.SCREEN, 1));
 		loadingForm.setCommandListener(new CommandListener() {
 
 			public void commandAction(Command c, Displayable d) {
 				if(c == loadingExitCmd) {
 					midlet.notifyDestroyed();
 				}
+				/*if(c == loadingSetsCmd) {
+					
+				}*/
 			}
 			
 		});

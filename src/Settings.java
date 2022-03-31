@@ -125,7 +125,9 @@ public class Settings implements Constants {
 					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
 						App.httpStream = true;
 						App.asyncLoading = false;
+						App.downloadBuffer = 4 * 1024;
 					} else {
+						App.downloadBuffer = 32 * 1024;
 						App.asyncLoading = true;
 					}
 					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
@@ -195,6 +197,10 @@ public class Settings implements Constants {
 					App.debugMemory = j.getBoolean("debugMemory");
 				if(j.has("watchMethod"))
 					App.watchMethod = j.getInt("watchMethod");
+				if(j.has("asyncLoading"))
+					App.asyncLoading = j.getBoolean("asyncLoading");
+				if(j.has("downloadBuffer"))
+					App.downloadBuffer = j.getInt("downloadBuffer");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -228,6 +234,8 @@ public class Settings implements Constants {
 			j.put("searchPlaylists", new Boolean(App.searchPlaylists));
 			j.put("debugMemory", new Boolean(App.debugMemory));
 			j.put("watchMethod", new Integer(App.watchMethod));
+			j.put("asyncLoading", new Boolean(App.asyncLoading));
+			j.put("downloadBuffer", new Integer(App.downloadBuffer));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

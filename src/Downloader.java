@@ -140,12 +140,7 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 			in = hc.openInputStream();
 			info(Locale.s(TXT_Connected));
 			int percent = 0;
-			int bufSize = 0;
-			/*try {
-				bufSize = in.available();
-			} catch (Exception e) {
-			}
-			if(bufSize <= 0) */bufSize = 128 * 1024;
+			int bufSize = App.downloadBuffer;
 			byte[] buf = new byte[bufSize];
 			int read = 0;
 			int downloaded = 0;

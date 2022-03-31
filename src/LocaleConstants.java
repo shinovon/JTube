@@ -98,5 +98,6 @@ public interface LocaleConstants {
 	public static final int SET_PlaybackMethod = 74;
 	public static final int SET_SymbianOnline = 75;
 	public static final int SET_Browser = 76;
+	public static final int SET_DownloadBuffer = 77;
 
 }
