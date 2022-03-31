@@ -26,6 +26,7 @@ public interface Constants {
 	// urls
 	static final String hproxy = "http://nnproject.cc/hproxy.php?";
 	static final String iteroni = "http://iteroni.com/";
+	static final String stream = "http://nnproject.cc/stream.php?url=";
 	static final String glype = "http://nnproject.cc/glype/browse.php?u=";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";

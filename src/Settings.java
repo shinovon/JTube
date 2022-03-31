@@ -121,17 +121,18 @@ public class Settings implements Constants {
 					App.searchChannels = true;
 					App.asyncLoading = false;
 					App.videoPreviews = false;
+					App.serverstream = stream;
 				} else {
 					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
 						App.httpStream = true;
 						App.asyncLoading = false;
-						App.downloadBuffer = 4 * 1024;
-					} else {
-						App.downloadBuffer = 32 * 1024;
-						App.asyncLoading = true;
 					}
 					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
 						App.customItems = true;
+					}
+					if(PlatformUtils.isSymbian3Based()) {
+						App.asyncLoading = true;
+						
 					}
 					App.rememberSearch = true;
 					App.searchChannels = true;
@@ -139,12 +140,16 @@ public class Settings implements Constants {
 					App.videoPreviews = true;
 				}
 				if(PlatformUtils.isAsha()) {
+					App.serverstream = stream;
 					App.videoPreviews = true;
-					App.customItems = true;
+					App.customItems = PlatformUtils.platform.charAt(5) != '5';
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
+					App.serverstream = stream;
 					App.videoPreviews = true;
 					App.customItems = true;
 					App.rmsPreviews = true;
+				} else {
+					App.serverstream = glype;
 				}
 				int min = Math.min(App.width, App.height);
 				// Symbian 9.4 can't handle H.264/AVC
