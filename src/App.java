@@ -126,6 +126,8 @@ public class App implements Constants {
 
 	public static Form loadingForm;
 	private StringItem loadingItem;
+	private Command loadingExitCmd;
+	private Command loadingSetsCmd;
 
 	public void schedule(Object o) {
 		if(queuedTasks.contains(o)) return;
@@ -142,19 +144,16 @@ public class App implements Constants {
 		loadingForm = new Form("Loading");
 		loadingItem = new StringItem("", "");
 		loadingForm.append(loadingItem);
-		final Command loadingExitCmd;
 		loadingForm.addCommand(loadingExitCmd = new Command("Exit", Command.EXIT, 1));
-		//final Command loadingSetsCmd;
-		//loadingForm.addCommand(loadingSetsCmd = new Command("Settings", Command.SCREEN, 1));
 		loadingForm.setCommandListener(new CommandListener() {
 
 			public void commandAction(Command c, Displayable d) {
 				if(c == loadingExitCmd) {
 					midlet.notifyDestroyed();
 				}
-				/*if(c == loadingSetsCmd) {
-					
-				}*/
+				if(c == loadingSetsCmd) {
+					ui.showSettings();
+				}
 			}
 			
 		});
@@ -195,6 +194,7 @@ public class App implements Constants {
 		Locale.init();
 		setLoadingState("Initializing UI");
 		initUI();
+		loadingForm.addCommand(loadingSetsCmd = new Command("Settings", Command.SCREEN, 1));
 		if(region.toLowerCase().equals("en")) {
 			region = "US";
 		}

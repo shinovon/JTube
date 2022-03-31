@@ -33,13 +33,14 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
 import App;
+import Util;
 import Locale;
 import Errors;
 import models.VideoModel;
 import models.AbstractModel;
 
 public class VideoForm extends ModelForm implements CommandListener, ItemCommandListener, Commands {
-	
+
 	private VideoModel video;
 
 	private StringItem loadingItem;
@@ -97,6 +98,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		Item author = new StringItem(null, video.getAuthor());
 		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
 		append(author);
+		Item dur = new StringItem(Locale.s(TXT_VideoDuration), Util.timeStr(video.getLengthSeconds()));
+		dur.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		append(dur);
 		if(video == null) return;
 		Item vi = new StringItem(Locale.s(TXT_Views), Locale.views(video.getViewCount()));
 		vi.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);

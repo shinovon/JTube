@@ -327,11 +327,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		}
 		if(c == settingsCmd) {
 			app.stopDoingAsyncTasks();
-			if(settingsForm == null) {
-				settingsForm = new SettingsForm();
-			}
-			display(settingsForm);
-			settingsForm.show();
+			showSettings();
 			return;
 		}
 		if(c == searchCmd && d instanceof Form) {
@@ -517,6 +513,14 @@ public class AppUI implements CommandListener, Commands, Constants {
 		if(PlatformUtils.isSymbian94()) return 32;
 		if(PlatformUtils.isSymbian3Based()) return 20;
 		return 4;
+	}
+
+	public void showSettings() {
+		if(settingsForm == null) {
+			settingsForm = new SettingsForm();
+		}
+		display(settingsForm);
+		settingsForm.show();
 	}
 
 }

@@ -153,4 +153,18 @@ public class Util implements Constants {
 		return sb.toString();
 	}
 
+	public static String timeStr(int i) {
+		if(i <= 0) return null;
+		String s = "" + i % 60;
+		if(s.length() < 2) s = "0" + s;
+		String m = "" + (i % 3600) / 60;
+		if(m.length() < 2) m = "0" + m;
+		int h = i / 3600;
+		if(h > 0) {
+			return h + ":" + m + ":" + s;
+		} else {
+			return m + ":" + s;
+		}
+	}
+
 }
