@@ -82,6 +82,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 		if(!App.customItems) {
 			StringItem item = new StringItem(title, Locale.videos(getVideoCount()) + (formContainer == null ? "\n" + author : ""));
 			item.addCommand(pOpenCmd);
+			item.setLayout(Item.LAYOUT_LEFT);
 			item.setDefaultCommand(pOpenCmd);
 			item.setItemCommandListener(this);
 			return item;

@@ -28,6 +28,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import App;
+import Util;
 import Records;
 import ui.AppUI;
 import ui.IScheduledShowHide;
@@ -62,7 +63,7 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 	public VideoItem(VideoModel v) {
 		super(v);
 		this.video = v;
-		this.lengthStr = timeStr(v.getLengthSeconds());
+		this.lengthStr = Util.timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
 	}
@@ -177,20 +178,6 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 		this.img = img;
 		//invalidate();
 		repaint();
-	}
-
-	private static String timeStr(int i) {
-		if(i <= 0) return null;
-		String s = "" + i % 60;
-		if(s.length() < 2) s = "0" + s;
-		String m = "" + (i % 3600) / 60;
-		if(m.length() < 2) m = "0" + m;
-		int h = i / 3600;
-		if(h > 0) {
-			return h + ":" + m + ":" + s;
-		} else {
-			return m + ":" + s;
-		}
 	}
 	
 	protected void showNotify() {

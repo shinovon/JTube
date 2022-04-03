@@ -80,6 +80,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private TextField customLocaleText;
 	private ChoiceGroup debugChoice;
 	private ChoiceGroup playMethodChoice;
+	private TextField downloadBufferText;
 
 	private List dirList;
 	private String curDir;
@@ -120,6 +121,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(Locale.s(SET_Tip2) + "\n");
 		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), App.customLocale, 8, TextField.ANY);
 		append(customLocaleText);
+		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(App.downloadBuffer), 6, TextField.NUMERIC);
+		append(downloadBufferText);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		//append(debugChoice);
 	}
@@ -189,6 +192,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			App.customLocale = customLocaleText.getString().trim().toLowerCase();
 			App.debugMemory = debugChoice.isSelected(0);
 			App.watchMethod = playMethodChoice.getSelectedIndex();
+			App.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
 			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();

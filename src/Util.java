@@ -28,7 +28,7 @@ import javax.microedition.io.HttpConnection;
 
 public class Util implements Constants {
 	
-	private final static boolean b = false;
+	private static int buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
 
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
@@ -45,7 +45,6 @@ public class Util implements Constants {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
-			//hc.setRequestProperty("Accept-Encoding", "identity");
 			if(isLoader) {
 				if(il.checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");
@@ -71,52 +70,11 @@ public class Util implements Constants {
 			}
 			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
-			/*
-			int s = 0;
-			
-			try {
-				s = (int) hc.getLength();
-			} catch (Exception e) {
-			}
-			if(s > 0) {
-				byte[] b = new byte[s];
-				i.readFully(b);
-				return b;
-			}
-			s = 16384;
-			*/
-			int i = 0;
 			int read;
 			o = new ByteArrayOutputStream();
-			if(b) {
-				read = in.read();
-				while(read != -1) {
-					o.write(read);
-					if(i++ % 2000 == 0 && isLoader) {
-						if(il.checkInterrupted()) {
-							throw new RuntimeException("loader interrupt");
-						}
-					}
-					read = in.read();
-				}
-				return o.toByteArray();
-			}
-			byte[] b = new byte[16384];
-			/*int c;
-			while ((c = i.read(b)) != -1) {
-				o.write(b, 0, c);
-			}*/
+			byte[] b = new byte[buffer_size];
 			while((read = in.read(b)) != -1) {
 				o.write(b, 0, read);
-				if(i++ % 4 == 0) {
-					if(isLoader) {
-						if(il.checkInterrupted()) {
-							throw new RuntimeException("loader interrupt");
-						}
-					} else {
-						Thread.sleep(1);
-					}
-				}
 			}
 			return o.toByteArray();
 		} catch (InterruptedException e) {
@@ -193,6 +151,20 @@ public class Util implements Constants {
 		}
 		sb.append(str.substring(k, str.length()));
 		return sb.toString();
+	}
+
+	public static String timeStr(int i) {
+		if(i <= 0) return null;
+		String s = "" + i % 60;
+		if(s.length() < 2) s = "0" + s;
+		String m = "" + (i % 3600) / 60;
+		if(m.length() < 2) m = "0" + m;
+		int h = i / 3600;
+		if(h > 0) {
+			return h + ":" + m + ":" + s;
+		} else {
+			return m + ":" + s;
+		}
 	}
 
 }

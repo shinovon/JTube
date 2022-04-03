@@ -258,6 +258,10 @@ public class Locale implements LocaleConstants {
 				return "Online player (Symbian/Bada)";
 			case SET_Browser:
 				return "Via browser";
+			case SET_DownloadBuffer:
+				return "Download buffer size (bytes)";
+			case TXT_VideoDuration:
+				return "Video duration";
 			}
 		}
 		case 1: {
@@ -404,6 +408,10 @@ public class Locale implements LocaleConstants {
 				return "Онлайн плеер (Symbian/Bada)";
 			case SET_Browser:
 				return "Через браузер";
+			case SET_DownloadBuffer:
+				return "Размер буфера скачивания (байты)";
+			case TXT_VideoDuration:
+				return "Длительность видео";
 			}
 		}
 		}
