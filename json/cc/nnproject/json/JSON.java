@@ -1,3 +1,24 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package cc.nnproject.json;
 
 import java.util.Hashtable;
@@ -5,9 +26,9 @@ import java.util.Vector;
 
 /**
  * JSON Library by nnproject.cc<br>
- * Usage:<p><code>JSONObject obj = NNJSON.getObject(str);</code>
+ * Usage:<p><code>JSONObject obj = JSON.getObject(str);</code>
  * @author Shinovon
- * @version 1.0
+ * @version 1.1
  */
 public final class JSON {
 
@@ -17,6 +38,11 @@ public final class JSON {
 	public final static boolean parse_members = false;
 	
 	public final static Object null_equivalent = new NullEquivalent();
+
+	//public static final String FORMAT_TAB = "  ";
+	
+	public static final Boolean TRUE = new Boolean(true);
+	public static final Boolean FALSE = new Boolean(false);
 
 	public static JSONObject getObject(String string) throws JSONException {
 		if (string == null || string.length() <= 1)
@@ -158,9 +184,9 @@ public final class JSON {
 				if (str.equals("null"))
 					return null_equivalent;
 				if (str.equals("true"))
-					return Boolean.TRUE;
+					return TRUE;
 				if (str.equals("false"))
-					return Boolean.FALSE;
+					return FALSE;
 				if(str.charAt(0) == '0' && str.charAt(1) == 'x') {
 					try {
 						return new Integer(Integer.parseInt(str.substring(2), 16));
@@ -215,12 +241,6 @@ public final class JSON {
 
 					if (object && key == null) {
 						key = str.substring(i, splIndex);
-						//while(n.startsWith("\r") || n.startsWith("\n")) {
-						//	n = n.substring(1);
-						//}
-						//while(n.endsWith("\r") || n.endsWith("\n") || n.endsWith(" ")) {
-						//	n = n.substring(0, n.length() - 1);
-						//}
 						key = key.substring(1, key.length() - 1);
 						nextDelimiter = ',';
 					} else {
@@ -331,24 +351,5 @@ public final class JSON {
 		}
 		throw new JSONException("Value cast failed: " + o);
 	}
-/*
-	public static Float getFloat(Object o) throws NNJSONException {
-		try {
-			if (o instanceof Short)
-				return new Float(((Short)o).floatValue());
-			else if (o instanceof Integer)
-				return new Float(((Integer)o).floatValue());
-			else if (o instanceof Long)
-				return new Float(((Long)o).floatValue());
-			else if (o instanceof Double)
-				return new Float(((Double)o).floatValue());
-			else if (o instanceof Float)
-				return (Float) o;
-			else if (o instanceof String)
-				return Float.valueOf((String) o);
-		} catch (Throwable e) {
-		}
-		throw new NNJSONException("Value cast failed: " + o);
-	}
-*/
+
 }
