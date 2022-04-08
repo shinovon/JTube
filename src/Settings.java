@@ -141,7 +141,8 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					App.serverstream = stream;
 					App.videoPreviews = true;
-					App.customItems = PlatformUtils.platform.charAt(5) != '5';
+					char c = PlatformUtils.platform.charAt(5);
+					App.customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					App.serverstream = stream;
 					App.videoPreviews = true;
