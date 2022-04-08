@@ -387,6 +387,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		description = null;
 		publishedText = null;
 		authorThumbnails = null;
+		authorItem = null;
 	}
 
 	public int getLikeCount() {

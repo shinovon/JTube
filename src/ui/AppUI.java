@@ -126,7 +126,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		mainForm.addCommand(switchToPopularCmd);
 		app.setLoadingState("Loading (1)");
 		try {
-			mainForm.setTitle(NAME + " - " + Locale.s(TITLE_Trends));
+			mainForm.setTitle(NAME + " - " + (s.equals("trending") ? Locale.s(TITLE_Trends) : Locale.s(TITLE_Popular)));
 			app.setLoadingState("Loading (2)");
 			AbstractJSON r = App.invApi("v1/"+s+"?", VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
 			app.setLoadingState("Loading (3)");
@@ -487,10 +487,12 @@ public class AppUI implements CommandListener, Commands, Constants {
 		app.stopDoingAsyncTasks();
 		ModelForm form = model.makeForm();
 		AppUI.display(form);
+		if(ui.videoForm != null) {
+			ui.disposeVideoForm();
+		}
 		if(form instanceof VideoForm) {
 			ui.videoForm = (VideoForm) form;
 		} else if(form instanceof ChannelForm) {
-			ui.videoForm = null;
 			ui.channelForm = (ChannelForm) form;
 		}
 		if(formContainer != null) {

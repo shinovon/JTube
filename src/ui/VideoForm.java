@@ -156,12 +156,14 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 						i = cur + 1;
 					} else {
 						i = 0;
+						return;
 					}
 				} else {
 					if(cur - 1 > 0) {
 						i = cur - 1;
 					} else {
 						i = l - 1;
+						return;
 					}
 				}
 				VideoModel nv = p.getVideo(i);
@@ -206,8 +208,11 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	}
 
 	public void dispose() {
+		deleteAll();
+		this.setCommandListener(null);
 		video.disposeExtendedVars();
 		video = null;
+		formContainer = null;
 	}
 
 	public VideoModel getVideo() {
