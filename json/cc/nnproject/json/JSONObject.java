@@ -104,12 +104,8 @@ public class JSONObject extends AbstractJSON {
 		}
 	}
 	
-	public Double getNumber(String name) throws JSONException {
-		return JSON.getDouble(get(name));
-	}
-	
 	public int getInt(String name) throws JSONException {
-		return getNumber(name).intValue();
+		return (int) JSON.getLong(get(name)).longValue();
 	}
 	
 	public int getInt(String name, int def) {
@@ -122,7 +118,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public long getLong(String name) throws JSONException {
-		return getNumber(name).longValue();
+		return JSON.getLong(get(name)).longValue();
 	}
 
 	public long getLong(String name, long def) {
@@ -135,7 +131,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public double getDouble(String name) throws JSONException {
-		return getNumber(name).doubleValue();
+		return JSON.getDouble(get(name)).doubleValue();
 	}
 
 	public double getDouble(String name, double def) {

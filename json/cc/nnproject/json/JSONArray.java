@@ -81,12 +81,8 @@ public class JSONArray extends AbstractJSON {
 		}
 	}
 	
-	public Double getNumber(int index) throws JSONException {
-		return JSON.getDouble(get(index));
-	}
-	
 	public int getInt(int index) throws JSONException {
-		return getNumber(index).intValue();
+		return (int) JSON.getLong(get(index)).longValue();
 	}
 	
 	public int getInt(int index, int def) {
@@ -98,7 +94,7 @@ public class JSONArray extends AbstractJSON {
 	}
 	
 	public long getLong(int index) throws JSONException {
-		return getNumber(index).longValue();
+		return JSON.getLong(get(index)).longValue();
 	}
 
 	public long getLong(int index, long def) {
@@ -110,7 +106,7 @@ public class JSONArray extends AbstractJSON {
 	}
 	
 	public double getDouble(int index) throws JSONException {
-		return getNumber(index).doubleValue();
+		return JSON.getDouble(get(index)).doubleValue();
 	}
 
 	public double getDouble(int index, double def) {

@@ -168,27 +168,9 @@ public final class JSON {
 						try {
 							return new Long(Long.parseLong(str.substring(2), 16));
 						} catch (Exception e2) {
-							// Skip
 						}
 					}
 				}
-				try {
-					return Integer.valueOf(str);
-				} catch (Exception e) {
-					try {
-						return new Long(Long.parseLong(str));
-					} catch (Exception e2) {
-						try {
-							return Double.valueOf(str);
-						} catch (Exception e3) {
-						}
-					}
-				}
-				/*
-				if(str.length() == 0 || str.equals("") || str.equals(" "))
-					throw new JSONException("Empty value");
-				throw new JSONException("Unknown value: " + str);
-				*/
 				return str;
 			} else {
 				// Parse json object or array
@@ -326,10 +308,25 @@ public final class JSON {
 				return new Double(((Long)o).doubleValue());
 			else if (o instanceof Double)
 				return (Double) o;
-			//else if (o instanceof Float)
-			//	return new Double(((Float)o).doubleValue());
 			else if (o instanceof String)
 				return Double.valueOf((String) o);
+		} catch (Throwable e) {
+		}
+		throw new JSONException("Value cast failed: " + o);
+	}
+
+	public static Long getLong(Object o) throws JSONException {
+		try {
+			if (o instanceof Short)
+				return new Long(((Short)o).shortValue());
+			else if (o instanceof Integer)
+				return new Long(((Integer)o).longValue());
+			else if (o instanceof Long)
+				return (Long) o;
+			else if (o instanceof Double)
+				return new Long(((Double)o).longValue());
+			else if (o instanceof String)
+				return new Long(Long.parseLong((String) o));
 		} catch (Throwable e) {
 		}
 		throw new JSONException("Value cast failed: " + o);
