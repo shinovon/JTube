@@ -123,7 +123,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 	public void load(String s) throws IOException {
 		app.setLoadingState("Loading (0)");
 		boolean b = App.needsCheckMemory();
-		mainForm.addCommand(switchToPopularCmd);
+		mainForm.addCommand(s.equals("trending") ? switchToPopularCmd : switchToTrendsCmd);
 		app.setLoadingState("Loading (1)");
 		try {
 			mainForm.setTitle(NAME + " - " + (s.equals("trending") ? Locale.s(TITLE_Trends) : Locale.s(TITLE_Popular)));
@@ -305,12 +305,13 @@ public class AppUI implements CommandListener, Commands, Constants {
 			return;
 		}
 		if(c == aboutCmd) {
+			//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
 			Alert a = new Alert("", "", null, null);
 			a.setTimeout(-2);
-			a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + "(" + App.ver + ") \n"
-					+ "By Shinovon (nnproject.cc) \n"
-					+ "t.me/nnmidletschat \n\n"
-					+ "Thanks to ales_alte, Jazmin Rocio, Feodor0090" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+			a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + " \n"
+					+ "By Shinovon (nnp.nnchan.ru) \n"
+					+ "t.me/nnmidlets \n\n"
+					+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
 			a.setCommandListener(this);
 			a.addCommand(new Command("OK", Command.OK, 1));
 			display(a);
@@ -468,7 +469,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		App app = App.inst;
 		AppUI ui = inst;
 		// check if already loading
-		if(formContainer == null && ui.videoForm != null && model instanceof VideoModel) {
+		if(formContainer == null && ui.videoForm != null && model instanceof VideoModel && display.getCurrent() instanceof VideoForm) {
 			return;
 		}
 		if(model instanceof PlaylistModel) {
@@ -487,9 +488,6 @@ public class AppUI implements CommandListener, Commands, Constants {
 		app.stopDoingAsyncTasks();
 		ModelForm form = model.makeForm();
 		AppUI.display(form);
-		if(ui.videoForm != null) {
-			ui.disposeVideoForm();
-		}
 		if(form instanceof VideoForm) {
 			ui.videoForm = (VideoForm) form;
 		} else if(form instanceof ChannelForm) {

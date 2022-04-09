@@ -57,6 +57,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	private int lengthSeconds;
 	private int likeCount;
 	private int dislikeCount;
+	private String playlistId;
 
 	private String thumbnailUrl;
 	private int imageWidth;
@@ -271,6 +272,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorItem.setImage(Image.createImage(b, 0, b.length));
+			authorItem.setPreferredSize(48, 48);
 			authorThumbnails = null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -294,6 +296,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			return i;
 		}*/
 		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT, null, Item.BUTTON);
+		authorItem.setPreferredSize(48, 48);
 		authorItem.addCommand(vOpenChannelCmd);
 		authorItem.setDefaultCommand(vOpenChannelCmd);
 		authorItem.setItemCommandListener(this);
@@ -409,10 +412,17 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public void setFormContainer(Form form) {
 		this.formContainer = form;
 		this.fromPlaylist = form instanceof PlaylistForm;
+		if(fromPlaylist) {
+			this.playlistId = ((PlaylistModel)((PlaylistForm)form).getModel()).getPlaylistId();
+		}
 	}
 
 	public int getIndex() {
 		return index;
+	}
+
+	public String getPlaylistId() {
+		return playlistId;
 	}
 
 	// Cache image to RMS

@@ -170,7 +170,6 @@ public class JSONObject extends AbstractJSON {
 		if(o == JSON.TRUE) return true;
 		if(o == JSON.FALSE) return false;
 		if(o instanceof Boolean) return ((Boolean) o).booleanValue();
-		if(o instanceof Integer) return ((Integer) o).intValue() > 0;
 		if(o instanceof String) {
 			String s = (String) o;
 			s = s.toLowerCase();

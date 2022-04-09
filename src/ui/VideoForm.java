@@ -97,6 +97,9 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		if(video == null) return;
 		Item author = new StringItem(null, video.getAuthor());
 		author.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
+		author.addCommand(vOpenChannelCmd);
+		author.setDefaultCommand(vOpenChannelCmd);
+		author.setItemCommandListener(this);
 		append(author);
 		Item dur = new StringItem(Locale.s(TXT_VideoDuration), Util.timeStr(video.getLengthSeconds()));
 		dur.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_2);
@@ -182,10 +185,14 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 		}
 		if(c == showLinkCmd) {
 			TextBox t = new TextBox("", "", 64, TextField.URL);
-			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId());
+			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId() + (video.isFromPlaylist() ? "&list=" + video.getPlaylistId() : ""));
 			t.addCommand(backCmd);
 			t.setCommandListener(this);
 			AppUI.display(t);
+			return;
+		}
+		if(c == vOpenChannelCmd) {
+			video.commandAction(c, null);
 			return;
 		}
 		if(c == backCmd) {
@@ -203,6 +210,10 @@ public class VideoForm extends ModelForm implements CommandListener, ItemCommand
 	public void commandAction(Command c, Item i) {
 		if(c == watchCmd) {
 			App.watch(video.getVideoId());
+			return;
+		}
+		if(c == vOpenChannelCmd) {
+			video.commandAction(c, null);
 			return;
 		}
 	}

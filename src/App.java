@@ -37,6 +37,7 @@ import javax.microedition.lcdui.StringItem;
 
 import ui.AppUI;
 import ui.IScheduledShowHide;
+import ui.PlaylistForm;
 import ui.TestCanvas;
 import models.ILoader;
 import cc.nnproject.json.JSON;
@@ -48,8 +49,6 @@ import cc.nnproject.json.JSONException;
 import cc.nnproject.utils.PlatformUtils;
 
 public class App implements Constants {
-	
-	public static final String ver = "r4.2";
 	
 	// Settings
 	public static String videoRes;
@@ -284,6 +283,7 @@ public class App implements Constants {
 		try {
 			s = Util.getUtf(inv + "api/" + s);
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new NetRequestException(e, s);
 		}
 		AbstractJSON res;
@@ -420,6 +420,10 @@ public class App implements Constants {
 	
 	public static void download(final String id) {
 		Downloader d = new Downloader(id, videoRes, inst.ui.videoForm, downloadDir);
+		d.start();
+	}
+	public static void download(String[] vids) {
+		Downloader d = new Downloader(vids, videoRes, inst.ui.videoForm, downloadDir);
 		d.start();
 	}
 	
@@ -611,5 +615,6 @@ public class App implements Constants {
 		a.setTimeout(-2);
 		AppUI.display(a);
 	}
+
 
 }

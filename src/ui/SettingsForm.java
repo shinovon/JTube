@@ -226,67 +226,71 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 	
 	public void commandAction(Command c, Displayable d) {
-		if(d == dirList) {
-			if(c == backCmd) {
-				if(curDir == null) {
-					dirList = null;
-					AppUI.display(this);
-				} else {
-					if(curDir.indexOf("/") == -1) {
-						dirList = new List("", List.IMPLICIT);
-						dirList.addCommand(backCmd);
-						dirList.setTitle("");
-						dirList.addCommand(List.SELECT_COMMAND);
-						dirList.setSelectCommand(List.SELECT_COMMAND);
-						dirList.setCommandListener(this);
-						for(int i = 0; i < Settings.rootsVector.size(); i++) {
-							String s = (String) Settings.rootsVector.elementAt(i);
-							if(s.startsWith("file:///")) s = s.substring("file:///".length());
-							if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
-							dirList.append(s, null);
+		try {
+			if(d == dirList) {
+				if(c == backCmd) {
+					if(curDir == null) {
+						dirList = null;
+						AppUI.display(this);
+					} else {
+						if(curDir.indexOf("/") == -1) {
+							dirList = new List("", List.IMPLICIT);
+							dirList.addCommand(backCmd);
+							dirList.setTitle("");
+							dirList.addCommand(List.SELECT_COMMAND);
+							dirList.setSelectCommand(List.SELECT_COMMAND);
+							dirList.setCommandListener(this);
+							for(int i = 0; i < Settings.rootsVector.size(); i++) {
+								String s = (String) Settings.rootsVector.elementAt(i);
+								if(s.startsWith("file:///")) s = s.substring("file:///".length());
+								if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
+								dirList.append(s, null);
+							}
+							curDir = null;
+							AppUI.display(dirList);
+							return;
 						}
+						String sub = curDir.substring(0, curDir.lastIndexOf('/'));
+						String fn = "";
+						if(sub.indexOf('/') != -1) {
+							fn = sub.substring(sub.lastIndexOf('/') + 1);
+						} else {
+							fn = sub;
+						}
+						curDir = sub;
+						dirListOpen(sub + "/", fn);
+					}
+				}
+				if(c == dirOpenCmd || c == List.SELECT_COMMAND) {
+					String fs = curDir;
+					String f = "";
+					if(fs != null) f += curDir + "/";
+					String is = dirList.getString(dirList.getSelectedIndex());
+					if(is.equals("- " + Locale.s(CMD_Select))) {
+						dirList = null;
+						downloadDirText.setString(f);
 						curDir = null;
-						AppUI.display(dirList);
+						AppUI.display(this);
 						return;
 					}
-					String sub = curDir.substring(0, curDir.lastIndexOf('/'));
-					String fn = "";
-					if(sub.indexOf('/') != -1) {
-						fn = sub.substring(sub.lastIndexOf('/') + 1);
-					} else {
-						fn = sub;
-					}
-					curDir = sub;
-					dirListOpen(sub + "/", fn);
-				}
-			}
-			if(c == dirOpenCmd || c == List.SELECT_COMMAND) {
-				String fs = curDir;
-				String f = "";
-				if(fs != null) f += curDir + "/";
-				String is = dirList.getString(dirList.getSelectedIndex());
-				if(is.equals("- " + Locale.s(CMD_Select))) {
-					dirList = null;
-					downloadDirText.setString(f);
-					curDir = null;
-					AppUI.display(this);
+					f += is;
+					curDir = f;
+					dirListOpen(f + "/", is);
 					return;
 				}
-				f += is;
-				curDir = f;
-				dirListOpen(f + "/", is);
+				if(c == dirSelectCmd) {
+					dirList = null;
+					downloadDirText.setString(curDir + "/");
+					curDir = null;
+					AppUI.display(this);
+				}
 				return;
 			}
-			if(c == dirSelectCmd) {
-				dirList = null;
-				downloadDirText.setString(curDir + "/");
-				curDir = null;
-				AppUI.display(this);
-			}
-			return;
+			applySettings();
+			AppUI.display(null);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		applySettings();
-		AppUI.display(null);
 	}
 
 	public void commandAction(Command c, Item item) {

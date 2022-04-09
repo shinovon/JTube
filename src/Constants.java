@@ -24,7 +24,7 @@ import cc.nnproject.utils.PlatformUtils;
 public interface Constants {
 	
 	// urls
-	static final String hproxy = "http://nnp.nnchan.ru/hproxy.php?";
+	static final String hproxy = "http://nnp.nnchan.ru/proxy.php?";
 	static final String iteroni = "http://iteroni.com/";
 	static final String stream = "http://nnp.nnchan.ru/stream.php?url=";
 	static final String glype = "http://nnp.nnchan.ru/glype/browse.php?u=";

@@ -49,6 +49,10 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 	private String file;
 	private Thread t;
 	private boolean cancel;
+	
+	private String[] ids;
+	private boolean playlist;
+	private int curIndex;
 
 	public Downloader(String vid, String res, Displayable d, String downloadDir) {
 		this.id = vid;
@@ -59,153 +63,190 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 			file += Path_separator;
 		}
 	}
+
+	public Downloader(String[] vid, String res, Displayable d, String downloadDir) {
+		this.ids = vid;
+		this.res = res;
+		this.d = d;
+		this.playlist = true;
+		this.file = "file:///" + downloadDir;
+		if(!(file.endsWith("/") || file.endsWith("\\"))) {
+			file += Path_separator;
+		}
+	}
 	
 	public void run() {
 		if(cancel) return;
-		FileConnection fc = null;
-		OutputStream out = null;
-		HttpConnection hc = null;
-		InputStream in = null;
-		try {
-			String f = id;
-			if(res != null) {
-				if(res.equals("144p")) {
-					f += ".3gp";
-				} /*else if(res.startsWith("_audio")) {
-					f += ".aac";
-				} */else {
-					f += ".mp4";
-				}
-			} else {
-				f += ".mp4";
-			} 
-			file = file + f;
-			info(f);
-			
-			JSONObject o = App.getVideoInfo(id, res);
-			String url = o.getString("url");
-			if(App.httpStream) {
-				url = App.serverstream + Util.url(url);
-			}
-			int contentLength = o.getInt("clen", 0);
-			o = null;
-			// wait
-			Thread.sleep(500);
-			fc = (FileConnection) Connector.open(file, Connector.READ_WRITE);
-			
-			if (fc.exists()) {
-				try {
-					fc.delete();
-				} catch (IOException e) {
-				}
-			}
-			fc.create();
-			info(Locale.s(TXT_Connecting));
-			hc = (HttpConnection) Connector.open(url);
-			hc.setRequestProperty("User-Agent", userAgent);
-			int r;
+		if(playlist) {
+			//TODO
+		} else {
+			FileConnection fc = null;
+			OutputStream out = null;
+			HttpConnection hc = null;
+			InputStream in = null;
 			try {
-				r = hc.getResponseCode();
-			} catch (IOException e) {
-				info(Locale.s(TXT_Waiting));
-				try {
-					hc.close();
-				} catch (Exception e2) {
-				}
-				Thread.sleep(2000);
-				info("Connection retry");
-				hc = (HttpConnection) Connector.open(url);
-				hc.setRequestMethod("GET");
-				hc.setRequestProperty("User-Agent", userAgent);
-				r = hc.getResponseCode();
-			}
-			if(cancel) return;
-			int redirectCount = 0;
-			while (r == 301 || r == 302) {
-				info(Locale.s(TXT_Redirected) + " (" + redirectCount++ + ")");
-				String redir = hc.getHeaderField("Location");
-				if (redir.startsWith("/")) {
-					String tmp = url.substring(url.indexOf("//") + 2);
-					String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
-					redir = host + redir;
-				}
-				hc.close();
-				hc = (HttpConnection) Connector.open(redir);
-				hc.setRequestMethod("GET");
-				hc.setRequestProperty("User-Agent", userAgent);
-				r = hc.getResponseCode();
-			}
-			if(cancel) return;
-			out = fc.openOutputStream();
-			in = hc.openInputStream();
-			info(Locale.s(TXT_Connected));
-			int percent = 0;
-			int bufSize = App.downloadBuffer;
-			byte[] buf = new byte[bufSize];
-			int read = 0;
-			int downloaded = 0;
-			int l = contentLength;
-			if(l <= 0) {
-				try {
-					l = (int) hc.getLength();
-				} catch (Exception e) {
-			
-				}
-			}
-			boolean ind = true;
-			if(l <= 0) {
-				// indicator unavailable
-				alert.setIndicator(null);
-				ind = false;
-			}
-			if(cancel) return;
-			String sizeStr = "" + ((int) (((double)l / 1024 / 1024) * 10)) / 10D;
-			long t = System.currentTimeMillis();
-			int s = 0;
-			int i = 0;
-			while((read = in.read(buf)) != -1) {
-				out.write(buf, 0, read);
-				downloaded += read;
-				if(i++ % 10 == 0) {
-					if(cancel) return;
-					long t2 = System.currentTimeMillis();
-					String spd = "(" + ((int) (((((double) (downloaded - s) / (t2 - t)) * 1000) / 1024D) * 10) / 10D) + " KB/s)";
-					if(ind) {
-						percent = (int)(((double)downloaded / (double)l) * 100d);
-						info(Locale.s(TXT_Downloading) + " \n" + 
-						((int) ((downloaded / 1024D / 1024D) * 100)) / 100D + " / " + sizeStr + " MB\n"
-								+ spd + " " + percent + "%"
-								, percent);
-					} else {
-						info(Locale.s(TXT_Downloaded) + " " + (downloaded / 1024) + " Kbytes \n" + spd);
+				String f = id;
+				if(res != null) {
+					if(res.equals("144p")) {
+						f += ".3gp";
+					} /*else if(res.startsWith("_audio")) {
+						f += ".aac";
+					} */else {
+						f += ".mp4";
 					}
-					t = t2;
-					s = downloaded;
+				} else {
+					f += ".mp4";
+				} 
+				file = file + f;
+				info(f);
+				
+				JSONObject o = App.getVideoInfo(id, res);
+				String url = o.getString("url");
+				if(App.httpStream) {
+					url = App.serverstream + Util.url(url);
 				}
+				int contentLength = o.getInt("clen", 0);
+				o = null;
+				// wait
+				Thread.sleep(500);
+				fc = (FileConnection) Connector.open(file, Connector.READ_WRITE);
+				
+				if (fc.exists()) {
+					try {
+						fc.delete();
+					} catch (IOException e) {
+					}
+				}
+				fc.create();
+				info(Locale.s(TXT_Connecting));
+				hc = (HttpConnection) Connector.open(url);
+				hc.setRequestProperty("User-Agent", userAgent);
+				int r;
+				try {
+					r = hc.getResponseCode();
+				} catch (IOException e) {
+					info(Locale.s(TXT_Waiting));
+					try {
+						hc.close();
+					} catch (Exception e2) {
+					}
+					Thread.sleep(2000);
+					info("Connection retry");
+					hc = (HttpConnection) Connector.open(url);
+					hc.setRequestMethod("GET");
+					hc.setRequestProperty("User-Agent", userAgent);
+					r = hc.getResponseCode();
+				}
+				if(cancel) return;
+				int redirectCount = 0;
+				while (r == 301 || r == 302) {
+					info(Locale.s(TXT_Redirected) + " (" + redirectCount++ + ")");
+					String redir = hc.getHeaderField("Location");
+					if (redir.startsWith("/")) {
+						String tmp = url.substring(url.indexOf("//") + 2);
+						String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
+						redir = host + redir;
+					}
+					hc.close();
+					hc = (HttpConnection) Connector.open(redir);
+					hc.setRequestMethod("GET");
+					hc.setRequestProperty("User-Agent", userAgent);
+					r = hc.getResponseCode();
+				}
+				if(cancel) return;
+				out = fc.openOutputStream();
+				in = hc.openInputStream();
+				info(Locale.s(TXT_Connected));
+				int percent = 0;
+				int bufSize = App.downloadBuffer;
+				byte[] buf = new byte[bufSize];
+				int read = 0;
+				int downloaded = 0;
+				int l = contentLength;
+				if(l <= 0) {
+					try {
+						l = (int) hc.getLength();
+					} catch (Exception e) {
+				
+					}
+				}
+				boolean ind = true;
+				if(l <= 0) {
+					// indicator unavailable
+					alert.setIndicator(null);
+					ind = false;
+				}
+				int a = 10;
+				if(bufSize <= 1024) {
+					a = 100;
+				} else if(bufSize < 10240) {
+					a = 50;
+				} else if(bufSize >= 10240) {
+					a = 10;
+				} else if(bufSize >= 32768) {
+					a = 2;
+				}
+				if(cancel) return;
+				String sizeStr = "" + ((int) (((double)l / 1024 / 1024) * 10)) / 10D;
+				long t = System.currentTimeMillis();
+				int s = 0;
+				int i = 0;
+				while((read = in.read(buf)) != -1) {
+					out.write(buf, 0, read);
+					downloaded += read;
+					if(i++ % a == 0) {
+						if(cancel) return;
+						long t2 = System.currentTimeMillis();
+						int j = 0;
+						String spd = null;
+						if(s != 0) {
+							j = (int) ((((double) (downloaded - s) / (t2 - t)) * 1000) / 1024D);
+							if(j <= 0) {
+								j = 0;
+							}
+						}
+						if(j > 1024) {
+							spd = (((int)((j / 1024D) * 10)) / 10D) + " MB/s";
+						} else {
+							spd = j + " KB/s";
+						}
+						if(ind) {
+							percent = (int)(((double)downloaded / (double)l) * 100d);
+							info(Locale.s(TXT_Downloading) + " \n" + 
+							((int) ((downloaded / 1024D / 1024D) * 100)) / 100D + " / " + sizeStr + " MB \n("
+									+ spd + ") " + percent + "%"
+									, percent);
+						} else {
+							info(Locale.s(TXT_Downloaded) + " " + (downloaded / 1024) + " Kbytes \n" + spd);
+						}
+						t = t2;
+						s = downloaded;
+					}
+				}
+				done();
+			} catch (InterruptedException e) {
+				fail(Locale.s(TXT_Canceled), "");
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail(e.toString(), Locale.s(TXT_DownloadFailed));
+			} finally {
+				try {
+					if(out != null) out.close();
+				} catch (Exception e) {
+				} 
+				try {
+					if(fc != null) fc.close();
+				} catch (Exception e) {
+				} 
+				try {
+					if(in != null) in.close();
+				} catch (Exception e) {
+				} 
+				try {
+					if(hc != null) hc.close();
+				} catch (Exception e) {
+				} 
 			}
-			done();
-		} catch (InterruptedException e) {
-			fail(Locale.s(TXT_Canceled), "");
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.toString(), Locale.s(TXT_DownloadFailed));
-		} finally {
-			try {
-				if(out != null) out.close();
-			} catch (Exception e) {
-			} 
-			try {
-				if(fc != null) fc.close();
-			} catch (Exception e) {
-			} 
-			try {
-				if(in != null) in.close();
-			} catch (Exception e) {
-			} 
-			try {
-				if(hc != null) hc.close();
-			} catch (Exception e) {
-			} 
 		}
 	}
 	

@@ -45,8 +45,8 @@ public interface Commands extends LocaleConstants {
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
 	
 	// Video page commands
-	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 10);
-	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 8);
+	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 1);
+	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 4);
 	static final Command showLinkCmd = new Command(Locale.s(CMD_ShowLink), Command.SCREEN, 6);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);
 	public static Command openPlaylistCmd = new Command(Locale.s(CMD_OpenPlaylist), Command.SCREEN, 7);
@@ -59,7 +59,7 @@ public interface Commands extends LocaleConstants {
 	static final Command dlOpenCmd = new Command(Locale.s(CMD_Open), Command.OK, 1);
 	static final Command dlCancelCmd = new Command(Locale.s(CMD_Cancel), Command.CANCEL, 1);
 	
-	public static Command vOpenCmd = new Command(Locale.s(CMD_View), Command.ITEM, 10);
+	public static Command vOpenCmd = new Command(Locale.s(CMD_View), Command.ITEM, 3);
 	public static Command vOpenChannelCmd = new Command(Locale.s(CMD_ViewChannel), Command.ITEM, 4);
 	
 	public static Command cVideosCmd = new Command(Locale.s(CMD_Videos), Command.ITEM, 3);

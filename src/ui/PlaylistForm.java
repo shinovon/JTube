@@ -58,6 +58,7 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 		this.playlist = p;
 		setCommandListener(this);
 		addCommand(backCmd);
+		//addCommand(downloadCmd);
 	}
 	
 	private void init() {
@@ -109,6 +110,14 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(c == downloadCmd) {
+			String[] vids = new String[videos.length];
+			for(int i = 0; i < videos.length; i++) {
+				vids[i] = videos[i].getVideoId();
+			}
+			App.download(vids);
+			return;
+		}
 		if(c == backCmd) {
 			if(formContainer != null) {
 				AppUI.display(formContainer);
@@ -116,6 +125,7 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 				AppUI.back(this);
 			}
 			dispose();
+			return;
 		}
 	}
 
@@ -123,6 +133,7 @@ public class PlaylistForm extends ModelForm implements CommandListener, Commands
 		deleteAll();
 		playlist.disposeExtendedVars();
 		playlist = null;
+		videos = null;
 		App.gc();
 	}
 
