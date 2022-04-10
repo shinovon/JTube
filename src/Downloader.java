@@ -50,9 +50,9 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 	private Thread t;
 	private boolean cancel;
 	
-	private String[] ids;
+	//private String[] ids;
 	private boolean playlist;
-	private int curIndex;
+	//private int curIndex;
 
 	public Downloader(String vid, String res, Displayable d, String downloadDir) {
 		this.id = vid;
@@ -65,7 +65,7 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 	}
 
 	public Downloader(String[] vid, String res, Displayable d, String downloadDir) {
-		this.ids = vid;
+		//this.ids = vid;
 		this.res = res;
 		this.d = d;
 		this.playlist = true;

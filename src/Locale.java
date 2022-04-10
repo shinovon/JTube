@@ -262,6 +262,8 @@ public class Locale implements LocaleConstants {
 				return "Download buffer size (bytes)";
 			case TXT_VideoDuration:
 				return "Video duration";
+			case SET_Via2yxa:
+				return "Via 2yxa.mobi";
 			}
 		}
 		case 1: {
@@ -412,6 +414,8 @@ public class Locale implements LocaleConstants {
 				return "Размер буфера скачивания (байты)";
 			case TXT_VideoDuration:
 				return "Длительность видео";
+			case SET_Via2yxa:
+				return "Через 2yxa.mobi";
 			}
 		}
 		}
