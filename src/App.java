@@ -499,7 +499,7 @@ public class App implements Constants {
 				//int type = videoRes2yxa;
 				//if(type == -1) type = 18;
 				//platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&type=" + type + "&poisk=you&dw");
-				platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you");
+				platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
 				break;
 			}
 			}

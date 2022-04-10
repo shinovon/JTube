@@ -28,7 +28,7 @@ public class Locale implements LocaleConstants {
 	
 	public static final String systemLocale;
 	public static boolean loaded;
-	private static int localei;
+	protected static int localei;
 	private static Hashtable table;
 	public static String l;
 	
