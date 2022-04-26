@@ -259,7 +259,6 @@ public class App implements Constants {
 					"&s="+(App.midlet.getAppProperty("JTube-Samsung-Build") != null ? "1" : "0")+
 					"&p="+Util.url(PlatformUtils.platform)
 					);
-			System.out.println(s);
 			JSONObject j = JSON.getObject(s);
 			if(j.getBoolean("update_available", false) && App.checkUpdates) {
 				final String url = j.getString("download_url");
@@ -276,6 +275,7 @@ public class App implements Constants {
 							AppUI.display(null);
 						}
 						if(c == okCmd) {
+							AppUI.display(null);
 							try {
 								App.midlet.platformRequest(url);
 							} catch (Exception e) {
