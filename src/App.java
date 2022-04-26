@@ -37,7 +37,6 @@ import javax.microedition.lcdui.StringItem;
 
 import ui.AppUI;
 import ui.IScheduledShowHide;
-import ui.PlaylistForm;
 import ui.TestCanvas;
 import models.ILoader;
 import cc.nnproject.json.JSON;
@@ -70,6 +69,7 @@ public class App implements Constants {
 	public static boolean debugMemory;
 	public static int downloadBuffer = 1024;
 	public static boolean asyncLoading;
+	//public static int videoRes2yxa = -1;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -493,6 +493,13 @@ public class App implements Constants {
 					}
 				}
 				platReq(file);
+				break;
+			}
+			case 2: {
+				//int type = videoRes2yxa;
+				//if(type == -1) type = 18;
+				//platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&type=" + type + "&poisk=you&dw");
+				platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
 				break;
 			}
 			}

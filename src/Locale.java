@@ -28,7 +28,7 @@ public class Locale implements LocaleConstants {
 	
 	public static final String systemLocale;
 	public static boolean loaded;
-	private static int localei;
+	protected static int localei;
 	private static Hashtable table;
 	public static String l;
 	
@@ -262,6 +262,8 @@ public class Locale implements LocaleConstants {
 				return "Download buffer size (bytes)";
 			case TXT_VideoDuration:
 				return "Video duration";
+			case SET_Via2yxa:
+				return "Via 2yxa.mobi";
 			}
 		}
 		case 1: {
@@ -412,6 +414,8 @@ public class Locale implements LocaleConstants {
 				return "Размер буфера скачивания (байты)";
 			case TXT_VideoDuration:
 				return "Длительность видео";
+			case SET_Via2yxa:
+				return "Через 2yxa.mobi";
 			}
 		}
 		}

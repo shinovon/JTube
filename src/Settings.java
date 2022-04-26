@@ -113,7 +113,7 @@ public class Settings implements Constants {
 						downloadDir = downloadDir.substring("file:///".length());
 					App.downloadDir = downloadDir;
 				}
-				App.watchMethod = PlatformUtils.isSymbianTouch() || PlatformUtils.isBada() || PlatformUtils.isS603rd() ? 1 : 0;
+				App.watchMethod = PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					App.httpStream = true;
@@ -248,6 +248,7 @@ public class Settings implements Constants {
 			j.put("watchMethod", new Integer(App.watchMethod));
 			j.put("asyncLoading", new Boolean(App.asyncLoading));
 			j.put("downloadBuffer", new Integer(App.downloadBuffer));
+			//j.put("videoRes2yxa", new Integer(App.videoRes2yxa));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);
