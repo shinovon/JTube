@@ -262,7 +262,7 @@ public class App implements Constants {
 			System.out.println(s);
 			JSONObject j = JSON.getObject(s);
 			if(j.getBoolean("update_available", false) && App.checkUpdates) {
-				final String url = j.getString("redirect_url");
+				final String url = j.getString("download_url");
 				String msg = j.getString("message", Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
 				Alert a = new Alert("", "", null, AlertType.INFO);
 				a.setString(msg);
