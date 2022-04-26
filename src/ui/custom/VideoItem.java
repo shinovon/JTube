@@ -75,10 +75,10 @@ public class VideoItem extends CustomButtonItem implements IScheduledShowHide {
 		height = h;
 		int ih = getImgHeight();
 		g.setColor(-1);
-		g.fillRect(0, 0, w, h);
+		g.fillRect(0, 0, getMinContentWidth(), h);
 		g.setColor(0);
 		if(img != null) {
-			g.drawImage(img, -2, 0, 0);
+			g.drawImage(img, 0, 0, 0);
 			if(PlatformUtils.isSymbian94() /*&& !PlatformUtils.isS40()*/ && !PlatformUtils.isKemulator && !App.rmsPreviews) {
 				disposeImage();
 			}

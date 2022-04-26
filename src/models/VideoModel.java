@@ -147,7 +147,7 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(!App.videoPreviews) {
 			return new StringItem(author, title);
 		}
-		return imageItem = new ImageItem(title, null, Item.LAYOUT_CENTER, null, ImageItem.BUTTON);
+		return imageItem = new ImageItem(title, null, Item.LAYOUT_CENTER | Item.LAYOUT_NEWLINE_AFTER, null, ImageItem.BUTTON);
 	}
 
 	public Item makeItemForList() {
@@ -192,17 +192,17 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	public Image customResize(Image img) {
 		float iw = img.getWidth();
 		float ih = img.getHeight();
-		float nw = (float) imageWidth;
-		int nh = (int) (nw * (ih / iw));
-		img = ImageUtils.resize(img, imageWidth, nh);
 		App.gc();
 		float f = iw / ih;
 		if(f == 4F / 3F) {
 			// cropping to 16:9
-			float ch = nw * (9F / 16F);
-			int chh = (int) ((nh - ch) / 2F);
+			float ch = iw * (9F / 16F);
+			int chh = (int) ((ih - ch) / 2F);
 			return ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
 		}
+		float nw = (float) imageWidth;
+		int nh = (int) (nw * (ih / iw));
+		img = ImageUtils.resize(img, imageWidth, nh);
 		return img;
 	}
 

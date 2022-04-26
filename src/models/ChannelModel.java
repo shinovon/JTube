@@ -111,7 +111,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		if(!App.videoPreviews) {
 			return new StringItem(null, author);
 		}
-		return item = new ImageItem(author, img, Item.LAYOUT_CENTER, null);
+		return item = new ImageItem(author, img, Item.LAYOUT_CENTER | Item.LAYOUT_NEWLINE_AFTER, null);
 	}
 
 	public Item makeItemForList() {

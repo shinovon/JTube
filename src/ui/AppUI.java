@@ -77,6 +77,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 	
 	public void loadForm() {
 		try {
+			App.inst.testCanvas();
 			loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
 			loadingItem.setLayout(Item.LAYOUT_CENTER);
 			mainForm.append(loadingItem);

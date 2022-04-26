@@ -164,7 +164,7 @@ public class App implements Constants {
 			}
 		} catch (Exception e) {
 		}
-		setLoadingState("Getting device region");
+		setLoadingState("Obtaining device region");
 		region = System.getProperty("user.country");
 		if(region == null) {
 			region = System.getProperty("microedition.locale");
@@ -567,7 +567,7 @@ public class App implements Constants {
 		waitAsyncTasks();
 	}
 
-	private void testCanvas() {
+	public void testCanvas() {
 		Canvas c = new TestCanvas();
 		width = c.getWidth();
 		height = c.getHeight();
