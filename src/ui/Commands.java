@@ -47,11 +47,11 @@ public interface Commands extends LocaleConstants {
 	// Video page commands
 	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 1);
 	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 4);
-	static final Command showLinkCmd = new Command(Locale.s(CMD_ShowLink), Command.SCREEN, 6);
+	static final Command showLinkCmd = new Command(Locale.s(CMD_ShowLink), Command.SCREEN, 5);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);
-	public static Command openPlaylistCmd = new Command(Locale.s(CMD_OpenPlaylist), Command.SCREEN, 7);
-	public static Command nextCmd = new Command(Locale.s(CMD_Next), Command.SCREEN, 6);
-	public static Command prevCmd = new Command(Locale.s(CMD_Prev), Command.SCREEN, 5);
+	public static Command openPlaylistCmd = new Command(Locale.s(CMD_OpenPlaylist), Command.SCREEN, 8);
+	public static Command nextCmd = new Command(Locale.s(CMD_Next), Command.SCREEN, 7);
+	public static Command prevCmd = new Command(Locale.s(CMD_Prev), Command.SCREEN, 6);
 	
 	// Downloader alert commands
 	static final Command dlOkCmd = new Command(Locale.s(CMD_OK), Command.CANCEL, 1);

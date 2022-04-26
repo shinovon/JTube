@@ -101,5 +101,11 @@ public interface LocaleConstants {
 	public static final int SET_DownloadBuffer = 77;
 	public static final int TXT_VideoDuration = 78;
 	public static final int SET_Via2yxa = 79;
+	public static final int SET_CheckUpdates = 80;
+	public static final int TXT_NewUpdateAvailable = 81;
+	public static final int CMD_Ignore = 82;
+	public static final int SET_On = 83;
+	public static final int SET_Off = 84;
+	
 
 }

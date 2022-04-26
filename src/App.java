@@ -69,7 +69,7 @@ public class App implements Constants {
 	public static boolean debugMemory;
 	public static int downloadBuffer = 1024;
 	public static boolean asyncLoading;
-	//public static int videoRes2yxa = -1;
+	public static boolean checkUpdates = true;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -213,6 +213,7 @@ public class App implements Constants {
 		}
 		setLoadingState("Loading start page");
 		ui.loadForm();
+		checkUpdate();
 		if(debugMemory) {
 			Thread t = new Thread() {
 				public void run() {
@@ -250,6 +251,46 @@ public class App implements Constants {
 		}
 	}
 	
+	private void checkUpdate() {
+		try {
+			String s = Util.getUtf(updateurl+
+					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
+					"&l="+Locale.l+
+					"&s="+(App.midlet.getAppProperty("JTube-Samsung-Build") != null ? "1" : "0")+
+					"&p="+Util.url(PlatformUtils.platform)
+					);
+			System.out.println(s);
+			JSONObject j = JSON.getObject(s);
+			if(j.getBoolean("update_available", false) && App.checkUpdates) {
+				final String url = j.getString("redirect_url");
+				String msg = j.getString("message", Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
+				Alert a = new Alert("", "", null, AlertType.INFO);
+				a.setString(msg);
+				final Command ignoreCmd = new Command(Locale.s(LocaleConstants.CMD_Ignore), Command.EXIT, 1);
+				final Command okCmd = new Command(Locale.s(LocaleConstants.CMD_Download), Command.OK, 1);
+				a.addCommand(ignoreCmd);
+				a.addCommand(okCmd);
+				a.setCommandListener(new CommandListener() {
+					public void commandAction(Command c, Displayable d) {
+						if(c == ignoreCmd) {
+							AppUI.display(null);
+						}
+						if(c == okCmd) {
+							try {
+								App.midlet.platformRequest(url);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+				AppUI.display(a);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void setLoadingState(String s) {
 		if(loadingItem != null) {
 			loadingItem.setText(s);
@@ -496,8 +537,6 @@ public class App implements Constants {
 				break;
 			}
 			case 2: {
-				//int type = videoRes2yxa;
-				//if(type == -1) type = 18;
 				//platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&type=" + type + "&poisk=you&dw");
 				platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
 				break;

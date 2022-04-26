@@ -213,6 +213,8 @@ public class Settings implements Constants {
 					if(App.imgproxy != null)
 						App.imgproxy = Util.replace(App.imgproxy, "nnproject.cc", "nnp.nnchan.ru");
 				}
+				if(j.has("checkUpdates"))
+					App.checkUpdates = j.getBoolean("checkUpdates");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -248,7 +250,7 @@ public class Settings implements Constants {
 			j.put("watchMethod", new Integer(App.watchMethod));
 			j.put("asyncLoading", new Boolean(App.asyncLoading));
 			j.put("downloadBuffer", new Integer(App.downloadBuffer));
-			//j.put("videoRes2yxa", new Integer(App.videoRes2yxa));
+			j.put("checkUpdates", new Boolean(App.checkUpdates));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

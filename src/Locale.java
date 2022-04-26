@@ -255,7 +255,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Playback method";
 			case SET_SymbianOnline:
-				return "Online player (Symbian/Bada)";
+				return "Online (Symbian/Bada)";
 			case SET_Browser:
 				return "Via browser";
 			case SET_DownloadBuffer:
@@ -264,6 +264,16 @@ public class Locale implements LocaleConstants {
 				return "Video duration";
 			case SET_Via2yxa:
 				return "Via 2yxa.mobi";
+			case SET_CheckUpdates:
+				return "Check for updates";
+			case TXT_NewUpdateAvailable:
+				return "New update available!";
+			case CMD_Ignore:
+				return "Ignore";
+			case SET_On:
+				return "On";
+			case SET_Off:
+				return "Off";
 			}
 		}
 		case 1: {
@@ -407,7 +417,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Способ проигрывания";
 			case SET_SymbianOnline:
-				return "Онлайн плеер (Symbian/Bada)";
+				return "Онлайн (Symbian/Bada)";
 			case SET_Browser:
 				return "Через браузер";
 			case SET_DownloadBuffer:
@@ -416,6 +426,16 @@ public class Locale implements LocaleConstants {
 				return "Длительность видео";
 			case SET_Via2yxa:
 				return "Через 2yxa.mobi";
+			case SET_CheckUpdates:
+				return "Проверять наличие обновлений";
+			case TXT_NewUpdateAvailable:
+				return "Доступно новое обновление!";
+			case CMD_Ignore:
+				return "Ок";
+			case SET_On:
+				return "Вкл.";
+			case SET_Off:
+				return "Выкл.";
 			}
 		}
 		}

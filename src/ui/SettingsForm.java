@@ -52,16 +52,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"720p", 
 			Locale.s(SET_VQ_AudioOnly), 
 			"240p (" + Locale.s(SET_VQ_NoAudio) + ")" };
-/*
-	static final String[] VIDEO_QUALITIES_2YXA = new String[] {
-			"RTSP",
-			"360p",  
-			"240p",
-			"144p (MP4)", 
-			"144p (3GP)",
-			Locale.s(SET_VQ_AudioOnly)
-			};
-*/
 	static final String[] SETTINGS_CHECKS = new String[] { 
 			Locale.s(SET_RememberSearch), 
 			Locale.s(SET_HTTPProxy), 
@@ -79,9 +69,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_SymbianOnline),
 			Locale.s(SET_Via2yxa)
 			};
+	static final String[] ON_OFF = new String[] { 
+			Locale.s(SET_On),
+			Locale.s(SET_Off)
+			};
 	
 	private ChoiceGroup videoResChoice;
-	//private ChoiceGroup res2yxaChoice;
 	private TextField regionText;
 	private TextField downloadDirText;
 	private TextField httpProxyText;
@@ -94,12 +87,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup debugChoice;
 	private ChoiceGroup playMethodChoice;
 	private TextField downloadBufferText;
+	private ChoiceGroup checkUpdatesChoice;
 
 	private List dirList;
 	private String curDir;
-
-	//private int videoResChoiceIndex;
-
 
 	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 
@@ -111,17 +102,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		setItemStateListener(this);
 		setCommandListener(this);
 		addCommand(applyCmd);
-		/*if(App.watchMethod == 2) {
-			res2yxaChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES_2YXA, null);
-			videoResChoiceIndex = append(res2yxaChoice);
-		} else {*/
-		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
-		/*videoResChoiceIndex = */append(videoResChoice);
-		//}
+		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
+		append(videoResChoice);
 		regionText = new TextField(Locale.s(SET_CountryCode), App.region, 3, TextField.ANY);
-		append(regionText);
-		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.EXCLUSIVE, PLAYBACK_METHODS, null);
+		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
 		append(playMethodChoice);
+		append(regionText);
+		checkUpdatesChoice = new ChoiceGroup(Locale.s(SET_CheckUpdates), ChoiceGroup.POPUP, ON_OFF, null);
+		append(checkUpdatesChoice);
 		uiChoice = new ChoiceGroup(Locale.s(SET_Appearance), ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
 		append(uiChoice);
 		checksChoice = new ChoiceGroup(Locale.s(SET_OtherSettings), ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
@@ -146,7 +134,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(App.downloadBuffer), 6, TextField.NUMERIC);
 		append(downloadBufferText);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
-		//append(debugChoice);
 	}
 	
 	public void show() {
@@ -159,39 +146,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checksChoice.setSelectedIndex(2, App.rmsPreviews);
 		debugChoice.setSelectedIndex(0, App.debugMemory);
 		playMethodChoice.setSelectedIndex(App.watchMethod, true);
-		//checksChoice.setSelectedIndex(4, App.apiProxy);
-		//itemStateChanged(playMethodChoice);
+		checkUpdatesChoice.setSelectedIndex(App.checkUpdates ? 0 : 1, true);
 		setResolution();
 	}
 	
 	private void setResolution() {
-		/*
-		if(App.watchMethod == 2) {
-			switch(App.videoRes2yxa) {
-			case -1:
-				res2yxaChoice.setSelectedIndex(1, true);
-				App.videoRes2yxa = 18;
-				break;
-			case 7:
-				res2yxaChoice.setSelectedIndex(0, true);
-				break;
-			case 18:
-				res2yxaChoice.setSelectedIndex(1, true);
-				break;
-			case 3:
-				res2yxaChoice.setSelectedIndex(2, true);
-				break;
-			case 6:
-				res2yxaChoice.setSelectedIndex(3, true);
-				break;
-			case 2:
-				res2yxaChoice.setSelectedIndex(4, true);
-				break;
-			case 4:
-				res2yxaChoice.setSelectedIndex(5, true);
-				break;
-			}
-		} else {*/
 		if(App.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
 		} else if(App.videoRes.equals("144p")) {
@@ -205,36 +164,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		} else if(App.videoRes.equals("_240p")) {
 			videoResChoice.setSelectedIndex(4, true);
 		}
-		//}
 	}
 	
 	private void applySettings() {
 		try {
-			/*
-			if((App.watchMethod = playMethodChoice.getSelectedIndex()) == 2) {
-				if(res2yxaChoice != null) {
-					switch(res2yxaChoice.getSelectedIndex()) {
-					case 0:
-						App.videoRes2yxa = 7;
-						break;
-					case 1:
-						App.videoRes2yxa = 18;
-						break;
-					case 2:
-						App.videoRes2yxa = 3;
-						break;
-					case 3:
-						App.videoRes2yxa = 6;
-						break;
-					case 4:
-						App.videoRes2yxa = 2;
-						break;
-					case 5:
-						App.videoRes2yxa = 4;
-						break;
-					}
-				}
-			} else {*/
 			int i = videoResChoice.getSelectedIndex();
 			if(i == 0) {
 				App.videoRes = "144p";
@@ -247,7 +180,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			} else if(i == 4) {
 				App.videoRes = "_240p";
 			}
-			//}
 			App.region = regionText.getString();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
@@ -274,6 +206,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			App.debugMemory = debugChoice.isSelected(0);
 			App.watchMethod = playMethodChoice.getSelectedIndex();
 			App.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
+			App.checkUpdates = checkUpdatesChoice.isSelected(0);
 			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -395,22 +328,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	public void itemStateChanged(Item item) {
 		if(item == playMethodChoice) {
 			App.watchMethod = playMethodChoice.getSelectedIndex();
-			/*
-			if(App.watchMethod == 2) {
-				if(videoResChoice != null) {
-					delete(videoResChoiceIndex);
-					videoResChoice = null;
-					res2yxaChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES_2YXA, null);
-					insert(videoResChoiceIndex, res2yxaChoice);
-				}
-			} else if(res2yxaChoice != null) {
-				delete(videoResChoiceIndex);
-				res2yxaChoice = null;
-				videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.EXCLUSIVE, VIDEO_QUALITIES, null);
-				insert(videoResChoiceIndex, videoResChoice);
-			}
-			setResolution();
-			*/
 		}
 	}
 
