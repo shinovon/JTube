@@ -77,7 +77,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
 	private TextField downloadDirText;
-	private TextField httpProxyText;
+	//private TextField httpProxyText;
 	private ChoiceGroup checksChoice;
 	private TextField invidiousText;
 	private TextField imgProxyText;
@@ -123,9 +123,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(dirBtn);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), App.inv, 256, TextField.URL);
 		append(invidiousText);
-		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
-		append(httpProxyText);
-		append(Locale.s(SET_Tip3) + "\n");
+		//httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
+		//append(httpProxyText);
+		//append(Locale.s(SET_Tip3) + "\n");
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
 		append(Locale.s(SET_Tip2) + "\n");
@@ -199,7 +199,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			App.rememberSearch = s[0];
 			App.httpStream = s[1];
 			App.rmsPreviews = s[2];
-			App.serverstream = httpProxyText.getString();
+			//App.serverstream = httpProxyText.getString();
 			App.inv = invidiousText.getString();
 			App.imgproxy = imgProxyText.getString();
 			App.customLocale = customLocaleText.getString().trim().toLowerCase();
