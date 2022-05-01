@@ -99,7 +99,7 @@ public class Util implements Constants {
 		byte[] b = get(url);
 		try {
 			return new String(b, "UTF-8");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return new String(b);
 		}
 	}
