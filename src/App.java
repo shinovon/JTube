@@ -355,6 +355,28 @@ public class App implements Constants {
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
 		boolean combined = res == null || res.charAt(0) != '_';
+		/*
+			if(piped) {
+			String s = Util.getUtf(imgproxy + Util.url("https://pipedapi.kavin.rocks/streams/" + id));
+			JSONObject j = JSON.getObject(s);
+			JSONArray videoStreams = j.getArray("videoStreams");
+			for(int i = videoStreams.size() - 1; i >= 0; i--) {
+				JSONObject v = videoStreams.getObject(i);
+				if(!v.getBoolean("videoOnly", false)) {
+					if(v.getString("quality").equalsIgnoreCase(res)) {
+						JSONObject r = new JSONObject();
+						r.put("url", v.getString("url"));
+						try {
+							r.put("clen", new Integer(v.getInt("bitrate")*j.getInt("duration")));
+						} catch (Exception e) {
+						}
+						return r;
+					}
+				}
+			}
+			return null;
+		} else {
+		*/
 		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?", (combined ? "formatStreams" : "adaptiveFormats"));
 		JSONArray arr = j.getArray(combined ? "formatStreams" : "adaptiveFormats");
 		if(j.size() == 0) {
