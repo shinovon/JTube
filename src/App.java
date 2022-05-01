@@ -450,13 +450,9 @@ public class App implements Constants {
 		JSONObject o = getVideoInfo(id, res);
 		String s = o.getString("url");
 		if(httpStream || forceProxy) {
-			if(watchMethod == 1) {
-				int i = s.indexOf("/videoplayback");
-				s = "http://iteroni.com"+s.substring(i);
-				System.out.println(s);
-			} else {
-				s = serverstream + Util.url(s);
-			}
+			int i = s.indexOf("/videoplayback");
+			s = "http://iteroni.com" + s.substring(i);
+			System.out.println(s);
 		}
 		return s;
 	}
