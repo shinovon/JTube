@@ -55,12 +55,15 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final String[] SETTINGS_CHECKS = new String[] { 
 			Locale.s(SET_RememberSearch), 
 			Locale.s(SET_HTTPProxy), 
-			Locale.s(SET_PreLoadRMS) };
+			Locale.s(SET_PreLoadRMS),
+			Locale.s(SET_IteroniProxy)
+			};
 	static final String[] APPEARANCE_CHECKS = new String[] { 
 			Locale.s(SET_CustomItems), 
 			Locale.s(SET_VideoPreviews), 
 			Locale.s(SET_SearchChannels), 
-			Locale.s(SET_SearchPlaylists) };
+			Locale.s(SET_SearchPlaylists)
+			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug memory"
 			};
@@ -91,6 +94,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 
 	private List dirList;
 	private String curDir;
+	private int proxyTextIdx;
 
 	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 
@@ -123,8 +127,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(dirBtn);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), App.inv, 256, TextField.URL);
 		append(invidiousText);
-		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256, TextField.URL);
-		append(httpProxyText);
+		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256,
+				App.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
+		proxyTextIdx = append(httpProxyText);
 		append(Locale.s(SET_Tip3) + "\n");
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
@@ -144,6 +149,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checksChoice.setSelectedIndex(0, App.rememberSearch);
 		checksChoice.setSelectedIndex(1, App.httpStream);
 		checksChoice.setSelectedIndex(2, App.rmsPreviews);
+		checksChoice.setSelectedIndex(3, App.iteroniPlaybackProxy);
 		debugChoice.setSelectedIndex(0, App.debugMemory);
 		playMethodChoice.setSelectedIndex(App.watchMethod, true);
 		checkUpdatesChoice.setSelectedIndex(App.checkUpdates ? 0 : 1, true);
@@ -199,7 +205,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			App.rememberSearch = s[0];
 			App.httpStream = s[1];
 			App.rmsPreviews = s[2];
-			App.serverstream = httpProxyText.getString();
+			App.iteroniPlaybackProxy = s[3];
+			//App.serverstream = httpProxyText.getString();
 			App.inv = invidiousText.getString();
 			App.imgproxy = imgProxyText.getString();
 			App.customLocale = customLocaleText.getString().trim().toLowerCase();
@@ -326,6 +333,15 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 
 	public void itemStateChanged(Item item) {
+		if(item == checksChoice) {
+			boolean b = App.iteroniPlaybackProxy;
+			App.iteroniPlaybackProxy = checksChoice.isSelected(3);
+			if(App.iteroniPlaybackProxy != b) {
+				httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256,
+						App.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
+				set(proxyTextIdx, httpProxyText);
+			}
+		}
 		if(item == playMethodChoice) {
 			App.watchMethod = playMethodChoice.getSelectedIndex();
 		}

@@ -274,6 +274,8 @@ public class Locale implements LocaleConstants {
 				return "On";
 			case SET_Off:
 				return "Off";
+			case SET_IteroniProxy:
+				return "Use iteroni proxy for playback";
 			}
 		}
 		case 1: {
@@ -436,6 +438,8 @@ public class Locale implements LocaleConstants {
 				return "Вкл.";
 			case SET_Off:
 				return "Выкл.";
+			case SET_IteroniProxy:
+				return "Прокси iteroni для проигрывания";
 			}
 		}
 		}

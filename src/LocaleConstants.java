@@ -106,6 +106,6 @@ public interface LocaleConstants {
 	public static final int CMD_Ignore = 82;
 	public static final int SET_On = 83;
 	public static final int SET_Off = 84;
-	
+	public static final int SET_IteroniProxy = 85;
 
 }

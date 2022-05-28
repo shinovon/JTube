@@ -99,7 +99,7 @@ public class Util implements Constants {
 		byte[] b = get(url);
 		try {
 			return new String(b, "UTF-8");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return new String(b);
 		}
 	}
@@ -136,7 +136,7 @@ public class Util implements Constants {
 
 	private static String hex(int i) {
 		String s = Integer.toHexString(i);
-		return "%" + (s.length() < 2 ? "0" : "") + s;
+		return "%".concat(s.length() < 2 ? "0" : "").concat(s);
 	}
 
 	public static String replace(String str, String from, String to) {
