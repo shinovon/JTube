@@ -136,7 +136,7 @@ public class Util implements Constants {
 
 	private static String hex(int i) {
 		String s = Integer.toHexString(i);
-		return "%" + (s.length() < 2 ? "0" : "") + s;
+		return "%".concat(s.length() < 2 ? "0" : "").concat(s);
 	}
 
 	public static String replace(String str, String from, String to) {

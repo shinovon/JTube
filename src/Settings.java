@@ -215,6 +215,8 @@ public class Settings implements Constants {
 				}
 				if(j.has("checkUpdates"))
 					App.checkUpdates = j.getBoolean("checkUpdates");
+				if(j.has("iteroniPlaybackProxy"))
+					App.iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -251,6 +253,7 @@ public class Settings implements Constants {
 			j.put("asyncLoading", new Boolean(App.asyncLoading));
 			j.put("downloadBuffer", new Integer(App.downloadBuffer));
 			j.put("checkUpdates", new Boolean(App.checkUpdates));
+			j.put("iteroniPlaybackProxy", new Boolean(App.iteroniPlaybackProxy));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

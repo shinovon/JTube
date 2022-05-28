@@ -70,6 +70,7 @@ public class App implements Constants {
 	public static int downloadBuffer = 1024;
 	public static boolean asyncLoading;
 	public static boolean checkUpdates = true;
+	public static boolean iteroniPlaybackProxy = true;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -472,9 +473,12 @@ public class App implements Constants {
 		JSONObject o = getVideoInfo(id, res);
 		String s = o.getString("url");
 		if(httpStream || forceProxy) {
-			int i = s.indexOf("/videoplayback");
-			s = "http://iteroni.com" + s.substring(i);
-			System.out.println(s);
+			if(iteroniPlaybackProxy) {
+				int i = s.indexOf("/videoplayback");
+				s = "http://iteroni.com" + s.substring(i);
+			} else {
+				s = App.serverstream + Util.url(s);
+			}
 		}
 		return s;
 	}

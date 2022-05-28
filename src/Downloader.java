@@ -103,8 +103,12 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 				JSONObject o = App.getVideoInfo(id, res);
 				String url = o.getString("url");
 				if(App.httpStream) {
-					int i = url.indexOf("/videoplayback");
-					url = "http://iteroni.com" + url.substring(i);
+					if(App.iteroniPlaybackProxy) {
+						int i = url.indexOf("/videoplayback");
+						url = "http://iteroni.com" + url.substring(i);
+					} else {
+						url = App.serverstream + Util.url(url);
+					}
 				}
 				int contentLength = o.getInt("clen", 0);
 				o = null;
