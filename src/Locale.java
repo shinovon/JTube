@@ -57,7 +57,7 @@ public class Locale implements LocaleConstants {
 	}
 	
 	public static void init() {
-		String s = App.customLocale;
+		String s = Settings.customLocale;
 		boolean b = true;
 		if(s == null || (s = s.trim()).length() == 0) {
 			s = systemLocale;
@@ -155,7 +155,7 @@ public class Locale implements LocaleConstants {
 			case SET_Appearance:
 				return "Appearance";
 			case SET_OtherSettings:
-				return "";
+				return "Common";
 			case SET_DownloadDir:
 				return "Download directory";
 			case SET_InvAPI:
@@ -276,6 +276,10 @@ public class Locale implements LocaleConstants {
 				return "Off";
 			case SET_IteroniProxy:
 				return "Use iteroni proxy for playback";
+			case CMD_Func:
+				return "Options";
+			case CMD_Refresh:
+				return "Refresh";
 			}
 		}
 		case 1: {
@@ -319,7 +323,7 @@ public class Locale implements LocaleConstants {
 			case SET_Appearance:
 				return "Внешность";
 			case SET_OtherSettings:
-				return "";
+				return "Общие";
 			case SET_DownloadDir:
 				return "Папка для скачивания";
 			case SET_InvAPI:
@@ -440,6 +444,10 @@ public class Locale implements LocaleConstants {
 				return "Выкл.";
 			case SET_IteroniProxy:
 				return "Прокси iteroni для проигрывания";
+			case CMD_Func:
+				return "Опции";
+			case CMD_Refresh:
+				return "Обновить";
 			}
 		}
 		}

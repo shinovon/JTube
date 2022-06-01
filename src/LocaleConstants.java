@@ -107,5 +107,7 @@ public interface LocaleConstants {
 	public static final int SET_On = 83;
 	public static final int SET_Off = 84;
 	public static final int SET_IteroniProxy = 85;
+	public static final int CMD_Func = 86;
+	public static final int CMD_Refresh = 87;
 
 }

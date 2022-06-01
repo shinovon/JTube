@@ -22,9 +22,15 @@ SOFTWARE.
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
+import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
+import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Font;
+
+import ui.TestCanvas;
 
 public class Util implements Constants {
 	
@@ -165,6 +171,80 @@ public class Util implements Constants {
 		} else {
 			return m + ":" + s;
 		}
+	}
+	
+	public static String[] getStringArray(String text, int maxWidth, Font font) {
+		if (text == null || text.length() == 0 || text.equals(" ")) {
+			return new String[0];
+		}
+		final int max = 3;
+		Vector v = new Vector(max);
+		v: {
+			if (font.stringWidth(text) > maxWidth) {
+				int i1 = 0;
+				for (int i2 = 0; i2 < text.length(); i2++) {
+					if(v.size() >= max) break v;
+					if (text.charAt(i2) == '\n') {
+						v.addElement(text.substring(i1, i2));
+						i2 = i1 = i2 + 1;
+					} else {
+						if (text.length() - i2 <= 1) {
+							v.addElement(text.substring(i1, text.length()));
+							break;
+						} else if (font.stringWidth(text.substring(i1, i2)) >= maxWidth) {
+							boolean space = false;
+							for (int j = i2; j > i1; j--) {
+								char c = text.charAt(j);
+								if (c == ' ' || (c >= ',' && c <= '/')) {
+									String s = text.substring(i1, j + 1);
+									if(font.stringWidth(s) >= maxWidth - 1) {
+										continue;
+									}
+									space = true;
+									v.addElement(s);
+									i2 = i1 = j + 1;
+									break;
+								}
+							}
+							if (!space) {
+								i2 = i2 - 2;
+								v.addElement(text.substring(i1, i2));
+								i2 = i1 = i2 + 1;
+							}
+						}
+					}
+				}
+			} else {
+				return new String[] { text };
+			}
+		}
+		String[] arr = new String[v.size()];
+		v.copyInto(arr);
+		return arr;
+	}
+	
+	public static int lerp(int start, int target, int mul, int div) {
+		return start + ((target - start) * mul / div);
+	}
+
+	public static int clamp(int val, int min, int max) {
+		return Math.max(Math.min(val, max), min);
+	}
+	
+	public static void gc() {
+		System.gc();
+	}
+	
+	public static void platReq(String s) throws ConnectionNotFoundException {
+		if(App.midlet.platformRequest(s)) {
+			App.midlet.notifyDestroyed();
+		}
+	}
+
+	public static void testCanvas() {
+		Canvas c = new TestCanvas();
+		App.width = c.getWidth();
+		App.height = c.getHeight();
 	}
 
 }

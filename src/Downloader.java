@@ -35,15 +35,13 @@ import javax.microedition.lcdui.Gauge;
 
 import cc.nnproject.json.JSONObject;
 import ui.AppUI;
-import ui.Commands;
 
-public class Downloader implements CommandListener, Commands, Runnable, Constants {
+public class Downloader implements CommandListener, Runnable, Constants, LocaleConstants {
 	
 	private String id;
 	private String res;
 	
 	private Alert alert;
-	private Displayable d;
 	private Gauge indicator;
 	
 	private String file;
@@ -53,21 +51,23 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 	//private String[] ids;
 	private boolean playlist;
 	//private int curIndex;
+	
+	static final Command dlOkCmd = new Command(Locale.s(CMD_OK), Command.CANCEL, 1);
+	static final Command dlOpenCmd = new Command(Locale.s(CMD_Open), Command.OK, 1);
+	static final Command dlCancelCmd = new Command(Locale.s(CMD_Cancel), Command.CANCEL, 1);
 
-	public Downloader(String vid, String res, Displayable d, String downloadDir) {
+	public Downloader(String vid, String res, String downloadDir) {
 		this.id = vid;
 		this.res = res;
-		this.d = d;
 		this.file = "file:///" + downloadDir;
 		if(!(file.endsWith("/") || file.endsWith("\\"))) {
 			file += Path_separator;
 		}
 	}
 
-	public Downloader(String[] vid, String res, Displayable d, String downloadDir) {
+	public Downloader(String[] vid, String res, String downloadDir) {
 		//this.ids = vid;
 		this.res = res;
-		this.d = d;
 		this.playlist = true;
 		this.file = "file:///" + downloadDir;
 		if(!(file.endsWith("/") || file.endsWith("\\"))) {
@@ -102,12 +102,12 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 				
 				JSONObject o = App.getVideoInfo(id, res);
 				String url = o.getString("url");
-				if(App.httpStream) {
-					if(App.iteroniPlaybackProxy) {
+				if(Settings.httpStream) {
+					if(Settings.iteroniPlaybackProxy) {
 						int i = url.indexOf("/videoplayback");
 						url = "http://iteroni.com" + url.substring(i);
 					} else {
-						url = App.serverstream + Util.url(url);
+						url = Settings.serverstream + Util.url(url);
 					}
 				}
 				int contentLength = o.getInt("clen", 0);
@@ -163,7 +163,7 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 				in = hc.openInputStream();
 				info(Locale.s(TXT_Connected));
 				int percent = 0;
-				int bufSize = App.downloadBuffer;
+				int bufSize = Settings.downloadBuffer;
 				byte[] buf = new byte[bufSize];
 				int read = 0;
 				int downloaded = 0;
@@ -259,7 +259,7 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 		alert = new Alert("", Locale.s(TXT_Initializing), null, null);
 		alert.addCommand(dlCancelCmd);
 		alert.setTimeout(Alert.FOREVER);
-		AppUI.display(alert);
+		AppUI.inst.display(alert);
 		alert.setCommandListener(this);
 		this.indicator = new Gauge(null, false, 100, 0); 
 		alert.setIndicator(indicator);
@@ -300,17 +300,17 @@ public class Downloader implements CommandListener, Commands, Runnable, Constant
 
 	public void commandAction(Command c, Displayable _d) {
 		if(c == dlOkCmd) {
-			AppUI.display(d);
+			AppUI.inst.display(null);
 		}
 		if(c == dlCancelCmd) {
 			cancel = true;
 			t.interrupt();
-			AppUI.display(d);
+			AppUI.inst.display(null);
 		}
 		if(c == dlOpenCmd) {
 			try {
-				App.platReq(file);
-				AppUI.display(d);
+				Util.platReq(file);
+				AppUI.inst.display(null);
 			} catch (Exception e) {
 				e.printStackTrace();
 				info(e.toString());

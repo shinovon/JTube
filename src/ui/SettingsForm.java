@@ -43,8 +43,9 @@ import Errors;
 import Locale;
 import Settings;
 import Constants;
+import LocaleConstants;
 
-public class SettingsForm extends Form implements CommandListener, ItemCommandListener, Commands, Constants, ItemStateListener {
+public class SettingsForm extends Form implements CommandListener, ItemCommandListener, LocaleConstants, Constants, ItemStateListener {
 	
 	static final String[] VIDEO_QUALITIES = new String[] { 
 			"144p", 
@@ -77,6 +78,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_Off)
 			};
 	
+	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
+	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
+	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
 	private TextField downloadDirText;
@@ -108,7 +112,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		addCommand(applyCmd);
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
 		append(videoResChoice);
-		regionText = new TextField(Locale.s(SET_CountryCode), App.region, 3, TextField.ANY);
+		regionText = new TextField(Locale.s(SET_CountryCode), Settings.region, 3, TextField.ANY);
 		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
 		append(playMethodChoice);
 		append(regionText);
@@ -118,56 +122,56 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(uiChoice);
 		checksChoice = new ChoiceGroup(Locale.s(SET_OtherSettings), ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
 		append(checksChoice);
-		downloadDirText = new TextField(Locale.s(SET_DownloadDir), App.downloadDir, 256, TextField.URL);
+		downloadDirText = new TextField(Locale.s(SET_DownloadDir), Settings.downloadDir, 256, TextField.URL);
 		append(downloadDirText);
 		dirBtn = new StringItem(null, "...", Item.BUTTON);
 		dirBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
 		dirBtn.setDefaultCommand(dirCmd);
 		dirBtn.setItemCommandListener(this);
 		append(dirBtn);
-		invidiousText = new TextField(Locale.s(SET_InvAPI), App.inv, 256, TextField.URL);
+		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
 		append(invidiousText);
-		httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256,
-				App.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
+		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
+				Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
 		proxyTextIdx = append(httpProxyText);
 		append(Locale.s(SET_Tip3) + "\n");
-		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), App.imgproxy, 256, TextField.URL);
+		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), Settings.imgproxy, 256, TextField.URL);
 		append(imgProxyText);
 		append(Locale.s(SET_Tip2) + "\n");
-		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), App.customLocale, 8, TextField.ANY);
+		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), Settings.customLocale, 8, TextField.ANY);
 		append(customLocaleText);
-		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(App.downloadBuffer), 6, TextField.NUMERIC);
+		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		append(downloadBufferText);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 	}
 	
 	public void show() {
-		uiChoice.setSelectedIndex(0, App.customItems);
-		uiChoice.setSelectedIndex(1, App.videoPreviews);
-		uiChoice.setSelectedIndex(2, App.searchChannels);
-		uiChoice.setSelectedIndex(3, App.searchPlaylists);
-		checksChoice.setSelectedIndex(0, App.rememberSearch);
-		checksChoice.setSelectedIndex(1, App.httpStream);
-		checksChoice.setSelectedIndex(2, App.rmsPreviews);
-		checksChoice.setSelectedIndex(3, App.iteroniPlaybackProxy);
-		debugChoice.setSelectedIndex(0, App.debugMemory);
-		playMethodChoice.setSelectedIndex(App.watchMethod, true);
-		checkUpdatesChoice.setSelectedIndex(App.checkUpdates ? 0 : 1, true);
+		uiChoice.setSelectedIndex(0, Settings.customItems);
+		uiChoice.setSelectedIndex(1, Settings.videoPreviews);
+		uiChoice.setSelectedIndex(2, Settings.searchChannels);
+		uiChoice.setSelectedIndex(3, Settings.searchPlaylists);
+		checksChoice.setSelectedIndex(0, Settings.rememberSearch);
+		checksChoice.setSelectedIndex(1, Settings.httpStream);
+		checksChoice.setSelectedIndex(2, Settings.rmsPreviews);
+		checksChoice.setSelectedIndex(3, Settings.iteroniPlaybackProxy);
+		debugChoice.setSelectedIndex(0, Settings.debugMemory);
+		playMethodChoice.setSelectedIndex(Settings.watchMethod, true);
+		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
 		setResolution();
 	}
 	
 	private void setResolution() {
-		if(App.videoRes == null) {
+		if(Settings.videoRes == null) {
 			videoResChoice.setSelectedIndex(1, true);
-		} else if(App.videoRes.equals("144p")) {
+		} else if(Settings.videoRes.equals("144p")) {
 			videoResChoice.setSelectedIndex(0, true);
-		} else if(App.videoRes.equals("360p")) {
+		} else if(Settings.videoRes.equals("360p")) {
 			videoResChoice.setSelectedIndex(1, true);
-		} else if(App.videoRes.equals("720p")) {
+		} else if(Settings.videoRes.equals("720p")) {
 			videoResChoice.setSelectedIndex(2, true);
-		} else if(App.videoRes.equals("_audiohigh")) {
+		} else if(Settings.videoRes.equals("_audiohigh")) {
 			videoResChoice.setSelectedIndex(3, true);
-		} else if(App.videoRes.equals("_240p")) {
+		} else if(Settings.videoRes.equals("_240p")) {
 			videoResChoice.setSelectedIndex(4, true);
 		}
 	}
@@ -176,44 +180,44 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		try {
 			int i = videoResChoice.getSelectedIndex();
 			if(i == 0) {
-				App.videoRes = "144p";
+				Settings.videoRes = "144p";
 			} else if(i == 1) {
-				App.videoRes = "360p";
+				Settings.videoRes = "360p";
 			} else if(i == 2) {
-				App.videoRes = "720p";
+				Settings.videoRes = "720p";
 			} else if(i == 3) {
-				App.videoRes = "_audiohigh";
+				Settings.videoRes = "_audiohigh";
 			} else if(i == 4) {
-				App.videoRes = "_240p";
+				Settings.videoRes = "_240p";
 			}
-			App.region = regionText.getString();
+			Settings.region = regionText.getString();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
 			dir = Util.replace(dir, "\\", Path_separator);
 			while (dir.endsWith(Path_separator)) {
 				dir = dir.substring(0, dir.length() - 1);
 			}
-			App.downloadDir = dir;
+			Settings.downloadDir = dir;
 			boolean[] s = new boolean[checksChoice.size()];
 			checksChoice.getSelectedFlags(s);
 			boolean[] ui = new boolean[uiChoice.size()];
 			uiChoice.getSelectedFlags(ui);
-			App.customItems = ui[0];
-			App.videoPreviews = ui[1];
-			App.searchChannels = ui[2];
-			App.searchPlaylists = ui[3];
-			App.rememberSearch = s[0];
-			App.httpStream = s[1];
-			App.rmsPreviews = s[2];
-			App.iteroniPlaybackProxy = s[3];
-			//App.serverstream = httpProxyText.getString();
-			App.inv = invidiousText.getString();
-			App.imgproxy = imgProxyText.getString();
-			App.customLocale = customLocaleText.getString().trim().toLowerCase();
-			App.debugMemory = debugChoice.isSelected(0);
-			App.watchMethod = playMethodChoice.getSelectedIndex();
-			App.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
-			App.checkUpdates = checkUpdatesChoice.isSelected(0);
+			Settings.customItems = ui[0];
+			Settings.videoPreviews = ui[1];
+			Settings.searchChannels = ui[2];
+			Settings.searchPlaylists = ui[3];
+			Settings.rememberSearch = s[0];
+			Settings.httpStream = s[1];
+			Settings.rmsPreviews = s[2];
+			Settings.iteroniPlaybackProxy = s[3];
+			//Settings.serverstream = httpProxyText.getString();
+			Settings.inv = invidiousText.getString();
+			Settings.imgproxy = imgProxyText.getString();
+			Settings.customLocale = customLocaleText.getString().trim().toLowerCase();
+			Settings.debugMemory = debugChoice.isSelected(0);
+			Settings.watchMethod = playMethodChoice.getSelectedIndex();
+			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
+			Settings.checkUpdates = checkUpdatesChoice.isSelected(0);
 			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -243,7 +247,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		AppUI.display(dirList);
+		AppUI.inst.display(dirList);
 	}
 	
 	public void commandAction(Command c, Displayable d) {
@@ -252,7 +256,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				if(c == backCmd) {
 					if(curDir == null) {
 						dirList = null;
-						AppUI.display(this);
+						AppUI.inst.display(this);
 					} else {
 						if(curDir.indexOf("/") == -1) {
 							dirList = new List("", List.IMPLICIT);
@@ -268,7 +272,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 								dirList.append(s, null);
 							}
 							curDir = null;
-							AppUI.display(dirList);
+							AppUI.inst.display(dirList);
 							return;
 						}
 						String sub = curDir.substring(0, curDir.lastIndexOf('/'));
@@ -291,7 +295,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 						dirList = null;
 						downloadDirText.setString(f);
 						curDir = null;
-						AppUI.display(this);
+						AppUI.inst.display(this);
 						return;
 					}
 					f += is;
@@ -303,12 +307,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 					dirList = null;
 					downloadDirText.setString(curDir + "/");
 					curDir = null;
-					AppUI.display(this);
+					AppUI.inst.display(this);
 				}
 				return;
 			}
 			applySettings();
-			AppUI.display(null);
+			AppUI.inst.display(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -328,22 +332,22 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			dirList.setSelectCommand(List.SELECT_COMMAND);
 			dirList.addCommand(backCmd);
 			dirList.setCommandListener(this);
-			AppUI.display(dirList);
+			AppUI.inst.display(dirList);
 		}
 	}
 
 	public void itemStateChanged(Item item) {
 		if(item == checksChoice) {
-			boolean b = App.iteroniPlaybackProxy;
-			App.iteroniPlaybackProxy = checksChoice.isSelected(3);
-			if(App.iteroniPlaybackProxy != b) {
-				httpProxyText = new TextField(Locale.s(SET_StreamProxy), App.serverstream, 256,
-						App.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
+			boolean b = Settings.iteroniPlaybackProxy;
+			Settings.iteroniPlaybackProxy = checksChoice.isSelected(3);
+			if(Settings.iteroniPlaybackProxy != b) {
+				httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
+						Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
 				set(proxyTextIdx, httpProxyText);
 			}
 		}
 		if(item == playMethodChoice) {
-			App.watchMethod = playMethodChoice.getSelectedIndex();
+			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 		}
 	}
 

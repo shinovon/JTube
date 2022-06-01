@@ -23,29 +23,23 @@ package models;
 
 import java.io.IOException;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.ImageItem;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
-import javax.microedition.lcdui.StringItem;
 
 import App;
+import Util;
 import Records;
 import Settings;
 import Constants;
-import ui.AppUI;
-import ui.ModelForm;
-import ui.VideoForm;
-import ui.PlaylistForm;
 import InvidiousException;
-import ui.custom.VideoItem;
+import ui.AppUI;
+import ui.UIItem;
+import ui.items.VideoItem;
+import ui.items.VideoPreviewItem;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 
-public class VideoModel extends AbstractModel implements ItemCommandListener, ILoader, Constants, Runnable {
+public class VideoModel extends AbstractModel implements ILoader, Constants, Runnable {
 
 	private String title;
 	private String videoId;
@@ -61,24 +55,18 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	private String thumbnailUrl;
 	private int imageWidth;
-	private ImageItem imageItem;
 	private JSONArray authorThumbnails;
 
 	private boolean extended;
 	private boolean fromSearch;
 	private boolean fromPlaylist;
-
-	private ImageItem authorItem;
 	
-	private VideoItem customItem;
-	
-	private Form formContainer;
+	private VideoItem item;
 	
 	private int index = -1;
 	private boolean imgLoaded;
 	
 	private byte[] tempImgBytes;
-	
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -93,18 +81,12 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		parse(j, extended);
 	}
 
-	public VideoModel(JSONObject j, Form form) {
-		this(j, false);
-		this.formContainer = form;
-		this.fromPlaylist = form instanceof PlaylistForm;
-	}
-
 	private void parse(JSONObject j, boolean extended) {
 		this.extended = extended;
 		videoId = j.getString("videoId");
 		title = j.getNullableString("title");
 		JSONArray videoThumbnails = null;
-		if(App.videoPreviews || App.customItems) {
+		if(Settings.videoPreviews || Settings.customItems) {
 			videoThumbnails = j.getNullableArray("videoThumbnails");
 		}
 		author = j.getNullableString("author");
@@ -117,15 +99,10 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			publishedText = j.getNullableString("publishedText");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
-			if(App.videoPreviews) authorThumbnails = j.getNullableArray("authorThumbnails");
+			if(Settings.videoPreviews) authorThumbnails = j.getNullableArray("authorThumbnails");
 		}
 		if(videoThumbnails != null) {
-			if(App.customItems) {
-				imageWidth = VideoItem.getImageWidth();
-			} else {
-				imageWidth = getImgItemWidth();
-				if (imageWidth <= 0) imageWidth = 220;
-			}
+			imageWidth = AppUI.inst.getItemWidth();
 			thumbnailUrl = App.getThumbUrl(videoThumbnails, imageWidth);
 			videoThumbnails = null;	
 		}
@@ -134,65 +111,15 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (App.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
 		}
 		return this;
-	}
-	private Item makeItem() {
-		if(App.customItems) {
-			customItem = new VideoItem(this);
-			imageWidth = VideoItem.getImageWidth();
-			return customItem;
-		}
-		if(!App.videoPreviews) {
-			return new StringItem(author, title);
-		}
-		return imageItem = new ImageItem(title, null, Item.LAYOUT_CENTER | Item.LAYOUT_NEWLINE_AFTER, null, ImageItem.BUTTON);
-	}
-
-	public Item makeItemForList() {
-		Item i = makeItem();
-		i.addCommand(vOpenCmd);
-		i.setDefaultCommand(vOpenCmd);
-		i.setItemCommandListener(this);
-		return i;
-	}
-
-	public ImageItem makeImageItemForPage() {
-		Image img = null;
-		if(customItem != null) {
-			img = customItem.getImage();
-		}
-		if(img == null && App.rmsPreviews) {
-			try {
-				img = Records.saveOrGetImage(videoId, thumbnailUrl);
-			} catch (IOException e) {
-			}
-		}
-		if(img == null && imageItem != null) {
-			img = imageItem.getImage();
-		}
-		if(img == null) {
-			try {
-				byte[] b = App.hproxy(thumbnailUrl);
-				img = Image.createImage(b, 0, b.length);
-				b = null;
-				App.gc();
-				float iw = img.getWidth();
-				float ih = img.getHeight();
-				float nw = (float) imageWidth;
-				int nh = (int) (nw * (ih / iw));
-				img = ImageUtils.resize(img, imageWidth, nh);
-			} catch (IOException e) {
-			}
-		}
-		return imageItem = new ImageItem(null, img, Item.LAYOUT_CENTER, null);
 	}
 	
 	public Image customResize(Image img) {
 		float iw = img.getWidth();
 		float ih = img.getHeight();
-		App.gc();
+		Util.gc();
 		float f = iw / ih;
 		if(f == 4F / 3F) {
 			// cropping to 16:9
@@ -210,17 +137,17 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		if(imgLoaded) return;
 		imgLoaded = true;
 		if(thumbnailUrl == null) return;
-		if(imageItem == null && customItem == null && !extended) return;
+		if(item == null && !extended) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
-			if(App.rmsPreviews && App.customItems) {
+			if(Settings.rmsPreviews && Settings.customItems) {
 				if(Settings.isLowEndDevice()) {
 					Records.save(videoId, b);
 					if(index <= 1 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
 						b = null;
-						App.gc();
-						customItem.setImage(customResize(img));
+						Util.gc();
+						item.setImage(customResize(img));
 					}
 					b = null;
 				} else {
@@ -229,38 +156,27 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 					App.inst.schedule(this);
 					if(index <= 2 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
-						App.gc();
-						customItem.setImage(customResize(img));
+						Util.gc();
+						item.setImage(customResize(img));
 					}
 				}
 			} else {
 				Image img = Image.createImage(b, 0, b.length);
 				b = null;
-				App.gc();
-				if(imageItem != null) {
-					if(App.width >= 480) {
-						img = customResize(img);
-					} else {
-						float iw = img.getWidth();
-						float ih = img.getHeight();
-						float nw = (float) imageWidth;
-						int nh = (int) (nw * (ih / iw));
-						img = ImageUtils.resize(img, imageWidth, nh);
-					}
-					imageItem.setImage(img);
-				} else if(customItem != null) {
-					customItem.setImage(customResize(img));
+				Util.gc();
+				if(item != null) {
+					item.setImage(customResize(img));
 				}
 			}
 			thumbnailUrl = null;
-			App.gc();
+			Util.gc();
 		} catch (NullPointerException e) {
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
-			App.gc();
+			Util.gc();
 			App.inst.stopDoingAsyncTasks();
 			App.warn(this, "Not enough memory to load video previews!");
 		}
@@ -268,11 +184,8 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	private void loadAuthorImg() {
 		if(authorThumbnails == null) return;
-		if(authorItem == null || authorItem.getImage() != null) return;
 		try {
 			byte[] b = App.hproxy(getAuthorThumbUrl());
-			authorItem.setImage(Image.createImage(b, 0, b.length));
-			authorItem.setPreferredSize(48, 48);
 			authorThumbnails = null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -281,43 +194,9 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		}
 	}
 	
-	private int getImgItemWidth() {
-		return (int) (App.width * 2F / 3F);
-	}
-	
 	public String getAuthorThumbUrl() {
 		return App.getThumbUrl(authorThumbnails, VIDEOFORM_AUTHOR_IMAGE_HEIGHT);
 	}
-
-	public Item makeAuthorItem() {
-		/*if(!App.videoPreviews) {
-			Item i = new StringItem(null, getAuthor());
-			i.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2);
-			return i;
-		}*/
-		authorItem = new ImageItem(null, null, Item.LAYOUT_LEFT, null, Item.BUTTON);
-		authorItem.setPreferredSize(48, 48);
-		authorItem.addCommand(vOpenChannelCmd);
-		authorItem.setDefaultCommand(vOpenChannelCmd);
-		authorItem.setItemCommandListener(this);
-		return authorItem;
-	}
-
-	public void commandAction(Command c, Item item) {
-		if(c == vOpenCmd || c == null) {
-			AppUI.open(this, formContainer);
-		}
-		if(c == vOpenChannelCmd) {
-			if(formContainer != null && !fromPlaylist) {
-				AppUI.display(formContainer);
-				return;
-			}
-			Image img = null;
-			//if(authorItem != null) img = authorItem.getImage();
-			AppUI.open(new ChannelModel(authorId, author, img));
-		}
-	}
-
 	public String getTitle() {
 		return title;
 	}
@@ -381,7 +260,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public void dispose() {
 		thumbnailUrl = null;
-		if(imageItem != null) imageItem.setImage(null);
 	}
 
 	public void disposeExtendedVars() {
@@ -390,7 +268,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 		description = null;
 		publishedText = null;
 		authorThumbnails = null;
-		authorItem = null;
 	}
 
 	public int getLikeCount() {
@@ -403,18 +280,6 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 
 	public boolean isExtended() {
 		return extended;
-	}
-
-	public ModelForm makeForm() {
-		return new VideoForm(this);
-	}
-
-	public void setFormContainer(Form form) {
-		this.formContainer = form;
-		this.fromPlaylist = form instanceof PlaylistForm;
-		if(fromPlaylist) {
-			this.playlistId = ((PlaylistModel)((PlaylistForm)form).getModel()).getPlaylistId();
-		}
 	}
 
 	public int getIndex() {
@@ -431,6 +296,24 @@ public class VideoModel extends AbstractModel implements ItemCommandListener, IL
 			Records.save(videoId, tempImgBytes);
 			tempImgBytes = null;
 		}
+	}
+
+	public UIItem makeListItem() {
+		return item = new VideoItem(this);
+	}
+
+	public UIItem makePreviewItem() {
+		Image img = null;
+		if(item != null) {
+			img = item.getImage();
+		}
+		if(img == null && Settings.rmsPreviews) {
+			try {
+				img = Records.saveOrGetImage(videoId, thumbnailUrl);
+			} catch (IOException e) {
+			}
+		}
+		return new VideoPreviewItem(getVideoId(), img);
 	}
 
 }

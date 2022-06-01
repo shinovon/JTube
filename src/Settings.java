@@ -32,6 +32,30 @@ import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 
 public class Settings implements Constants {
+	
+	// Settings
+	public static String videoRes;
+	public static String region;
+	public static int watchMethod = 1;
+	public static String downloadDir;
+	public static String serverstream = glype;
+	public static boolean videoPreviews;
+	public static boolean searchChannels;
+	public static boolean rememberSearch;
+	public static boolean httpStream;
+	public static int startScreen; // 0 - Trends 1 - Popular
+	public static String inv = iteroni;
+	public static boolean customItems;
+	public static String imgproxy = hproxy;
+	public static boolean rmsPreviews;
+	public static boolean searchPlaylists;
+	public static String customLocale;
+	public static boolean debugMemory;
+	public static int downloadBuffer = 1024;
+	public static boolean asyncLoading;
+	public static boolean checkUpdates = true;
+	public static boolean iteroniPlaybackProxy = true;
+	public static boolean renderDebug = true;
 
 	public static Vector rootsVector;
 	
@@ -48,11 +72,11 @@ public class Settings implements Constants {
 	
 
 	public static void loadConfig() {
-		App.customLocale = Locale.l;
+		customLocale = Locale.l;
 		/*
 		String s = System.getProperty("kemulator.libvlc.supported");
 		if(s != null && s.equals("true")) {
-			App.watchMethod = 1;
+			watchMethod = 1;
 		}
 		*/
 		RecordStore r = null;
@@ -64,11 +88,11 @@ public class Settings implements Constants {
 		if(r == null) {
 			// Defaults
 			if(PlatformUtils.isJ2ML()) {
-				App.videoPreviews = true;
-				App.customItems = true;
-				App.httpStream = false;
-				App.videoRes = "360p";
-				App.downloadDir = "C:/";
+				videoPreviews = true;
+				customItems = true;
+				httpStream = false;
+				videoRes = "360p";
+				downloadDir = "C:/";
 			} else {
 				boolean s40 = PlatformUtils.isS40();
 				if(!s40) {
@@ -94,11 +118,11 @@ public class Settings implements Constants {
 						}
 					}
 					if(!root.endsWith("/")) root += "/";
-					App.downloadDir = root;
+					downloadDir = root;
 					try {
 						FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
 						if(fc.exists()) {
-							App.downloadDir = root + "videos/";
+							downloadDir = root + "videos/";
 						}
 						fc.close();
 					} catch (Exception e) {
@@ -111,52 +135,51 @@ public class Settings implements Constants {
 						downloadDir = "C:/";
 					else if(downloadDir.startsWith("file:///"))
 						downloadDir = downloadDir.substring("file:///".length());
-					App.downloadDir = downloadDir;
+					Settings.downloadDir = downloadDir;
 				}
-				App.watchMethod = PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
+				watchMethod = PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
-					App.httpStream = true;
-					App.rememberSearch = false;
-					App.searchChannels = true;
-					App.asyncLoading = false;
-					App.videoPreviews = false;
-					App.serverstream = stream;
+					httpStream = true;
+					rememberSearch = false;
+					searchChannels = true;
+					asyncLoading = false;
+					videoPreviews = false;
+					serverstream = stream;
 				} else {
 					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
-						App.httpStream = true;
-						App.asyncLoading = false;
+						httpStream = true;
+						asyncLoading = false;
 					}
 					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
-						App.customItems = true;
+						customItems = true;
 					}
-					if(PlatformUtils.isSymbian3Based()) {
-						App.asyncLoading = true;
+					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
+						asyncLoading = true;
 					}
-					App.rememberSearch = true;
-					App.searchChannels = true;
-					App.searchPlaylists = true;
-					App.videoPreviews = true;
+					rememberSearch = true;
+					searchChannels = true;
+					searchPlaylists = true;
+					videoPreviews = true;
 				}
 				if(PlatformUtils.isAsha()) {
-					App.serverstream = stream;
-					App.videoPreviews = true;
+					serverstream = stream;
+					videoPreviews = true;
 					char c = PlatformUtils.platform.charAt(5);
-					App.customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
+					customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
-					App.serverstream = stream;
-					App.videoPreviews = true;
-					App.customItems = true;
-					App.rmsPreviews = true;
+					serverstream = stream;
+					videoPreviews = true;
+					customItems = true;
 				} else {
-					App.serverstream = glype;
+					serverstream = glype;
 				}
 				int min = Math.min(App.width, App.height);
 				// Symbian 9.4 can't handle H.264/AVC
-				if(min < 360 || PlatformUtils.isSymbian94()) {
-					App.videoRes = "144p";
+				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
+					videoRes = "144p";
 				} else {
-					App.videoRes = "360p";
+					videoRes = "360p";
 				}
 			}
 		} else {
@@ -164,59 +187,59 @@ public class Settings implements Constants {
 				JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
 				r.closeRecordStore();
 				if(j.has("videoRes"))
-					App.videoRes = j.getString("videoRes");
+					videoRes = j.getString("videoRes");
 				if(j.has("region"))
-					App.region = j.getString("region");
+					region = j.getString("region");
 				if(j.has("downloadDir"))
-					App.downloadDir = j.getString("downloadDir");
+					downloadDir = j.getString("downloadDir");
 				if(j.has("videoPreviews"))
-					App.videoPreviews = j.getBoolean("videoPreviews");
+					videoPreviews = j.getBoolean("videoPreviews");
 				if(j.has("searchChannels"))
-					App.searchChannels = j.getBoolean("searchChannels");
+					searchChannels = j.getBoolean("searchChannels");
 				if(j.has("rememberSearch"))
-					App.rememberSearch = j.getBoolean("rememberSearch");
+					rememberSearch = j.getBoolean("rememberSearch");
 				if(j.has("httpStream"))
-					App.httpStream = j.getBoolean("httpStream");
+					httpStream = j.getBoolean("httpStream");
 				if(j.has("serverstream")) {
-					App.serverstream = j.getString("serverstream");
+					serverstream = j.getString("serverstream");
 					// replace old proxy
-					if(App.serverstream.endsWith("/stream.php")) {
-						App.serverstream = glype;
+					if(serverstream.endsWith("/stream.php")) {
+						serverstream = glype;
 					}
 				}
 				if(j.has("inv"))
-					App.inv = j.getString("inv");
+					inv = j.getString("inv");
 				if(j.has("customItems"))
-					App.customItems = j.getBoolean("customItems");
+					customItems = j.getBoolean("customItems");
 				if(j.has("imgProxy"))
-					App.imgproxy = j.getString("imgProxy");
+					imgproxy = j.getString("imgProxy");
 				if(j.has("startScreen"))
-					App.startScreen = j.getInt("startScreen");
+					startScreen = j.getInt("startScreen");
 				if(j.has("rmsPreviews"))
-					App.rmsPreviews = j.getBoolean("rmsPreviews");
+					rmsPreviews = j.getBoolean("rmsPreviews");
 				if(j.has("customLocale"))
-					App.customLocale = j.getString("customLocale");
+					customLocale = j.getString("customLocale");
 				if(j.has("searchPlaylists"))
-					App.searchPlaylists = j.getBoolean("searchPlaylists");
+					searchPlaylists = j.getBoolean("searchPlaylists");
 				if(j.has("debugMemory"))
-					App.debugMemory = j.getBoolean("debugMemory");
+					debugMemory = j.getBoolean("debugMemory");
 				if(j.has("watchMethod"))
-					App.watchMethod = j.getInt("watchMethod");
+					watchMethod = j.getInt("watchMethod");
 				if(j.has("asyncLoading"))
-					App.asyncLoading = j.getBoolean("asyncLoading");
+					asyncLoading = j.getBoolean("asyncLoading");
 				if(j.has("downloadBuffer"))
-					App.downloadBuffer = j.getInt("downloadBuffer");
-				if((App.serverstream != null && App.serverstream.indexOf("nnproject.cc") != -1)
-						|| (App.imgproxy != null && App.imgproxy.indexOf("nnproject.cc") != -1)) {
-					if(App.serverstream != null)
-						App.serverstream = Util.replace(App.serverstream, "nnproject.cc", "nnp.nnchan.ru");
-					if(App.imgproxy != null)
-						App.imgproxy = Util.replace(App.imgproxy, "nnproject.cc", "nnp.nnchan.ru");
+					downloadBuffer = j.getInt("downloadBuffer");
+				if((serverstream != null && serverstream.indexOf("nnproject.cc") != -1)
+						|| (imgproxy != null && imgproxy.indexOf("nnproject.cc") != -1)) {
+					if(serverstream != null)
+						serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
+					if(imgproxy != null)
+						imgproxy = Util.replace(imgproxy, "nnproject.cc", "nnp.nnchan.ru");
 				}
 				if(j.has("checkUpdates"))
-					App.checkUpdates = j.getBoolean("checkUpdates");
+					checkUpdates = j.getBoolean("checkUpdates");
 				if(j.has("iteroniPlaybackProxy"))
-					App.iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy");
+					iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -233,27 +256,27 @@ public class Settings implements Constants {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
 			j.put("v", "v1");
-			j.put("videoRes", App.videoRes);
-			j.put("region", App.region);
-			j.put("downloadDir", App.downloadDir);
-			j.put("videoPreviews", new Boolean(App.videoPreviews));
-			j.put("searchChannels", new Boolean(App.searchChannels));
-			j.put("rememberSearch", new Boolean(App.rememberSearch));
-			j.put("httpStream", new Boolean(App.httpStream));
-			j.put("serverstream", App.serverstream);
-			j.put("inv", App.inv);
-			j.put("imgProxy", App.imgproxy);
-			j.put("startScreen", new Integer(App.startScreen));
-			j.put("customItems", new Boolean(App.customItems));
-			j.put("rmsPreviews", new Boolean(App.rmsPreviews));
-			j.put("customLocale", App.customLocale);
-			j.put("searchPlaylists", new Boolean(App.searchPlaylists));
-			j.put("debugMemory", new Boolean(App.debugMemory));
-			j.put("watchMethod", new Integer(App.watchMethod));
-			j.put("asyncLoading", new Boolean(App.asyncLoading));
-			j.put("downloadBuffer", new Integer(App.downloadBuffer));
-			j.put("checkUpdates", new Boolean(App.checkUpdates));
-			j.put("iteroniPlaybackProxy", new Boolean(App.iteroniPlaybackProxy));
+			j.put("videoRes", videoRes);
+			j.put("region", region);
+			j.put("downloadDir", downloadDir);
+			j.put("videoPreviews", new Boolean(videoPreviews));
+			j.put("searchChannels", new Boolean(searchChannels));
+			j.put("rememberSearch", new Boolean(rememberSearch));
+			j.put("httpStream", new Boolean(httpStream));
+			j.put("serverstream", serverstream);
+			j.put("inv", inv);
+			j.put("imgProxy", imgproxy);
+			j.put("startScreen", new Integer(startScreen));
+			j.put("customItems", new Boolean(customItems));
+			j.put("rmsPreviews", new Boolean(rmsPreviews));
+			j.put("customLocale", customLocale);
+			j.put("searchPlaylists", new Boolean(searchPlaylists));
+			j.put("debugMemory", new Boolean(debugMemory));
+			j.put("watchMethod", new Integer(watchMethod));
+			j.put("asyncLoading", new Boolean(asyncLoading));
+			j.put("downloadBuffer", new Integer(downloadBuffer));
+			j.put("checkUpdates", new Boolean(checkUpdates));
+			j.put("iteroniPlaybackProxy", new Boolean(iteroniPlaybackProxy));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

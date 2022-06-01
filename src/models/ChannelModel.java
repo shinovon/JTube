@@ -23,28 +23,19 @@ package models;
 
 import java.io.IOException;
 
-import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.ImageItem;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
-import javax.microedition.lcdui.StringItem;
 
 import App;
 import Util;
-import Locale;
-import ui.AppUI;
+import Settings;
 import Constants;
-import ui.ModelForm;
-import ui.ChannelForm;
+import ui.UIItem;
 import InvidiousException;
-import ui.custom.ChannelItem;
+import ui.items.ChannelItem;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 
-public class ChannelModel extends AbstractModel implements ILoader, ItemCommandListener, Constants {
-	
-	private static final Command cOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 3);
+public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
 	private String author;
 	private String authorId;
@@ -52,9 +43,8 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 	private long totalViews;
 	private String description;
 
-	private ImageItem item;
+	private ChannelItem item;
 	private Image img;
-	private ChannelItem customItem;
 
 	private boolean extended;
 	private boolean fromSearch;
@@ -79,7 +69,7 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		this.extended = extended;
 		author = o.getString("author");
 		authorId = o.getString("authorId");
-		if(App.videoPreviews || App.customItems) {
+		if(Settings.videoPreviews || Settings.customItems) {
 			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
 			if(authorThumbnails != null) {
 				String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
@@ -99,45 +89,19 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 	
 	public ChannelModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (App.videoPreviews ? "authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("v1/channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (Settings.videoPreviews ? "authorThumbnails" : "")), true);
 		}
 		return this;
 	}
 
-	private Item makeItem() {
-		if(App.customItems) {
-			return customItem = new ChannelItem(this);
-		}
-		if(!App.videoPreviews) {
-			return new StringItem(null, author);
-		}
-		return item = new ImageItem(author, img, Item.LAYOUT_CENTER | Item.LAYOUT_NEWLINE_AFTER, null);
-	}
-
-	public Item makeItemForList() {
-		Item i = makeItem();
-		i.addCommand(cOpenCmd);
-		i.setDefaultCommand(cOpenCmd);
-		i.setItemCommandListener(this);
-		return i;
-	}
-
-	public Item makeItemForPage() {
-		return makeItem();
-	}
-
 	public void load() {
 		if(img != null) return;
-		if(item == null && customItem == null) return;
+		if(item == null) return;
 		if(imageUrl == null) return;
 		try {
 			byte[] b = App.hproxy(imageUrl);
 			img = Image.createImage(b, 0, b.length);
-			if(customItem != null) {
-				customItem.setImage(img);
-			} else {
-				item.setImage(img);
-			}
+			item.setImage(img);
 			imageUrl = null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,12 +109,6 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 			e.printStackTrace();
 		}
 		
-	}
-
-	public void commandAction(Command c, Item arg1) {
-		if(c == cOpenCmd || c == null) {
-			AppUI.open(this);
-		}
 	}
 
 	public void dispose() {
@@ -199,8 +157,8 @@ public class ChannelModel extends AbstractModel implements ILoader, ItemCommandL
 		return description;
 	}
 
-	public ModelForm makeForm() {
-		return new ChannelForm(this);
+	public UIItem makeItemForList() {
+		return null;
 	}
 
 }

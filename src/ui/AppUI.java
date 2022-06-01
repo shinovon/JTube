@@ -22,36 +22,44 @@ SOFTWARE.
 package ui;
 
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.StringItem;
-import javax.microedition.lcdui.TextBox;
-import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
 import App;
-import Constants;
+import Util;
 import Errors;
-import InvidiousException;
 import Locale;
 import Settings;
-import Util;
+import Constants;
+import LocaleConstants;
+import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.json.AbstractJSON;
 import models.VideoModel;
+import ui.screens.MainScreen;
 import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
 
-public class AppUI implements CommandListener, Commands, Constants {
+public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants {
+	
+	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 9);
+	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 6);
+	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 2);
+	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 10);
+	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 4);
+	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 4);
+	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 2);
 	
 	public static final Display display = Display.getDisplay(App.midlet);
 
@@ -64,35 +72,157 @@ public class AppUI implements CommandListener, Commands, Constants {
 
 	private App app = App.inst;
 	
-	private Form mainForm;
-	private Form searchForm;
+	public MainScreen main;
 	private SettingsForm settingsForm;
-	//private TextField searchText;
-	//private StringItem searchBtn;
-	public VideoForm videoForm;
-	public ChannelForm channelForm;
-	private Item loadingItem;
 
-	private static Displayable lastd;
+	private static MyCanvas canv;
+	private static int scrollBarWidth;
+	private UIScreen current;
+
+	private Object repaintLock = new Object();
+	private Object repaintResLock = new Object();
+	// сделано для того чтобы не вызывать репеинт много раз во время скроллинга/анимки и т.д
+	public boolean scrolling;
+	
+	public int repaintTime;
+	
+	public boolean oddFrame;
+
+	private Thread repaintThread = new Thread() {
+		public void run() {
+			boolean wasScrolling = false;
+			while(App.midlet.running) {
+				try {
+					if(!scrolling) { 
+						if(wasScrolling) {
+							_repaint();
+							wasScrolling = false;
+						}
+						synchronized (repaintLock) {
+							repaintLock.wait();
+						}
+					}
+					_repaint();
+					if(scrolling) {
+						wasScrolling = true;
+					} else {
+						synchronized (repaintResLock) {
+							repaintResLock.notify();
+						}
+					}
+					waitRepaint();
+				} catch (InterruptedException e) {
+					return;
+				}
+			}
+		}
+	};
+	
+	private Vector commands = new Vector();
+	
+	private void waitRepaint() throws InterruptedException {
+		if(repaintTime < 30) Thread.sleep((1000 / 30) - repaintTime);
+		Thread.yield();
+	}
+
+	private void _repaint() {
+		oddFrame = !oddFrame;
+		long time = System.currentTimeMillis();
+		if(canv != null) {
+			canv.repaint();
+			canv.serviceRepaints();
+		}
+		repaintTime = (int) (System.currentTimeMillis() - time);
+	}
+
+	public void repaint(boolean wait) {
+		if(scrolling) return;
+		synchronized (repaintLock) {
+			repaintLock.notify();
+		}
+		if(wait) {
+			try {
+				synchronized (repaintResLock) {
+					repaintResLock.wait();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static int getColor(int i) {
+		switch(i) {
+		case COLOR_MAINBACKGROUND:
+			return -1;
+		case COLOR_MAINFOREGROUND:
+		case COLOR_MAINBORDER:
+			return 0;
+		case COLOR_ITEMBORDER:
+			return 0;
+		case COLOR_DARK_ALPHA:
+			return 0x7fffffff;
+		case COLOR_GRAYTEXT:
+			return 0x5D5D5D;
+		case COLOR_SCROLLBAR_BG:
+			return 0x555555;
+		case COLOR_SCROLLBAR_FG:
+			return 0xAAAAAA;
+		default:
+			return 0;
+		}
+	}
+
+	public static Font getFont(int i) {
+		switch(i) {
+		case FONT_DEBUG:
+		default:
+			return Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);
+		}
+	}
+	
+	public void setScreen(UIScreen s) {
+		current = s;
+		canv.resetScreen();
+		repaint(true);
+	}
+	
+	public int getWidth() {
+		return canv.width;
+	}
+	
+	public int getHeight() {
+		return canv.height;
+	}
+
+	public int getBottomOffset() {
+		return 0;
+	}
+
+	public int getTopOffset() {
+		return 0;
+	}
+
+	public UIScreen getCurrentScreen() {
+		return current;
+	}
 	
 	public void loadForm() {
 		try {
-			App.inst.testCanvas();
-			loadingItem = new StringItem(null, Locale.s(TITLE_Loading));
-			loadingItem.setLayout(Item.LAYOUT_CENTER);
-			mainForm.append(loadingItem);
-			if(App.startScreen == 0) {
+			Util.testCanvas();
+			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
 				loadPopular();
 			}
 			app.setLoadingState("Start page loaded");
-			display(mainForm);
-			App.gc();
+			display(canv);
+			Util.gc();
+			setScreen(main);
 		} catch (InvidiousException e) {
 			App.error(this, Errors.AppUI_loadForm, e);
 		} catch (OutOfMemoryError e) {
-			App.gc();
+			Util.gc();
 			App.error(this, Errors.AppUI_loadForm, "Out of memory!");
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -100,36 +230,22 @@ public class AppUI implements CommandListener, Commands, Constants {
 		}
 	}
 
-	public void initForm() {
-		mainForm = new Form(NAME);
-		/*
-		searchText = new TextField("", "", 100, TextField.ANY);
-		searchText.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_2);
-		mainForm.append(searchText);
-		searchBtn = new StringItem(null, Locale.s(CMD_Search), StringItem.BUTTON);
-		searchBtn.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_RIGHT | Item.LAYOUT_2);
-		searchBtn.addCommand(searchCmd);
-		searchBtn.setItemCommandListener(this);
-		searchBtn.setDefaultCommand(searchCmd);
-		mainForm.append(searchBtn);
-		*/
-		mainForm.setCommandListener(this);
-		mainForm.addCommand(searchCmd);
-		mainForm.addCommand(idCmd);
-		mainForm.addCommand(settingsCmd);
-		mainForm.addCommand(aboutCmd);
-		mainForm.addCommand(exitCmd);
+	public void init() {
+		inst = this;
+		canv = new MyCanvas(this);
+		canv.setCommandListener(this);
+		repaintThread.setPriority(6);
+		repaintThread.start();
+		main = new MainScreen();
 	}
 	
 	public void load(String s) throws IOException {
 		app.setLoadingState("Loading (0)");
 		boolean b = App.needsCheckMemory();
-		mainForm.addCommand(s.equals("trending") ? switchToPopularCmd : switchToTrendsCmd);
 		app.setLoadingState("Loading (1)");
 		try {
-			mainForm.setTitle(NAME + " - " + (s.equals("trending") ? Locale.s(TITLE_Trends) : Locale.s(TITLE_Popular)));
 			app.setLoadingState("Loading (2)");
-			AbstractJSON r = App.invApi("v1/"+s+"?", VIDEO_FIELDS + (App.videoPreviews ? ",videoThumbnails" : ""));
+			AbstractJSON r = App.invApi("v1/"+s+"?", VIDEO_FIELDS + (Settings.videoPreviews ? ",videoThumbnails" : ""));
 			app.setLoadingState("Loading (3)");
 			if(r instanceof JSONObject) {
 				App.error(this, Errors.AppUI_load, "Wrong response", r.toString());
@@ -138,21 +254,20 @@ public class AppUI implements CommandListener, Commands, Constants {
 			app.setLoadingState("Loading (4)");
 			JSONArray j = (JSONArray) r;
 			try {
-				if(mainForm.size() > 0 && mainForm.get(0) == loadingItem) {
-					mainForm.delete(0);
-				}
 			} catch (Exception e) {
 			}
 			app.setLoadingState("Parsing");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				app.setLoadingState("Parsing (" + i + "/" + l + ")");
-				Item item = parseAndMakeItem(j.getObject(i), false, i);
+				UIItem item = parseAndMakeItem(j.getObject(i), false, i);
+				System.out.println(i + " " + item);
 				if(item == null) continue;
-				mainForm.append(item);
+				main.add(item);
 				if(i >= TRENDS_LIMIT) break;
 				if(b) App.checkMemoryAndGc();
 			}
+			repaint(false);
 			app.setLoadingState("Loading (6)");
 			Thread.sleep(150);
 			j = null;
@@ -164,42 +279,30 @@ public class AppUI implements CommandListener, Commands, Constants {
 			e.printStackTrace();
 			App.error(this, Errors.AppUI_load, e);
 		}
-		App.gc();
+		Util.gc();
 	}
 
 	public void loadTrends() throws IOException {
 		load("trending");
 	}
 
-	void loadPopular() throws IOException {
+	public void loadPopular() throws IOException {
 		load("popular");
 	}
 
 	void search(String q) {
 		boolean b = App.needsCheckMemory();
-		searchForm = new Form(NAME + " - " + Locale.s(TITLE_SearchQuery));
-		searchForm.setCommandListener(this);
-		searchForm.addCommand(settingsCmd);
-		searchForm.addCommand(searchCmd);
-		display(searchForm);
-		if(Settings.isLowEndDevice() || !App.rememberSearch) {
+		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 			disposeMainForm();
-		}
-		if(mainForm != null) {
-			searchForm.addCommand(backCmd);
-		} else {
-			searchForm.addCommand(switchToTrendsCmd);
-			searchForm.addCommand(switchToPopularCmd);
 		}
 		app.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all", SEARCH_FIELDS + ",type" + (App.videoPreviews ? ",videoThumbnails" : "") + (App.searchChannels || App.searchPlaylists ? ",authorThumbnails,playlistId,videoCount" : ""));
+			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all", SEARCH_FIELDS + ",type" + (Settings.videoPreviews ? ",videoThumbnails" : "") + (Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,playlistId,videoCount" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				Item item = parseAndMakeItem(j.getObject(i), true, i);
+				UIItem item = parseAndMakeItem(j.getObject(i), true, i);
 				if(item == null) continue;
 				
-				searchForm.append(item);
 				if(i >= SEARCH_LIMIT) break;
 				if(b) App.checkMemoryAndGc();
 			}
@@ -209,33 +312,33 @@ public class AppUI implements CommandListener, Commands, Constants {
 			e.printStackTrace();
 			App.error(this, Errors.AppUI_search, e);
 		}
-		App.gc();
+		Util.gc();
 	}
 	
-	private Item parseAndMakeItem(JSONObject j, boolean search, int i) {
+	private UIItem parseAndMakeItem(JSONObject j, boolean search, int i) {
 		String type = j.getNullableString("type");
 		if(type == null) {
 			// video
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(App.videoPreviews) app.addAsyncLoad(v);
-			return v.makeItemForList();
+			if(Settings.videoPreviews) app.addAsyncLoad(v);
+			return v.makeListItem();
 		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(App.videoPreviews) app.addAsyncLoad(v);
-			return v.makeItemForList();
+			if(Settings.videoPreviews) app.addAsyncLoad(v);
+			return v.makeListItem();
 		}
-		if(App.searchChannels && type.equals("channel")) {
+		if(Settings.searchChannels && type.equals("channel")) {
 			ChannelModel c = new ChannelModel(j);
 			if(search) c.setFromSearch();
-			if(App.videoPreviews) app.addAsyncLoad(c);
+			if(Settings.videoPreviews) app.addAsyncLoad(c);
 			return c.makeItemForList();
 		}
-		if(App.searchPlaylists && type.equals("playlist")) {
+		if(Settings.searchPlaylists && type.equals("playlist")) {
 			PlaylistModel p = new PlaylistModel(j);
 			if(search) p.setFromSearch();
 			//if(videoPreviews) addAsyncLoad(p);
@@ -255,7 +358,7 @@ public class AppUI implements CommandListener, Commands, Constants {
 		if(id.startsWith(watch)) id = id.substring(watch.length());
 		try {
 			open(new VideoModel(id).extend());
-			if(Settings.isLowEndDevice() || !App.rememberSearch) {
+			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 				disposeMainForm();
 			}
 		} catch (Exception e) {
@@ -264,58 +367,43 @@ public class AppUI implements CommandListener, Commands, Constants {
 	}
 
 	void disposeMainForm() {
-		if(mainForm == null) return;
-		mainForm.deleteAll();
-		mainForm = null;
-		App.gc();
+		main.clear();
+		Util.gc();
 	}
 
 	public void disposeVideoForm() {
-		videoForm.dispose();
-		videoForm = null;
-		App.gc();
+		Util.gc();
 	}
 
 	public void disposeChannelForm() {
-		channelForm.dispose();
-		channelForm = null;
-		App.gc();
+		Util.gc();
 	}
 
 	public void disposeSearchForm() {
-		searchForm.deleteAll();
-		searchForm = null;
-		App.gc();
+		Util.gc();
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(d instanceof Alert) {
-			display(mainForm);
+		if(c == settingsCmd) {
+			app.stopDoingAsyncTasks();
+			showSettings();
 			return;
 		}
 		if(c == exitCmd) {
-			try {
-				String[] a = RecordStore.listRecordStores();
-				for(int i = 0; i < a.length; i++) {
-					if(a[i].equals(CONFIG_RECORD_NAME)) continue;
-					RecordStore.deleteRecordStore(a[i]);
-				}
-			} catch (Exception e) {
-			}
-			App.midlet.notifyDestroyed();
+			exit();
 			return;
 		}
 		if(c == aboutCmd) {
-			//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
-			Alert a = new Alert("", "", null, null);
-			a.setTimeout(-2);
-			a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + " \n"
-					+ "By Shinovon (nnp.nnchan.ru) \n"
-					+ "t.me/nnmidlets \n\n"
-					+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
-			a.setCommandListener(this);
-			a.addCommand(new Command("OK", Command.OK, 1));
-			display(a);
+			showAbout(this);
+			return;
+		}
+		if(this.current != null && current.supportCommands()) {
+			((CommandListener)current).commandAction(c, d);
+			return;
+		}
+		/*
+		if(d instanceof Alert) {
+			display(mainForm);
 			return;
 		}
 
@@ -355,14 +443,6 @@ public class AppUI implements CommandListener, Commands, Constants {
 			display(t);
 			return;
 		}
-		/*if(c == browserCmd) {
-			try {
-				platReq(getVideoInfo(video.getVideoId(), videoRes).getString("url"));
-			} catch (Exception e) {
-				e.printStackTrace();
-				msg(e.toString());
-			}
-		}*/
 		if(c == cancelCmd && d instanceof TextBox) {
 			display(mainForm);
 			return;
@@ -376,12 +456,12 @@ public class AppUI implements CommandListener, Commands, Constants {
 		}
 		try {
 			if(c == switchToPopularCmd) {
-				App.startScreen = 1;
+				Settings.startScreen = 1;
 				app.stopDoingAsyncTasks();
 				if(mainForm != null) {
 					mainForm.deleteAll();
 				} else {
-					initForm();
+					init();
 				}
 				if(searchForm != null) {
 					disposeSearchForm();
@@ -393,12 +473,12 @@ public class AppUI implements CommandListener, Commands, Constants {
 				return;
 			}
 			if(c == switchToTrendsCmd) {
-				App.startScreen = 0;
+				Settings.startScreen = 0;
 				app.stopDoingAsyncTasks();
 				if(mainForm != null) {
 					mainForm.deleteAll();
 				} else {
-					initForm();
+					init();
 				}
 				if(searchForm != null) {
 					disposeSearchForm();
@@ -412,98 +492,69 @@ public class AppUI implements CommandListener, Commands, Constants {
 			App.error(this, Errors.App_commandAction_switchCmd, e);
 			e.printStackTrace();
 		}
+		*/
 	}
 	
-	public static void display(Displayable d) {
-		AppUI ui = inst;
-		if(d == null) {
-			if(ui.videoForm != null) {
-				d = ui.videoForm;
-			} else if(ui.channelForm != null) {
-				d = ui.channelForm;
-			} else if(ui.searchForm != null) {
-				d = ui.searchForm;
-			} else if(ui.mainForm != null) {
-				d = ui.mainForm;
-			} else {
-				ui.initForm();
-				ui.loadForm();
-				return;
+	public void exit() {
+			try {
+			String[] a = RecordStore.listRecordStores();
+			for(int i = 0; i < a.length; i++) {
+				if(a[i].equals(CONFIG_RECORD_NAME)) continue;
+				RecordStore.deleteRecordStore(a[i]);
 			}
+		} catch (Exception e) {
+		}
+		App.midlet.notifyDestroyed();
+	}
+
+	public void display(Displayable d) {
+		if(d == null) {
+			display.setCurrent(canv);
+			return;
 		}
 		if(!(d instanceof Alert)) {
-			lastd = d;
 			display.setCurrent(d);
 		} else {
-			if(App.loadingForm != null && display.getCurrent() == App.loadingForm) {
-				display.setCurrent((Alert) d, ui.mainForm);
-				return;
-			}
-			display.setCurrent((Alert) d, lastd == null ? ui.mainForm : lastd);
+			display.setCurrent((Alert) d, canv);
 		}
 	}
 
-	public static void back(Form f) {
-		AppUI ui = inst;
-		if(f instanceof ModelForm && ((ModelForm)f).getModel().isFromSearch() && ui.searchForm != null) {
-			AppUI.display(ui.searchForm);
-		} else if(ui.mainForm != null) {
-			AppUI.display(ui.mainForm);
-		} else {
-			ui.initForm();
-			//AppUI.display(ui.mainForm);
-			ui.loadForm();
-		}
-	}
-
-	public static void msg(String s) {
+	public void msg(String s) {
 		Alert a = new Alert("", s, null, null);
 		a.setTimeout(-2);
-		AppUI.display(a);
+		display(a);
 	}
 
-	public static void open(AbstractModel model) {
+	public void open(AbstractModel model) {
 		open(model, null);
 	}
 
-	public static void open(AbstractModel model, Form formContainer) {
+	public void open(AbstractModel model, UIScreen formContainer) {
 		App app = App.inst;
 		AppUI ui = inst;
 		// check if already loading
-		if(formContainer == null && ui.videoForm != null && model instanceof VideoModel && display.getCurrent() instanceof VideoForm) {
+		if(formContainer == null && model instanceof VideoModel) {
 			return;
 		}
 		if(model instanceof PlaylistModel) {
 			if(((PlaylistModel) model).getVideoCount() > 100) {
-				AppUI.msg(">100 videos!!!");
+				msg(">100 videos!!!");
 				return;
 			}
 		}
-		if(!App.rememberSearch) {
+		if(!Settings.rememberSearch) {
 			if(model.isFromSearch()) {
 				ui.disposeSearchForm();
-			} else if(ui.mainForm != null) {
-				ui.disposeMainForm();
 			}
 		}
 		app.stopDoingAsyncTasks();
-		ModelForm form = model.makeForm();
-		AppUI.display(form);
-		if(form instanceof VideoForm) {
-			ui.videoForm = (VideoForm) form;
-		} else if(form instanceof ChannelForm) {
-			ui.channelForm = (ChannelForm) form;
-		}
-		if(formContainer != null) {
-			form.setFormContainer(formContainer);
-		}
-		App.gc();
+		Util.gc();
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 		}
-		app.addAsyncLoad(form);
 		app.notifyAsyncTasks();
+		
 	}
 
 	public static int getPlatformWidthOffset() {
@@ -523,6 +574,46 @@ public class AppUI implements CommandListener, Commands, Constants {
 		}
 		display(settingsForm);
 		settingsForm.show();
+	}
+	
+	public void showAbout(CommandListener l) {
+		//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
+		Alert a = new Alert("", "", null, null);
+		a.setTimeout(-2);
+		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + " \n"
+				+ "By Shinovon (nnp.nnchan.ru) \n"
+				+ "t.me/nnmidlets \n\n"
+				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+		a.setCommandListener(l == null ? this : l);
+		a.addCommand(new Command("OK", Command.OK, 1));
+		display(a);
+	}
+
+	public int getItemWidth() {
+		return getWidth() - getScrollBarWidth();
+	}
+
+	public static int getScrollBarWidth() {
+		if(scrollBarWidth == 0) {
+			scrollBarWidth = 6;
+			if(PlatformUtils.isSymbian94()
+					|| PlatformUtils.isAshaTouchAndType()
+					 || PlatformUtils.isAshaFullTouch()) scrollBarWidth = 10;
+		}
+		return scrollBarWidth;
+	}
+	
+	public void addCommand(Command c) {
+		canv.addCommand(c);
+		commands.addElement(c);
+	}
+	
+	public void removeCommands() {
+		for(int i = 0; i < commands.size(); i++) {
+			Command c = (Command) commands.elementAt(i);
+			canv.removeCommand(c);
+		}
+		commands.removeAllElements();
 	}
 
 }

@@ -24,20 +24,18 @@ import java.io.OutputStream;
 import java.util.Vector;
 
 import javax.microedition.io.Connector;
-import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
-import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.StringItem;
 
 import ui.AppUI;
-import ui.IScheduledShowHide;
-import ui.TestCanvas;
 import models.ILoader;
 import cc.nnproject.json.JSON;
 import cc.nnproject.ytapp.App2;
@@ -48,29 +46,6 @@ import cc.nnproject.json.JSONException;
 import cc.nnproject.utils.PlatformUtils;
 
 public class App implements Constants {
-	
-	// Settings
-	public static String videoRes;
-	public static String region;
-	public static int watchMethod = 1;
-	public static String downloadDir;
-	public static String serverstream = glype;
-	public static boolean videoPreviews;
-	public static boolean searchChannels;
-	public static boolean rememberSearch;
-	public static boolean httpStream;
-	public static int startScreen; // 0 - Trends 1 - Popular
-	public static String inv = iteroni;
-	public static boolean customItems;
-	public static String imgproxy = hproxy;
-	public static boolean rmsPreviews;
-	public static boolean searchPlaylists;
-	public static String customLocale;
-	public static boolean debugMemory;
-	public static int downloadBuffer = 1024;
-	public static boolean asyncLoading;
-	public static boolean checkUpdates = true;
-	public static boolean iteroniPlaybackProxy = true;
 	
 	public static App inst;
 	public static App2 midlet;
@@ -101,16 +76,6 @@ public class App implements Constants {
 						queuedTasks.removeElementAt(0);
 						try {
 							if(o instanceof Runnable) ((Runnable)o).run();
-							else if(o instanceof Object[]) {
-								Object[] oo = (Object[]) o;
-								IScheduledShowHide i = (IScheduledShowHide) oo[0];
-								boolean b = ((Boolean) oo[1]).booleanValue();
-								if(b) {
-									i.show();
-								} else {
-									i.hide();
-								}
-							}
 						} catch (Exception e) {
 						}
 						Thread.yield();
@@ -143,6 +108,7 @@ public class App implements Constants {
 	public void startApp() {
 		loadingForm = new Form("Loading");
 		loadingItem = new StringItem("", "");
+		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER);
 		loadingForm.append(loadingItem);
 		loadingForm.addCommand(loadingExitCmd = new Command("Exit", Command.EXIT, 1));
 		loadingForm.setCommandListener(new CommandListener() {
@@ -157,7 +123,7 @@ public class App implements Constants {
 			}
 			
 		});
-		AppUI.display(loadingForm);
+		Display.getDisplay(midlet).setCurrent(loadingForm);
 		try {
 			String p = System.getProperty("com.nokia.memoryramfree");
 			if(p != null) {
@@ -165,25 +131,25 @@ public class App implements Constants {
 			}
 		} catch (Exception e) {
 		}
-		setLoadingState("Obtaining device region");
-		region = System.getProperty("user.country");
-		if(region == null) {
-			region = System.getProperty("microedition.locale");
-			if(region == null) {
-				region = "US";
+		setLoadingState("Obtaining device Settings.region");
+		Settings.region = System.getProperty("user.country");
+		if(Settings.region == null) {
+			Settings.region = System.getProperty("microedition.locale");
+			if(Settings.region == null) {
+				Settings.region = "US";
 			} else {
-				if(region.length() == 5) {
-					region = region.substring(3, 5);
-				} else if(region.length() > 2) {
-					region = "US";
+				if(Settings.region.length() == 5) {
+					Settings.region = Settings.region.substring(3, 5);
+				} else if(Settings.region.length() > 2) {
+					Settings.region = "US";
 				}
 			}
-		} else if(region.length() > 2) {
-			region = region.substring(0, 2);
+		} else if(Settings.region.length() > 2) {
+			Settings.region = Settings.region.substring(0, 2);
 		}
-		region = region.toUpperCase();
+		Settings.region = Settings.region.toUpperCase();
 		setLoadingState("Testing screen size");
-		testCanvas();
+		Util.testCanvas();
 		setLoadingState("Initializing tasks thread");
 		v0 = new Vector();
 		tasksThread.setPriority(4);
@@ -195,11 +161,11 @@ public class App implements Constants {
 		setLoadingState("Initializing UI");
 		initUI();
 		loadingForm.addCommand(loadingSetsCmd = new Command("Settings", Command.SCREEN, 1));
-		if(region.toLowerCase().equals("en")) {
-			region = "US";
+		if(Settings.region.toLowerCase().equals("en")) {
+			Settings.region = "US";
 		}
 		setLoadingState("Initializing loader thread");
-		if(!Settings.isLowEndDevice() && asyncLoading) {
+		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
@@ -215,7 +181,7 @@ public class App implements Constants {
 		setLoadingState("Loading start page");
 		ui.loadForm();
 		checkUpdate();
-		if(debugMemory) {
+		if(Settings.debugMemory) {
 			Thread t = new Thread() {
 				public void run() {
 					try {
@@ -236,7 +202,7 @@ public class App implements Constants {
 									sys = sysalloc + "/" + syst+ "-" + sysfree;
 								}
 								//long gt = System.currentTimeMillis();
-								App.gc();
+								Util.gc();
 								//gt = System.currentTimeMillis() - gt;
 								String s = ((int)((m/1024D)*10)/10D) + "/" + ((int)((t/1024D)*10)/10D) + "-" + ((int)((f/1024D)*10)/10D) + " s:" + sys/* + " gc:" + gt*/;
 								((Form)d).setTitle(s);
@@ -261,7 +227,7 @@ public class App implements Constants {
 					"&p="+Util.url(PlatformUtils.platform)
 					);
 			JSONObject j = JSON.getObject(s);
-			if(j.getBoolean("update_available", false) && App.checkUpdates) {
+			if(j.getBoolean("update_available", false) && Settings.checkUpdates) {
 				final String url = j.getString("download_url");
 				String msg = j.getString("message", Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
 				Alert a = new Alert("", "", null, AlertType.INFO);
@@ -273,10 +239,10 @@ public class App implements Constants {
 				a.setCommandListener(new CommandListener() {
 					public void commandAction(Command c, Displayable d) {
 						if(c == ignoreCmd) {
-							AppUI.display(null);
+							ui.display(null);
 						}
 						if(c == okCmd) {
-							AppUI.display(null);
+							ui.display(null);
 							try {
 								App.midlet.platformRequest(url);
 							} catch (Exception e) {
@@ -285,7 +251,7 @@ public class App implements Constants {
 						}
 					}
 				});
-				AppUI.display(a);
+				ui.display(a);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -300,14 +266,14 @@ public class App implements Constants {
 	
 	private void initUI() {
 		ui = new AppUI();
-		ui.initForm();
+		ui.init();
 	}
 
 	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("/")) return Util.get(inv + s.substring(1));
-		if(imgproxy == null || imgproxy.length() <= 1) return Util.get(s);
+		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
+		if(Settings.imgproxy == null || Settings.imgproxy.length() <= 1) return Util.get(s);
 		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
-		return Util.get(imgproxy + Util.url(s));
+		return Util.get(Settings.imgproxy + Util.url(s));
 	}
 	
 	public static AbstractJSON invApi(String s) throws InvidiousException, IOException {
@@ -317,13 +283,13 @@ public class App implements Constants {
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
-		s = s.concat("region=" + region);
+		s = s.concat("Settings.region=" + Settings.region);
 		if(fields != null) {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
-		String dbg = "Region=" + region + " Fields=" + fields;
+		String dbg = "Settings.region=" + Settings.region + " Fields=" + fields;
 		try {
-			s = Util.getUtf(inv + "api/" + s);
+			s = Util.getUtf(Settings.inv + "api/" + s);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new NetRequestException(e, s);
@@ -344,13 +310,13 @@ public class App implements Constants {
 	}
 	
 	public static boolean needsCheckMemory() {
-		return Settings.isLowEndDevice() && !App.videoPreviews;
+		return Settings.isLowEndDevice() && !Settings.videoPreviews;
 	}
 	
 	public static void checkMemoryAndGc() {
 		Runtime r = Runtime.getRuntime();
 		if(r.freeMemory() > r.totalMemory() - 500 * 1024) {
-			gc();
+			Util.gc();
 		}
 	}
 
@@ -472,12 +438,12 @@ public class App implements Constants {
 	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
 		JSONObject o = getVideoInfo(id, res);
 		String s = o.getString("url");
-		if(httpStream || forceProxy) {
-			if(iteroniPlaybackProxy) {
+		if(Settings.httpStream || forceProxy) {
+			if(Settings.iteroniPlaybackProxy) {
 				int i = s.indexOf("/videoplayback");
 				s = "http://iteroni.com" + s.substring(i);
 			} else {
-				s = App.serverstream + Util.url(s);
+				s = Settings.serverstream + Util.url(s);
 			}
 		}
 		return s;
@@ -488,11 +454,11 @@ public class App implements Constants {
 	}
 	
 	public static void download(final String id) {
-		Downloader d = new Downloader(id, videoRes, inst.ui.videoForm, downloadDir);
+		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir);
 		d.start();
 	}
 	public static void download(String[] vids) {
-		Downloader d = new Downloader(vids, videoRes, inst.ui.videoForm, downloadDir);
+		Downloader d = new Downloader(vids, Settings.videoRes, Settings.downloadDir);
 		d.start();
 	}
 	
@@ -508,11 +474,11 @@ public class App implements Constants {
 		*/
 		inst.stopDoingAsyncTasks();
 		try {
-			switch (watchMethod) {
+			switch (Settings.watchMethod) {
 			case 0: {
-				String url = getVideoLink(id, videoRes);
+				String url = getVideoLink(id, Settings.videoRes);
 				try {
-					platReq(url);
+					Util.platReq(url);
 				} catch (Exception e) {
 					e.printStackTrace();
 					error(null, Errors.App_watch, e);
@@ -529,8 +495,8 @@ public class App implements Constants {
 			}
 			*/
 			case 1: {
-				String url = getVideoLink(id, videoRes, true);
-				String file = "file:///" + downloadDir;
+				String url = getVideoLink(id, Settings.videoRes, true);
+				String file = "file:///" + Settings.downloadDir;
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
 				if (PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
@@ -538,8 +504,8 @@ public class App implements Constants {
 				} else if (PlatformUtils.isS603rd()) {
 					file += "watch.m3u";
 				} else {
-					App.watchMethod = 0;
-					platReq(url);
+					Settings.watchMethod = 0;
+					Util.platReq(url);
 					break;
 				}
 				FileConnection fc = null;
@@ -561,28 +527,18 @@ public class App implements Constants {
 					} catch (Exception e) {
 					}
 				}
-				platReq(file);
+				Util.platReq(file);
 				break;
 			}
 			case 2: {
 				//platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&type=" + type + "&poisk=you&dw");
-				platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
+				Util.platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
 				break;
 			}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error(null, Errors.App_watch, e);
-		}
-	}
-	
-	public static void gc() {
-		System.gc();
-	}
-	
-	public static void platReq(String s) throws ConnectionNotFoundException {
-		if(midlet.platformRequest(s)) {
-			midlet.notifyDestroyed();
 		}
 	}
 	
@@ -633,12 +589,6 @@ public class App implements Constants {
 		if(v2 != null) v2.removeAllElements();
 		waitAsyncTasks();
 	}
-
-	public void testCanvas() {
-		Canvas c = new TestCanvas();
-		width = c.getWidth();
-		height = c.getHeight();
-	}
 	
 	public static String getThumbUrl(JSONArray arr, int tw) {
 		JSONObject s = null;
@@ -661,7 +611,7 @@ public class App implements Constants {
 		String s = str + " \n\n" + cls + " \nt:" + Thread.currentThread().getName();
 		Alert a = new Alert("", s, null, AlertType.WARNING);
 		a.setTimeout(-2);
-		AppUI.display(a);
+		inst.ui.display(a);
 	}
 
 	public static void error(Object o, int i, Throwable e) {
@@ -687,7 +637,7 @@ public class App implements Constants {
 		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName() + (str2 != null ? " \n" + str2 : "");
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
-		AppUI.display(a);
+		inst.ui.display(a);
 	}
 
 

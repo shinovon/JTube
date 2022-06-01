@@ -21,23 +21,10 @@ SOFTWARE.
 */
 package models;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
-import javax.microedition.lcdui.StringItem;
-
-import App;
-import Locale;
-import ui.AppUI;
-import ui.ModelForm;
-import ui.PlaylistForm;
-import ui.custom.PlaylistItem;
+import ui.UIItem;
 import cc.nnproject.json.JSONObject;
 
-public class PlaylistModel extends AbstractModel implements ILoader, ItemCommandListener {
-	
-	private static final Command pOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 3);
+public class PlaylistModel extends AbstractModel implements ILoader {
 
 	private boolean extended;
 	private boolean fromSearch;
@@ -47,10 +34,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	private String author;
 	private String authorId;
 	private int videoCount;
-	
-	private PlaylistItem customItem;
-
-	private Form formContainer;
 
 	public PlaylistModel(JSONObject o) {
 		parse(o, false);
@@ -58,12 +41,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 
 	public PlaylistModel(JSONObject o, boolean extended) {
 		parse(o, extended);
-	}
-	
-	public PlaylistModel(JSONObject j, Form form, ChannelModel channel) {
-		this(j, false);
-		this.formContainer = form;
-		authorId = channel.getAuthorId();
 	}
 
 	private void parse(JSONObject o, boolean extended) {
@@ -77,23 +54,7 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 
 	public void load() {
 	}
-
-	public Item makeItemForList() {
-		if(!App.customItems) {
-			StringItem item = new StringItem(title, Locale.videos(getVideoCount()) + (formContainer == null ? "\n" + author : ""));
-			item.addCommand(pOpenCmd);
-			item.setLayout(Item.LAYOUT_LEFT);
-			item.setDefaultCommand(pOpenCmd);
-			item.setItemCommandListener(this);
-			return item;
-		}
-		customItem = new PlaylistItem(this);
-		customItem.addCommand(pOpenCmd);
-		customItem.setDefaultCommand(pOpenCmd);
-		customItem.setItemCommandListener(this);
-		return customItem;
-	}
-
+	
 	public void setFromSearch() {
 		fromSearch = true;
 	}
@@ -116,16 +77,6 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 	public void disposeExtendedVars() {
 		extended = false;
 	}
-
-	public ModelForm makeForm() {
-		return new PlaylistForm(this);
-	}
-
-	public void commandAction(Command c, Item i) {
-		if(c == pOpenCmd || c == null) {
-			AppUI.open(this);
-		}
-	}
 	
 	public String getPlaylistId() {
 		return playlistId;
@@ -147,8 +98,8 @@ public class PlaylistModel extends AbstractModel implements ILoader, ItemCommand
 		return videoCount;
 	}
 
-	public Form getFormContainer() {
-		return formContainer;
+	public UIItem makeItemForList() {
+		return null;
 	}
 
 }

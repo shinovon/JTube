@@ -1,0 +1,90 @@
+package ui.items;
+
+import javax.microedition.lcdui.Graphics;
+
+import Util;
+import Locale;
+import ui.UIItem;
+import ui.UIConstants;
+import models.PlaylistModel;
+
+public class PlaylistItem extends UIItem implements UIConstants {
+
+	private PlaylistModel playlist;
+	
+	private String title;
+	private String author;
+	private String videosStr;
+
+	private int textWidth;
+
+	private String[] titleArr;
+
+	private int h;
+
+	public PlaylistItem(PlaylistModel p) {
+		super(null);
+		this.playlist = p;
+		this.title = p.getTitle();
+		this.author = p.getAuthor();
+		this.videosStr = Locale.videos(p.getVideoCount());
+	}
+
+	public void paint(Graphics g, int w, int x, int y, int sc) {
+		g.setColor(-1);
+		g.fillRect(x, y, w, h);
+		g.setColor(0);
+		g.setFont(mediumfont);
+		if(title != null && titleArr == null) {
+			makeTitleArr(w);
+		}
+		y += 2;
+		if(titleArr != null) {
+			if(titleArr[0] != null) g.drawString(titleArr[0], x+2, y, 0);
+			if(titleArr[1] != null) g.drawString(titleArr[1], x+2, y += mediumfontheight, 0);
+		}
+		g.setColor(COLOR_GRAYTEXT);
+		g.setFont(smallfont);
+		if(videosStr != null) {
+			g.drawString(videosStr, x+2, y += mediumfontheight + 4, 0);
+		}
+		if(author != null) {
+			g.drawString(author, x+2, y + smallfontheight + 2, 0);
+		}
+	}
+
+	public int getHeight() {
+		return h;
+	}
+
+	protected void layout(int w) {
+		h = 10 + mediumfontheight + mediumfontheight + smallfontheight + smallfontheight;
+	}
+	
+	private void makeTitleArr(int w) {
+		w = getTextMaxWidth(w);
+		String[] arr = Util.getStringArray(title, w, mediumfont);
+		titleArr = new String[2];
+		if(arr.length > 0) {
+			titleArr[0] = arr[0];
+			if(arr.length > 1) {
+				if(arr.length > 2) {
+					titleArr[1] = arr[1].concat("...");
+				} else {
+					titleArr[1] = arr[1];
+				}
+			}
+		}
+		title = null;
+	}
+	
+	private int getTextMaxWidth(int w) {
+		if(textWidth > 0) return textWidth;
+		return textWidth = w;
+	}
+	
+	public PlaylistModel getPlaylist() {
+		return playlist;
+	}
+
+}
