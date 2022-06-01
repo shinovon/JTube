@@ -187,7 +187,7 @@ public class App implements Constants {
 					try {
 						while(true) {
 							Displayable d = AppUI.display.getCurrent();
-							if(d != null && d instanceof Form) {
+							if(d != null) {
 								Runtime r = Runtime.getRuntime();
 								int t = (int) (r.totalMemory() / 1024);
 								int f = (int) (r.freeMemory() / 1024);
@@ -205,7 +205,7 @@ public class App implements Constants {
 								Util.gc();
 								//gt = System.currentTimeMillis() - gt;
 								String s = ((int)((m/1024D)*10)/10D) + "/" + ((int)((t/1024D)*10)/10D) + "-" + ((int)((f/1024D)*10)/10D) + " s:" + sys/* + " gc:" + gt*/;
-								((Form)d).setTitle(s);
+								d.setTitle(s);
 							}
 							Thread.sleep(1000);
 						}

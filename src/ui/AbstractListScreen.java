@@ -119,21 +119,17 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	protected void tap(int x, int y, int time) {
 		int yy = 0;
-		int sy = scroll + y;
+		int sy = scroll;
 		for (int i = 0; i < items.size(); i++) {
 			UIItem it = (UIItem) items.elementAt(i);
 			if (it != null) {
 				int ih = it.getHeight();
-				if(sy > yy && sy < yy + ih) {
-					it.tap(x, y, time);
+				if(y > sy + yy && y < sy + yy + ih) {
+					it.tap(x, scroll + y - yy, time);
 				}
 				yy += ih;
 			}
 		}
-	}
-	
-	public void keyRepeat(int i) {
-		if(i == -1 || i == -2) keyPress(i);
 	}
 	
 	public void keyPress(int i) {
@@ -176,13 +172,21 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		}
 		if(i == -5 || i == -6 || i == -7 || i == Canvas.FIRE) {
 			if(selectItem()) {
-				itemKeyPress(i);
+				cItem.keyPress(i);
 			}
 		}
 	}
 	
-	private void itemKeyPress(int i) {
-		cItem.keyPress(i);
+	public void keyRelease(int i) {
+		if(i == -5 || i == -6 || i == -7 || i == Canvas.FIRE) {
+			if(selectItem()) {
+				cItem.keyRelease(i);
+			}
+		}
+	}
+	
+	public void keyRepeat(int i) {
+		if(i == -1 || i == -2) keyPress(i);
 	}
 
 	// will return false if there is no items
@@ -277,6 +281,10 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		int hh = height;
 		int h = screenHeight;
 		scroll = -(int) (((double)hh/(double)h)*y);
+		if(scroll > 0) scroll = 0;
+		if(scroll < -height + screenHeight) {
+			scroll = -height + screenHeight;
+		}
 	}
 
 }

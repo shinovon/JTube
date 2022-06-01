@@ -185,7 +185,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private void loadAuthorImg() {
 		if(authorThumbnails == null) return;
 		try {
-			byte[] b = App.hproxy(getAuthorThumbUrl());
+			//byte[] b = App.hproxy(getAuthorThumbUrl());
 			authorThumbnails = null;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -3,18 +3,13 @@ package ui;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
-import javax.microedition.lcdui.Image;
 
 import Settings;
-import com.nokia.mid.ui.DirectUtils;
 
 public class MyCanvas extends Canvas implements UIConstants {
 	private AppUI ui;
 	int width;
 	int height;
-	
-	/** "кешированная" картинка скрина для затемнения */
-	private Image centerImgTmp;
 	
 	private boolean pressed;
 	private boolean dragged;
@@ -52,7 +47,6 @@ public class MyCanvas extends Canvas implements UIConstants {
 		if(s != null) {
 			// центр
 			int h = height;
-			centerImgTmp = null;
 			if(ui.scrolling && !draggedScrollbar) {
 				if(!scrollPreSlide && (releaseTime - pressTime) > 0) {
 					if (scrollSlide && Math.abs(scrollSlideSpeed) > 0.8F && (System.currentTimeMillis() - releaseTime) < scrollSlideMaxTime && s.scroll((int) scrollSlideSpeed)) {
@@ -70,7 +64,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 		if(Settings.renderDebug) {
 			Font f = AppUI.getFont(FONT_DEBUG);
 			g.setFont(f);
-			String ds = " r " + ui.repaintTime + " " + (ui.oddFrame ? "1" : "0") + " " + scrollSlideSpeed + " " + s.scroll;
+			String ds = " r " + ui.repaintTime + " " + (ui.oddFrame ? "1" : "0") + " " + scrollSlideSpeed;
 			int fh = f.getHeight();
 			int ty = height - fh - 1;
 			g.setColor(0x0);
@@ -102,6 +96,13 @@ public class MyCanvas extends Canvas implements UIConstants {
 		scrollSlide = false;
 		scrollPreSlide = false;
 		draggedScrollbar = false;
+		UIScreen s = ui.getCurrentScreen();
+		if(s != null && s.hasScrollBar()) {
+			if(x > width - (AppUI.getScrollBarWidth() + 5)) {
+				s.setScrollBarY(y);
+				draggedScrollbar = true;
+			}
+		}
 		needRepaint();
 	}
 	
@@ -119,7 +120,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 		if(pressed) {
 			UIScreen s = ui.getCurrentScreen();
 			if(s != null && s.hasScrollBar()) {
-				if(x > width - AppUI.getScrollBarWidth() - 2) {
+				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
 					s.setScrollBarY(y);
 					draggedScrollbar = true;
 				}
@@ -158,7 +159,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 		UIScreen s = ui.getCurrentScreen();
 		if(s != null) {
 			if(s.hasScrollBar()) {
-				if(x > width - AppUI.getScrollBarWidth() - 2) {
+				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
 					s.setScrollBarY(y);
 					draggedScrollbar = true;
 					lastX = x;

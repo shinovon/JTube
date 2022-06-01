@@ -135,7 +135,7 @@ public class Settings implements Constants {
 						downloadDir = downloadDir.substring("file:///".length());
 					Settings.downloadDir = downloadDir;
 				}
-				watchMethod = PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
+				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					httpStream = true;
@@ -160,7 +160,7 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					serverstream = stream;
 					videoPreviews = true;
-					char c = PlatformUtils.platform.charAt(5);
+					//char c = PlatformUtils.platform.charAt(5);
 					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					serverstream = stream;
@@ -232,6 +232,8 @@ public class Settings implements Constants {
 					checkUpdates = j.getBoolean("checkUpdates");
 				if(j.has("iteroniPlaybackProxy"))
 					iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy");
+				if(j.has("renderDebug"))
+					renderDebug = j.getBoolean("renderDebug");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -268,6 +270,7 @@ public class Settings implements Constants {
 			j.put("downloadBuffer", new Integer(downloadBuffer));
 			j.put("checkUpdates", new Boolean(checkUpdates));
 			j.put("iteroniPlaybackProxy", new Boolean(iteroniPlaybackProxy));
+			j.put("renderDebug", new Boolean(renderDebug));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

@@ -60,6 +60,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 					} else {
 						ui.loadPopular();
 					}
+					repaint();
 				} catch (InvidiousException e) {
 					App.error(this, Errors.AppUI_loadForm, e);
 				} catch (OutOfMemoryError e) {
@@ -69,11 +70,13 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 					e.printStackTrace();
 					App.error(this, Errors.AppUI_loadForm, e);
 				}
+				options.set(2, Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
 				break;
 			case 2:
 				// Switch
 				try {
 					App.inst.stopDoingAsyncTasks();
+					scroll = 0;
 					clear();
 					ui.display(null);
 					if(Settings.startScreen == 0) {
@@ -84,6 +87,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 						ui.loadTrends();
 					}
 					Settings.saveConfig();
+					repaint();
 				} catch (Exception e) {
 					App.error(this, Errors.App_commandAction_switchCmd, e);
 					e.printStackTrace();

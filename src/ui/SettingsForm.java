@@ -65,7 +65,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_SearchPlaylists)
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
-			"Debug memory"
+			"Debug memory",
+			"Debug render"
 			};
 	static final String[] PLAYBACK_METHODS = new String[] { 
 			Locale.s(SET_Browser),
@@ -142,6 +143,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		append(downloadBufferText);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
+		append(debugChoice);
 	}
 	
 	public void show() {
@@ -153,6 +155,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checksChoice.setSelectedIndex(2, Settings.rmsPreviews);
 		checksChoice.setSelectedIndex(3, Settings.iteroniPlaybackProxy);
 		debugChoice.setSelectedIndex(0, Settings.debugMemory);
+		debugChoice.setSelectedIndex(1, Settings.renderDebug);
 		playMethodChoice.setSelectedIndex(Settings.watchMethod, true);
 		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
 		setResolution();
@@ -207,7 +210,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.httpStream = s[1];
 			Settings.rmsPreviews = s[2];
 			Settings.iteroniPlaybackProxy = s[3];
-			//Settings.serverstream = httpProxyText.getString();
+			Settings.serverstream = httpProxyText.getString();
 			Settings.inv = invidiousText.getString();
 			Settings.imgproxy = imgProxyText.getString();
 			Settings.customLocale = customLocaleText.getString().trim().toLowerCase();
@@ -215,6 +218,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
 			Settings.checkUpdates = checkUpdatesChoice.isSelected(0);
+			Settings.renderDebug = debugChoice.isSelected(1);
 			Settings.saveConfig();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -50,15 +50,7 @@ import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
 
-public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants {
-	
-	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 9);
-	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 6);
-	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 2);
-	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 10);
-	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 4);
-	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 4);
-	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 2);
+public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants, Commands {
 	
 	public static final Display display = Display.getDisplay(App.midlet);
 
@@ -122,7 +114,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private boolean keyInput = false;
 	
 	private void waitRepaint() throws InterruptedException {
-		if(repaintTime < 30) Thread.sleep((1000 / 30) - repaintTime);
+		int i = 1000 / 24;
+		i -= repaintTime;
+		if(i > 0) Thread.sleep(i);
 		Thread.yield();
 	}
 
@@ -490,7 +484,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void exit() {
-			try {
+		try {
 			String[] a = RecordStore.listRecordStores();
 			for(int i = 0; i < a.length; i++) {
 				if(a[i].equals(CONFIG_RECORD_NAME) || !a[i].startsWith("jС")) continue;

@@ -5,7 +5,6 @@ import javax.microedition.lcdui.Image;
 
 import App;
 import Util;
-import Settings;
 import ui.AppUI;
 import ui.UIConstants;
 import models.VideoModel;
@@ -51,8 +50,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants {
 		*/
 		if(img != null) {
 			g.drawImage(img, x, y, 0);
-			if(Settings.rmsPreviews)
-				img = null;
+			//if(Settings.rmsPreviews)
+			//	img = null;
 		} else {
 			g.fillRect(x, y, w, ih);
 		}
@@ -140,7 +139,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void action() {
-		// TODO
+		// TODO: video page
 		App.watch(video.getVideoId());
 	}
 
