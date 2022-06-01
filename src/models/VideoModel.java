@@ -86,7 +86,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		videoId = j.getString("videoId");
 		title = j.getNullableString("title");
 		JSONArray videoThumbnails = null;
-		if(Settings.videoPreviews || Settings.customItems) {
+		if(Settings.videoPreviews) {
 			videoThumbnails = j.getNullableArray("videoThumbnails");
 		}
 		author = j.getNullableString("author");
@@ -140,7 +140,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(item == null && !extended) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
-			if(Settings.rmsPreviews && Settings.customItems) {
+			if(Settings.rmsPreviews) {
 				if(Settings.isLowEndDevice()) {
 					Records.save(videoId, b);
 					if(index <= 1 && index != -1) {

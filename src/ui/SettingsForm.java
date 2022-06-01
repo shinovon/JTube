@@ -51,7 +51,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"144p", 
 			"360p", 
 			"720p", 
-			Locale.s(SET_VQ_AudioOnly), 
+			Locale.s(SET_VQ_AudioOnly),
 			"240p (" + Locale.s(SET_VQ_NoAudio) + ")" };
 	static final String[] SETTINGS_CHECKS = new String[] { 
 			Locale.s(SET_RememberSearch), 
@@ -60,7 +60,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_IteroniProxy)
 			};
 	static final String[] APPEARANCE_CHECKS = new String[] { 
-			Locale.s(SET_CustomItems), 
 			Locale.s(SET_VideoPreviews), 
 			Locale.s(SET_SearchChannels), 
 			Locale.s(SET_SearchPlaylists)
@@ -146,10 +145,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 	
 	public void show() {
-		uiChoice.setSelectedIndex(0, Settings.customItems);
-		uiChoice.setSelectedIndex(1, Settings.videoPreviews);
-		uiChoice.setSelectedIndex(2, Settings.searchChannels);
-		uiChoice.setSelectedIndex(3, Settings.searchPlaylists);
+		uiChoice.setSelectedIndex(0, Settings.videoPreviews);
+		uiChoice.setSelectedIndex(1, Settings.searchChannels);
+		uiChoice.setSelectedIndex(2, Settings.searchPlaylists);
 		checksChoice.setSelectedIndex(0, Settings.rememberSearch);
 		checksChoice.setSelectedIndex(1, Settings.httpStream);
 		checksChoice.setSelectedIndex(2, Settings.rmsPreviews);
@@ -202,10 +200,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			checksChoice.getSelectedFlags(s);
 			boolean[] ui = new boolean[uiChoice.size()];
 			uiChoice.getSelectedFlags(ui);
-			Settings.customItems = ui[0];
-			Settings.videoPreviews = ui[1];
-			Settings.searchChannels = ui[2];
-			Settings.searchPlaylists = ui[3];
+			Settings.videoPreviews = ui[0];
+			Settings.searchChannels = ui[1];
+			Settings.searchPlaylists = ui[2];
 			Settings.rememberSearch = s[0];
 			Settings.httpStream = s[1];
 			Settings.rmsPreviews = s[2];

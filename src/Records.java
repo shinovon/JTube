@@ -28,7 +28,7 @@ public class Records {
 	
 	public static void save(String id, byte[] b) {
 		try {
-			RecordStore rs = RecordStore.openRecordStore(id, true);
+			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
 			if(rs.getNumRecords() <= 0) {
 				rs.addRecord(b, 0, b.length);
 			}
@@ -40,7 +40,7 @@ public class Records {
 	
 	public static void save(String id, String url) {
 		try {
-			RecordStore rs = RecordStore.openRecordStore(id, true);
+			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
 			if(rs.getNumRecords() <= 0) {
 				byte[] b = App.hproxy(url);
 				rs.addRecord(b, 0, b.length);
@@ -57,7 +57,7 @@ public class Records {
 			byte[] b = null;
 			RecordStore rs = null;
 			try {
-				rs = RecordStore.openRecordStore(id, true);
+				rs = RecordStore.openRecordStore("jС"+id, true);
 				if(rs.getNumRecords() > 0) {
 					b = rs.getRecord(1);
 				}

@@ -3,6 +3,7 @@ package ui.items;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
+import App;
 import Util;
 import Settings;
 import ui.AppUI;
@@ -35,9 +36,9 @@ public class VideoItem extends AbstractButtonItem implements UIConstants {
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		int ih = getImgHeight(w);
-		g.setColor(-1);
+		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
 		g.fillRect(x, y, w, h);
-		g.setColor(0);
+		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
 		/*
 		if(img == null && Settings.rmsPreviews) {
 			try {
@@ -76,6 +77,11 @@ public class VideoItem extends AbstractButtonItem implements UIConstants {
 			g.drawString(lengthStr, x + w - sw, y+ ih, 0);
 		}
 		g.drawRect(x, y+h-1, w, 1);
+		if(isInFocus() && ui.isKeyInputMode()) {
+			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
+			g.drawRect(x, y, w-1, h-1);
+			g.drawRect(x+1, y+1, w-3, h-3);
+		}
 	}
 
 	private void makeTitleArr(int sw) {
@@ -134,6 +140,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void action() {
+		// TODO
+		App.watch(video.getVideoId());
 	}
 
 	public Image getImage() {

@@ -30,7 +30,6 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
-import javax.microedition.lcdui.Item;
 import javax.microedition.rms.RecordStore;
 
 import App;
@@ -99,7 +98,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 							wasScrolling = false;
 						}
 						synchronized (repaintLock) {
-							repaintLock.wait();
+							repaintLock.wait(1000);
 						}
 					}
 					_repaint();
@@ -119,6 +118,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	};
 	
 	private Vector commands = new Vector();
+	
+	private boolean keyInput = false;
 	
 	private void waitRepaint() throws InterruptedException {
 		if(repaintTime < 30) Thread.sleep((1000 / 30) - repaintTime);
@@ -168,6 +169,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return 0x555555;
 		case COLOR_SCROLLBAR_FG:
 			return 0xAAAAAA;
+		case COLOR_ITEM_HIGHLIGHT:
+			return 0xAAAAAA;
 		default:
 			return 0;
 		}
@@ -193,14 +196,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public int getHeight() {
 		return canv.height;
-	}
-
-	public int getBottomOffset() {
-		return 0;
-	}
-
-	public int getTopOffset() {
-		return 0;
 	}
 
 	public UIScreen getCurrentScreen() {
@@ -499,7 +494,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			try {
 			String[] a = RecordStore.listRecordStores();
 			for(int i = 0; i < a.length; i++) {
-				if(a[i].equals(CONFIG_RECORD_NAME)) continue;
+				if(a[i].equals(CONFIG_RECORD_NAME) || !a[i].startsWith("jС")) continue;
 				RecordStore.deleteRecordStore(a[i]);
 			}
 		} catch (Exception e) {
@@ -614,6 +609,19 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			canv.removeCommand(c);
 		}
 		commands.removeAllElements();
+	}
+
+	public void setKeyInputMode() {
+		keyInput = true;
+		System.out.println("keyinputmode");
+	}
+
+	public void setTouchInputMode() {
+		keyInput = false;
+	}
+	
+	public boolean isKeyInputMode() {
+		return keyInput;
 	}
 
 }

@@ -4,9 +4,13 @@ import javax.microedition.lcdui.Graphics;
 
 public abstract class UIItem {
 	
+	protected static final AppUI ui = AppUI.inst;
+	
 	private UIScreen screen;
 	private boolean inFocus;
 	private int y;
+
+	private int index;
 
 	public UIItem(UIScreen screen) {
 		this.screen = screen;
@@ -27,6 +31,7 @@ public abstract class UIItem {
 	
 	public void focus() {
 		inFocus = true;
+		System.out.println("focus " + this.toString());
 	}
 	
 	public void defocus() {
@@ -60,6 +65,14 @@ public abstract class UIItem {
 	
 	public int getY() {
 		return y;
+	}
+
+	public void setIndex(int i) {
+		index = i;
+	}
+	
+	public int getIndex() {
+		return index;
 	}
 
 }

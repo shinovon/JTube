@@ -92,6 +92,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 	}
 	
 	public void pointerPressed(int x, int y) {
+		ui.setTouchInputMode();
 		pressed = true;
 		lastX = pressX = x;
 		lastY = pressY = y;
@@ -208,14 +209,26 @@ public class MyCanvas extends Canvas implements UIConstants {
 	}
 	
 	public void keyPressed(int i) {
+		UIScreen s = ui.getCurrentScreen();
+		if(s != null) {
+			s.keyPress(i);
+		}
 		needRepaint();
 	}
 	
 	public void keyReleased(int i) {
+		UIScreen s = ui.getCurrentScreen();
+		if(s != null) {
+			s.keyRelease(i);
+		}
 		needRepaint();
 	}
 	
 	public void keyRepeated(int i) {
+		UIScreen s = ui.getCurrentScreen();
+		if(s != null) {
+			s.keyRepeat(i);
+		}
 		needRepaint();
 	}
 	

@@ -2,7 +2,10 @@ package ui;
 
 import java.util.Vector;
 
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
+
+import Util;
 
 public abstract class AbstractListScreen extends UIScreen implements UIConstants {
 	
@@ -11,6 +14,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	private int screenHeight;
 	private UIItem cItem;
 	private boolean needLayout;
+	private int scrollTarget = 0;
 
 	protected AbstractListScreen(String label, UIScreen parent, Vector v) {
 		super(label, parent);
@@ -44,6 +48,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				if (it != null) {
 					it.layout(w);
 					it.setY(y);
+					it.setIndex(i);
 					y += it.getHeight();
 				}
 			}
@@ -79,6 +84,22 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		int sby = (int)(((double)-scroll / (double)hh) * h);
 		int sbh = (int)(((double)h / (double)hh) * h);
 		g.fillRect(w, sby, AppUI.getScrollBarWidth(), sbh);
+		if(scrollTarget <= 0) {
+			ui.scrolling = true;
+			if (Math.abs(scroll - scrollTarget) < 8) {
+				scroll = scrollTarget;
+				scrollTarget = 1;
+				ui.scrolling = false;
+			} else {
+				scroll = Util.lerp(scroll, scrollTarget, 15, 100);
+			}
+			if(scroll > 0) {
+				scroll = 0;
+			}
+			if(scroll < -height + screenHeight) {
+				scroll = -height + screenHeight;
+			}
+		}
 	}
 	
 	public boolean scroll(int units) {
@@ -102,16 +123,13 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		if (scroll > 0) {
 			scroll = 0;
 		}
+		scrollTarget = 1;
 		//System.out.println("");
 		return true;
 	}
 	
 	public void repaint(UIItem i) {
-		int ih = i.getHeight();
-		int y = i.getY();
-		int sy = scroll + y;
-		int h = screenHeight;
-		if(sy + ih > 0 && sy < h) {
+		if(isItemOnScreen(i)) {
 			super.repaint(i);
 		}
 	}
@@ -131,10 +149,114 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		}
 	}
 	
-	public void keyPress(int i) {
-		// TODO: Keys support
+	public void keyRepeat(int i) {
+		if(i == -1 || i == -2) keyPress(i);
 	}
 	
+	public void keyPress(int i) {
+		// TODO: Arrow scrolling
+		System.out.println("keyPress " + i);
+		if((!ui.isKeyInputMode() || cItem == null) && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
+			ui.setKeyInputMode();
+			selectItem();
+		}
+		if(i == -1) {
+			System.out.println(cItem.getY() + " " + screenHeight + " " + scroll);
+			if(cItem.getY() < -scroll) {
+				smoothlyScrollTo(scroll+(screenHeight/3));
+			} else {
+				if(cItem.getIndex() == 0) {
+					if(-scroll < screenHeight/4) {
+						smoothlyScrollTo(0);
+					}
+					return;
+				}
+				cItem.defocus();
+				cItem = (UIItem) items.elementAt(cItem.getIndex()-1);
+				cItem.focus();
+				if(!isItemOnScreen(cItem, screenHeight/4)) {
+					smoothlyScrollTo(-cItem.getY());
+				}
+			}
+		} else if(i == -2) {
+			System.out.println(cItem.getY()+cItem.getHeight()+scroll + " " + screenHeight);
+			if(cItem.getY()+cItem.getHeight() > -(scroll-screenHeight)) {
+				smoothlyScrollTo(scroll-(screenHeight/3));
+			} else {
+				if(cItem.getIndex() == items.size()-1) return;
+				cItem.defocus();
+				cItem = (UIItem) items.elementAt(cItem.getIndex()+1);
+				cItem.focus();
+				if(!isItemOnScreen(cItem, screenHeight/4)) {
+					smoothlyScrollTo(-cItem.getY());
+				}
+			}
+			if(scroll < -height + screenHeight) {
+				scroll = -height + screenHeight;
+			}
+		}
+		if(i == -5 || i == -6 || i == -7 || i == Canvas.FIRE) {
+			if(selectItem()) {
+				itemKeyPress(i);
+			}
+		}
+	}
+	
+	private void itemKeyPress(int i) {
+		cItem.keyPress(i);
+	}
+
+	// will return false if there is no items
+	private boolean selectItem() {
+		System.out.println("selectItem");
+		if(items.size() == 0) {
+			cItem = null;
+			return false;
+		}
+		if(cItem == null) {
+			for (int i = 0; i < items.size(); i++) {
+				UIItem it = (UIItem) items.elementAt(i);
+				if (it != null) {
+					if(isItemOnScreen(cItem)) {
+						cItem = it;
+						cItem.focus();
+						return true;
+					}
+				}
+			}
+			if(cItem == null) {
+				cItem = (UIItem) items.elementAt(0);
+				scroll = 0;
+				cItem.focus();
+				return true;
+			}
+		}
+		if(!isItemOnScreen(cItem)) {
+			smoothlyScrollTo(-cItem.getY());
+		}
+		cItem.focus();
+		return true;
+	}
+
+	private void smoothlyScrollTo(int i) {
+		if(i >= 0) i = -1;
+		scrollTarget = i;
+		repaint();
+	}
+
+	private boolean isItemOnScreen(UIItem i) {
+		return isItemOnScreen(i, 0);
+	}
+
+	private boolean isItemOnScreen(UIItem i, int offset) {
+		if(!items.contains(i)) return false;
+		int ih = i.getHeight();
+		int y = i.getY();
+		int sy = scroll + y;
+		int h = screenHeight;
+		return sy + ih - offset > 0 && sy < h - offset;
+	}
+
 	protected void add(UIItem i) {
 		if(i == null) throw new NullPointerException("item");
 		items.addElement(i);
@@ -162,6 +284,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	private void relayout() {
 		needLayout = true;
+		repaint();
 	}
 	
 	protected UIItem get(int i) {

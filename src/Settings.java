@@ -45,7 +45,6 @@ public class Settings implements Constants {
 	public static boolean httpStream;
 	public static int startScreen; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
-	public static boolean customItems;
 	public static String imgproxy = hproxy;
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists;
@@ -89,7 +88,6 @@ public class Settings implements Constants {
 			// Defaults
 			if(PlatformUtils.isJ2ML()) {
 				videoPreviews = true;
-				customItems = true;
 				httpStream = false;
 				videoRes = "360p";
 				downloadDir = "C:/";
@@ -151,9 +149,6 @@ public class Settings implements Constants {
 						httpStream = true;
 						asyncLoading = false;
 					}
-					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
-						customItems = true;
-					}
 					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 					}
@@ -166,11 +161,10 @@ public class Settings implements Constants {
 					serverstream = stream;
 					videoPreviews = true;
 					char c = PlatformUtils.platform.charAt(5);
-					customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
+					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					serverstream = stream;
 					videoPreviews = true;
-					customItems = true;
 				} else {
 					serverstream = glype;
 				}
@@ -209,8 +203,6 @@ public class Settings implements Constants {
 				}
 				if(j.has("inv"))
 					inv = j.getString("inv");
-				if(j.has("customItems"))
-					customItems = j.getBoolean("customItems");
 				if(j.has("imgProxy"))
 					imgproxy = j.getString("imgProxy");
 				if(j.has("startScreen"))
@@ -267,7 +259,6 @@ public class Settings implements Constants {
 			j.put("inv", inv);
 			j.put("imgProxy", imgproxy);
 			j.put("startScreen", new Integer(startScreen));
-			j.put("customItems", new Boolean(customItems));
 			j.put("rmsPreviews", new Boolean(rmsPreviews));
 			j.put("customLocale", customLocale);
 			j.put("searchPlaylists", new Boolean(searchPlaylists));

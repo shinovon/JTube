@@ -69,7 +69,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		this.extended = extended;
 		author = o.getString("author");
 		authorId = o.getString("authorId");
-		if(Settings.videoPreviews || Settings.customItems) {
+		if(Settings.videoPreviews) {
 			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
 			if(authorThumbnails != null) {
 				String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);

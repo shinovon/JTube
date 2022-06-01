@@ -33,7 +33,7 @@ public abstract class UIScreen {
 		return parent != null;
 	}
 	
-	public static final void repaint() {
+	public void repaint() {
 		ui.repaint(false);
 	}
 	
