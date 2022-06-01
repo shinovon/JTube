@@ -31,7 +31,6 @@ public abstract class UIItem {
 	
 	public void focus() {
 		inFocus = true;
-		System.out.println("focus " + this.toString());
 	}
 	
 	public void defocus() {

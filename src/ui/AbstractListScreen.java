@@ -10,7 +10,6 @@ import Util;
 public abstract class AbstractListScreen extends UIScreen implements UIConstants {
 	
 	protected Vector items;
-	private int layout = 0;
 	private int screenHeight;
 	private UIItem cItem;
 	private boolean needLayout;
@@ -27,13 +26,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 
 	protected AbstractListScreen(Vector v) {
 		this(null, null, new Vector());
-	}
-	
-	/**
-	 * @param i 0: сверху вниз 1: по центру 2: снизу вверх
-	 */
-	protected void setLayout(int i) {
-		layout = i;
 	}
 
 	protected void paint(Graphics g, int w, int h) {
@@ -103,20 +95,12 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	public boolean scroll(int units) {
-		//System.out.print("scroll " + scroll + (units < 0 ? "" : "+") + units + " ");
-		/*if(scroll <= -height + screenHeight && units <= 0) {
-			scroll = -height + screenHeight;
-			System.out.println("no3");
-			return false;
-		}*/
 		if(scroll + units < -height + screenHeight) {
 			scroll = -height + screenHeight;
-			//System.out.println("no4");
 			return false;
 		}
 		if(units == 0) return false;
 		if(height == 0 || (height <= screenHeight && (units < 0 ? scroll == 0 : true))) {
-			//System.out.println("no1");
 			return false;
 		}
 		scroll += units;
@@ -124,7 +108,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			scroll = 0;
 		}
 		scrollTarget = 1;
-		//System.out.println("");
 		return true;
 	}
 	
@@ -154,14 +137,11 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	public void keyPress(int i) {
-		// TODO: Arrow scrolling
-		System.out.println("keyPress " + i);
 		if((!ui.isKeyInputMode() || cItem == null) && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
 			ui.setKeyInputMode();
 			selectItem();
 		}
 		if(i == -1) {
-			System.out.println(cItem.getY() + " " + screenHeight + " " + scroll);
 			if(cItem.getY() < -scroll) {
 				smoothlyScrollTo(scroll+(screenHeight/3));
 			} else {
@@ -179,7 +159,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				}
 			}
 		} else if(i == -2) {
-			System.out.println(cItem.getY()+cItem.getHeight()+scroll + " " + screenHeight);
 			if(cItem.getY()+cItem.getHeight() > -(scroll-screenHeight)) {
 				smoothlyScrollTo(scroll-(screenHeight/3));
 			} else {
@@ -208,7 +187,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 
 	// will return false if there is no items
 	private boolean selectItem() {
-		System.out.println("selectItem");
 		if(items.size() == 0) {
 			cItem = null;
 			return false;

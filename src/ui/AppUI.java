@@ -256,7 +256,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			for(int i = 0; i < l; i++) {
 				app.setLoadingState("Parsing (" + i + "/" + l + ")");
 				UIItem item = parseAndMakeItem(j.getObject(i), false, i);
-				System.out.println(i + " " + item);
 				if(item == null) continue;
 				main.add(item);
 				if(i >= TRENDS_LIMIT) break;
@@ -613,7 +612,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void setKeyInputMode() {
 		keyInput = true;
-		System.out.println("keyinputmode");
 	}
 
 	public void setTouchInputMode() {
