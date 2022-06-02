@@ -101,6 +101,12 @@ public class App implements Constants {
 			tasksLock.notify();
 		}
 	}
+
+	public void cancel(Object o) {
+		synchronized(tasksLock) {
+			queuedTasks.removeElement(o);
+		}
+	}
 	
 	public static int width;
 	public static int height;
@@ -179,7 +185,7 @@ public class App implements Constants {
 			t0.start();
 		}
 		setLoadingState("Loading start page");
-		ui.loadForm();
+		ui.loadMain();
 		checkUpdate();
 		if(Settings.debugMemory) {
 			Thread t = new Thread() {
@@ -283,11 +289,11 @@ public class App implements Constants {
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
-		s = s.concat("Settings.region=" + Settings.region);
+		s = s.concat("region=" + Settings.region);
 		if(fields != null) {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
-		String dbg = "Settings.region=" + Settings.region + " Fields=" + fields;
+		String dbg = "Region=" + Settings.region + " Fields=" + fields;
 		try {
 			s = Util.getUtf(Settings.inv + "api/" + s);
 		} catch (IOException e) {
@@ -499,11 +505,11 @@ public class App implements Constants {
 				String file = "file:///" + Settings.downloadDir;
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
-				if (PlatformUtils.isSymbianTouch() || PlatformUtils.isBada()) {
+				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
 					file += "watch.ram";
-				} else if (PlatformUtils.isS603rd()) {
+				} else /*if (PlatformUtils.isS603rd()) {
 					file += "watch.m3u";
-				} else {
+				} else */{
 					Settings.watchMethod = 0;
 					Util.platReq(url);
 					break;
@@ -611,7 +617,7 @@ public class App implements Constants {
 		String s = str + " \n\n" + cls + " \nt:" + Thread.currentThread().getName();
 		Alert a = new Alert("", s, null, AlertType.WARNING);
 		a.setTimeout(-2);
-		inst.ui.display(a);
+		Display.getDisplay(midlet).setCurrent(a);
 	}
 
 	public static void error(Object o, int i, Throwable e) {
@@ -637,7 +643,7 @@ public class App implements Constants {
 		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName() + (str2 != null ? " \n" + str2 : "");
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
-		inst.ui.display(a);
+		Display.getDisplay(midlet).setCurrent(a);
 	}
 
 

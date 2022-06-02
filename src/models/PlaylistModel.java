@@ -21,6 +21,7 @@ SOFTWARE.
 */
 package models;
 
+import ui.ModelScreen;
 import ui.UIItem;
 import cc.nnproject.json.JSONObject;
 
@@ -99,6 +100,11 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 	}
 
 	public UIItem makeItemForList() {
+		return null;
+	}
+
+	public ModelScreen makeScreen() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

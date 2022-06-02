@@ -255,7 +255,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Playback method";
 			case SET_SymbianOnline:
-				return "Online (Symbian/Bada)";
+				return "Online (Symbian3/Bada)";
 			case SET_Browser:
 				return "Via browser";
 			case SET_DownloadBuffer:
@@ -277,7 +277,7 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Use iteroni proxy for playback";
 			case CMD_Func:
-				return "Options";
+				return "Opts";
 			case CMD_Refresh:
 				return "Refresh";
 			}
@@ -423,7 +423,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Способ проигрывания";
 			case SET_SymbianOnline:
-				return "Онлайн (Symbian/Bada)";
+				return "Онлайн (Symbian3/Bada)";
 			case SET_Browser:
 				return "Через браузер";
 			case SET_DownloadBuffer:

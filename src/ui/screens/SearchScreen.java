@@ -4,23 +4,24 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 
-import ui.Commands;
 import ui.AbstractListScreen;
+import ui.Commands;
+import ui.UIScreen;
 
-public class MainScreen extends AbstractListScreen implements Commands, CommandListener {
+public class SearchScreen extends AbstractListScreen implements Commands, CommandListener {
+
+	private boolean okAdded;
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
-	
-	private boolean okAdded;
 
-	public MainScreen() {
-		super("", null);
+	public SearchScreen(UIScreen parent) {
+		super("", parent);
 	}
 	
 	public void show() {
 		clearCommands();
 		addCommand(optsCmd);
-		addCommand(exitCmd);
+		addCommand(backCmd);
 	}
 	
 	public void keyPress(int i) {
@@ -36,12 +37,9 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(c == okCmd) {
-			keyPress(-5);
-			return;
-		}
 		if(c == backCmd) {
-			ui.display(null);
+			ui.showMain();
+			ui.disposeSearchForm();
 			return;
 		}
 		if(c == optsCmd) {

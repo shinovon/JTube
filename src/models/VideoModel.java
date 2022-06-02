@@ -32,9 +32,12 @@ import Settings;
 import Constants;
 import InvidiousException;
 import ui.AppUI;
+import ui.ModelScreen;
 import ui.UIItem;
+import ui.items.ChannelItem;
 import ui.items.VideoItem;
 import ui.items.VideoPreviewItem;
+import ui.screens.VideoScreen;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
@@ -62,6 +65,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private boolean fromPlaylist;
 	
 	private VideoItem item;
+	private VideoPreviewItem prevItem;
+	private ChannelItem channelItem;
 	
 	private int index = -1;
 	private boolean imgLoaded;
@@ -137,10 +142,10 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(imgLoaded) return;
 		imgLoaded = true;
 		if(thumbnailUrl == null) return;
-		if(item == null && !extended) return;
+		if(item == null && prevItem == null && !extended) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
-			if(Settings.rmsPreviews) {
+			if(Settings.rmsPreviews && item != null) {
 				if(Settings.isLowEndDevice()) {
 					Records.save(videoId, b);
 					if(index <= 1 && index != -1) {
@@ -152,7 +157,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 					b = null;
 				} else {
 					tempImgBytes = b;
-					
 					App.inst.schedule(this);
 					if(index <= 2 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
@@ -166,11 +170,14 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				Util.gc();
 				if(item != null) {
 					item.setImage(customResize(img));
+				} else if(prevItem != null) {
+					item.setImage(customResize(img));
 				}
 			}
 			thumbnailUrl = null;
 			Util.gc();
 		} catch (NullPointerException e) {
+		} catch (IllegalArgumentException e) {
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -185,7 +192,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private void loadAuthorImg() {
 		if(authorThumbnails == null) return;
 		try {
-			//byte[] b = App.hproxy(getAuthorThumbUrl());
+			byte[] b = App.hproxy(getAuthorThumbUrl());
+			channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), 48, 48));
 			authorThumbnails = null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -313,7 +321,15 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			} catch (IOException e) {
 			}
 		}
-		return new VideoPreviewItem(getVideoId(), img);
+		return prevItem = new VideoPreviewItem(getVideoId(), img, getLengthSeconds());
+	}
+
+	public ModelScreen makeScreen() {
+		return new VideoScreen(this);
+	}
+	
+	public ChannelItem makeChannelItem() {
+		return channelItem = new ChannelItem(new ChannelModel(getAuthorId(), getAuthor(), null));
 	}
 
 }

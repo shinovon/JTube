@@ -20,6 +20,7 @@ public interface UIConstants {
 	public static final int COLOR_SCROLLBAR_BG = 7;
 	public static final int COLOR_SCROLLBAR_FG = 8;
 	public static final int COLOR_ITEM_HIGHLIGHT = 9;
+	public static final int COLOR_BUTTON_HOVER_BG = 10;
 	
 	public static final int FONT_DEBUG = 1;
 

@@ -10,7 +10,9 @@ public abstract class UIItem {
 	private boolean inFocus;
 	private int y;
 
-	private int index;
+	protected int index;
+
+	boolean hidden = true;
 
 	public UIItem(UIScreen screen) {
 		this.screen = screen;
@@ -24,10 +26,12 @@ public abstract class UIItem {
 	public abstract int getHeight();
 
 	protected abstract void layout(int w);
-	
+
+	protected void press(int x, int y) {}
+	protected void release(int x, int y) {}
 	protected void tap(int x, int y, int time) {}
-	public void keyPress(int i) {}
-	public void keyRelease(int i) {}
+	protected void keyPress(int i) {}
+	protected void keyRelease(int i) {}
 	
 	public void focus() {
 		inFocus = true;
@@ -72,6 +76,28 @@ public abstract class UIItem {
 	
 	public int getIndex() {
 		return index;
+	}
+	
+	public void relayout() {
+		if(screen == null) return;
+		screen.relayout();
+	}
+	
+	public boolean isSeenOnScreen() {
+		if(screen == null) return false;
+		return screen.isItemSeenOnScreen(this);
+	}
+	
+	protected boolean isHidden() {
+		return hidden;
+	}
+	
+	protected void onHide() {
+		hidden = true;
+	}
+	
+	protected void onShow() {
+		hidden = false;
 	}
 
 }

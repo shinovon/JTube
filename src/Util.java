@@ -76,6 +76,7 @@ public class Util implements Constants {
 			}
 			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
+			Thread.sleep(200);
 			int read;
 			o = new ByteArrayOutputStream();
 			byte[] b = new byte[buffer_size];
@@ -177,53 +178,52 @@ public class Util implements Constants {
 		if (text == null || text.length() == 0 || text.equals(" ")) {
 			return new String[0];
 		}
-		final int max = 3;
-		Vector v = new Vector(max);
-		v: {
-			if (font.stringWidth(text) > maxWidth) {
-				int i1 = 0;
-				for (int i2 = 0; i2 < text.length(); i2++) {
-					if(v.size() >= max) break v;
-					if (text.charAt(i2) == '\n') {
-						v.addElement(text.substring(i1, i2));
-						i2 = i1 = i2 + 1;
-					} else {
-						if (text.length() - i2 <= 1) {
-							v.addElement(text.substring(i1, text.length()));
-							break;
-						} else if (font.stringWidth(text.substring(i1, i2)) >= maxWidth) {
-							boolean space = false;
-							for (int j = i2; j > i1; j--) {
-								char c = text.charAt(j);
-								if (c == ' ' || (c >= ',' && c <= '/')) {
-									String s = text.substring(i1, j + 1);
-									if(font.stringWidth(s) >= maxWidth - 1) {
-										continue;
-									}
-									space = true;
-									v.addElement(s);
-									i2 = i1 = j + 1;
-									break;
+		Vector v = new Vector(3);
+		//v: {
+		if (font.stringWidth(text) > maxWidth) {
+			int i1 = 0;
+			for (int i2 = 0; i2 < text.length(); i2++) {
+				//if(v.size() >= max) break v;
+				if (text.charAt(i2) == '\n') {
+					v.addElement(text.substring(i1, i2));
+					i2 = i1 = i2 + 1;
+				} else {
+					if (text.length() - i2 <= 1) {
+						v.addElement(text.substring(i1, text.length()));
+						break;
+					} else if (font.stringWidth(text.substring(i1, i2)) >= maxWidth - 1) {
+						boolean space = false;
+						for (int j = i2; j > i1; j--) {
+							char c = text.charAt(j);
+							if (c == ' ' || (c >= ',' && c <= '/')) {
+								String s = text.substring(i1, j + 1);
+								if(font.stringWidth(s) >= maxWidth - 1) {
+									continue;
 								}
+								space = true;
+								v.addElement(s);
+								i2 = i1 = j + 1;
+								break;
 							}
-							if (!space) {
-								i2 = i2 - 2;
-								v.addElement(text.substring(i1, i2));
-								i2 = i1 = i2 + 1;
-							}
+						}
+						if (!space) {
+							i2 = i2 - 2;
+							v.addElement(text.substring(i1, i2));
+							i2 = i1 = i2 + 1;
 						}
 					}
 				}
-			} else {
-				return new String[] { text };
 			}
+		} else {
+			return new String[] { text };
 		}
+		//}
 		String[] arr = new String[v.size()];
 		v.copyInto(arr);
 		return arr;
 	}
 	
-	public static int lerp(int start, int target, int mul, int div) {
+	public static float lerp(float start, float target, float mul, float div) {
 		return start + ((target - start) * mul / div);
 	}
 

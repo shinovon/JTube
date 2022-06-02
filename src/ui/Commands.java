@@ -13,8 +13,8 @@ public interface Commands extends LocaleConstants {
 	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 10);
 	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 4);
 	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 4);
-	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 2);
-	static final Command optsCmd = new Command(Locale.s(CMD_Func), Command.BACK, 3);
+	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 3);
+	static final Command optsCmd = new Command(Locale.s(CMD_Func), Command.HELP, 2);
 	
 	static final Command searchOkCmd = new Command(Locale.s(CMD_Search), Command.OK, 1);
 	static final Command goCmd = new Command(Locale.s(CMD_Go), Command.OK, 1);

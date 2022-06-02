@@ -5,10 +5,18 @@ import javax.microedition.lcdui.Graphics;
 
 public abstract class UIScreen {
 	
+	static {
+		if(AppUI.inst == null) {
+			System.out.println("UIScreen class initialized before AppUI?!?!");
+		}
+	}
+	
+	protected static final AppUI ui = AppUI.inst;
+	
 	private String label;
 	private UIScreen parent;
 	
-	protected int scroll;
+	protected float scroll;
 	protected int width;
 	protected int height;
 
@@ -16,8 +24,6 @@ public abstract class UIScreen {
 		this.label = label;
 		this.parent = parent;
 	}
-	
-	protected static final AppUI ui = AppUI.inst;
 	
 	protected abstract void paint(Graphics g, int w, int h);
 	
@@ -52,11 +58,14 @@ public abstract class UIScreen {
 	public int getHeight() {
 		return height;
 	}
-	
+
+
+	protected void press(int x, int y) {}
+	protected void release(int x, int y) {}
 	protected void tap(int x, int y, int time) {}
-	public void keyPress(int i) {}
-	public void keyRelease(int i) {}
-	public void keyRepeat(int i) {}
+	protected void keyPress(int i) {}
+	protected void keyRelease(int i) {}
+	protected void keyRepeat(int i) {}
 	
 	/** -1: назад */
 	public void screenCommand(int i) {}
@@ -90,5 +99,14 @@ public abstract class UIScreen {
 	public boolean supportCommands() {
 		return false;
 	}
+
+	protected void relayout() {
+	}
+
+	protected boolean isItemSeenOnScreen(UIItem i) {
+		return true;
+	}
+
+	public void show() {}
 
 }

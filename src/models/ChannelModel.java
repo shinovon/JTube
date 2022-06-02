@@ -29,6 +29,7 @@ import App;
 import Util;
 import Settings;
 import Constants;
+import ui.ModelScreen;
 import ui.UIItem;
 import InvidiousException;
 import ui.items.ChannelItem;
@@ -158,6 +159,11 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	}
 
 	public UIItem makeItemForList() {
+		return null;
+	}
+
+	public ModelScreen makeScreen() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

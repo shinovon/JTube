@@ -58,7 +58,11 @@ public class MyCanvas extends Canvas implements UIConstants {
 				}
 			}
 			if(cy != 0) g.translate(0, cy);
-			s.paint(g, width, h);
+			try {
+				s.paint(g, width, h);
+			} catch (Error e) {
+				e.printStackTrace();
+			}
 			if(cy != 0) g.translate(0, -cy);
 		}
 		if(Settings.renderDebug) {
@@ -75,6 +79,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 			g.setColor(0x00aa00);
 			g.drawString(ds, 1, ty, 0);
 		}
+		g.setFont(smallfont);
 	}
 	
 	public void resetScreen() {
@@ -91,16 +96,21 @@ public class MyCanvas extends Canvas implements UIConstants {
 		lastX = pressX = x;
 		lastY = pressY = y;
 		pressTime = System.currentTimeMillis();
-		dragged = false;
 		draggedMuch = false;
+		dragged = false;
 		scrollSlide = false;
 		scrollPreSlide = false;
 		draggedScrollbar = false;
 		UIScreen s = ui.getCurrentScreen();
-		if(s != null && s.hasScrollBar()) {
-			if(x > width - (AppUI.getScrollBarWidth() + 5)) {
-				s.setScrollBarY(y);
-				draggedScrollbar = true;
+		if(s != null) {
+			if(s.hasScrollBar()) {
+				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
+					s.setScrollBarY(y);
+					draggedScrollbar = true;
+				}
+			}
+			if(!draggedScrollbar) {
+				s.press(x, y);
 			}
 		}
 		needRepaint();
@@ -126,6 +136,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 				}
 			}
 			if(!draggedScrollbar) {
+				if(s != null) s.release(x, y);
 				if(draggedMuch) {
 					if(time < 200) {
 						scrollSlide = scrollPreSlide;
@@ -134,7 +145,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 						scrollSlide = false;
 					}
 				} else {
-					if(dx <= 6 && ady <= 6) {
+					if(dx <= 6 && ady <= 6 && !dragged) {
 						tap(x, y, time);
 					} else if(time < 200 && dx < 12) {
 						if(s != null) {
@@ -156,6 +167,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 			needRepaint();
 			return;
 		}
+		dragged = true;
 		UIScreen s = ui.getCurrentScreen();
 		if(s != null) {
 			if(s.hasScrollBar()) {
@@ -164,7 +176,6 @@ public class MyCanvas extends Canvas implements UIConstants {
 					draggedScrollbar = true;
 					lastX = x;
 					lastY = y;
-					dragged = true;
 					needRepaint();
 					ui.scrolling = true;
 					return;
@@ -206,7 +217,6 @@ public class MyCanvas extends Canvas implements UIConstants {
 		}
 		lastX = x;
 		lastY = y;
-		dragged = true;
 	}
 	
 	public void keyPressed(int i) {
@@ -236,6 +246,10 @@ public class MyCanvas extends Canvas implements UIConstants {
 	protected void sizeChanged(int w, int h) {
 		width = w;
 		height = h;
+		UIScreen s = ui.getCurrentScreen();
+		if(s != null) {
+			s.relayout();
+		}
 		needRepaint();
 	}
 

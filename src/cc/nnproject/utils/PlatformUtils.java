@@ -31,6 +31,7 @@ public class PlatformUtils {
 	public static final long startMemory = Runtime.getRuntime().totalMemory();
 	public static final String os = System.getProperty("os.name");
 	public static final String vendor = System.getProperty("java.vendor");
+	public static final String version = System.getProperty("java.version");
 	
 	private static final String[] ashaFullTouchModels = new String[] { "230", "305", "306", "308", "309", "310", "311", "500", "501", "502", "503" };
 	private static final String[] ashaTouchAndTypeModels = new String[] { "202", "203", "300", "303" };

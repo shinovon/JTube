@@ -30,6 +30,9 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.List;
+import javax.microedition.lcdui.TextBox;
+import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
 import App;
@@ -46,6 +49,8 @@ import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.json.AbstractJSON;
 import models.VideoModel;
 import ui.screens.MainScreen;
+import ui.screens.SearchScreen;
+import ui.screens.VideoScreen;
 import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
@@ -63,7 +68,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	private App app = App.inst;
 	
-	public MainScreen main;
+	public MainScreen mainScr;
+	public SearchScreen searchScr;
+	public VideoScreen videoScr;
+	
 	private SettingsForm settingsForm;
 
 	private static MyCanvas canv;
@@ -72,12 +80,14 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	private Object repaintLock = new Object();
 	private Object repaintResLock = new Object();
-	// сделано для того чтобы не вызывать репеинт много раз во время скроллинга/анимки и т.д
+
 	public boolean scrolling;
 	
 	public int repaintTime;
 	
 	public boolean oddFrame;
+	
+	private List optionsForm;
 
 	private Thread repaintThread = new Thread() {
 		public void run() {
@@ -131,6 +141,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void repaint(boolean wait) {
+		if(display.getCurrent() != canv) return;
 		if(scrolling) return;
 		synchronized (repaintLock) {
 			repaintLock.notify();
@@ -138,7 +149,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(wait) {
 			try {
 				synchronized (repaintResLock) {
-					repaintResLock.wait();
+					repaintResLock.wait(1000);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -154,7 +165,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		case COLOR_MAINBORDER:
 			return 0;
 		case COLOR_ITEMBORDER:
-			return 0;
+			return 0x5D5D5D;
 		case COLOR_DARK_ALPHA:
 			return 0x7fffffff;
 		case COLOR_GRAYTEXT:
@@ -165,6 +176,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return 0xAAAAAA;
 		case COLOR_ITEM_HIGHLIGHT:
 			return 0xAAAAAA;
+		case COLOR_BUTTON_HOVER_BG:
+			return 0xCCCCCC;
 		default:
 			return 0;
 		}
@@ -182,6 +195,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		current = s;
 		canv.resetScreen();
 		repaint(true);
+		s.show();
 	}
 	
 	public int getWidth() {
@@ -196,9 +210,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		return current;
 	}
 	
-	public void loadForm() {
+	public void loadMain() {
 		try {
-			Util.testCanvas();
 			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
@@ -207,7 +220,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			app.setLoadingState("Start page loaded");
 			display(canv);
 			Util.gc();
-			setScreen(main);
+			setScreen(mainScr);
 		} catch (InvidiousException e) {
 			App.error(this, Errors.AppUI_loadForm, e);
 		} catch (OutOfMemoryError e) {
@@ -225,7 +238,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		canv.setCommandListener(this);
 		repaintThread.setPriority(6);
 		repaintThread.start();
-		main = new MainScreen();
+		mainScr = new MainScreen();
 	}
 	
 	public void load(String s) throws IOException {
@@ -251,7 +264,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				app.setLoadingState("Parsing (" + i + "/" + l + ")");
 				UIItem item = parseAndMakeItem(j.getObject(i), false, i);
 				if(item == null) continue;
-				main.add(item);
+				mainScr.add(item);
 				if(i >= TRENDS_LIMIT) break;
 				if(b) App.checkMemoryAndGc();
 			}
@@ -278,8 +291,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		load("popular");
 	}
 
-	void search(String q) {
+	public void search(String q) {
 		boolean b = App.needsCheckMemory();
+		searchScr = new SearchScreen(mainScr);
+		display(null);
+		setScreen(searchScr);
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 			disposeMainForm();
 		}
@@ -290,7 +306,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), true, i);
 				if(item == null) continue;
-				
+				searchScr.add(item);
 				if(i >= SEARCH_LIMIT) break;
 				if(b) App.checkMemoryAndGc();
 			}
@@ -335,7 +351,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		return null;
 	}
 
-	private void openVideo(String id) {
+	public void openVideo(String id) {
 		final String https = "https://";
 		final String ytshort = "youtu.be/";
 		final String www = "www.";
@@ -355,11 +371,15 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	void disposeMainForm() {
-		main.clear();
+		if(mainScr == null) return;
+		mainScr.clear();
 		Util.gc();
 	}
 
 	public void disposeVideoForm() {
+		if(videoScr == null) return;
+		videoScr.dispose();
+		videoScr = null;
 		Util.gc();
 	}
 
@@ -368,10 +388,112 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void disposeSearchForm() {
+		if(searchScr == null) return;
+		searchScr.clear();
+		searchScr = null;
 		Util.gc();
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(optionsForm != null && d == optionsForm) {
+			if(c == List.SELECT_COMMAND) {
+				switch(optionsForm.getSelectedIndex()) {
+				case 0:
+					// Search
+					App.inst.stopDoingAsyncTasks();
+					if(searchScr != null) {
+						disposeSearchForm();
+					}
+					TextBox t = new TextBox("", "", 256, TextField.ANY);
+					t.setCommandListener(this);
+					t.setTitle(Locale.s(CMD_Search));
+					t.addCommand(searchOkCmd);
+					t.addCommand(cancelCmd);
+					display(t);
+					break;
+				case 1:
+					// Refresh
+					if(current == mainScr) {
+						try {
+							App.inst.stopDoingAsyncTasks();
+							mainScr.clear();
+							display(null);
+							if(Settings.startScreen == 0) {
+								loadTrends();
+							} else {
+								loadPopular();
+							}
+							mainScr.repaint();
+						} catch (InvidiousException e) {
+							App.error(this, Errors.AppUI_loadForm, e);
+						} catch (OutOfMemoryError e) {
+							Util.gc();
+							App.error(this, Errors.AppUI_loadForm, "Out of memory!");
+						} catch (Throwable e) {
+							e.printStackTrace();
+							App.error(this, Errors.AppUI_loadForm, e);
+						}
+					}
+					break;
+				case 2:
+					// Switch
+					try {
+						App.inst.stopDoingAsyncTasks();
+						mainScr.scroll = 0;
+						mainScr.clear();
+						display(null);
+						setScreen(mainScr);
+						if(Settings.startScreen == 0) {
+							Settings.startScreen = 1;
+							loadPopular();
+						} else {
+							Settings.startScreen = 0;
+							loadTrends();
+						}
+						Settings.saveConfig();
+						mainScr.repaint();
+					} catch (Exception e) {
+						App.error(this, Errors.App_commandAction_switchCmd, e);
+						e.printStackTrace();
+					}
+					optionsForm.set(2, Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
+					break;
+				case 3:
+					// Open by ID
+					
+					break;
+				case 4:
+					//Settings
+					showSettings();
+					break;
+				case 5:
+					// About
+					showAbout(this);
+					break;
+				case 6:
+					// Exit
+					exit();
+					break;
+				}
+				return;
+			}
+		}
+		if(c == cancelCmd && d instanceof TextBox) {
+			display(optionsForm);
+			return;
+		}
+		if(c == goCmd && d instanceof TextBox) {
+			openVideo(((TextBox) d).getString());
+			return;
+		}
+		if(c == searchOkCmd && d instanceof TextBox) {
+			search(((TextBox) d).getString());
+			return;
+		}
+		if(d instanceof Alert) {
+			display(optionsForm);
+			return;
+		}
 		if(c == settingsCmd) {
 			app.stopDoingAsyncTasks();
 			showSettings();
@@ -521,7 +643,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		App app = App.inst;
 		AppUI ui = inst;
 		// check if already loading
-		if(formContainer == null && model instanceof VideoModel) {
+		if(formContainer == null && model instanceof VideoModel && current instanceof VideoScreen && ui.videoScr != null) {
 			return;
 		}
 		if(model instanceof PlaylistModel) {
@@ -536,12 +658,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			}
 		}
 		app.stopDoingAsyncTasks();
-		Util.gc();
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
+		ModelScreen scr = model.makeScreen();
+		display(null);
+		setScreen(scr);
+		if(scr instanceof VideoScreen) {
+			ui.videoScr = (VideoScreen) scr;
 		}
-		app.notifyAsyncTasks();
+		Util.gc();
 		
 	}
 
@@ -570,7 +693,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		a.setTimeout(-2);
 		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + " \n"
 				+ "By Shinovon (nnp.nnchan.ru) \n"
-				+ "t.me/nnmidlets \n\n"
+				+ "t.me/nnmidlets\n"
+				+ "vk.com/nnprojectcc \n\n"
 				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
 		a.setCommandListener(l == null ? this : l);
 		a.addCommand(new Command("OK", Command.OK, 1));
@@ -614,6 +738,41 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public boolean isKeyInputMode() {
 		return keyInput;
+	}
+
+	public void showMain() {
+		if(mainScr == null) {
+			mainScr = new MainScreen();
+			loadMain();
+		} else {
+			setScreen(mainScr);
+		}
+	}
+
+	public void showOptions() {
+		if(optionsForm == null) {
+			optionsForm = new List("JTube Menu", List.IMPLICIT);
+			optionsForm.append(Locale.s(CMD_Search), null);
+			optionsForm.append(Locale.s(CMD_Refresh), null);
+			optionsForm.append(Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
+			optionsForm.append(Locale.s(CMD_OpenByID), null);
+			optionsForm.append(Locale.s(CMD_Settings), null);
+			optionsForm.append(Locale.s(CMD_About), null);
+			optionsForm.append(Locale.s(CMD_Exit), null);
+			optionsForm.addCommand(List.SELECT_COMMAND);
+			optionsForm.setSelectCommand(List.SELECT_COMMAND);
+			optionsForm.addCommand(backCmd);
+			optionsForm.setCommandListener(this);
+		}
+		display(optionsForm);
+	}
+
+	public void back(UIScreen s) {
+		if(s instanceof ModelScreen && ((ModelScreen)s).getModel().isFromSearch() && searchScr != null) {
+			setScreen(searchScr);
+		} else {
+			showMain();
+		}
 	}
 
 }

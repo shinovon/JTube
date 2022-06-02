@@ -127,12 +127,16 @@ public class Settings implements Constants {
 					}
 				} else {
 					String downloadDir = System.getProperty("fileconn.dir.videos");
-					if(downloadDir == null)
-						downloadDir = System.getProperty("fileconn.dir.photos");
-					if(downloadDir == null)
-						downloadDir = "C:/";
-					else if(downloadDir.startsWith("file:///"))
-						downloadDir = downloadDir.substring("file:///".length());
+					if(PlatformUtils.version != null && PlatformUtils.version.indexOf("phoneme") != -1) {
+						downloadDir = "file:///MyDocs/";
+					} else {
+						if(downloadDir == null)
+							downloadDir = System.getProperty("fileconn.dir.photos");
+						if(downloadDir == null)
+							downloadDir = "C:/";
+						else if(downloadDir.startsWith("file:///"))
+							downloadDir = downloadDir.substring("file:///".length());
+					}
 					Settings.downloadDir = downloadDir;
 				}
 				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
@@ -151,6 +155,7 @@ public class Settings implements Constants {
 					}
 					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
+						downloadBuffer = 4096;
 					}
 					rememberSearch = true;
 					searchChannels = true;
@@ -165,6 +170,7 @@ public class Settings implements Constants {
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					serverstream = stream;
 					videoPreviews = true;
+					rmsPreviews = true;
 				} else {
 					serverstream = glype;
 				}
