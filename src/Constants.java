@@ -45,7 +45,7 @@ public interface Constants {
 	
 	public static String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	
-	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,viewCount";
+	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,author,authorId,description,videoCount,published,publishedText,lengthSeconds,likeCount,dislikeCount,viewCount,subCount";
 	static final String CHANNEL_EXTENDED_FIELDS = "subCount,author,authorId,description,totalViews";
 	static final String PLAYLIST_EXTENDED_FIELDS = "author,authorId,videoCount,videos,title,videoId,videoThumbnails,playlistId,index,lengthSeconds";
 	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";

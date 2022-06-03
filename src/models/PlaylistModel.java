@@ -21,8 +21,11 @@ SOFTWARE.
 */
 package models;
 
-import ui.ModelScreen;
 import ui.UIItem;
+import ui.UIScreen;
+import ui.ModelScreen;
+import ui.items.PlaylistItem;
+import ui.screens.PlaylistScreen;
 import cc.nnproject.json.JSONObject;
 
 public class PlaylistModel extends AbstractModel implements ILoader {
@@ -35,6 +38,8 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 	private String author;
 	private String authorId;
 	private int videoCount;
+	
+	private UIScreen containerScreen;
 
 	public PlaylistModel(JSONObject o) {
 		parse(o, false);
@@ -42,6 +47,12 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 
 	public PlaylistModel(JSONObject o, boolean extended) {
 		parse(o, extended);
+	}
+
+	public PlaylistModel(JSONObject j, UIScreen s, ChannelModel channel) {
+		this(j, false);
+		this.containerScreen = s;
+		authorId = channel.getAuthorId();
 	}
 
 	private void parse(JSONObject o, boolean extended) {
@@ -99,13 +110,16 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 		return videoCount;
 	}
 
-	public UIItem makeItemForList() {
-		return null;
+	public UIItem makeListItem() {
+		return new PlaylistItem(this);
 	}
 
 	public ModelScreen makeScreen() {
-		// TODO Auto-generated method stub
-		return null;
+		return new PlaylistScreen(this);
+	}
+
+	public UIScreen getContainerScreen() {
+		return containerScreen;
 	}
 
 }

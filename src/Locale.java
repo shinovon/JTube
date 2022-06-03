@@ -255,7 +255,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Playback method";
 			case SET_SymbianOnline:
-				return "Online (Symbian3/Bada)";
+				return "Online (Symbian/Bada)";
 			case SET_Browser:
 				return "Via browser";
 			case SET_DownloadBuffer:
@@ -423,7 +423,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Способ проигрывания";
 			case SET_SymbianOnline:
-				return "Онлайн (Symbian3/Bada)";
+				return "Онлайн (Symbian/Bada)";
 			case SET_Browser:
 				return "Через браузер";
 			case SET_DownloadBuffer:
@@ -456,17 +456,31 @@ public class Locale implements LocaleConstants {
 	
 	public static String subscribers(int i) {
 		if(i <= 0) return null;
+		String s = "" + i;
 		if(loaded) {
-			if(i == 1) return i + " " + s(TXT_1subscriber);
-			if(i % 10 == 1) return i + " " + s(TXT_10_1subscribers);
-			return i + " " + s(TXT_subscribers);
+			if(i >= 1000000) {
+				s = ((int) ((i / 1000000D) * 100) / 100D) + " M";
+			}
+			if(i == 1) return s + " " + s(TXT_1subscriber);
+			if(i % 10 == 1) return s + " " + s(TXT_10_1subscribers);
+			return s + " " + s(TXT_subscribers);
 		}
 		if(localei == 1) {
-			if(i % 10 == 1) return i + " подписчик";
-			return i + " подписчиков";
+			if(i >= 1000000000) {
+				s = ((int) ((i / 1000000000D) * 100) / 100D) + " млрд.";
+			} else if(i >= 1000000) {
+				s = ((int) ((i / 1000000D) * 100) / 100D) + " млн.";
+			} else if(i >= 1000) {
+				s = ((int) ((i / 1000000D) * 100) / 100D) + " тыс.";
+			} 
+			if(i % 10 == 1) return s + " подписчик";
+			return s + " подписчиков";
 		}
-		if(i == 1) return i + " subscriber";
-		return i + " subscribers";
+		if(i >= 1000000) {
+			s = ((int) ((i / 1000000D) * 100) / 100D) + " M";
+		}
+		if(i == 1) return s + " subscriber";
+		return s + " subscribers";
 	}
 	
 	public static String views(int i) {
@@ -487,6 +501,50 @@ public class Locale implements LocaleConstants {
 		}
 		if(i == 1) return i + " video";
 		return i + " videos";
+	}
+
+	public static String date(String s) {
+		if(s == null) return null;
+		if(localei == 1) {
+			try {
+				if(s.indexOf("years ago") != -1) {
+					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+					if(i <= 4) {
+						s = "года назад";
+					} else {
+						s = "лет назад";
+					}
+				} else if(s.indexOf("months ago") != -1) {
+					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+					if(i <= 4) {
+						s = "месяца назад";
+					} else {
+						s = "месяцев назад";
+					}
+				} else if(s.indexOf("days ago") != -1) {
+					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+					if(i <= 4) {
+						s = "дня назад";
+					} else {
+						s = "дней назад";
+					}
+				} else if(s.indexOf("hours ago") != -1) {
+					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+					if(i <= 4) {
+						s = "часа назад";
+					} else {
+						s = "часов назад";
+					}
+				} else {
+					s = Util.replace(s, "year ago", "год назад");
+					s = Util.replace(s, "month ago", "месяц назад");
+					s = Util.replace(s, "day ago", "день назад");
+					s = Util.replace(s, "hour ago", "час назад");
+				}
+			} catch (Exception e) {
+			}
+		}
+		return s;
 	}
 
 }

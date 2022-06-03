@@ -6,7 +6,10 @@ import javax.microedition.lcdui.Image;
 import Locale;
 import ui.AppUI;
 import ui.UIConstants;
+import ui.UIScreen;
 import models.ChannelModel;
+import models.VideoModel;
+import ui.screens.ChannelScreen;
 import ui.screens.VideoScreen;
 
 public class ChannelItem extends AbstractButtonItem implements UIConstants {
@@ -24,7 +27,14 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	public ChannelItem(ChannelModel c) {
 		super();
 		this.channel = c;
-		this.img = roundImage(c.getImg());
+		if(c.getImg() != null) {
+			if(!c.isImageRounded()) {
+				this.img = roundImage(c.getImg());
+				c.setImage(img, true);
+			} else {
+				this.img = c.getImg();
+			}
+		}
 		this.author = c.getAuthor();
 		subsStr = Locale.subscribers(c.getSubCount());
 	}
@@ -68,12 +78,15 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void layout(int w) {
-		h = 52;
+		h = 53;
 	}
 
 	public void setImage(Image img) {
-		this.img = roundImage(img);
-		repaint();
+		if(img != null) {
+			this.img = roundImage(img);
+			channel.setImage(this.img, true);
+			repaint();
+		}
 	}
 	
 	public ChannelModel getChannel() {
@@ -105,7 +118,12 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void action() {
-		
+		UIScreen s;
+		if(getScreen() instanceof VideoScreen && (s = ((VideoModel) ((VideoScreen)getScreen()).getModel()).getContainerScreen()) instanceof ChannelScreen) {
+			ui.setScreen(s);
+		} else {
+			ui.open(channel);
+		}
 	}
 
 }

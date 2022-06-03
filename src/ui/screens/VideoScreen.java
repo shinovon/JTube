@@ -42,13 +42,13 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		add(title);
 		add(video.makeChannelItem());
 		add(new LabelItem(Locale.s(TXT_Views) + ": " + Locale.views(video.getViewCount()), smallfont));
-		add(new LabelItem(Locale.s(TXT_Published) + ": " + video.getPublishedText(), smallfont));
+		add(new LabelItem(Locale.s(TXT_Published) + ": " + Locale.date(video.getPublishedText()), smallfont));
 		add(new LabelItem(Locale.s(TXT_Description), mediumfont, AppUI.getColor(COLOR_GRAYTEXT)));
 		add(new LabelItem(video.getDescription(), smallfont));
 		relayout();
 	}
 	
-	public void show() {
+	protected void show() {
 		clearCommands();
 		addCommand(backCmd);
 		addCommand(settingsCmd);
@@ -74,7 +74,6 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		try {
 			if(!video.isExtended()) {
 				video.extend();
-				scroll = 0;
 				clear();
 				init();
 			}
@@ -97,10 +96,9 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			App.download(video.getVideoId());
 			return;
 		}
-/*
 		if(containerScreen != null && video.isFromPlaylist()) {
 			if(c == openPlaylistCmd) {
-				ui.setCurrent(containerScreen);
+				ui.setScreen(containerScreen);
 				return;
 			}
 			if(c == nextCmd || c == prevCmd) {
@@ -125,12 +123,11 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 					}
 				}
 				VideoModel nv = p.getVideo(i);
-				ui.open(nv, formContainer);
+				ui.open(nv, containerScreen);
 				dispose();
 				return;
 			}
 		}
-*/
 		if(c == showLinkCmd) {
 			TextBox t = new TextBox("", "", 64, TextField.URL);
 			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId() + (video.isFromPlaylist() ? "&list=" + video.getPlaylistId() : ""));
@@ -145,7 +142,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			} else {
 				ui.back(this);
 			}
-			ui.disposeVideoForm();
+			ui.disposeVideoPage();
 			return;
 		}
 	}
@@ -154,7 +151,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		return video;
 	}
 
-	public void setFormContainer(UIScreen s) {
+	public void setContainerScreen(UIScreen s) {
 		containerScreen = s;
 	}
 

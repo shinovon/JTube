@@ -6,22 +6,26 @@ import javax.microedition.lcdui.Image;
 
 import App;
 import Util;
-import ui.AppUI;
+import models.VideoModel;
 import ui.UIConstants;
 
 public class VideoPreviewItem extends AbstractButtonItem implements UIConstants {
 
+	private VideoModel video;
+	
 	private String videoId;
 
 	private String length;
 	private Image img;
 	private int h;
 
+	private int lastW;
 	
-	public VideoPreviewItem(String id, Image img, int length) {
-		this.videoId = id;
+	public VideoPreviewItem(VideoModel v, Image img) {
+		this.video = v;
+		this.videoId = v.getVideoId();
 		this.img = img;
-		this.length = Util.timeStr(length);
+		this.length = Util.timeStr(v.getLengthSeconds());
 	}
 
 	protected void action() {
@@ -58,6 +62,10 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	}
 
 	protected void layout(int w) {
+		if(w != lastW) {
+			video.setImageWidth(w);
+			if(img != null) img = video.customResize(img);
+		}
 		h = w * 9 / 16;
 		if(img != null) {
 			h = img.getHeight();

@@ -34,9 +34,11 @@ import InvidiousException;
 import ui.AppUI;
 import ui.ModelScreen;
 import ui.UIItem;
+import ui.UIScreen;
 import ui.items.ChannelItem;
 import ui.items.VideoItem;
 import ui.items.VideoPreviewItem;
+import ui.screens.PlaylistScreen;
 import ui.screens.VideoScreen;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
@@ -55,10 +57,11 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private int likeCount;
 	private int dislikeCount;
 	private String playlistId;
+	private int subCount;
 
 	private String thumbnailUrl;
 	private int imageWidth;
-	private JSONArray authorThumbnails;
+	private String authorThumbnailUrl;
 
 	private boolean extended;
 	private boolean fromSearch;
@@ -67,6 +70,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private VideoItem item;
 	private VideoPreviewItem prevItem;
 	private ChannelItem channelItem;
+	
+	private UIScreen containerScreen;
 	
 	private int index = -1;
 	private boolean imgLoaded;
@@ -86,6 +91,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		parse(j, extended);
 	}
 
+	public VideoModel(JSONObject j, UIScreen s) {
+		this(j, false);
+		this.containerScreen = s;
+		this.fromPlaylist = s instanceof PlaylistScreen;
+	}
+
 	private void parse(JSONObject j, boolean extended) {
 		this.extended = extended;
 		videoId = j.getString("videoId");
@@ -99,12 +110,14 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		lengthSeconds = j.getInt("lengthSeconds", 0);
 		if(extended) {
 			viewCount = j.getInt("viewCount", 0);
-			
+			subCount = j.getInt("subCount", 0);
 			description = j.getNullableString("description");
 			publishedText = j.getNullableString("publishedText");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
-			if(Settings.videoPreviews) authorThumbnails = j.getNullableArray("authorThumbnails");
+			if(Settings.videoPreviews) {
+				authorThumbnailUrl = App.getThumbUrl(j.getNullableArray("authorThumbnails"), AUTHORITEM_IMAGE_HEIGHT);
+			}
 		}
 		if(videoThumbnails != null) {
 			imageWidth = AppUI.inst.getItemWidth();
@@ -190,20 +203,29 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	private void loadAuthorImg() {
-		if(authorThumbnails == null) return;
+		if(authorThumbnailUrl == null) return;
 		try {
-			byte[] b = App.hproxy(getAuthorThumbUrl());
-			channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), 48, 48));
-			authorThumbnails = null;
+			_loadAuthorImg();
+		} catch (IllegalArgumentException e) {
+			if(e.getMessage().equals("bad image format")) {
+				try {
+					_loadAuthorImg();
+				} catch (Exception e1) {
+				} catch (Error e1) {
+				}
+			}
+			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public String getAuthorThumbUrl() {
-		return App.getThumbUrl(authorThumbnails, VIDEOFORM_AUTHOR_IMAGE_HEIGHT);
+
+	private void _loadAuthorImg() throws Exception {
+		byte[] b = App.hproxy(authorThumbnailUrl);
+		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHORITEM_IMAGE_HEIGHT, AUTHORITEM_IMAGE_HEIGHT));
+		authorThumbnailUrl = null;
 	}
 	public String getTitle() {
 		return title;
@@ -275,7 +297,9 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		authorId = null;
 		description = null;
 		publishedText = null;
-		authorThumbnails = null;
+		authorThumbnailUrl = null;
+		channelItem = null;
+		prevItem = null;
 	}
 
 	public int getLikeCount() {
@@ -321,7 +345,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			} catch (IOException e) {
 			}
 		}
-		return prevItem = new VideoPreviewItem(getVideoId(), img, getLengthSeconds());
+		return prevItem = new VideoPreviewItem(this, img);
 	}
 
 	public ModelScreen makeScreen() {
@@ -329,7 +353,23 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 	
 	public ChannelItem makeChannelItem() {
-		return channelItem = new ChannelItem(new ChannelModel(getAuthorId(), getAuthor(), null));
+		return channelItem = (ChannelItem) new ChannelModel(getAuthorId(), getAuthor(), null, subCount).makeListItem();
+	}
+
+	public void setContainerScreen(UIScreen s) {
+		this.containerScreen = s;
+		this.fromPlaylist = s instanceof PlaylistScreen;
+		if(fromPlaylist) {
+			this.playlistId = ((PlaylistModel)((PlaylistScreen)s).getModel()).getPlaylistId();
+		}
+	}
+
+	public UIScreen getContainerScreen() {
+		return containerScreen;
+	}
+
+	public void setImageWidth(int i) {
+		imageWidth = i;
 	}
 
 }

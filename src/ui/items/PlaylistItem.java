@@ -4,11 +4,11 @@ import javax.microedition.lcdui.Graphics;
 
 import Util;
 import Locale;
-import ui.UIItem;
+import ui.AppUI;
 import ui.UIConstants;
 import models.PlaylistModel;
 
-public class PlaylistItem extends UIItem implements UIConstants {
+public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 
 	private PlaylistModel playlist;
 	
@@ -23,7 +23,7 @@ public class PlaylistItem extends UIItem implements UIConstants {
 	private int h;
 
 	public PlaylistItem(PlaylistModel p) {
-		super(null);
+		super();
 		this.playlist = p;
 		this.title = p.getTitle();
 		this.author = p.getAuthor();
@@ -50,6 +50,13 @@ public class PlaylistItem extends UIItem implements UIConstants {
 		}
 		if(author != null) {
 			g.drawString(author, x+2, y + smallfontheight + 2, 0);
+		}
+		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
+		g.drawRect(x, y+h-1, w, 1);
+		if(isInFocus() && ui.isKeyInputMode()) {
+			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
+			g.drawRect(x, y, w-1, h-1);
+			g.drawRect(x+1, y+1, w-3, h-3);
 		}
 	}
 
@@ -85,6 +92,10 @@ public class PlaylistItem extends UIItem implements UIConstants {
 	
 	public PlaylistModel getPlaylist() {
 		return playlist;
+	}
+
+	protected void action() {
+		ui.open(playlist, playlist.getContainerScreen() != null ? playlist.getContainerScreen() : getScreen());
 	}
 
 }

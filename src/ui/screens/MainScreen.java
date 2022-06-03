@@ -17,10 +17,14 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 		super("", null);
 	}
 	
-	public void show() {
+	protected void show() {
 		clearCommands();
 		addCommand(optsCmd);
 		addCommand(exitCmd);
+		if(okAdded || ui.isKeyInputMode()) {
+			okAdded = true;
+			addCommand(okCmd);
+		}
 	}
 	
 	public void keyPress(int i) {

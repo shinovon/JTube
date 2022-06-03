@@ -33,6 +33,8 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 
 	protected void paint(Graphics g, int w, int h) {
+		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
+		g.fillRect(0, 0, w, h);
 		w -= AppUI.getScrollBarWidth();
 		width = w;
 		screenHeight = h;
@@ -257,7 +259,12 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				cItem.defocus();
 				cItem = (UIItem) items.elementAt(cItem.getIndex()-1);
 			} else if(i == -2) {
-				if(cItem.getIndex() == items.size()-1) return;
+				if(cItem.getIndex() == items.size() - 1) {
+					if(cItem.getY()+cItem.getHeight() > -(scroll-screenHeight)) {
+						smoothlyScrollTo((int)scroll-(screenHeight/3));
+					}
+					return;
+				}
 				cItem.defocus();
 				cItem = (UIItem) items.elementAt(cItem.getIndex()+1);
 			}
@@ -302,7 +309,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 
 	private void smoothlyScrollTo(int i) {
-		if(i >= 0) i = -1;
+		if(i > 0) i = 0;
 		scrollTarget = i;
 		repaint();
 	}
@@ -320,25 +327,32 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		return sy + ih - offset > 0 && sy < h - offset;
 	}
 
-	protected void add(UIItem i) {
+	public void add(UIItem i) {
 		if(i == null) throw new NullPointerException("item");
 		items.addElement(i);
 		i.setScreen(this);
 		relayout();
 	}
 
-	protected void remove(UIItem i) {
+	public void remove(UIItem i) {
 		if(i == null) throw new NullPointerException("item");
 		items.removeElement(i);
+		i.setScreen(null);
 		relayout();
 	}
 	
-	protected void remove(int i) {
+	public void remove(int i) {
+		UIItem it = (UIItem) items.elementAt(i);
+		it.setScreen(null);
 		items.removeElementAt(i);
 		relayout();
 	}
 	
 	protected void clear() {
+		for(int i = 0; i < items.size(); i++) {
+			UIItem it = (UIItem) items.elementAt(i);
+			it.setScreen(null);
+		}
 		items.removeAllElements();
 		height = 0;
 		scroll = 0;

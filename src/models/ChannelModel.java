@@ -26,15 +26,16 @@ import java.io.IOException;
 import javax.microedition.lcdui.Image;
 
 import App;
-import Util;
 import Settings;
 import Constants;
 import ui.ModelScreen;
 import ui.UIItem;
 import InvidiousException;
 import ui.items.ChannelItem;
+import ui.screens.ChannelScreen;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
+import tube42.lib.imagelib.ImageUtils;
 
 public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
@@ -51,6 +52,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	private boolean fromSearch;
 
 	private String imageUrl;
+	private boolean rounded;
 
 	public ChannelModel(JSONObject o) {
 		parse(o, false);
@@ -65,6 +67,13 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		this.authorId = id;
 		this.img = img;
 	}
+	
+	public ChannelModel(String id, String name, Image img, int subs) {
+		this.author = name;
+		this.authorId = id;
+		this.img = img;
+		this.subCount = subs;
+	}
 
 	private void parse(JSONObject o, boolean extended) {
 		this.extended = extended;
@@ -73,12 +82,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		if(Settings.videoPreviews) {
 			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
 			if(authorThumbnails != null) {
-				String u = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
-				//
-				if(u.startsWith("//")) {
-					u = "https:" + Util.replace(u, "s88", "s" + AUTHORITEM_IMAGE_HEIGHT);
-				}
-				imageUrl = u;
+				imageUrl = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
 			}
 		}
 		subCount = o.getInt("subCount", -1);
@@ -90,18 +94,21 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
 	public ChannelModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (Settings.videoPreviews ? "authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("v1/channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
 		}
 		return this;
 	}
 
 	public void load() {
-		if(img != null) return;
 		if(item == null) return;
+		if(img != null) {
+			item.setImage(img);
+			return;
+		}
 		if(imageUrl == null) return;
 		try {
 			byte[] b = App.hproxy(imageUrl);
-			img = Image.createImage(b, 0, b.length);
+			img = ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHORITEM_IMAGE_HEIGHT, AUTHORITEM_IMAGE_HEIGHT);
 			item.setImage(img);
 			imageUrl = null;
 		} catch (Exception e) {
@@ -158,13 +165,25 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		return description;
 	}
 
-	public UIItem makeItemForList() {
-		return null;
+	public UIItem makeListItem() {
+		return item = new ChannelItem(this);
 	}
 
 	public ModelScreen makeScreen() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ChannelScreen(this);
+	}
+
+	public void setImage(Image img, boolean b) {
+		this.img = img;
+		rounded = b;
+	}
+
+	public void setImage(Image img) {
+		this.img = img;
+	}
+
+	public boolean isImageRounded() {
+		return rounded;
 	}
 
 }

@@ -48,6 +48,7 @@ import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.json.AbstractJSON;
 import models.VideoModel;
+import ui.screens.ChannelScreen;
 import ui.screens.MainScreen;
 import ui.screens.SearchScreen;
 import ui.screens.VideoScreen;
@@ -71,6 +72,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public MainScreen mainScr;
 	public SearchScreen searchScr;
 	public VideoScreen videoScr;
+	public ChannelScreen channelScr;
 	
 	private SettingsForm settingsForm;
 
@@ -196,6 +198,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		canv.resetScreen();
 		repaint(true);
 		s.show();
+		String t = s.getTitle();
+		if(t != null && t.length() > 0) {
+			canv.setTitle(t);
+		} else {
+			canv.setTitle(null);
+		}
 	}
 	
 	public int getWidth() {
@@ -293,11 +301,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void search(String q) {
 		boolean b = App.needsCheckMemory();
-		searchScr = new SearchScreen(mainScr);
+		searchScr = new SearchScreen(q, mainScr);
 		display(null);
 		setScreen(searchScr);
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
-			disposeMainForm();
+			disposeMainPage();
 		}
 		app.stopDoingAsyncTasks();
 		try {
@@ -340,13 +348,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			ChannelModel c = new ChannelModel(j);
 			if(search) c.setFromSearch();
 			if(Settings.videoPreviews) app.addAsyncLoad(c);
-			return c.makeItemForList();
+			return c.makeListItem();
 		}
 		if(Settings.searchPlaylists && type.equals("playlist")) {
 			PlaylistModel p = new PlaylistModel(j);
 			if(search) p.setFromSearch();
 			//if(videoPreviews) addAsyncLoad(p);
-			return p.makeItemForList();
+			return p.makeListItem();
 		}
 		return null;
 	}
@@ -363,31 +371,34 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		try {
 			open(new VideoModel(id).extend());
 			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
-				disposeMainForm();
+				disposeMainPage();
 			}
 		} catch (Exception e) {
 			App.error(this, Errors.App_openVideo, e);
 		}
 	}
 
-	void disposeMainForm() {
+	void disposeMainPage() {
 		if(mainScr == null) return;
 		mainScr.clear();
 		Util.gc();
 	}
 
-	public void disposeVideoForm() {
+	public void disposeVideoPage() {
 		if(videoScr == null) return;
 		videoScr.dispose();
 		videoScr = null;
 		Util.gc();
 	}
 
-	public void disposeChannelForm() {
+	public void disposeChannelPage() {
+		if(channelScr == null) return;
+		channelScr.dispose();
+		channelScr = null;
 		Util.gc();
 	}
 
-	public void disposeSearchForm() {
+	public void disposeSearchPage() {
 		if(searchScr == null) return;
 		searchScr.clear();
 		searchScr = null;
@@ -399,10 +410,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			if(c == List.SELECT_COMMAND) {
 				switch(optionsForm.getSelectedIndex()) {
 				case 0:
+				{
 					// Search
 					App.inst.stopDoingAsyncTasks();
 					if(searchScr != null) {
-						disposeSearchForm();
+						disposeSearchPage();
 					}
 					TextBox t = new TextBox("", "", 256, TextField.ANY);
 					t.setCommandListener(this);
@@ -411,7 +423,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 					t.addCommand(cancelCmd);
 					display(t);
 					break;
+				}
 				case 1:
+				{
 					// Refresh
 					if(current == mainScr) {
 						try {
@@ -435,7 +449,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 						}
 					}
 					break;
+				}
 				case 2:
+				{
 					// Switch
 					try {
 						App.inst.stopDoingAsyncTasks();
@@ -458,10 +474,19 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 					}
 					optionsForm.set(2, Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
 					break;
+				}
 				case 3:
+				{
 					// Open by ID
-					
+					app.stopDoingAsyncTasks();
+					TextBox t = new TextBox("", "", 256, TextField.ANY);
+					t.setCommandListener(this);
+					t.setTitle("Video URL or ID");
+					t.addCommand(goCmd);
+					t.addCommand(cancelCmd);
+					display(t);
 					break;
+				}
 				case 4:
 					//Settings
 					showSettings();
@@ -509,6 +534,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		if(this.current != null && current.supportCommands()) {
 			((CommandListener)current).commandAction(c, d);
+			return;
+		}
+		if(c == backCmd) {
+			if(current != null && current.getParent() != null) {
+				setScreen(current.getParent());
+			}
 			return;
 		}
 		/*
@@ -642,6 +673,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void open(AbstractModel model, UIScreen formContainer) {
 		App app = App.inst;
 		AppUI ui = inst;
+		if(current instanceof ChannelScreen && model instanceof ChannelModel) {
+			return;
+		}
 		// check if already loading
 		if(formContainer == null && model instanceof VideoModel && current instanceof VideoScreen && ui.videoScr != null) {
 			return;
@@ -654,8 +688,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		if(!Settings.rememberSearch) {
 			if(model.isFromSearch()) {
-				ui.disposeSearchForm();
+				ui.disposeSearchPage();
 			}
+		}
+		if(ui.videoScr != null) {
+			disposeVideoPage();
 		}
 		app.stopDoingAsyncTasks();
 		ModelScreen scr = model.makeScreen();
@@ -663,6 +700,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		setScreen(scr);
 		if(scr instanceof VideoScreen) {
 			ui.videoScr = (VideoScreen) scr;
+		} else if(scr instanceof ChannelScreen) {
+			ui.channelScr = (ChannelScreen) scr;
 		}
 		Util.gc();
 		
@@ -746,6 +785,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			loadMain();
 		} else {
 			setScreen(mainScr);
+		}
+		if(channelScr != null) {
+			disposeChannelPage();
+		}
+		if(videoScr != null) {
+			disposeVideoPage();
 		}
 	}
 

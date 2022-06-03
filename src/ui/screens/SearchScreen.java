@@ -4,6 +4,7 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 
+import Locale;
 import ui.AbstractListScreen;
 import ui.Commands;
 import ui.UIScreen;
@@ -14,11 +15,11 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
 
-	public SearchScreen(UIScreen parent) {
-		super("", parent);
+	public SearchScreen(String q, UIScreen parent) {
+		super(Locale.s(TITLE_SearchQuery) + " - " + q, parent);
 	}
-	
-	public void show() {
+
+	protected void show() {
 		clearCommands();
 		addCommand(optsCmd);
 		addCommand(backCmd);
@@ -37,9 +38,13 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(c == okCmd) {
+			keyPress(-5);
+			return;
+		}
 		if(c == backCmd) {
 			ui.showMain();
-			ui.disposeSearchForm();
+			ui.disposeSearchPage();
 			return;
 		}
 		if(c == optsCmd) {

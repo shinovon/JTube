@@ -144,6 +144,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	protected void layout(int w) {
 		if(w != lastW) {
 			imgHeight = 0;
+			video.setImageWidth(w);
 			if(img != null)
 			img = video.customResize(img);
 		}
@@ -152,7 +153,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	protected void action() {
-		ui.open(video, getScreen());
+		ui.open(video, video.getContainerScreen() != null ? video.getContainerScreen() : getScreen());
 	}
 
 	public Image getImage() {

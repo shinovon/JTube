@@ -12,6 +12,8 @@ public class ButtonItem extends AbstractButtonItem implements UIConstants {
 	private String text;
 	private Runnable action;
 	private int h;
+	
+	private long lastTime;
 
 	public ButtonItem(String s, Runnable r) {
 		this.text = s;
@@ -19,7 +21,10 @@ public class ButtonItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void action() {
+		if(System.currentTimeMillis()-lastTime < 500) return;
 		if(action != null) App.inst.schedule(action);
+		lastTime = System.currentTimeMillis();
+		//if(action != null) action.run();
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
@@ -46,7 +51,7 @@ public class ButtonItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void layout(int w) {
-		h = mediumfontheight + 8;
+		h = Math.max(36, mediumfontheight + 8);
 	}
 
 }

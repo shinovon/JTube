@@ -50,9 +50,8 @@ public class LoaderThread extends Thread {
 					synchronized(lock2) {
 						lock2.notifyAll();
 					}
-					len = vector.size();
 				}
-				for(int i = 0; i < len; i++) {
+				while((len = vector.size()) > 0) {
 					if(checkInterrupted()) break;
 					ILoader l;
 					try {
@@ -75,6 +74,9 @@ public class LoaderThread extends Thread {
 						}
 					}
 					if(checkInterrupted()) break;
+				}
+				synchronized(lock2) {
+					lock2.notifyAll();
 				}
 			}
 		} catch (Exception e) {

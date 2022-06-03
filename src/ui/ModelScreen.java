@@ -11,6 +11,6 @@ public abstract class ModelScreen extends AbstractListScreen implements ILoader 
 
 	public abstract AbstractModel getModel();
 
-	public abstract void setFormContainer(UIScreen s);
+	public abstract void setContainerScreen(UIScreen s);
 }
 	

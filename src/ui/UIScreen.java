@@ -107,6 +107,6 @@ public abstract class UIScreen {
 		return true;
 	}
 
-	public void show() {}
+	protected void show() {}
 
 }

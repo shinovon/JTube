@@ -34,6 +34,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.StringItem;
+import javax.microedition.lcdui.TextBox;
 
 import ui.AppUI;
 import models.ILoader;
@@ -82,6 +83,8 @@ public class App implements Constants {
 					}
 				} catch (InterruptedException e) {
 					return;
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -193,7 +196,7 @@ public class App implements Constants {
 					try {
 						while(true) {
 							Displayable d = AppUI.display.getCurrent();
-							if(d != null) {
+							if(d != null && !(d instanceof Alert || d instanceof TextBox)) {
 								Runtime r = Runtime.getRuntime();
 								int t = (int) (r.totalMemory() / 1024);
 								int f = (int) (r.freeMemory() / 1024);
@@ -350,8 +353,9 @@ public class App implements Constants {
 			return null;
 		} else {
 		*/
-		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?", (combined ? "formatStreams" : "adaptiveFormats"));
-		JSONArray arr = j.getArray(combined ? "formatStreams" : "adaptiveFormats");
+		String f = combined ? "formatStreams" : "adaptiveFormats";
+		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?", f);
+		JSONArray arr = j.getArray(f);
 		if(j.size() == 0) {
 			throw new RuntimeException("failed to get link for video: " + id);
 		}
@@ -580,7 +584,7 @@ public class App implements Constants {
 		}
 		try {
 			synchronized(addLock) {
-				addLock.wait();
+				addLock.wait(1000);
 			}
 		} catch (Exception e) {
 		}
