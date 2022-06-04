@@ -279,6 +279,7 @@ public class App implements Constants {
 	}
 
 	public static byte[] hproxy(String s) throws IOException {
+		if(s.startsWith("//")) s = "https:" + s;
 		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
 		if(Settings.imgproxy == null || Settings.imgproxy.length() <= 1) return Util.get(s);
 		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));

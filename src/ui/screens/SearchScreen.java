@@ -23,6 +23,10 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 		clearCommands();
 		addCommand(optsCmd);
 		addCommand(backCmd);
+		if(okAdded || ui.isKeyInputMode()) {
+			okAdded = true;
+			addCommand(okCmd);
+		}
 	}
 	
 	public void keyPress(int i) {

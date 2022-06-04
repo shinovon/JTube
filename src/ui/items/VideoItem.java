@@ -9,6 +9,7 @@ import Records;
 import Settings;
 import ui.AppUI;
 import ui.UIConstants;
+import ui.screens.SearchScreen;
 import models.VideoModel;
 
 public class VideoItem extends AbstractButtonItem implements UIConstants, Runnable {
@@ -153,7 +154,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	protected void action() {
-		ui.open(video, video.getContainerScreen() != null ? video.getContainerScreen() : getScreen());
+		ui.open(video, video.getContainerScreen() != null ? video.getContainerScreen() : getScreen() instanceof SearchScreen ? null : getScreen());
 	}
 
 	public Image getImage() {

@@ -60,7 +60,7 @@ public class Util implements Constants {
 			}
 			int r = hc.getResponseCode();
 			int redirects = 0;
-			while (r == 301 || r == 302) {
+			while (r == 301 || r == 302 && hc.getHeaderField("Location") != null) {
 				String redir = hc.getHeaderField("Location");
 				if (redir.startsWith("/")) {
 					String tmp = url.substring(url.indexOf("//") + 2);

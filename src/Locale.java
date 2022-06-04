@@ -471,7 +471,7 @@ public class Locale implements LocaleConstants {
 			} else if(i >= 1000000) {
 				s = ((int) ((i / 1000000D) * 100) / 100D) + " млн.";
 			} else if(i >= 1000) {
-				s = ((int) ((i / 1000000D) * 100) / 100D) + " тыс.";
+				s = ((int) ((i / 1000D) * 100) / 100D) + " тыс.";
 			} 
 			if(i % 10 == 1) return s + " подписчик";
 			return s + " подписчиков";

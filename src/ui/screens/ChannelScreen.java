@@ -44,6 +44,10 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		}
 	};
 
+	private boolean okAdded;
+	
+	private Command okCmd = new Command("OK", Command.OK, 5);
+
 	public ChannelScreen(ChannelModel c) {
 		super(c.getAuthor());
 		this.channel = c;
@@ -113,6 +117,10 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			App.inst.addAsyncLoad(this);
 			App.inst.notifyAsyncTasks();
 		}
+		if(okAdded || ui.isKeyInputMode()) {
+			okAdded = true;
+			addCommand(okCmd);
+		}
 	}
 	
 	private void init() {
@@ -151,6 +159,15 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			App.error(this, Errors.ChannelForm_search, e);
 		}
 	}
+	
+	public void keyPress(int i) {
+		if(!okAdded && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
+			okAdded = true;
+			addCommand(okCmd);
+		}
+		super.keyPress(i);
+	}
+
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
 		VideoModel v = new VideoModel(j, search ? searchScr : this);
@@ -179,6 +196,10 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(c == okCmd) {
+			keyPress(-5);
+			return;
+		}
 		if(c == searchCmd) {
 			search();
 			return;
@@ -199,6 +220,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		}
 		*/
 		if(c == backCmd) {
+			App.inst.stopDoingAsyncTasks();
 			if(containerScreen != null) {
 				ui.setScreen(containerScreen);
 			} else {

@@ -38,6 +38,7 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 		if(title != null && titleArr == null) {
 			makeTitleArr(w);
 		}
+		int yy = y;
 		y += 2;
 		if(titleArr != null) {
 			if(titleArr[0] != null) g.drawString(titleArr[0], x+2, y, 0);
@@ -52,11 +53,11 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 			g.drawString(author, x+2, y + smallfontheight + 2, 0);
 		}
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-		g.drawRect(x, y+h-1, w, 1);
+		g.drawRect(x, yy+h-1, w, 1);
 		if(isInFocus() && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
-			g.drawRect(x, y, w-1, h-1);
-			g.drawRect(x+1, y+1, w-3, h-3);
+			g.drawRect(x, yy, w-1, h-1);
+			g.drawRect(x+1, yy+1, w-3, h-3);
 		}
 	}
 

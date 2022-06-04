@@ -381,6 +381,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	void disposeMainPage() {
 		if(mainScr == null) return;
 		mainScr.clear();
+		mainScr = null;
 		Util.gc();
 	}
 
@@ -500,6 +501,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 					exit();
 					break;
 				}
+				return;
+			}
+			if(c == backCmd) {
+				display(null);
 				return;
 			}
 		}
@@ -780,6 +785,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		if(videoScr != null) {
 			disposeVideoPage();
+		}
+		if(searchScr != null) {
+			disposeSearchPage();
 		}
 	}
 

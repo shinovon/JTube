@@ -54,7 +54,7 @@ public class Settings implements Constants {
 	public static boolean asyncLoading;
 	public static boolean checkUpdates = true;
 	public static boolean iteroniPlaybackProxy = true;
-	public static boolean renderDebug = true;
+	public static boolean renderDebug;
 
 	public static Vector rootsVector;
 	
