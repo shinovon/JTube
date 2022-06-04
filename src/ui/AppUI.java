@@ -707,17 +707,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		
 	}
 
-	public static int getPlatformWidthOffset() {
-		if(PlatformUtils.isKemulator) return 5;
-		if(PlatformUtils.isJ2ML()) return 0;
-		if(PlatformUtils.isAshaFullTouch()) return 24;
-		if(PlatformUtils.isS40()) return 12;
-		if(PlatformUtils.isSymbianAnna()) return 38;
-		if(PlatformUtils.isSymbian94()) return 32;
-		if(PlatformUtils.isSymbian3Based()) return 20;
-		return 4;
-	}
-
 	public void showSettings() {
 		if(settingsForm == null) {
 			settingsForm = new SettingsForm();
