@@ -57,7 +57,7 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 		}
 		int xx = x+(i ? 56 : 2);
 		g.drawString(author, xx, ty, 0);
-		g.setColor(COLOR_GRAYTEXT);
+		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 		g.setFont(smallfont);
 		if(subsStr != null) {
 			g.drawString(subsStr, xx, ty + fh + 4, 0);

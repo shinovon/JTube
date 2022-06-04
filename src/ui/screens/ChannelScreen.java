@@ -57,6 +57,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	protected void latestVideos() {
 		//App.inst.stopDoingAsyncTasks();
 		try {
+			Thread.sleep(100);
 			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS + (Settings.videoPreviews ? ",videoThumbnails" : ""));
 			int l = j.size();
 			for(int i = 0; i < l; i++) {

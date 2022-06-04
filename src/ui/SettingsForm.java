@@ -62,7 +62,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final String[] APPEARANCE_CHECKS = new String[] { 
 			Locale.s(SET_VideoPreviews), 
 			Locale.s(SET_SearchChannels), 
-			Locale.s(SET_SearchPlaylists)
+			Locale.s(SET_SearchPlaylists),
+			"amoled"
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug memory",
@@ -206,6 +207,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.videoPreviews = ui[0];
 			Settings.searchChannels = ui[1];
 			Settings.searchPlaylists = ui[2];
+			Settings.amoled = ui[3];
 			Settings.rememberSearch = s[0];
 			Settings.httpStream = s[1];
 			Settings.rmsPreviews = s[2];

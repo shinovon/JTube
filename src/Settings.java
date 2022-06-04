@@ -55,6 +55,7 @@ public class Settings implements Constants {
 	public static boolean checkUpdates = true;
 	public static boolean iteroniPlaybackProxy = true;
 	public static boolean renderDebug;
+	public static boolean amoled;
 
 	public static Vector rootsVector;
 	
@@ -240,6 +241,8 @@ public class Settings implements Constants {
 					iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy");
 				if(j.has("renderDebug"))
 					renderDebug = j.getBoolean("renderDebug");
+				if(j.has("amoled"))
+					amoled = j.getBoolean("amoled");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -277,6 +280,7 @@ public class Settings implements Constants {
 			j.put("checkUpdates", new Boolean(checkUpdates));
 			j.put("iteroniPlaybackProxy", new Boolean(iteroniPlaybackProxy));
 			j.put("renderDebug", new Boolean(renderDebug));
+			j.put("amoled", new Boolean(amoled));
 			byte[] b = j.build().getBytes("UTF-8");
 			
 			r.addRecord(b, 0, b.length);

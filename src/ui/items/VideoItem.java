@@ -42,7 +42,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		int ih = Settings.videoPreviews ? getImgHeight(w) : 0;
 		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
 		g.fillRect(x, y, w, h);
-		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
 		/*
 		if(img == null && Settings.rmsPreviews) {
 			try {
@@ -53,6 +52,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			}
 		}
 		*/
+		g.setColor(0);
 		if(Settings.videoPreviews) {
 			if(img != null) {
 				g.drawImage(img, x, y, 0);
@@ -62,6 +62,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				g.fillRect(x, y, w, ih);
 			}
 		}
+		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
 		ih += 4;
 		g.setFont(mediumfont);
 		int tfh = mediumfontheight;

@@ -162,22 +162,22 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public static int getColor(int i) {
 		switch(i) {
 		case COLOR_MAINBACKGROUND:
-			return -1;
+			return Settings.amoled ? 0 : -1;
 		case COLOR_MAINFOREGROUND:
 		case COLOR_MAINBORDER:
-			return 0;
+			return Settings.amoled ? -1 : 0;
 		case COLOR_ITEMBORDER:
-			return 0x5D5D5D;
+			return Settings.amoled ? 0x212121 : 0x5D5D5D;
 		case COLOR_DARK_ALPHA:
 			return 0x7fffffff;
 		case COLOR_GRAYTEXT:
-			return 0x5D5D5D;
+			return Settings.amoled ? 0x7F7F7F : 0x5D5D5D;
 		case COLOR_SCROLLBAR_BG:
 			return 0x555555;
 		case COLOR_SCROLLBAR_FG:
 			return 0xAAAAAA;
 		case COLOR_ITEM_HIGHLIGHT:
-			return 0xAAAAAA;
+			return Settings.amoled ? 0x5D5D5D : 0xAAAAAA;
 		case COLOR_BUTTON_HOVER_BG:
 			return 0xCCCCCC;
 		default:
