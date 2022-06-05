@@ -109,8 +109,6 @@ public interface LocaleConstants {
 	public static final int CMD_Func = 86;
 	public static final int CMD_Refresh = 87;
 	public static final int TXT_1view = 88;
-	// subcribers % 10 == 1
-	public static final int TXT_10_1views = 89;
 	public static final int TXT_views = 90;
 	public static final int SET_Amoled = 91;
 
