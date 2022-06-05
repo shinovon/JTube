@@ -114,6 +114,16 @@ public class Settings implements Constants {
 						}
 						if(s.startsWith("E:")) {
 							root = s;
+							break;
+						}
+						if(PlatformUtils.isPhoneme()) {
+							if(s.startsWith("/Storage")) {
+								root = s;
+								break;
+							}
+							if(s.startsWith("/MyDocs")) {
+								root = s;
+							}
 						}
 					}
 					if(!root.endsWith("/")) root += "/";
@@ -128,16 +138,12 @@ public class Settings implements Constants {
 					}
 				} else {
 					String downloadDir = System.getProperty("fileconn.dir.videos");
-					if(PlatformUtils.version != null && PlatformUtils.version.indexOf("phoneme") != -1) {
-						downloadDir = "file:///MyDocs/";
-					} else {
-						if(downloadDir == null)
-							downloadDir = System.getProperty("fileconn.dir.photos");
-						if(downloadDir == null)
-							downloadDir = "C:/";
-						else if(downloadDir.startsWith("file:///"))
-							downloadDir = downloadDir.substring("file:///".length());
-					}
+					if(downloadDir == null)
+						downloadDir = System.getProperty("fileconn.dir.photos");
+					if(downloadDir == null)
+						downloadDir = "C:/";
+					else if(downloadDir.startsWith("file:///"))
+						downloadDir = downloadDir.substring("file:///".length());
 					Settings.downloadDir = downloadDir;
 				}
 				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
@@ -157,6 +163,11 @@ public class Settings implements Constants {
 					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
+					}
+					if(PlatformUtils.isPhoneme()) {
+						asyncLoading = true;
+						downloadBuffer = 4096;
+						rmsPreviews = true;
 					}
 					rememberSearch = true;
 					searchChannels = true;
@@ -291,8 +302,7 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return PlatformUtils.isNotS60() && 
-				!PlatformUtils.isS603rd() && 
+		return PlatformUtils.isNotS60() &&
 				!PlatformUtils.isS603rd() && 
 				(PlatformUtils.isS40() || 
 						App.width < 240 || 

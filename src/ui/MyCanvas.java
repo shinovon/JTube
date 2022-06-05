@@ -3,6 +3,7 @@ package ui;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.Image;
 
 import Settings;
 
@@ -35,11 +36,13 @@ public class MyCanvas extends Canvas implements UIConstants {
 		height = super.getHeight();
 	}
 
-	protected void paint(Graphics g) {
+	protected void paint(Graphics g2) {
 		if(width == 0) {
 			width = super.getWidth();
 			height = super.getHeight();
 		}
+		Image img = Image.createImage(width, height);
+		Graphics g = img.getGraphics();
 		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.getCurrentScreen();
@@ -80,6 +83,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 			g.drawString(ds, 1, ty, 0);
 		}
 		g.setFont(smallfont);
+		g2.drawImage(img, 0, 0, 0);
 	}
 	
 	public void resetScreen() {
@@ -145,7 +149,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 						scrollSlide = false;
 					}
 				} else {
-					if(dx <= 6 && ady <= 6 && !dragged) {
+					if(dx <= 6 && ady <= 6) {
 						tap(x, y, time);
 					} else if(time < 200 && dx < 12) {
 						if(s != null) {

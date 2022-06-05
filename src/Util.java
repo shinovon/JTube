@@ -34,7 +34,15 @@ import ui.TestCanvas;
 
 public class Util implements Constants {
 	
-	private static int buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
+	private static int buffer_size;
+	
+	static {
+		try {
+			buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
+		} catch (Throwable t) {
+			buffer_size = 1024;
+		}
+	} 
 
 	public static byte[] get(String url) throws IOException {
 		if (url == null)

@@ -552,7 +552,10 @@ public class Locale implements LocaleConstants {
 					} else {
 						s = "месяца назад";
 					}
-				} else if(s.indexOf("days ago") != -1) {
+				} else if(s.indexOf("weeks ago") != -1) {
+					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+					s = i + " недели назад";
+				}else if(s.indexOf("days ago") != -1) {
 					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
 					if(i >= 5) {
 						s = "дней назад";
@@ -569,6 +572,7 @@ public class Locale implements LocaleConstants {
 				} else {
 					s = Util.replace(s, "year ago", "год назад");
 					s = Util.replace(s, "month ago", "месяц назад");
+					s = Util.replace(s, "week ago", "неделю назад");
 					s = Util.replace(s, "day ago", "день назад");
 					s = Util.replace(s, "hour ago", "час назад");
 				}

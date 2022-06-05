@@ -53,7 +53,6 @@ public class PlatformUtils {
 		try {
 			Class.forName("emulator.custom.CustomMethod");
 			b = true;
-			
 		} catch (ClassNotFoundException e) {
 		}
 		isKemulator = b;
@@ -90,19 +89,24 @@ public class PlatformUtils {
 	
 	public static boolean isS603rd() {
 		if(isS603rd == 0) {
-			String s = platform.substring(5);
-			boolean b = isS60PlatformVersion("3") || (platform.startsWith("Nokia") && 
+			String s;
+			boolean b = false;
+			try {
+				b = isS60PlatformVersion("3") || (platform.startsWith("Nokia") &&
+					(s = platform.substring(5)).length() > 0 &&
 					(s.startsWith("N73") || s.startsWith("N95") || s.startsWith("E90") || 
 					s.startsWith("N93") || s.startsWith("N82") || s.startsWith("E71") || 
 					s.startsWith("E70") || s.startsWith("N80") || s.startsWith("E63") || 
 					s.startsWith("E66") || s.startsWith("E51") || s.startsWith("E50") || 
 					s.startsWith("E65") || s.startsWith("E61") || s.startsWith("E60") ||
 					s.startsWith("N91") || s.startsWith("E62") || s.startsWith("N78") ||
-					s.startsWith("3250") || s.startsWith("N71") || s.startsWith("N75") ||
+					s.startsWith("3250") ||s.startsWith("N71") || s.startsWith("N75") ||
 					s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500") ||
 					s.startsWith("5700") ||s.startsWith("6110") ||s.startsWith("612") ||
-					s.startsWith("6290") ||s.startsWith("N76") ||s.startsWith("N81")
+					s.startsWith("6290") ||s.startsWith("N76") || s.startsWith("N81")
 					));
+			} catch (Exception e) {
+			}
 			isS603rd = b ? 1 : -1;
 		}
 		return isS603rd == 1;
@@ -117,10 +121,14 @@ public class PlatformUtils {
 	public static boolean isBada() {
 		if(isBada == 0) {
 			String s2;
-			isBada = (platform.startsWith("SAMSUNG-GT-") &&
-				((s2 = platform.substring("SAMSUNG-GT-".length())).startsWith("538")
-				|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
-				|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86"))) ? 1 : -1;
+			boolean b = false;
+			if(platform.startsWith("SAMSUNG-GT-")) {
+				s2 = platform.substring("SAMSUNG-GT-".length());
+				b = s2.startsWith("538")
+								|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
+								|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
+			}
+			isBada = b ? 1 : -1;
 		}
 		return isBada == 1;
 	}
@@ -195,6 +203,10 @@ public class PlatformUtils {
 
 	public static boolean isSamsung() {
 		return platform.toLowerCase().startsWith("samsung");
+	}
+
+	public static boolean isPhoneme() {
+		return PlatformUtils.version != null && PlatformUtils.version.indexOf("phoneme") != -1;
 	}
 
 }

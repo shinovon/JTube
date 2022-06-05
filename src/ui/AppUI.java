@@ -126,7 +126,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private boolean keyInput = false;
 	
 	private void waitRepaint() throws InterruptedException {
-		int i = 1000 / 24;
+		int i = 1000 / 30;
 		i -= repaintTime;
 		if(i > 0) Thread.sleep(i);
 		Thread.yield();
