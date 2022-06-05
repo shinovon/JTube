@@ -3,6 +3,7 @@ package ui.screens;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -12,6 +13,7 @@ import Locale;
 import Settings;
 import ui.AppUI;
 import ui.Commands;
+import ui.DirectFontUtil;
 import ui.UIScreen;
 import ui.ModelScreen;
 import models.VideoModel;
@@ -38,13 +40,27 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		VideoModel video = this.video;
 		add(video.makePreviewItem());
 		LabelItem title = new LabelItem(video.getTitle(), mediumfont);
+		title.setMarginWidth(6);
 		title.setMaxLines(2);
 		add(title);
 		add(video.makeChannelItem());
-		add(new LabelItem(Locale.s(TXT_Views) + ": " + Locale.views(video.getViewCount()), smallfont));
-		add(new LabelItem(Locale.s(TXT_Published) + ": " + Locale.date(video.getPublishedText()), smallfont));
-		add(new LabelItem(Locale.s(TXT_Description), mediumfont, AppUI.getColor(COLOR_GRAYTEXT)));
-		add(new LabelItem(video.getDescription(), smallfont));
+		Font f = smallfont;
+		try {
+			f = DirectFontUtil.getFont(0, 0, 21, 8);
+			System.out.println(f.getHeight() + " " + f.getSize() + " " + f);
+		} catch (Exception e) {
+		}
+		LabelItem i = new LabelItem(Locale.views(video.getViewCount()) + " • " + Locale.date(video.getPublishedText()), f, AppUI.getColor(COLOR_GRAYTEXT));
+		i.setMarginLeft(8);
+		//i.setCentered(true);
+		i.setMaxLines(2);
+		add(i);
+		add(new LineSplitItem());
+		LabelItem d = new LabelItem(video.getDescription(), smallfont);
+		d.setLineSpaces(4);
+		d.setMarginTop(8);
+		d.setMarginWidth(8);
+		add(d);
 		relayout();
 	}
 	

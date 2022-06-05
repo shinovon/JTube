@@ -63,7 +63,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_VideoPreviews), 
 			Locale.s(SET_SearchChannels), 
 			Locale.s(SET_SearchPlaylists),
-			"amoled"
+			Locale.s(SET_Amoled)
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug memory",
@@ -151,6 +151,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		uiChoice.setSelectedIndex(0, Settings.videoPreviews);
 		uiChoice.setSelectedIndex(1, Settings.searchChannels);
 		uiChoice.setSelectedIndex(2, Settings.searchPlaylists);
+		uiChoice.setSelectedIndex(3, Settings.amoled);
 		checksChoice.setSelectedIndex(0, Settings.rememberSearch);
 		checksChoice.setSelectedIndex(1, Settings.httpStream);
 		checksChoice.setSelectedIndex(2, Settings.rmsPreviews);

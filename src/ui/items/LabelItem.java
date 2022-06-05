@@ -17,6 +17,12 @@ public class LabelItem extends UIItem implements UIConstants {
 	private int color;
 	
 	private int h;
+	private int lineSpaces = 2;
+	private int marginLeft;
+	private int marginRight;
+	private int marginTop = 2;
+	private int marginBottom = 2;
+	private boolean center;
 	
 	public LabelItem(String s) {
 		this(s, mediumfont, AppUI.getColor(COLOR_MAINFOREGROUND));
@@ -35,11 +41,11 @@ public class LabelItem extends UIItem implements UIConstants {
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setFont(font);
 		if(textArr == null) return;
-		y+=2;
+		y+=marginTop;
 		g.setColor(color);
 		for(int i = 0; i < textArr.length; i++) {
-			g.drawString(textArr[i], x, y, 0);
-			y+=2+font.getHeight();
+			g.drawString(textArr[i], center ? x + (w - font.stringWidth(textArr[i])) / 2 : x + marginLeft, y, 0);
+			y+=lineSpaces+font.getHeight();
 		}
 	}
 	
@@ -56,20 +62,61 @@ public class LabelItem extends UIItem implements UIConstants {
 	}
 
 	protected void layout(int w) {
-		h = 4;
-		String[] arr = Util.getStringArray(text, w - 10, font);
+		h = marginTop + marginBottom;
+		String[] arr = Util.getStringArray(text, w - 10 - (marginLeft + marginRight), font);
 		textArr = new String[arr.length > maxLines && maxLines > 0 ? maxLines : arr.length];
 		for(int i = 0; i < textArr.length; i++) {
 			textArr[i] = arr[i];
 			if(i == textArr.length-1 && arr.length > textArr.length) {
-				textArr[i] = textArr[i].concat("...");
+				textArr[i] = textArr[i].trim().concat("...");
 			}
 		}
-		h += textArr.length * (font.getHeight() + 2);
+		h += textArr.length * (font.getHeight() + lineSpaces);
 	}
 	
 	public void setFont(Font f) {
 		this.font = f;
+	}
+
+	public void setLineSpaces(int i) {
+		lineSpaces = i;
+		relayout();
+	}
+
+	public void setMarginLeft(int i) {
+		marginLeft = i;
+		relayout();
+	}
+
+	public void setMarginRight(int i) {
+		marginRight = i;
+		relayout();
+	}
+
+	public void setMarginWidth(int i) {
+		marginLeft = i;
+		marginRight = i;
+		relayout();
+	}
+
+	public void setMarginTop(int i) {
+		marginTop = i;
+		relayout();
+	}
+
+	public void setMarginBottom(int i) {
+		marginBottom = i;
+		relayout();
+	}
+
+	public void setMarginHeight(int i) {
+		marginTop = i;
+		marginBottom = i;
+		relayout();
+	}
+
+	public void setCentered(boolean b) {
+		center = b;
 	}
 
 }

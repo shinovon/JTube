@@ -224,8 +224,6 @@ public class Locale implements LocaleConstants {
 				return "Prev. video";
 			case SET_CustomLocaleId:
 				return "Custom locale identificator";
-			case SET_CustomItems:
-				return "Better items";
 			case SET_HTTPProxy:
 				return "HTTP Proxy Streaming";
 			case SET_PreLoadRMS:
@@ -280,6 +278,8 @@ public class Locale implements LocaleConstants {
 				return "Opts";
 			case CMD_Refresh:
 				return "Refresh";
+			case SET_Amoled:
+				return "Night theme";
 			}
 		}
 		case 1: {
@@ -392,8 +392,6 @@ public class Locale implements LocaleConstants {
 				return "Пред. видео";
 			case SET_CustomLocaleId:
 				return "Идентификатор польз. локализации";
-			case SET_CustomItems:
-				return "Улучшенный вид";
 			case SET_HTTPProxy:
 				return "HTTP прокси стриминг";
 			case SET_PreLoadRMS:
@@ -448,6 +446,8 @@ public class Locale implements LocaleConstants {
 				return "Опции";
 			case CMD_Refresh:
 				return "Обновить";
+			case SET_Amoled:
+				return "Ночная тема";
 			}
 		}
 		}
@@ -473,8 +473,11 @@ public class Locale implements LocaleConstants {
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000D) * 100) / 100D) + " тыс.";
 			} 
-			if(i % 10 == 1) return s + " подписчик";
-			return s + " подписчиков";
+			if(i >= 5) {
+				return i + " подписчиков";
+			} else {
+				return i + " подписчика";
+			}
 		}
 		if(i >= 1000000) {
 			s = ((int) ((i / 1000000D) * 100) / 100D) + " M";
@@ -484,10 +487,38 @@ public class Locale implements LocaleConstants {
 	}
 	
 	public static String views(int i) {
-		if(i >= 1000000) {
-			return ((int) ((i / 1000000D) * 100) / 100D) + " M";
+		if(loaded) {
+			if(i == 1) {
+				return i + " " + Locale.s(TXT_1view);
+			}
+			if(i >= 1000000) {
+				return ((int) ((i / 1000000D) * 100) / 100D) + " M " + Locale.s(TXT_views);
+			}
+			return i + " " + Locale.s(TXT_views);
 		}
-		return "" + i;
+		if(localei == 1) {
+			if(i == 1) {
+				return i + " просмотр";
+			} else if(i >= 1000000000) {
+				return ((int) ((i / 1000000000D) * 100) / 100D) + " млрд. просмотров";
+			} else if(i >= 1000000) {
+				return ((int) ((i / 1000000D) * 100) / 100D) + " млн. просмотров";
+			} else if(i >= 1000) {
+				return ((int) ((i / 1000D) * 100) / 100D) + " тыс. просмотров";
+			}
+			if(i >= 5) {
+				return i + " просмотров";
+			} else {
+				return i + " просмотра";
+			}
+		}
+		if(i == 1) {
+			return i + " view";
+		}
+		if(i >= 1000000) {
+			return ((int) ((i / 1000000D) * 100) / 100D) + " M views";
+		}
+		return i + " views";
 	}
 
 	public static String videos(int i) {
@@ -509,31 +540,31 @@ public class Locale implements LocaleConstants {
 			try {
 				if(s.indexOf("years ago") != -1) {
 					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i <= 4) {
-						s = "года назад";
-					} else {
+					if(i >= 5 && i < 10) {
 						s = "лет назад";
+					} else {
+						s = "года назад";
 					}
 				} else if(s.indexOf("months ago") != -1) {
 					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i <= 4) {
-						s = "месяца назад";
-					} else {
+					if(i >= 5) {
 						s = "месяцев назад";
+					} else {
+						s = "месяца назад";
 					}
 				} else if(s.indexOf("days ago") != -1) {
 					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i <= 4) {
-						s = "дня назад";
-					} else {
+					if(i >= 5) {
 						s = "дней назад";
+					} else {
+						s = "дня назад";
 					}
 				} else if(s.indexOf("hours ago") != -1) {
 					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i <= 4) {
-						s = "часа назад";
-					} else {
+					if(i >= 5) {
 						s = "часов назад";
+					} else {
+						s = "часа назад";
 					}
 				} else {
 					s = Util.replace(s, "year ago", "год назад");

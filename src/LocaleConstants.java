@@ -81,7 +81,6 @@ public interface LocaleConstants {
 	public static final int SET_CustomLocaleId = 57;
 	public static final int TXT_1video = 58;
 	public static final int TXT_videos = 59;
-	public static final int SET_CustomItems = 60;
 	public static final int SET_HTTPProxy = 61;
 	public static final int SET_PreLoadRMS = 62;
 	public static final int SET_RememberSearch = 63;
@@ -109,5 +108,10 @@ public interface LocaleConstants {
 	public static final int SET_IteroniProxy = 85;
 	public static final int CMD_Func = 86;
 	public static final int CMD_Refresh = 87;
+	public static final int TXT_1view = 88;
+	// subcribers % 10 == 1
+	public static final int TXT_10_1views = 89;
+	public static final int TXT_views = 90;
+	public static final int SET_Amoled = 91;
 
 }
