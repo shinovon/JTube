@@ -23,26 +23,29 @@ public class LabelItem extends UIItem implements UIConstants {
 	private int marginTop = 2;
 	private int marginBottom = 2;
 	private boolean center;
+	private boolean colorSet;
 	
 	public LabelItem(String s) {
-		this(s, mediumfont, AppUI.getColor(COLOR_MAINFOREGROUND));
+		this(s, mediumfont);
 	}
 	
 	public LabelItem(String s, Font f) {
-		this(s, f, AppUI.getColor(COLOR_MAINFOREGROUND));
+		this.font = f;
+		this.text = s;
 	}
 
 	public LabelItem(String s, Font f, int c) {
 		this.font = f;
 		this.text = s;
 		this.color = c;
+		this.colorSet = true;
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setFont(font);
 		if(textArr == null) return;
 		y+=marginTop;
-		g.setColor(color);
+		g.setColor(colorSet ? color : AppUI.getColor(COLOR_MAINFOREGROUND));
 		for(int i = 0; i < textArr.length; i++) {
 			g.drawString(textArr[i], center ? x + (w - font.stringWidth(textArr[i])) / 2 : x + marginLeft, y, 0);
 			y+=lineSpaces+font.getHeight();
@@ -55,6 +58,7 @@ public class LabelItem extends UIItem implements UIConstants {
 	
 	public void setColor(int c) {
 		this.color = c;
+		this.colorSet = true;
 	}
 
 	public int getHeight() {
