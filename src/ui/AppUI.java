@@ -65,6 +65,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public AppUI() {
 		if(inst != null) throw new Error();
 		inst = this;
+		UIScreen.ui = this;
+		UIItem.ui = this;
 	}
 
 	private App app = App.inst;

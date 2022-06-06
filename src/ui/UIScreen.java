@@ -11,7 +11,7 @@ public abstract class UIScreen {
 		}
 	}
 	
-	protected static final AppUI ui = AppUI.inst;
+	protected static AppUI ui = AppUI.inst;
 	
 	private String label;
 	private UIScreen parent;
