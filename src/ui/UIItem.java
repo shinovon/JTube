@@ -4,7 +4,7 @@ import javax.microedition.lcdui.Graphics;
 
 public abstract class UIItem {
 	
-	protected static final AppUI ui = AppUI.inst;
+	protected static AppUI ui = AppUI.inst;
 	
 	private UIScreen screen;
 	private boolean inFocus;
