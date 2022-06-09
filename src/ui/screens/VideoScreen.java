@@ -46,9 +46,12 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		add(video.makeChannelItem());
 		Font f = smallfont;
 		try {
-			f = DirectFontUtil.getFont(0, 0, 21, 8);
-			System.out.println(f.getHeight() + " " + f.getSize() + " " + f);
-		} catch (Exception e) {
+			if(width >= 360) {
+				f = DirectFontUtil.getFont(0, 0, 21, 8);
+			} else {
+				f = DirectFontUtil.getFont(0, 0, 14, 8);
+			}
+		} catch (Throwable e) {
 		}
 		LabelItem i = new LabelItem(Locale.views(video.getViewCount()) + " • " + Locale.date(video.getPublishedText()), f, AppUI.getColor(COLOR_GRAYTEXT));
 		i.setMarginLeft(8);

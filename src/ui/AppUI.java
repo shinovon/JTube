@@ -249,6 +249,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		repaintThread.setPriority(6);
 		repaintThread.start();
 		mainScr = new MainScreen();
+		try {
+			DirectFontUtil.init();
+		} catch (Throwable e) {
+		}
 	}
 	
 	public void load(String s) throws IOException {
