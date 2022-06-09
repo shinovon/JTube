@@ -13,7 +13,6 @@ public class MyCanvas extends Canvas implements UIConstants {
 	int height;
 	
 	private boolean pressed;
-	private boolean dragged;
 	private int pressX;
 	private int pressY;
 	private int lastX;
@@ -101,7 +100,6 @@ public class MyCanvas extends Canvas implements UIConstants {
 		lastY = pressY = y;
 		pressTime = System.currentTimeMillis();
 		draggedMuch = false;
-		dragged = false;
 		scrollSlide = false;
 		scrollPreSlide = false;
 		draggedScrollbar = false;
@@ -171,7 +169,6 @@ public class MyCanvas extends Canvas implements UIConstants {
 			needRepaint();
 			return;
 		}
-		dragged = true;
 		UIScreen s = ui.getCurrentScreen();
 		if(s != null) {
 			if(s.hasScrollBar()) {
