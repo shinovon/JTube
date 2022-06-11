@@ -36,7 +36,9 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private int lastW;
 
-	private static Font viewsFont;
+	private static Font titleFont;
+	private static Font bottomFont;
+
 	
 	public VideoItem(VideoModel v) {
 		super();
@@ -74,8 +76,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		}
 		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
 		ih += 4;
-		g.setFont(mediumfont);
-		int tfh = mediumfontheight + 2;
+		g.setFont(titleFont);
+		int tfh = titleFont.getHeight();
 		int t = ih+y;
 		if(title != null && titleArr == null) {
 			makeTitleArr(w);
@@ -88,16 +90,16 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		}
 		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 		g.setFont(smallfont);
-		if(author != null) {
-			g.drawString(author, x + 4, t += tfh, 0);
-		}
 		if(lengthStr != null) {
 			int sw = smallfont.stringWidth(lengthStr) + 4;
 			g.drawString(lengthStr, x + w - sw, y + ih, 0);
 		}
-		if(viewsFont != null && bottomText != null) {
-			g.setFont(viewsFont);
-			g.drawString(bottomText, x + 4, t += smallfontheight + 2, 0);
+		g.setFont(bottomFont);
+		if(author != null) {
+			g.drawString(author, x + 4, t += tfh + 2, 0);
+		}
+		if(bottomFont != null && bottomText != null) {
+			g.drawString(bottomText, x + 4, t += bottomFont.getHeight() + 2, 0);
 		}
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawRect(x, y+h-1, w, 1);
@@ -118,7 +120,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				if(titleArr.length == 1) {
 					titleArr[0] = arr[0].trim().concat("...");
 				} else if(arr.length > 1) {
-					titleArr[1] = arr[1].concat("...");
+					titleArr[1] = arr[1].trim().concat("...");
 				} else {
 					titleArr[1] = arr[1];
 				}
@@ -129,9 +131,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private int getImgHeight(int w) {
 		if(imgHeight > 0) return imgHeight;
-		if(getScreen() != null && w > getScreen().getHeight()) {
-			
-		}
 		int ih = w * 9 / 16;
 		if(img != null) {
 			ih = img.getHeight();
@@ -152,14 +151,14 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 	
 	private int getTextHeight() {
-		int i = 0;
-		if(bottomText != null) {
-			if(viewsFont == null)
-				viewsFont = DirectFontUtil.getFont(0, 0, 21, 8);;
-			i = 2 + viewsFont.getHeight();
+		if(titleFont == null) {
+			titleFont = mediumfont;
+			if(ui.getWidth() >= 360)
+				titleFont = DirectFontUtil.getFont(0, 0, 25, Font.SIZE_MEDIUM);
 		}
-		int h = (mediumfontheight + 2) * 2 + 8 + smallfontheight + i;
-		return h;
+		if(bottomFont == null)
+			bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
+		return (titleFont.getHeight()) * 2 + 8 + (2 + bottomFont.getHeight()) * 2;
 	}
 
 	public int getHeight() {

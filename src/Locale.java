@@ -463,6 +463,7 @@ public class Locale implements LocaleConstants {
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + "K";
 			}
+			s = Util.replace(s, ".0", "");
 			if(i == 1) return s + " " + s(TXT_1subscriber);
 			if(i % 10 == 1) return s + " " + s(TXT_10_1subscribers);
 			return s + " " + s(TXT_subscribers);
@@ -475,6 +476,7 @@ public class Locale implements LocaleConstants {
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000D) * 100) / 100D) + " тыс.";
 			} 
+			s = Util.replace(s, ".0", "");
 			if(i >= 5) {
 				return i + " подписчиков";
 			} else {
@@ -486,47 +488,56 @@ public class Locale implements LocaleConstants {
 		} else if(i >= 1000) {
 			s = ((int) ((i / 1000D) * 10) / 10D) + "K";
 		}
+		s = Util.replace(s, ".0", "");
 		if(i == 1) return s + " subscriber";
 		return s + " subscribers";
 	}
 	
 	public static String views(int i) {
 		if(loaded) {
+			String s = ""+i;
 			if(i == 1) {
-				return i + " " + Locale.s(TXT_1view);
-			}
-			if(i >= 1000000) {
-				return ((int) ((i / 1000000D) * 10) / 10D) + "M " + Locale.s(TXT_views);
+				s += " " + Locale.s(TXT_1view);
+			} else if(i >= 1000000) {
+				s = ((int) ((i / 1000000D) * 10) / 10D) + "M " + Locale.s(TXT_views);
 			} else if(i >= 1000) {
-				return ((int) ((i / 1000D) * 10) / 10D) + "K " + Locale.s(TXT_views);
+				s = ((int) ((i / 1000D) * 10) / 10D) + "K " + Locale.s(TXT_views);
+			} else {
+				s += " " + Locale.s(TXT_views);
 			}
-			return i + " " + Locale.s(TXT_views);
+			s = Util.replace(s, ".0", "");
+			return s;
 		}
 		if(localei == 1) {
+			String s = ""+i;
 			if(i == 1) {
-				return i + " просмотр";
+				s += " просмотр";
 			} else if(i >= 1000000000) {
-				return ((int) ((i / 1000000000D) * 10) / 10D) + " млрд. просмотров";
+				s = ((int) ((i / 1000000000D) * 10) / 10D) + " млрд. просмотров";
 			} else if(i >= 1000000) {
-				return ((int) ((i / 1000000D) * 10) / 10D) + " млн. просмотров";
+				s = ((int) ((i / 1000000D) * 10) / 10D) + " млн. просмотров";
 			} else if(i >= 1000) {
-				return ((int) ((i / 1000D) * 10) / 10D) + " тыс. просмотров";
-			}
-			if(i >= 5) {
-				return i + " просмотров";
+				s = ((int) ((i / 1000D) * 10) / 10D) + " тыс. просмотров";
+			} else if(i >= 5) {
+				s += " просмотров";
 			} else {
-				return i + " просмотра";
+				s += " просмотра";
 			}
+			s = Util.replace(s, ".0", "");
+			return s;
 		}
+		String s = ""+i;
 		if(i == 1) {
-			return i + " view";
-		}
-		if(i >= 1000000) {
-			return ((int) ((i / 1000000D) * 10) / 10D) + "M views";
+			s += " view";
+		} else if(i >= 1000000) {
+			s = ((int) ((i / 1000000D) * 10) / 10D) + "M views";
 		} else if(i >= 1000) {
-			return ((int) ((i / 1000D) * 10) / 10D) + "K views";
+			s = ((int) ((i / 1000D) * 10) / 10D) + "K views";
+		} else {
+			s += " views";
 		}
-		return i + " views";
+		s = Util.replace(s, ".0", "");
+		return s;
 	}
 
 	public static String videos(int i) {
