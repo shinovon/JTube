@@ -58,7 +58,10 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		//App.inst.stopDoingAsyncTasks();
 		try {
 			Thread.sleep(100);
-			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS + (Settings.videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
+					(Settings.videoPreviews ? ",videoThumbnails" : "") +
+					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+					);
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), false);
@@ -146,7 +149,10 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		ui.setScreen(searchScr);
 		App.inst.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS + (Settings.videoPreviews ? ",videoThumbnails" : ""));
+			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
+					(Settings.videoPreviews ? ",videoThumbnails" : "") +
+					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+					);
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), true);

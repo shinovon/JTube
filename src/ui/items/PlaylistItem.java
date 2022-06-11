@@ -14,11 +14,11 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 	
 	private String title;
 	private String author;
+
+	private String[] titleArr;
 	private String videosStr;
 
 	private int textWidth;
-
-	private String[] titleArr;
 
 	private int h;
 
@@ -35,14 +35,11 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 		g.fillRect(x, y, w, h);
 		g.setColor(0);
 		g.setFont(mediumfont);
-		if(title != null && titleArr == null) {
-			makeTitleArr(w);
-		}
 		int yy = y;
 		y += 2;
 		if(titleArr != null) {
 			if(titleArr[0] != null) g.drawString(titleArr[0], x+2, y, 0);
-			if(titleArr[1] != null) g.drawString(titleArr[1], x+2, y += mediumfontheight, 0);
+			if(titleArr[1] != null) g.drawString(titleArr[1], x+2, y += mediumfontheight + 2, 0);
 		}
 		g.setColor(COLOR_GRAYTEXT);
 		g.setFont(smallfont);
@@ -66,7 +63,10 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void layout(int w) {
-		h = 10 + mediumfontheight + mediumfontheight + smallfontheight + smallfontheight;
+		if(title != null && titleArr == null) {
+			makeTitleArr(w);
+		}
+		h = 12 + mediumfontheight + mediumfontheight + smallfontheight + smallfontheight;
 	}
 	
 	private void makeTitleArr(int w) {

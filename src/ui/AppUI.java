@@ -261,7 +261,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		app.setLoadingState("Loading (1)");
 		try {
 			app.setLoadingState("Loading (2)");
-			AbstractJSON r = App.invApi("v1/"+s+"?", VIDEO_FIELDS + (Settings.videoPreviews ? ",videoThumbnails" : ""));
+			AbstractJSON r = App.invApi("v1/"+s+"?",
+					VIDEO_FIELDS +
+					(Settings.videoPreviews ? ",videoThumbnails" : "") +
+					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+					);
 			app.setLoadingState("Loading (3)");
 			if(r instanceof JSONObject) {
 				App.error(this, Errors.AppUI_load, "Wrong response", r.toString());
@@ -315,7 +319,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		app.stopDoingAsyncTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all", SEARCH_FIELDS + ",type" + (Settings.videoPreviews ? ",videoThumbnails" : "") + (Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,playlistId,videoCount" : ""));
+			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all",
+					SEARCH_FIELDS +
+					",type" + (Settings.videoPreviews ? ",videoThumbnails" : "") +
+					(Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,playlistId,videoCount" : "") +
+					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+					);
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), true, i);

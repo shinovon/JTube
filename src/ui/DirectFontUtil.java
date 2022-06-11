@@ -9,7 +9,7 @@ public class DirectFontUtil {
 	private static boolean supported;
 	
 	public static void init() {
-		if(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch()) {
+		if((PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch()) && !PlatformUtils.isKemulator) {
 			try {
 				DirectUtilsInvoker.init();
 				supported = true;
