@@ -1,6 +1,8 @@
 # JTube
 Youtube client based on Invidious API for Java devices with MIDP 2.0 support
 
+<a href="faq.md">FAQ</a><br>
+
 JTube Lite:
 https://github.com/shinovon/JTubeLite
 ## Building
