@@ -20,6 +20,8 @@ public abstract class UIScreen {
 	protected int width;
 	protected int height;
 
+	private boolean repaintBlocked;
+
 	protected UIScreen(String label, UIScreen parent) {
 		this.label = label;
 		this.parent = parent;
@@ -40,11 +42,13 @@ public abstract class UIScreen {
 	}
 	
 	public void repaint() {
-		ui.repaint(false);
+		if(!repaintBlocked)
+			ui.repaint(false);
 	}
 	
 	public void repaint(UIItem item) {
-		ui.repaint(false);
+		if(!repaintBlocked)
+			ui.repaint(false);
 	}
 
 	public boolean hideBottomBar() {
@@ -108,5 +112,13 @@ public abstract class UIScreen {
 	}
 
 	protected void show() {}
+	
+	protected void blockRepaint() {
+		repaintBlocked = true;
+	}
+	
+	protected void unlockRepaint() {
+		repaintBlocked = false;
+	}
 
 }

@@ -5,14 +5,16 @@ import javax.microedition.lcdui.Image;
 
 import Locale;
 import ui.AppUI;
-import ui.UIConstants;
 import ui.UIScreen;
-import models.ChannelModel;
+import ui.UIConstants;
 import models.VideoModel;
+import models.ChannelModel;
 import ui.screens.ChannelScreen;
 import ui.screens.VideoScreen;
 
 public class ChannelItem extends AbstractButtonItem implements UIConstants {
+
+	private static Image defaultImg;
 
 	private ChannelModel channel;
 
@@ -23,6 +25,13 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	private String subsStr;
 	
 	private int h;
+	
+	static {
+		try {
+			defaultImg = roundImage(Image.createImage("".getClass().getResourceAsStream("/user.png")));
+		} catch (Exception e) {
+		}
+	}
 
 	public ChannelItem(ChannelModel c) {
 		super();
@@ -42,11 +51,7 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
 		g.fillRect(x, y, w, h);
-		boolean i = false;
-		if (img != null) {
-			i = true;
-			g.drawImage(img, x+2, y+2, 0);
-		}
+		g.drawImage(img != null ? img : defaultImg, x+2, y+2, 0);
 		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
 		g.setFont(smallfont);
 		int fh = smallfontheight;
@@ -55,7 +60,7 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 		if(subsStr != null) {
 			ty -= (sfh + 4) / 2;
 		}
-		int xx = x+(i ? 56 : 2);
+		int xx = x + 56;
 		g.drawString(author, xx, ty, 0);
 		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 		g.setFont(smallfont);

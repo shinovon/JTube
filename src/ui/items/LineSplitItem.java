@@ -1,4 +1,4 @@
-package ui.screens;
+package ui.items;
 
 import javax.microedition.lcdui.Graphics;
 

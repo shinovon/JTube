@@ -108,11 +108,11 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		author = j.getNullableString("author");
 		authorId = j.getNullableString("authorId");
 		lengthSeconds = j.getInt("lengthSeconds", 0);
+		viewCount = j.getInt("viewCount", 0);
+		publishedText = j.getNullableString("publishedText");
 		if(extended) {
-			viewCount = j.getInt("viewCount", 0);
 			subCount = j.getInt("subCount", 0);
 			description = j.getNullableString("description");
-			publishedText = j.getNullableString("publishedText");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
 			if(Settings.videoPreviews) {
@@ -207,7 +207,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		try {
 			_loadAuthorImg();
 		} catch (IllegalArgumentException e) {
-			if(e.getMessage().equals("bad image format")) {
+			if(e.getMessage().indexOf("format") != -1) {
 				try {
 					_loadAuthorImg();
 				} catch (Exception e1) {
@@ -224,8 +224,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 
 	private void _loadAuthorImg() throws Exception {
 		byte[] b = App.hproxy(authorThumbnailUrl);
-		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHORITEM_IMAGE_HEIGHT, AUTHORITEM_IMAGE_HEIGHT));
 		authorThumbnailUrl = null;
+		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHORITEM_IMAGE_HEIGHT, AUTHORITEM_IMAGE_HEIGHT));
 	}
 	public String getTitle() {
 		return title;

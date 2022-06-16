@@ -18,15 +18,19 @@ import ui.UIScreen;
 import ui.ModelScreen;
 import models.VideoModel;
 import ui.items.LabelItem;
+import ui.items.LineSplitItem;
 import models.AbstractModel;
 
-public class VideoScreen extends ModelScreen implements CommandListener, Commands {
+public class VideoScreen extends ModelScreen implements CommandListener, Commands, Runnable {
 
 	private VideoModel video;
 	
 	private UIScreen containerScreen;
 	
 	private boolean shown;
+
+	private Object loadingLock = new Object();
+	private boolean loaded;
 
 	public VideoScreen(VideoModel v) {
 		super(v.getTitle());
@@ -35,6 +39,11 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	}
 
 	private void init() {
+		loaded = true;
+		blockRepaint();
+		synchronized(loadingLock) {
+			loadingLock.notify();
+		}
 		scroll = 0;
 		if(video == null) return;
 		VideoModel video = this.video;
@@ -46,14 +55,14 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		add(video.makeChannelItem());
 		Font f = smallfont;
 		try {
-			if(width >= 360) {
+			if(ui.getWidth() >= 360) {
 				f = DirectFontUtil.getFont(0, 0, 21, 8);
 			} else {
 				f = DirectFontUtil.getFont(0, 0, 14, 8);
 			}
 		} catch (Throwable e) {
 		}
-		LabelItem i = new LabelItem(Locale.views(video.getViewCount()) + " • " + Locale.date(video.getPublishedText()), f, AppUI.getColor(COLOR_GRAYTEXT));
+		LabelItem i = new LabelItem(Locale.views(video.getViewCount()).concat(" • ").concat(Locale.date(video.getPublishedText())), f, AppUI.getColor(COLOR_GRAYTEXT));
 		i.setMarginLeft(8);
 		//i.setCentered(true);
 		i.setMaxLines(2);
@@ -64,7 +73,9 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		d.setMarginTop(8);
 		d.setMarginWidth(8);
 		add(d);
+		unlockRepaint();
 		relayout();
+		repaint();
 	}
 	
 	protected void show() {
@@ -83,6 +94,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			App.inst.addAsyncLoad(this);
 			App.inst.notifyAsyncTasks();
 		}
+		new Thread(this).run();
 	}
 	
 	public boolean supportCommands() {
@@ -179,6 +191,24 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		video.disposeExtendedVars();
 		video = null;
 		containerScreen = null;
+	}
+
+	public void run() {
+		try {
+			synchronized(loadingLock) {
+				loadingLock.wait(5000);
+			}
+			if(!loaded) {
+				App.inst.stopDoingAsyncTasks();
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+				}
+				App.inst.addAsyncLoad(this);
+				App.inst.notifyAsyncTasks();
+			}
+		} catch (Exception e) {
+		}
 	}
 
 }

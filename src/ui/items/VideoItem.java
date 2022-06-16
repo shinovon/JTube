@@ -1,13 +1,16 @@
 package ui.items;
 
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import App;
 import Util;
+import Locale;
 import Records;
 import Settings;
 import ui.AppUI;
+import ui.DirectFontUtil;
 import ui.UIConstants;
 import ui.screens.SearchScreen;
 import models.VideoModel;
@@ -16,11 +19,14 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	
 	private VideoModel video;
 	
-	private String lengthStr;
 	private String title;
 	private String author;
-	
+	private int views;
+	private String published;
+
 	private String[] titleArr;
+	private String lengthStr;
+	private String bottomText;
 
 	private Image img;
 	private int h;
@@ -29,6 +35,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	private int textWidth;
 
 	private int lastW;
+
+	private static Font titleFont;
+	private static Font bottomFont;
+
 	
 	public VideoItem(VideoModel v) {
 		super();
@@ -36,6 +46,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		this.lengthStr = Util.timeStr(v.getLengthSeconds());
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
+		this.views = v.getViewCount();
+		this.published = v.getPublishedText();
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
@@ -64,24 +76,30 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		}
 		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
 		ih += 4;
-		g.setFont(mediumfont);
-		int tfh = mediumfontheight;
-		int t = ih;
+		g.setFont(titleFont);
+		int tfh = titleFont.getHeight();
+		int t = ih+y;
 		if(title != null && titleArr == null) {
 			makeTitleArr(w);
 		}
 		if(titleArr != null) {
-			if(titleArr[0] != null) g.drawString(titleArr[0], x + 4, y + ih, 0);
-			if(titleArr[1] != null) g.drawString(titleArr[1], x+ 4, y + (t += tfh), 0);
+			if(titleArr[0] != null)
+				g.drawString(titleArr[0], x + 4, t, 0);
+			if(titleArr.length > 1 && titleArr[1] != null)
+				g.drawString(titleArr[1], x + 4, t += tfh, 0);
 		}
 		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 		g.setFont(smallfont);
-		if(author != null) {
-			g.drawString(author, x + 4, y + t + tfh, 0);
-		}
 		if(lengthStr != null) {
 			int sw = smallfont.stringWidth(lengthStr) + 4;
-			g.drawString(lengthStr, x + w - sw, y+ ih, 0);
+			g.drawString(lengthStr, x + w - sw, y + ih, 0);
+		}
+		g.setFont(bottomFont);
+		if(author != null) {
+			g.drawString(author, x + 4, t += tfh + 2, 0);
+		}
+		if(bottomFont != null && bottomText != null) {
+			g.drawString(bottomText, x + 4, t += bottomFont.getHeight() + 2, 0);
 		}
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawRect(x, y+h-1, w, 1);
@@ -94,13 +112,15 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private void makeTitleArr(int sw) {
 		int w = getTextMaxWidth(sw);
-		String[] arr = Util.getStringArray(title, w, mediumfont);
+		String[] arr = Util.getStringArray(title, w, titleFont);
 		titleArr = new String[2];
 		if(arr.length > 0) {
 			titleArr[0] = arr[0];
 			if(arr.length > 1) {
-				if(arr.length > 2) {
-					titleArr[1] = arr[1].concat("...");
+				if(titleArr.length == 1) {
+					titleArr[0] = arr[0].trim().concat("...");
+				} else if(arr.length > 1) {
+					titleArr[1] = arr[1].trim().concat("...");
 				} else {
 					titleArr[1] = arr[1];
 				}
@@ -131,7 +151,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 	
 	private int getTextHeight() {
-		return (mediumfontheight + 4) * 2 + 4 + smallfontheight;
+		return (titleFont.getHeight()) * 2 + 8 + (2 + bottomFont.getHeight()) * 2;
 	}
 
 	public int getHeight() {
@@ -144,11 +164,29 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	protected void layout(int w) {
+		if(titleFont == null) {
+			titleFont = mediumfont;
+			if(ui.getWidth() >= 360)
+				titleFont = DirectFontUtil.getFont(0, 0, 25, Font.SIZE_MEDIUM);
+		}
+		if(bottomFont == null) {
+			bottomFont = smallfont;
+			if(ui.getWidth() >= 360)
+				bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
+		}
 		if(w != lastW) {
 			imgHeight = 0;
 			video.setImageWidth(w);
 			if(img != null)
 			img = video.customResize(img);
+		}
+		if(bottomText == null && (views > 0 || published != null) && ui.getWidth() >= 320) {
+			String s = Locale.views(views);
+			if(published != null) {
+				s = s.concat(" • ").concat(Locale.date(published));
+				published = null;
+			}
+			bottomText = s;
 		}
 		lastW = w;
 		h = (Settings.videoPreviews ? getImgHeight(w) : 0) + getTextHeight();

@@ -246,6 +246,9 @@ public class Settings implements Constants {
 					if(imgproxy != null)
 						imgproxy = Util.replace(imgproxy, "nnproject.cc", "nnp.nnchan.ru");
 				}
+				if(imgproxy != null) {
+					imgproxy = Util.replace(imgproxy, "nnp.nnchan.ru/hproxy.php", "nnp.nnchan.ru/proxy.php");
+				}
 				if(j.has("checkUpdates"))
 					checkUpdates = j.getBoolean("checkUpdates");
 				if(j.has("iteroniPlaybackProxy"))
