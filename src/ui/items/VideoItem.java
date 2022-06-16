@@ -112,7 +112,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private void makeTitleArr(int sw) {
 		int w = getTextMaxWidth(sw);
-		String[] arr = Util.getStringArray(title, w, mediumfont);
+		String[] arr = Util.getStringArray(title, w, titleFont);
 		titleArr = new String[2];
 		if(arr.length > 0) {
 			titleArr[0] = arr[0];
@@ -151,13 +151,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 	
 	private int getTextHeight() {
-		if(titleFont == null) {
-			titleFont = mediumfont;
-			if(ui.getWidth() >= 360)
-				titleFont = DirectFontUtil.getFont(0, 0, 25, Font.SIZE_MEDIUM);
-		}
-		if(bottomFont == null)
-			bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
 		return (titleFont.getHeight()) * 2 + 8 + (2 + bottomFont.getHeight()) * 2;
 	}
 
@@ -171,6 +164,16 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	protected void layout(int w) {
+		if(titleFont == null) {
+			titleFont = mediumfont;
+			if(ui.getWidth() >= 360)
+				titleFont = DirectFontUtil.getFont(0, 0, 25, Font.SIZE_MEDIUM);
+		}
+		if(bottomFont == null) {
+			bottomFont = smallfont;
+			if(ui.getWidth() >= 360)
+				bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
+		}
 		if(w != lastW) {
 			imgHeight = 0;
 			video.setImageWidth(w);

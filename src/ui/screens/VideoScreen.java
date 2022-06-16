@@ -40,6 +40,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 
 	private void init() {
 		loaded = true;
+		blockRepaint();
 		synchronized(loadingLock) {
 			loadingLock.notify();
 		}
@@ -72,7 +73,9 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		d.setMarginTop(8);
 		d.setMarginWidth(8);
 		add(d);
+		unlockRepaint();
 		relayout();
+		repaint();
 	}
 	
 	protected void show() {

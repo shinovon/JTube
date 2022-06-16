@@ -36,6 +36,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
 		g.fillRect(0, 0, w, h);
 		w -= AppUI.getScrollBarWidth();
+		boolean sizeChanged = width != w;
 		width = w;
 		screenHeight = h;
 		if(height == 0 || needLayout) {
@@ -51,6 +52,9 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				}
 			}
 			height = y;
+		}
+		if(sizeChanged) {
+			scrollToFocusedItem();
 		}
 		if(Math.abs(scroll) > 65535) return;
 		if(scroll < -height + screenHeight && scroll != 0 && !ui.scrolling) {
@@ -307,6 +311,13 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		cItem.focus();
 		return true;
 	}
+	
+	private void scrollToFocusedItem() {
+		if(cItem == null || items.size() == 0) return;
+		if(!isItemSeenOnScreen(cItem)) {
+			smoothlyScrollTo(-cItem.getY());
+		}
+	}
 
 	private void smoothlyScrollTo(int i) {
 		if(i > 0) i = 0;
@@ -361,7 +372,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	protected void relayout() {
 		needLayout = true;
-		repaint();
+		if(width != 0) repaint();
 	}
 	
 	protected UIItem get(int i) {
