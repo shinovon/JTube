@@ -3,9 +3,11 @@ package ui.screens;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
 
 import Locale;
 import ui.AbstractListScreen;
+import ui.AppUI;
 import ui.Commands;
 import ui.UIScreen;
 
@@ -17,6 +19,19 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 
 	public SearchScreen(String q, UIScreen parent) {
 		super(Locale.s(TITLE_SearchQuery) + " - " + q, parent);
+	}
+	
+	public void paint(Graphics g, int w, int h) {
+		if(AppUI.loadingState) {
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
+			g.fillRect(0, 0, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			String s = Locale.s(TITLE_Loading) + "...";
+			g.setFont(smallfont);
+			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			return;
+		}
+		super.paint(g, w, h);
 	}
 
 	protected void show() {

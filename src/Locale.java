@@ -275,11 +275,13 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Use iteroni proxy for playback";
 			case CMD_Func:
-				return "Opts";
+				return "Menu";
 			case CMD_Refresh:
 				return "Refresh";
 			case SET_Amoled:
 				return "Night theme";
+			case SET_SmallPreviews:
+				return "Small previews";
 			}
 		}
 		case 1: {
@@ -443,11 +445,13 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Прокси iteroni для проигрывания";
 			case CMD_Func:
-				return "Опции";
+				return "Меню";
 			case CMD_Refresh:
 				return "Обновить";
 			case SET_Amoled:
 				return "Ночная тема";
+			case SET_SmallPreviews:
+				return "Маленькие превью";
 			}
 		}
 		}

@@ -42,6 +42,7 @@ import Locale;
 import Settings;
 import Constants;
 import LocaleConstants;
+import RunnableTask;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
@@ -56,7 +57,7 @@ import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
 
-public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants, Commands {
+public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants, Commands, Runnable {
 	
 	public static final Display display = Display.getDisplay(App.midlet);
 
@@ -78,7 +79,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	private SettingsForm settingsForm;
 
-	private static MyCanvas canv;
+	private static JTubeCanvas canv;
 	private static int scrollBarWidth;
 	private UIScreen current;
 
@@ -92,55 +93,57 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public boolean oddFrame;
 	
 	private List optionsForm;
-
-	private Thread repaintThread = new Thread() {
-		public void run() {
-			boolean wasScrolling = false;
-			while(App.midlet.running) {
-				try {
-					if(!scrolling) { 
-						if(wasScrolling) {
-							_repaint();
-							wasScrolling = false;
-						}
-						synchronized (repaintLock) {
-							repaintLock.wait(1000);
-						}
-					}
-					_repaint();
-					if(scrolling) {
-						wasScrolling = true;
-					} else {
-						synchronized (repaintResLock) {
-							repaintResLock.notify();
-						}
-					}
-					waitRepaint();
-				} catch (InterruptedException e) {
-					return;
-				}
-			}
-		}
-	};
 	
 	private Vector commands = new Vector();
 	
-	private boolean keyInput = false;
+	protected boolean keyInput = false;
 	
+	public static boolean loadingState;
+
+	private Thread repaintThread = new Thread(this);
+	
+	public void run() {
+		boolean wasScrolling = false;
+		while(App.midlet.running) {
+			try {
+				if(display.getCurrent() != canv) {
+					Thread.sleep(1);
+					continue;
+				}
+				if(!scrolling) { 
+					if(wasScrolling) {
+						_repaint();
+						wasScrolling = false;
+					}
+					synchronized (repaintLock) {
+						repaintLock.wait(1000);
+					}
+				}
+				_repaint();
+				if(scrolling) {
+					wasScrolling = true;
+				} else {
+					synchronized (repaintResLock) {
+						repaintResLock.notify();
+					}
+				}
+				waitRepaint();
+			} catch (InterruptedException e) {
+				return;
+			}
+		}
+	}
+
 	private void waitRepaint() throws InterruptedException {
-		int i = 1000 / 30;
+		int i = 30;
 		i -= repaintTime;
 		if(i > 0) Thread.sleep(i);
-		Thread.yield();
 	}
 
 	private void _repaint() {
 		oddFrame = !oddFrame;
 		long time = System.currentTimeMillis();
-		if(canv != null) {
-			canv.repaint();
-			canv.serviceRepaints();
-		}
+		canv.updateScreen();
 		repaintTime = (int) (System.currentTimeMillis() - time);
 	}
 
@@ -163,9 +166,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public static int getColor(int i) {
 		switch(i) {
-		case COLOR_MAINBACKGROUND:
+		case COLOR_MAINBG:
 			return Settings.amoled ? 0 : -1;
-		case COLOR_MAINFOREGROUND:
+		case COLOR_MAINFG:
 		case COLOR_MAINBORDER:
 			return Settings.amoled ? -1 : 0;
 		case COLOR_ITEMBORDER:
@@ -182,6 +185,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return Settings.amoled ? 0x5D5D5D : 0xAAAAAA;
 		case COLOR_BUTTON_HOVER_BG:
 			return 0xCCCCCC;
+		case COLOR_TIMETEXT:
+			return 0xDDDDDD;
 		default:
 			return 0;
 		}
@@ -189,13 +194,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public static Font getFont(int i) {
 		switch(i) {
-		case FONT_DEBUG:
 		default:
 			return Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 		}
 	}
 	
 	public void setScreen(UIScreen s) {
+		display(null);
 		current = s;
 		canv.resetScreen();
 		repaint(true);
@@ -208,6 +213,21 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 	}
 	
+	public void updateScreenTitle(UIScreen s) {
+		if(this.current == s) {
+			String t = s.getTitle();
+			if(t != null && t.length() > 0) {
+				canv.setTitle(t);
+			} else {
+				canv.setTitle(null);
+			}
+		}
+	}
+
+	public UIScreen getCurrentScreen() {
+		return current;
+	}
+	
 	public int getWidth() {
 		return canv.width;
 	}
@@ -215,22 +235,16 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public int getHeight() {
 		return canv.height;
 	}
-
-	public UIScreen getCurrentScreen() {
-		return current;
-	}
 	
 	public void loadMain() {
 		try {
+			setScreen(mainScr);
 			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
 				loadPopular();
 			}
-			app.setLoadingState("Start page loaded");
-			display(canv);
 			Util.gc();
-			setScreen(mainScr);
 		} catch (InvidiousException e) {
 			App.error(this, Errors.AppUI_loadForm, e);
 		} catch (OutOfMemoryError e) {
@@ -244,9 +258,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void init() {
 		inst = this;
-		canv = new MyCanvas(this);
+		canv = new JTubeCanvas(this);
 		canv.setCommandListener(this);
-		repaintThread.setPriority(6);
 		repaintThread.start();
 		mainScr = new MainScreen();
 		try {
@@ -256,41 +269,33 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void load(String s) throws IOException {
-		app.setLoadingState("Loading (0)");
+		loadingState = true;
 		boolean b = App.needsCheckMemory();
-		app.setLoadingState("Loading (1)");
 		try {
-			app.setLoadingState("Loading (2)");
 			AbstractJSON r = App.invApi("v1/"+s+"?",
 					VIDEO_FIELDS +
 					(Settings.videoPreviews ? ",videoThumbnails" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
-			app.setLoadingState("Loading (3)");
 			if(r instanceof JSONObject) {
 				App.error(this, Errors.AppUI_load, "Wrong response", r.toString());
 				return;
 			}
-			app.setLoadingState("Loading (4)");
 			JSONArray j = (JSONArray) r;
 			try {
 			} catch (Exception e) {
 			}
-			app.setLoadingState("Parsing");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
-				app.setLoadingState("Parsing (" + i + "/" + l + ")");
 				UIItem item = parseAndMakeItem(j.getObject(i), false, i);
 				if(item == null) continue;
 				mainScr.add(item);
 				if(i >= TRENDS_LIMIT) break;
 				if(b) App.checkMemoryAndGc();
 			}
-			repaint(false);
-			app.setLoadingState("Loading (6)");
 			Thread.sleep(150);
 			j = null;
-			app.notifyAsyncTasks();
+			app.startAsyncTasks();
 			Thread.sleep(150);
 		} catch (RuntimeException e) {
 			throw e;
@@ -299,17 +304,22 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			App.error(this, Errors.AppUI_load, e);
 		}
 		Util.gc();
+		loadingState = false;
+		repaint(false);
 	}
 
 	public void loadTrends() throws IOException {
+		mainScr.setTitle("JTube - " + Locale.s(TITLE_Trends));
 		load("trending");
 	}
 
 	public void loadPopular() throws IOException {
+		mainScr.setTitle("JTube - " + Locale.s(TITLE_Popular));
 		load("popular");
 	}
 
 	public void search(String q) {
+		loadingState = true;
 		boolean b = App.needsCheckMemory();
 		searchScr = new SearchScreen(q, mainScr);
 		display(null);
@@ -317,12 +327,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 			disposeMainPage();
 		}
-		app.stopDoingAsyncTasks();
+		app.stopAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all",
 					SEARCH_FIELDS +
 					",type" + (Settings.videoPreviews ? ",videoThumbnails" : "") +
-					(Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,playlistId,videoCount" : "") +
+					(Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,subCount,playlistId,videoCount" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
@@ -334,12 +344,14 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				if(b) App.checkMemoryAndGc();
 			}
 			j = null;
-			app.notifyAsyncTasks();
+			app.startAsyncTasks();
 		} catch (Exception e) {
 			e.printStackTrace();
 			App.error(this, Errors.AppUI_search, e);
 		}
 		Util.gc();
+		loadingState = false;
+		repaint(false);
 	}
 	
 	private UIItem parseAndMakeItem(JSONObject j, boolean search, int i) {
@@ -420,6 +432,52 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		searchScr = null;
 		Util.gc();
 	}
+	
+	public void refresh() {
+		try {
+			App.inst.stopAsyncTasks();
+			mainScr.clear();
+			display(null);
+			if(Settings.startScreen == 0) {
+				loadTrends();
+			} else {
+				loadPopular();
+			}
+			mainScr.repaint();
+		} catch (InvidiousException e) {
+			App.error(this, Errors.AppUI_loadForm, e);
+		} catch (OutOfMemoryError e) {
+			Util.gc();
+			App.error(this, Errors.AppUI_loadForm, "Out of memory!");
+		} catch (Throwable e) {
+			e.printStackTrace();
+			App.error(this, Errors.AppUI_loadForm, e);
+		}
+	}
+	
+	public void switchMain() {
+		try {
+			App.inst.stopAsyncTasks();
+			mainScr.scroll = 0;
+			mainScr.clear();
+			display(null);
+			setScreen(mainScr);
+			if(Settings.startScreen == 0) {
+				Settings.startScreen = 1;
+				loadPopular();
+			} else {
+				Settings.startScreen = 0;
+				loadTrends();
+			}
+			Settings.saveConfig();
+			mainScr.repaint();
+		} catch (Exception e) {
+			App.error(this, Errors.App_commandAction_switchCmd, e);
+			e.printStackTrace();
+		}
+		optionsForm.set(2, Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
+		
+	}
 
 	public void commandAction(Command c, Displayable d) {
 		if(optionsForm != null && d == optionsForm) {
@@ -428,7 +486,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				case 0:
 				{
 					// Search
-					App.inst.stopDoingAsyncTasks();
+					App.inst.stopAsyncTasks();
 					if(searchScr != null) {
 						disposeSearchPage();
 					}
@@ -444,57 +502,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				{
 					// Refresh
 					if(current == mainScr) {
-						try {
-							App.inst.stopDoingAsyncTasks();
-							mainScr.clear();
-							display(null);
-							if(Settings.startScreen == 0) {
-								loadTrends();
-							} else {
-								loadPopular();
-							}
-							mainScr.repaint();
-						} catch (InvidiousException e) {
-							App.error(this, Errors.AppUI_loadForm, e);
-						} catch (OutOfMemoryError e) {
-							Util.gc();
-							App.error(this, Errors.AppUI_loadForm, "Out of memory!");
-						} catch (Throwable e) {
-							e.printStackTrace();
-							App.error(this, Errors.AppUI_loadForm, e);
-						}
+						app.schedule(new RunnableTask(3));
 					}
 					break;
 				}
 				case 2:
 				{
 					// Switch
-					try {
-						App.inst.stopDoingAsyncTasks();
-						mainScr.scroll = 0;
-						mainScr.clear();
-						display(null);
-						setScreen(mainScr);
-						if(Settings.startScreen == 0) {
-							Settings.startScreen = 1;
-							loadPopular();
-						} else {
-							Settings.startScreen = 0;
-							loadTrends();
-						}
-						Settings.saveConfig();
-						mainScr.repaint();
-					} catch (Exception e) {
-						App.error(this, Errors.App_commandAction_switchCmd, e);
-						e.printStackTrace();
-					}
-					optionsForm.set(2, Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
+					app.schedule(new RunnableTask(4));
 					break;
 				}
 				case 3:
 				{
 					// Open by ID
-					app.stopDoingAsyncTasks();
+					app.stopAsyncTasks();
 					TextBox t = new TextBox("", "", 256, TextField.ANY);
 					t.setCommandListener(this);
 					t.setTitle("Video URL or ID");
@@ -528,11 +549,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		if(c == goCmd && d instanceof TextBox) {
-			openVideo(((TextBox) d).getString());
+			app.schedule(new RunnableTask(((TextBox) d).getString(), 1));
 			return;
 		}
 		if(c == searchOkCmd && d instanceof TextBox) {
-			search(((TextBox) d).getString());
+			app.schedule(new RunnableTask(((TextBox) d).getString(), 2));
 			return;
 		}
 		if(d instanceof Alert) {
@@ -540,7 +561,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		if(c == settingsCmd) {
-			app.stopDoingAsyncTasks();
+			app.stopAsyncTasks();
 			showSettings();
 			return;
 		}
@@ -714,7 +735,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(ui.videoScr != null) {
 			disposeVideoPage();
 		}
-		app.stopDoingAsyncTasks();
+		app.stopAsyncTasks();
 		ModelScreen scr = model.makeScreen();
 		display(null);
 		setScreen(scr);
@@ -755,7 +776,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public static int getScrollBarWidth() {
 		if(scrollBarWidth == 0) {
-			scrollBarWidth = 6;
+			scrollBarWidth = PlatformUtils.isS603rd() || !canv.hasPointerEvents() ? 4 : 6;
 			if(PlatformUtils.isSymbian94()
 					|| PlatformUtils.isAshaTouchAndType()
 					 || PlatformUtils.isAshaFullTouch()) scrollBarWidth = 10;
@@ -830,6 +851,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} else {
 			showMain();
 		}
+	}
+
+	public boolean fastScrolling() {
+		return Settings.fastScrolling;
 	}
 
 }

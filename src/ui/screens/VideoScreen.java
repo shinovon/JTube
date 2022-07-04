@@ -92,7 +92,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			} catch (InterruptedException e) {
 			}
 			App.inst.addAsyncLoad(this);
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		}
 		new Thread(this).run();
 	}
@@ -199,13 +199,13 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 				loadingLock.wait(5000);
 			}
 			if(!loaded) {
-				App.inst.stopDoingAsyncTasks();
+				App.inst.stopAsyncTasks();
 				try {
 					Thread.sleep(200);
 				} catch (InterruptedException e) {
 				}
 				App.inst.addAsyncLoad(this);
-				App.inst.notifyAsyncTasks();
+				App.inst.startAsyncTasks();
 			}
 		} catch (Exception e) {
 		}

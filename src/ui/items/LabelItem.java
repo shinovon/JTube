@@ -22,7 +22,6 @@ public class LabelItem extends UIItem implements UIConstants {
 	private int marginRight;
 	private int marginTop = 2;
 	private int marginBottom = 2;
-	private boolean center;
 	private boolean colorSet;
 	
 	public LabelItem(String s) {
@@ -45,10 +44,13 @@ public class LabelItem extends UIItem implements UIConstants {
 		g.setFont(font);
 		if(textArr == null) return;
 		y+=marginTop;
-		g.setColor(colorSet ? color : AppUI.getColor(COLOR_MAINFOREGROUND));
+		int fh = lineSpaces+font.getHeight();
+		g.setColor(colorSet ? color : AppUI.getColor(COLOR_MAINFG));
 		for(int i = 0; i < textArr.length; i++) {
-			g.drawString(textArr[i], center ? x + (w - font.stringWidth(textArr[i])) / 2 : x + marginLeft, y, 0);
-			y+=lineSpaces+font.getHeight();
+			if(y + fh > 0 && y < ui.getHeight()) {
+				g.drawString(textArr[i], x + marginLeft, y, 0);
+			}
+			y+=fh;
 		}
 	}
 	
@@ -117,10 +119,6 @@ public class LabelItem extends UIItem implements UIConstants {
 		marginTop = i;
 		marginBottom = i;
 		relayout();
-	}
-
-	public void setCentered(boolean b) {
-		center = b;
 	}
 
 }

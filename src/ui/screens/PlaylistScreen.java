@@ -46,7 +46,7 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 			} catch (InterruptedException e) {
 			}
 			App.inst.addAsyncLoad(this);
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		}
 	}
 	

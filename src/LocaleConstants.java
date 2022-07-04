@@ -111,5 +111,6 @@ public interface LocaleConstants {
 	public static final int TXT_1view = 88;
 	public static final int TXT_views = 90;
 	public static final int SET_Amoled = 91;
+	public static final int SET_SmallPreviews = 92;
 
 }

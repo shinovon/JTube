@@ -484,7 +484,7 @@ public class App implements Constants {
 			error(null, Errors.App_watch, e);
 		}
 		*/
-		inst.stopDoingAsyncTasks();
+		inst.stopAsyncTasks();
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
@@ -574,7 +574,7 @@ public class App implements Constants {
 		}
 	}
 	
-	public void notifyAsyncTasks() {
+	public void startAsyncTasks() {
 		synchronized(lazyLoadLock) {
 			lazyLoadLock.notifyAll();
 		}
@@ -592,7 +592,7 @@ public class App implements Constants {
 		}
 	}
 
-	public void stopDoingAsyncTasks() {
+	public void stopAsyncTasks() {
 		if(t0 != null) t0.pleaseInterrupt();
 		if(t1 != null) t1.pleaseInterrupt();
 		if(t2 != null) t2.pleaseInterrupt();

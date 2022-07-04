@@ -1,13 +1,11 @@
 package ui;
 
-import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
-import javax.microedition.lcdui.Image;
 
 import Settings;
 
-public class MyCanvas extends Canvas implements UIConstants {
+public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private AppUI ui;
 	int width;
 	int height;
@@ -25,53 +23,52 @@ public class MyCanvas extends Canvas implements UIConstants {
 	private float scrollSlideSpeed;
 	private boolean scrollSlide;
 	private boolean controlBlock;
-	
 	private boolean draggedScrollbar;
+	private int flushTime;
+	private Graphics g;
 	
-	MyCanvas(AppUI ui) {
+	JTubeCanvas(AppUI ui) {
+		super(false);
 		this.ui = ui;
 		super.setFullScreenMode(false);
 		width = super.getWidth();
 		height = super.getHeight();
+		if(!super.hasPointerEvents()) {
+			ui.setKeyInputMode();
+		}
+		g = getGraphics();
 	}
 
-	protected void paint(Graphics g2) {
-		if(width == 0) {
-			width = super.getWidth();
-			height = super.getHeight();
-		}
-		Image img = Image.createImage(width, height);
-		Graphics g = img.getGraphics();
-		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
+	public void updateScreen() {
+		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.getCurrentScreen();
-		int cy = 0; 
 		if(s != null) {
-			// центр
 			int h = height;
-			if(ui.scrolling && !draggedScrollbar) {
+			if(!ui.keyInput && ui.scrolling && !draggedScrollbar) {
 				if(!scrollPreSlide && (releaseTime - pressTime) > 0) {
 					if (scrollSlide && Math.abs(scrollSlideSpeed) > 0.8F && (System.currentTimeMillis() - releaseTime) < scrollSlideMaxTime && s.scroll((int) scrollSlideSpeed)) {
-						scrollSlideSpeed *= 0.967f;
+						float f = 0.967f;
+						//if(ui.avgFps > 1) {
+						//	f = f/30f*ui.avgFps;
+						//}
+						scrollSlideSpeed *= f;
 					} else {
 						scrollSlideSpeed = 0;
 						ui.scrolling = false;
 					}
 				}
 			}
-			if(cy != 0) g.translate(0, cy);
 			try {
 				s.paint(g, width, h);
 			} catch (Error e) {
 				e.printStackTrace();
 			}
-			if(cy != 0) g.translate(0, -cy);
 		}
 		if(Settings.renderDebug) {
-			Font f = AppUI.getFont(FONT_DEBUG);
-			g.setFont(f);
-			String ds = " r " + ui.repaintTime + " " + (ui.oddFrame ? "1" : "0") + " " + scrollSlideSpeed;
-			int fh = f.getHeight();
+			g.setFont(smallfont);
+			String ds = ui.repaintTime + " " + flushTime + " " + (ui.oddFrame ? "1" : "0") + " " + scrollSlideSpeed;
+			int fh = smallfontheight;
 			int ty = height - fh - 1;
 			g.setColor(0x0);
 			g.drawString(ds, 2, ty, 0);
@@ -81,8 +78,9 @@ public class MyCanvas extends Canvas implements UIConstants {
 			g.setColor(0x00aa00);
 			g.drawString(ds, 1, ty, 0);
 		}
-		g.setFont(smallfont);
-		g2.drawImage(img, 0, 0, 0);
+		long l = System.currentTimeMillis();
+		flushGraphics();
+		flushTime = (int)(System.currentTimeMillis() - l);
 	}
 	
 	public void resetScreen() {
@@ -247,10 +245,7 @@ public class MyCanvas extends Canvas implements UIConstants {
 	protected void sizeChanged(int w, int h) {
 		width = w;
 		height = h;
-		UIScreen s = ui.getCurrentScreen();
-		if(s != null) {
-			s.relayout();
-		}
+		g = getGraphics();
 		needRepaint();
 	}
 

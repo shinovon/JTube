@@ -3,9 +3,15 @@ package ui.screens;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
 
+import App;
+import Locale;
+import Settings;
 import ui.Commands;
 import ui.AbstractListScreen;
+import ui.AppUI;
+import ui.items.VideoItem;
 
 public class MainScreen extends AbstractListScreen implements Commands, CommandListener {
 	
@@ -25,6 +31,30 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 			okAdded = true;
 			addCommand(okCmd);
 		}
+		if(Settings.videoPreviews) {
+			// resume loading previews
+			App.inst.stopAsyncTasks();
+			for(int i = 0; i < items.size(); i++) {
+				Object o = items.elementAt(i);
+				if(o instanceof VideoItem) {
+					App.inst.addAsyncLoad(((VideoItem)o).getVideo());
+				}
+			}
+			App.inst.startAsyncTasks();
+		}
+	}
+	
+	public void paint(Graphics g, int w, int h) {
+		if(AppUI.loadingState) {
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
+			g.fillRect(0, 0, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			String s = Locale.s(TITLE_Loading) + "...";
+			g.setFont(smallfont);
+			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			return;
+		}
+		super.paint(g, w, h);
 	}
 	
 	public void keyPress(int i) {

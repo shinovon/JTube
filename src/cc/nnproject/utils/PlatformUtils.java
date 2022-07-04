@@ -209,4 +209,8 @@ public class PlatformUtils {
 		return PlatformUtils.version != null && PlatformUtils.version.indexOf("phoneme") != -1;
 	}
 
+	public static boolean isS30() {
+		return platform != null && platform.indexOf("Series30") != -1;
+	}
+
 }

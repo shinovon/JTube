@@ -3,6 +3,7 @@ package ui.screens;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -24,6 +25,7 @@ import models.VideoModel;
 import ui.items.ButtonItem;
 import models.AbstractModel;
 import ui.AbstractListScreen;
+import ui.AppUI;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 
@@ -54,6 +56,19 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		add(new LabelItem(Locale.s(TITLE_Loading)));
 	}
 	
+	public void paint(Graphics g, int w, int h) {
+		if(AppUI.loadingState) {
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
+			g.fillRect(0, 0, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			String s = Locale.s(TITLE_Loading) + "...";
+			g.setFont(smallfont);
+			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			return;
+		}
+		super.paint(g, w, h);
+	}
+	
 	protected void latestVideos() {
 		//App.inst.stopDoingAsyncTasks();
 		try {
@@ -69,7 +84,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 				add(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		} catch (Exception e) {
 			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_latestVideos, e);
@@ -79,7 +94,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 
 	protected void search() {
 		disposeSearchForm();
-		App.inst.stopDoingAsyncTasks();
+		App.inst.stopAsyncTasks();
 		TextBox t = new TextBox("", "", 256, TextField.ANY);
 		t.setCommandListener(this);
 		t.setTitle(Locale.s(CMD_Search));
@@ -90,7 +105,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 
 	protected void playlists() {
 		playlistsScr = new ChannelPlaylistsScreen(this);
-		App.inst.stopDoingAsyncTasks();
+		App.inst.stopAsyncTasks();
 		ui.setScreen(playlistsScr);
 		try {
 			JSONArray j = ((JSONObject) App.invApi("v1/channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount" + (Settings.videoPreviews ? ",videoThumbnails" : ""))).getArray("playlists");
@@ -105,7 +120,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		App.inst.notifyAsyncTasks();
+		App.inst.startAsyncTasks();
 	}
 
 	protected void show() {
@@ -119,7 +134,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			} catch (InterruptedException e) {
 			}
 			App.inst.addAsyncLoad(this);
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		}
 		if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
@@ -147,7 +162,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			}
 		};
 		ui.setScreen(searchScr);
-		App.inst.stopDoingAsyncTasks();
+		App.inst.stopAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
 					(Settings.videoPreviews ? ",videoThumbnails" : "") +
@@ -160,7 +175,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 				searchScr.add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		} catch (Exception e) {
 			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_search, e);
@@ -227,7 +242,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		}
 		*/
 		if(c == backCmd) {
-			App.inst.stopDoingAsyncTasks();
+			App.inst.stopAsyncTasks();
 			if(containerScreen != null) {
 				ui.setScreen(containerScreen);
 			} else {

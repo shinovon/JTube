@@ -38,7 +38,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private static Font titleFont;
 	private static Font bottomFont;
-
 	
 	public VideoItem(VideoModel v) {
 		super();
@@ -52,8 +51,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		int ih = Settings.videoPreviews ? getImgHeight(w) : 0;
-		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
-		g.fillRect(x, y, w, h);
 		/*
 		if(img == null && Settings.rmsPreviews) {
 			try {
@@ -65,44 +62,83 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		}
 		*/
 		g.setColor(0);
-		if(Settings.videoPreviews) {
-			if(img != null) {
-				g.drawImage(img, x, y, 0);
-				//if(Settings.rmsPreviews)
-				//	img = null;
-			} else if(ih != 0) {
-				g.fillRect(x, y, w, ih);
+		if(Settings.smallPreviews) {
+			int xx = x + 4;
+			int yy = y + 4;
+			if(Settings.videoPreviews) {
+				g.setColor(0);
+				int iw = getImgWidth(w);
+				g.fillRect(xx, yy, iw, ih);
+				if(img != null) {
+					g.drawImage(img, xx + (iw - img.getWidth()) / 2, yy + (ih - img.getHeight()) / 2, 0);
+					//if(Settings.rmsPreviews)
+					//	img = null;
+				}
+				if(lengthStr != null) {
+					g.setColor(0);
+					g.setFont(smallfont);
+					int sw = smallfont.stringWidth(lengthStr);
+					g.fillRect(xx + iw - sw - 4, yy + ih - smallfontheight - 4, sw + 2, smallfontheight + 2);
+					g.setColor(AppUI.getColor(COLOR_TIMETEXT));
+					g.drawString(lengthStr, xx + iw - sw - 3, yy + ih - smallfontheight - 3, 0);
+				}
+				xx += iw+4;
+			}
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			g.setFont(titleFont);
+			int tfh = titleFont.getHeight();
+			yy += 4;
+			if(titleArr != null) {
+				if(titleArr[0] != null)
+					g.drawString(titleArr[0], xx, yy, 0);
+				if(titleArr.length > 1 && titleArr[1] != null)
+					g.drawString(titleArr[1], xx, yy += tfh, 0);
+			}
+			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
+			g.setFont(bottomFont);
+			if(author != null) {
+				g.drawString(author, xx, yy += tfh + 4, 0);
+			}
+			if(bottomFont != null && bottomText != null) {
+				g.drawString(bottomText, xx, yy += bottomFont.getHeight() + 2, 0);
+			}
+		} else {
+			if(Settings.videoPreviews) {
+				if(img != null) {
+					g.drawImage(img, x, y, 0);
+					//if(Settings.rmsPreviews)
+					//	img = null;
+				} else if(ih != 0) {
+					g.fillRect(x, y, w, ih);
+				}
+			}
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			ih += 4;
+			g.setFont(titleFont);
+			int tfh = titleFont.getHeight();
+			int t = ih+y;
+			if(titleArr != null) {
+				if(titleArr[0] != null)
+					g.drawString(titleArr[0], x + 4, t, 0);
+				if(titleArr.length > 1 && titleArr[1] != null)
+					g.drawString(titleArr[1], x + 4, t += tfh, 0);
+			}
+			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
+			g.setFont(smallfont);
+			if(lengthStr != null) {
+				int sw = smallfont.stringWidth(lengthStr) + 4;
+				g.drawString(lengthStr, x + w - sw, y + ih, 0);
+			}
+			g.setFont(bottomFont);
+			if(author != null) {
+				g.drawString(author, x + 4, t += tfh + 2, 0);
+			}
+			if(bottomFont != null && bottomText != null) {
+				g.drawString(bottomText, x + 4, t += bottomFont.getHeight() + 2, 0);
 			}
 		}
-		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
-		ih += 4;
-		g.setFont(titleFont);
-		int tfh = titleFont.getHeight();
-		int t = ih+y;
-		if(title != null && titleArr == null) {
-			makeTitleArr(w);
-		}
-		if(titleArr != null) {
-			if(titleArr[0] != null)
-				g.drawString(titleArr[0], x + 4, t, 0);
-			if(titleArr.length > 1 && titleArr[1] != null)
-				g.drawString(titleArr[1], x + 4, t += tfh, 0);
-		}
-		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
-		g.setFont(smallfont);
-		if(lengthStr != null) {
-			int sw = smallfont.stringWidth(lengthStr) + 4;
-			g.drawString(lengthStr, x + w - sw, y + ih, 0);
-		}
-		g.setFont(bottomFont);
-		if(author != null) {
-			g.drawString(author, x + 4, t += tfh + 2, 0);
-		}
-		if(bottomFont != null && bottomText != null) {
-			g.drawString(bottomText, x + 4, t += bottomFont.getHeight() + 2, 0);
-		}
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-		g.drawRect(x, y+h-1, w, 1);
+		g.drawLine(x, y+h-1, w, y+h-1);
 		if(isInFocus() && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1);
@@ -118,19 +154,29 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			titleArr[0] = arr[0];
 			if(arr.length > 1) {
 				if(titleArr.length == 1) {
-					titleArr[0] = arr[0].trim().concat("...");
+					titleArr[0] = arr[0].trim().concat("..");
 				} else if(arr.length > 1) {
-					titleArr[1] = arr[1].trim().concat("...");
+					titleArr[1] = arr[1].trim().concat("..");
 				} else {
 					titleArr[1] = arr[1];
 				}
 			}
 		}
-		title = null;
+	}
+	
+	private int getImgWidth(int w) {
+		if(Settings.smallPreviews)
+			return w / 3;
+		else
+			return w;
 	}
 
 	private int getImgHeight(int w) {
 		if(imgHeight > 0) return imgHeight;
+		if(Settings.smallPreviews) {
+			w /= 3;
+			return w * 3 / 4;
+		}
 		int ih = w * 9 / 16;
 		if(img != null) {
 			ih = img.getHeight();
@@ -141,6 +187,9 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	
 	private int getTextMaxWidth(int w) {
 		if(textWidth > 0) return textWidth;
+		if(Settings.smallPreviews) {
+			return w - getImgWidth(w) - 24;
+		}
 		int i;
 		if(lengthStr != null) {
 			i = smallfont.stringWidth(lengthStr) + 10;
@@ -164,23 +213,24 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	protected void layout(int w) {
-		if(titleFont == null) {
+		if(Settings.smallPreviews) {
+			titleFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
+		} else {
 			titleFont = mediumfont;
 			if(ui.getWidth() >= 360)
 				titleFont = DirectFontUtil.getFont(0, 0, 25, Font.SIZE_MEDIUM);
 		}
-		if(bottomFont == null) {
-			bottomFont = smallfont;
-			if(ui.getWidth() >= 360)
-				bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
-		}
+		bottomFont = smallfont;
+		if(ui.getWidth() >= 360)
+			bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
 		if(w != lastW) {
+			makeTitleArr(w);
 			imgHeight = 0;
-			video.setImageWidth(w);
+			video.setImageWidth(getImgWidth(w));
 			if(img != null)
-			img = video.customResize(img);
+				img = video.customResize(img);
 		}
-		if(bottomText == null && (views > 0 || published != null) && ui.getWidth() >= 320) {
+		if(ui.getWidth() >= 320 && bottomText == null && (views > 0 || published != null)) {
 			String s = Locale.views(views);
 			if(published != null) {
 				s = s.concat(" • ").concat(Locale.date(published));
@@ -189,7 +239,11 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			bottomText = s;
 		}
 		lastW = w;
-		h = (Settings.videoPreviews ? getImgHeight(w) : 0) + getTextHeight();
+		if(Settings.smallPreviews) {
+			h = getImgHeight(w) + 8;
+		} else {
+			h = (Settings.videoPreviews ? getImgHeight(w) : 0) + getTextHeight();
+		}
 	}
 
 	protected void action() {
@@ -216,7 +270,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	public void run() {
-		Util.gc();
 		if(img == null && Settings.rmsPreviews) {
 			try {
 				Image i = Records.saveOrGetImage(video.getVideoId(), null);
@@ -226,6 +279,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			} catch (Exception e) {
 			}
 		}
+	}
+	
+	public VideoModel getVideo() {
+		return video;
 	}
 
 }

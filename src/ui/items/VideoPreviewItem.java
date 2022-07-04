@@ -1,6 +1,5 @@
 package ui.items;
 
-import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
@@ -33,9 +32,6 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		layout(w);
-		g.setColor(-1);
-		g.fillRect(x, y, w, h);
 		g.setColor(0);
 		if(img != null) {
 			g.drawImage(img, x, y, 0);
@@ -44,9 +40,8 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 		}
 		g.setFont(smallfont);
 		if(length != null) {
-			Font f = g.getFont();
-			int xx = w+x-(f.stringWidth(length))-4;
-			int yy = y+h-f.getHeight()-2;
+			int xx = w+x-(smallfont.stringWidth(length))-4;
+			int yy = y+h-smallfontheight-2;
 			g.setColor(0);
 			g.drawString(length, xx+2, yy, 0);
 			g.drawString(length, xx, yy, 0);

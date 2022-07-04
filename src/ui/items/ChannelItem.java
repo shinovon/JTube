@@ -49,10 +49,8 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
-		g.fillRect(x, y, w, h);
 		g.drawImage(img != null ? img : defaultImg, x+2, y+2, 0);
-		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
+		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		g.setFont(smallfont);
 		int fh = smallfontheight;
 		int sfh = smallfontheight;
@@ -69,7 +67,7 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 		}
 		if(!(getScreen() instanceof VideoScreen)) {
 			g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-			g.drawRect(x, y+h-1, w, 1);
+			g.drawLine(x, y+h-1, w, y+h-1);
 		}
 		if(isInFocus() && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));

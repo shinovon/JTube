@@ -32,13 +32,13 @@ public class ButtonItem extends AbstractButtonItem implements UIConstants {
 		if(hover)
 			g.setColor(AppUI.getColor(COLOR_BUTTON_HOVER_BG));
 		else
-			g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(x, y, w, h);
-		g.setColor(AppUI.getColor(COLOR_MAINFOREGROUND));
+		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		Font f = g.getFont();
 		g.drawString(text, x + (w - f.stringWidth(text)) / 2, y + (h - f.getHeight()) / 2, 0);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-		g.drawRect(x, y+h-1, w, 1);
+		g.drawLine(x, y+h-1, w, y+h-1);
 		if(isInFocus() && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1);

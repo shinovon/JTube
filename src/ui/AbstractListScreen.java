@@ -33,13 +33,11 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 
 	protected void paint(Graphics g, int w, int h) {
-		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
-		g.fillRect(0, 0, w, h);
 		w -= AppUI.getScrollBarWidth();
 		boolean sizeChanged = width != w;
 		width = w;
 		screenHeight = h;
-		if(height == 0 || needLayout) {
+		if(height == 0 || needLayout || sizeChanged) {
 			needLayout = false;
 			int y = 0;
 			for (int i = 0; i < items.size(); i++) {
@@ -321,7 +319,11 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 
 	private void smoothlyScrollTo(int i) {
 		if(i > 0) i = 0;
-		scrollTarget = i;
+		if(ui.fastScrolling()) {
+			scroll = i;
+		} else {
+			scrollTarget = i;
+		}
 		repaint();
 	}
 
@@ -386,7 +388,8 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	public void setScrollBarY(int y) {
 		int hh = height;
 		int h = screenHeight;
-		scroll = -(int) (((float)hh/(float)h)*y);
+		float sbh = (((float)h / (float)hh) * h);
+		scroll = -(int) (((float)hh/(float)h) * (y - (sbh / 2)));
 		if(scroll > 0) scroll = 0;
 		if(scroll < -height + screenHeight) {
 			scroll = -height + screenHeight;

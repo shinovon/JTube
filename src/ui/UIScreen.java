@@ -33,6 +33,11 @@ public abstract class UIScreen {
 		return label;
 	}
 	
+	public void setTitle(String s) {
+		this.label = s;
+		ui.updateScreenTitle(this);
+	}
+	
 	public UIScreen getParent() {
 		return parent;
 	}
@@ -49,14 +54,6 @@ public abstract class UIScreen {
 	public void repaint(UIItem item) {
 		if(!repaintBlocked)
 			ui.repaint(false);
-	}
-
-	public boolean hideBottomBar() {
-		return false;
-	}
-
-	public boolean hideTopBar() {
-		return false;
 	}
 
 	public int getHeight() {

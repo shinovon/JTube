@@ -77,6 +77,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private boolean imgLoaded;
 	
 	private byte[] tempImgBytes;
+	
+	private boolean loadDone;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -130,6 +132,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
 			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
+			try {
+				JSONObject j = (JSONObject) App.invApi("v1/channels/" + authorId + "?", "subCount");
+				if(j.has("subCount"))
+					subCount = j.getInt("subCount", 0);
+			} catch (Exception e) {
+			}
 		}
 		return this;
 	}
@@ -197,7 +205,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			Util.gc();
-			App.inst.stopDoingAsyncTasks();
+			App.inst.stopAsyncTasks();
 			App.warn(this, "Not enough memory to load video previews!");
 		}
 	}
@@ -207,7 +215,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		try {
 			_loadAuthorImg();
 		} catch (IllegalArgumentException e) {
-			if(e.getMessage().indexOf("format") != -1) {
+			if(e.toString().indexOf("format") != -1) {
 				try {
 					_loadAuthorImg();
 				} catch (Exception e1) {
@@ -264,6 +272,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	public void load() {
+		if(loadDone) return;
 		try {
 			loadImage();
 			if(extended) {
@@ -274,6 +283,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		loadDone = true;
 	}
 
 	public void setFromSearch() {
