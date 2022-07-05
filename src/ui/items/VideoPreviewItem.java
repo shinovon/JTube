@@ -58,9 +58,9 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	}
 
 	protected void layout(int w) {
-		int h = (int) (ui.getHeight() * 0.9f);
+		h = (int) (ui.getHeight() * 0.9f);
 		if(w != lastW) {
-			video.setImageWidth(h * 16 / 9);
+			video.setImageWidth((int)(h * 16F / 9F));
 			if(img != null) img = video.customResize(img);
 		}
 		if(img != null) {

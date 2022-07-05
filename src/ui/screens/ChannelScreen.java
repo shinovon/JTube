@@ -132,7 +132,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			App.inst.addAsyncLoad(this);
 			App.inst.startAsyncTasks();
 		}
-		if(PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator) {
 			okAdded = true;
 		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
