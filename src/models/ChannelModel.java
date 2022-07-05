@@ -112,9 +112,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 			item.setImage(img);
 			imageUrl = null;
 		} catch (Exception e) {
-			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
-			e.printStackTrace();
 		}
 		
 	}

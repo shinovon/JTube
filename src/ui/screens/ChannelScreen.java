@@ -28,6 +28,7 @@ import ui.AbstractListScreen;
 import ui.AppUI;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
+import cc.nnproject.utils.PlatformUtils;
 
 public class ChannelScreen extends ModelScreen implements Commands, CommandListener, Constants {
 
@@ -70,7 +71,6 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 	
 	protected void latestVideos() {
-		//App.inst.stopDoingAsyncTasks();
 		try {
 			Thread.sleep(100);
 			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
@@ -85,10 +85,8 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			}
 			App.inst.startAsyncTasks();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_latestVideos, e);
 		}
-		//App.inst.notifyAsyncTasks();
 	}
 
 	protected void search() {
@@ -116,7 +114,6 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 				if(i >= SEARCH_LIMIT) break;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_search, e);
 		}
 		App.inst.startAsyncTasks();
@@ -135,7 +132,9 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			App.inst.addAsyncLoad(this);
 			App.inst.startAsyncTasks();
 		}
-		if(okAdded || ui.isKeyInputMode()) {
+		if(PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) {
+			okAdded = true;
+		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}
@@ -175,7 +174,6 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			}
 			App.inst.startAsyncTasks();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_search, e);
 		}
 	}
@@ -210,7 +208,6 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			if(Settings.videoPreviews) channel.load();
 			latestVideos();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_load, e);
 		}
 	}

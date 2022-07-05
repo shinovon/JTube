@@ -238,7 +238,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.fastScrolling = debugChoice.isSelected(3);
 			Settings.saveConfig();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.Settings_apply, e);
 		}
 	}
@@ -263,7 +262,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			fc.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		AppUI.inst.display(dirList);
 	}
@@ -335,7 +333,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				AppUI.inst.getCurrentScreen().relayout();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

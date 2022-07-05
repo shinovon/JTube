@@ -65,6 +65,11 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		*/
 		g.setColor(0);
 		if(Settings.smallPreviews) {
+			boolean b = ui.getWidth() == 320;
+			boolean b2 = ui.getWidth() >= 480;
+			boolean b3 = App.width <= 240;
+			boolean b4 = ui.getWidth() >= 320;
+			boolean b5 = ui.getWidth() > 320;
 			int xx = x + 4;
 			int yy = y + 4;
 			if(Settings.videoPreviews) {
@@ -89,20 +94,21 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			g.setFont(titleFont);
 			int tfh = titleFont.getHeight();
-			if(w > 300) yy += 4;
+			if(b4) yy += 4;
+			if(b2) xx += 2;
 			if(titleArr != null) {
 				if(titleArr[0] != null)
 					g.drawString(titleArr[0], xx, yy, 0);
-				if(titleArr.length > 1 && titleArr[1] != null)
+				if(titleArr[1] != null)
 					g.drawString(titleArr[1], xx, yy += tfh, 0);
 			}
 			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 			g.setFont(bottomFont);
-			if(w > 320 || App.width <= 240) yy += 4;
+			if(b3 || b5) yy += 4;
 			if(author != null) {
 				g.drawString(author, xx, yy += tfh, 0);
 			}
-			if(bottomFont != null && bottomText != null && (ui.getWidth() == 320 || ui.getWidth() >= 480)) {
+			if(bottomFont != null && bottomText != null && (b || b2)) {
 				g.drawString(bottomText, xx, yy += bottomFont.getHeight(), 0);
 			}
 		} else {
@@ -168,17 +174,22 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 	
 	private int getImgWidth(int w) {
-		if(Settings.smallPreviews)
+		if(Settings.smallPreviews) {
 			return w / 3;
-		else
+		} else {
 			return w;
+		}
 	}
 
 	private int getImgHeight(int w) {
 		if(imgHeight > 0) return imgHeight;
 		if(Settings.smallPreviews) {
-			w /= 3;
-			return w * 3 / 4;
+			w = getImgWidth(w);
+			if(ui.getWidth() > 480 && w > h)
+				w = w * 9 / 16;
+			else
+				w = w * 3 / 4;
+			return imgHeight = w;
 		}
 		int ih = w * 9 / 16;
 		if(img != null) {

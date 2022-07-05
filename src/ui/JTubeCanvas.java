@@ -63,7 +63,6 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			try {
 				s.paint(g, width, h);
 			} catch (Error e) {
-				e.printStackTrace();
 			}
 		}
 		if(Settings.renderDebug) {

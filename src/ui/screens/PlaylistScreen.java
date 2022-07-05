@@ -79,13 +79,11 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Throwable e) {
-				e.printStackTrace();
 				App.error(this, Errors.PlaylistForm_init_previews, e);
 			}
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
 	}
@@ -108,7 +106,6 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			App.error(this, Errors.PlaylistForm_load, e);
 		}
 	}

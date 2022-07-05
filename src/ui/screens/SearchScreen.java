@@ -6,6 +6,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 
 import Locale;
+import cc.nnproject.utils.PlatformUtils;
 import ui.AbstractListScreen;
 import ui.AppUI;
 import ui.Commands;
@@ -41,7 +42,9 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 		clearCommands();
 		ui.addOptionCommands();
 		addCommand(backCmd);
-		if(okAdded || ui.isKeyInputMode()) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator) {
+			okAdded = true;
+		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}

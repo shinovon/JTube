@@ -84,7 +84,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			}
 			height = y;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_BG));
 		g.fillRect(w, 0, AppUI.getScrollBarWidth(), h);

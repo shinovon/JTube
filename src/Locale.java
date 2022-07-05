@@ -81,13 +81,11 @@ public class Locale implements LocaleConstants {
 						table.put(n, sl);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
 				} finally {
 					d.close();
 				}
 				loaded = true;
 			} catch (IOException e) {
-				e.printStackTrace();
 			} 
 		} else {
 			if(b) {

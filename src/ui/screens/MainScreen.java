@@ -8,6 +8,7 @@ import javax.microedition.lcdui.Graphics;
 import App;
 import Locale;
 import Settings;
+import cc.nnproject.utils.PlatformUtils;
 import ui.Commands;
 import ui.AbstractListScreen;
 import ui.AppUI;
@@ -28,7 +29,9 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 		clearCommands();
 		ui.addOptionCommands();
 		addCommand(exitCmd);
-		if(okAdded || ui.isKeyInputMode()) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator) {
+			okAdded = true;
+		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}

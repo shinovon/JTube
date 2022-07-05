@@ -264,7 +264,6 @@ public class Settings implements Constants {
 					smallPreviews = j.getBoolean("smallPreviews");
 				return;
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 	}
@@ -302,11 +301,9 @@ public class Settings implements Constants {
 			j.put("amoled", new Boolean(amoled));
 			j.put("smallPreviews", new Boolean(smallPreviews));
 			byte[] b = j.build().getBytes("UTF-8");
-			
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	

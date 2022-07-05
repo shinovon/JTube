@@ -159,7 +159,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 					repaintResLock.wait(1000);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 	}
@@ -256,7 +255,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			Util.gc();
 			App.error(this, Errors.AppUI_loadForm, "Out of memory!");
 		} catch (Throwable e) {
-			e.printStackTrace();
 			App.error(this, Errors.AppUI_loadForm, e);
 		}
 	}
@@ -304,7 +302,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.AppUI_load, e);
 		}
 		Util.gc();
@@ -349,7 +346,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			j = null;
 			app.startAsyncTasks();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.AppUI_search, e);
 		}
 		Util.gc();
@@ -458,7 +454,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			Util.gc();
 			App.error(this, Errors.AppUI_loadForm, "Out of memory!");
 		} catch (Throwable e) {
-			e.printStackTrace();
 			App.error(this, Errors.AppUI_loadForm, e);
 		}
 	}
@@ -481,7 +476,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			mainScr.repaint();
 		} catch (Exception e) {
 			App.error(this, Errors.App_commandAction_switchCmd, e);
-			e.printStackTrace();
 		}
 		optionsForm.set(2, Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
 		
@@ -579,16 +573,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			showAbout(this);
 			return;
 		}
-		if(this.current != null && current.supportCommands()) {
-			((CommandListener)current).commandAction(c, d);
-			return;
-		}
-		if(c == backCmd) {
-			if(current != null && current.getParent() != null) {
-				setScreen(current.getParent());
-			}
-			return;
-		}
 		if(c == switchToPopularCmd || c == switchToTrendsCmd) {
 			app.schedule(new RunnableTask(4));
 			return;
@@ -620,98 +604,16 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			display(t);
 			return;
 		}
-		/*
-		if(d instanceof Alert) {
-			display(mainForm);
+		if(this.current != null && current.supportCommands()) {
+			((CommandListener)current).commandAction(c, d);
 			return;
 		}
-
-		if(c == goCmd && d instanceof TextBox) {
-			openVideo(((TextBox) d).getString());
-			return;
-		}
-		if(c == searchOkCmd && d instanceof TextBox) {
-			search(((TextBox) d).getString());
-			return;
-		}
-		if(c == settingsCmd) {
-			app.stopDoingAsyncTasks();
-			showSettings();
-			return;
-		}
-		if(c == searchCmd && d instanceof Form) {
-			app.stopDoingAsyncTasks();
-			if(searchForm != null) {
-				disposeSearchForm();
+		if(c == backCmd) {
+			if(current != null && current.getParent() != null) {
+				setScreen(current.getParent());
 			}
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle(Locale.s(CMD_Search));
-			t.addCommand(searchOkCmd);
-			t.addCommand(cancelCmd);
-			display(t);
 			return;
 		}
-		if(c == idCmd && d instanceof Form) {
-			app.stopDoingAsyncTasks();
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle("Video URL or ID");
-			t.addCommand(goCmd);
-			t.addCommand(cancelCmd);
-			display(t);
-			return;
-		}
-		if(c == cancelCmd && d instanceof TextBox) {
-			display(mainForm);
-			return;
-		}
-		if(c == backCmd && d == searchForm) {
-			if(mainForm == null) return;
-			app.stopDoingAsyncTasks();
-			display(mainForm);
-			disposeSearchForm();
-			return;
-		}
-		try {
-			if(c == switchToPopularCmd) {
-				Settings.startScreen = 1;
-				app.stopDoingAsyncTasks();
-				if(mainForm != null) {
-					mainForm.deleteAll();
-				} else {
-					init();
-				}
-				if(searchForm != null) {
-					disposeSearchForm();
-				} else {
-					d.removeCommand(c);
-				}
-				loadPopular();
-				Settings.saveConfig();
-				return;
-			}
-			if(c == switchToTrendsCmd) {
-				Settings.startScreen = 0;
-				app.stopDoingAsyncTasks();
-				if(mainForm != null) {
-					mainForm.deleteAll();
-				} else {
-					init();
-				}
-				if(searchForm != null) {
-					disposeSearchForm();
-				} else {
-					d.removeCommand(c);
-				}
-				loadTrends();
-				Settings.saveConfig();
-			}
-		} catch (Exception e) {
-			App.error(this, Errors.App_commandAction_switchCmd, e);
-			e.printStackTrace();
-		}
-		*/
 	}
 	
 	public void exit() {

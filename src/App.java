@@ -52,8 +52,6 @@ public class App implements Constants {
 	public static App2 midlet;
 	private AppUI ui;
 	
-	//private static PlayerCanvas playerCanv;
-	
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
@@ -173,7 +171,6 @@ public class App implements Constants {
 		if(Settings.region.toLowerCase().equals("en")) {
 			Settings.region = "US";
 		}
-		setLoadingState("Initializing loader thread");
 		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
@@ -187,7 +184,6 @@ public class App implements Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
-		setLoadingState("Loading start page");
 		ui.loadMain();
 		checkUpdate();
 		if(Settings.debugMemory) {
@@ -219,7 +215,6 @@ public class App implements Constants {
 							Thread.sleep(1000);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			};
@@ -263,7 +258,6 @@ public class App implements Constants {
 				ui.display(a);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -475,15 +469,6 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		/*
-		try {
-			String url = getVideoLink(id, videoRes);
-			platReq(url);
-		} catch (Exception e) {
-			e.printStackTrace();
-			error(null, Errors.App_watch, e);
-		}
-		*/
 		inst.stopAsyncTasks();
 		try {
 			switch (Settings.watchMethod) {
@@ -497,15 +482,6 @@ public class App implements Constants {
 				}
 				break;
 			}
-			/*
-			case 1: {
-				Player p = Manager.createPlayer(url);
-				playerCanv = new PlayerCanvas(p);
-				AppUI.display(playerCanv);
-				playerCanv.init();
-				break;
-			}
-			*/
 			case 1: {
 				String url = getVideoLink(id, Settings.videoRes, true);
 				String file = "file:///" + Settings.downloadDir;
@@ -604,7 +580,7 @@ public class App implements Constants {
 	
 	public static String getThumbUrl(String id, int tw) {
 		String s;
-		if(tw < 240) {
+		if(tw < 120) {
 			s = "default";
 		} else if(tw < 480) {
 			s = "mqdefault";

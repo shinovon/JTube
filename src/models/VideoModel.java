@@ -144,11 +144,13 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		float ih = img.getHeight();
 		Util.gc();
 		float f = iw / ih;
-		if(f == 4F / 3F && !Settings.smallPreviews) {
+		if(f == 4F / 3F) {
 			// cropping to 16:9
 			float ch = iw * (9F / 16F);
 			int chh = (int) ((ih - ch) / 2F);
-			return ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			iw = img.getWidth();
+			ih = img.getHeight();
 		}
 		float nw = (float) imageWidth;
 		int nh = (int) (nw * (ih / iw));
@@ -163,7 +165,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(item == null && prevItem == null && !extended) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
-			if(prevItem != null) {
+			if(prevItem != null && extended) {
 				Image img = Image.createImage(b, 0, b.length);
 				b = null;
 				Util.gc();
@@ -202,7 +204,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			Util.gc();
 			App.inst.stopAsyncTasks();
@@ -222,11 +223,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				} catch (Error e1) {
 				}
 			}
-			e.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -281,7 +279,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		loadDone = true;
 	}

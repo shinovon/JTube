@@ -34,7 +34,6 @@ public class Records {
 			}
 			rs.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -48,7 +47,6 @@ public class Records {
 			}
 			rs.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -62,7 +60,6 @@ public class Records {
 					b = rs.getRecord(1);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			if(b == null) {
 				if(url == null) {
@@ -75,7 +72,6 @@ public class Records {
 							rs.addRecord(b, 0, b.length);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			}
@@ -83,7 +79,6 @@ public class Records {
 				try {
 					rs.closeRecordStore();
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
 			}
 			return Image.createImage(b, 0, b.length);
