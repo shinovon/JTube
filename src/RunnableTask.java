@@ -9,6 +9,7 @@ public class RunnableTask implements Runnable {
 	}
 	
 	public RunnableTask(String s, int i) {
+		this.s = s;
 		this.i = i;
 	}
 

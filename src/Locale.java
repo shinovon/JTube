@@ -527,6 +527,9 @@ public class Locale implements LocaleConstants {
 			} else {
 				s += " просмотра";
 			}
+			if(Settings.smallPreviews) {
+				s = Util.replace(s, ". просмотров", ".");
+			}
 			s = Util.replace(s, ".0", "");
 			return s;
 		}
@@ -617,6 +620,9 @@ public class Locale implements LocaleConstants {
 					s = Util.replace(s, "week ago", "неделю назад");
 					s = Util.replace(s, "day ago", "день назад");
 					s = Util.replace(s, "hour ago", "час назад");
+				}
+				if(Settings.smallPreviews) {
+					s = Util.replace(s, " назад", "");
 				}
 			} catch (Exception e) {
 			}

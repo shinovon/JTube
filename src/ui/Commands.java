@@ -7,14 +7,15 @@ import javax.microedition.lcdui.Command;
 public interface Commands extends LocaleConstants {
 	
 	// Main form commands
-	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 9);
-	static final Command idCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 6);
 	static final Command searchCmd = new Command(Locale.s(CMD_Search), Command.SCREEN, 2);
-	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 10);
+	static final Command refreshCmd = new Command(Locale.s(CMD_Refresh), Command.SCREEN, 3);
 	static final Command switchToPopularCmd = new Command(Locale.s(CMD_SwitchToPopular), Command.SCREEN, 4);
 	static final Command switchToTrendsCmd = new Command(Locale.s(CMD_SwitchToTrends), Command.SCREEN, 4);
-	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 3);
-	static final Command optsCmd = new Command(Locale.s(CMD_Func), Command.SCREEN, 2);
+	static final Command openByIdCmd = new Command(Locale.s(CMD_OpenByID), Command.SCREEN, 5);
+	static final Command settingsCmd = new Command(Locale.s(CMD_Settings), Command.SCREEN, 6);
+	static final Command aboutCmd = new Command(Locale.s(CMD_About), Command.SCREEN, 7);
+	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 12);
+	static final Command optsCmd = new Command(Locale.s(CMD_Func), Command.SCREEN, 13);
 	
 	static final Command searchOkCmd = new Command(Locale.s(CMD_Search), Command.OK, 1);
 	static final Command goCmd = new Command(Locale.s(CMD_Go), Command.OK, 1);
@@ -39,7 +40,7 @@ public interface Commands extends LocaleConstants {
 	static final Command dlCancelCmd = new Command(Locale.s(CMD_Cancel), Command.CANCEL, 1);
 	
 	public static Command vOpenCmd = new Command(Locale.s(CMD_View), Command.ITEM, 3);
-	public static Command vOpenChannelCmd = new Command(Locale.s(CMD_ViewChannel), Command.ITEM, 4);
+	public static Command vOpenChannelCmd = new Command(Locale.s(CMD_ViewChannel), Command.SCREEN, 4);
 	
 	public static Command cVideosCmd = new Command(Locale.s(CMD_Videos), Command.ITEM, 3);
 }

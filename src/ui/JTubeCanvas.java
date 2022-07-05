@@ -3,6 +3,7 @@ package ui;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
 
+import App;
 import Settings;
 
 public class JTubeCanvas extends GameCanvas implements UIConstants {
@@ -243,8 +244,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	protected void sizeChanged(int w, int h) {
-		width = w;
-		height = h;
+		App.width = width = w;
+		App.height = height = h;
 		g = getGraphics();
 		needRepaint();
 	}

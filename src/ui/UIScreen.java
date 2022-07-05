@@ -20,7 +20,7 @@ public abstract class UIScreen {
 	protected int width;
 	protected int height;
 
-	private boolean repaintBlocked;
+	protected boolean repaintBlocked;
 
 	protected UIScreen(String label, UIScreen parent) {
 		this.label = label;
@@ -109,13 +109,7 @@ public abstract class UIScreen {
 	}
 
 	protected void show() {}
-	
-	protected void blockRepaint() {
-		repaintBlocked = true;
-	}
-	
-	protected void unlockRepaint() {
-		repaintBlocked = false;
-	}
+
+	protected void hide() {}
 
 }

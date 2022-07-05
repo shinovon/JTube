@@ -82,6 +82,11 @@ public class PlatformUtils {
 	public static boolean isSymbianAnna() {
 		return !isNotS60() && isS60PlatformVersion("5.2");
 	}
+
+	public static boolean isBelle() {
+		int i = platform.indexOf("version=5.") + "version=5.".length();
+		return !isNotS60() && isS60PlatformVersion("5") && Integer.parseInt(platform.substring(i, i+1)) >= 3;
+	}
 	
 	public static boolean isSymbian93() {
 		return isS60PlatformVersion("3.2");

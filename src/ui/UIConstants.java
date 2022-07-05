@@ -22,5 +22,6 @@ public interface UIConstants {
 	public static final int COLOR_ITEM_HIGHLIGHT = 9;
 	public static final int COLOR_BUTTON_HOVER_BG = 10;
 	public static final int COLOR_TIMETEXT = 11;
+	public static final int COLOR_SCROLLBAR_BORDER = 12;
 
 }

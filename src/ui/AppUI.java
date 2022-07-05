@@ -172,7 +172,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		case COLOR_MAINBORDER:
 			return Settings.amoled ? -1 : 0;
 		case COLOR_ITEMBORDER:
-			return Settings.amoled ? 0x212121 : 0x5D5D5D;
+			return Settings.amoled ? 0x5D5D5D : 0x212121;
 		case COLOR_DARK_ALPHA:
 			return 0x7fffffff;
 		case COLOR_GRAYTEXT:
@@ -182,11 +182,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		case COLOR_SCROLLBAR_FG:
 			return 0xAAAAAA;
 		case COLOR_ITEM_HIGHLIGHT:
-			return Settings.amoled ? 0x5D5D5D : 0xAAAAAA;
+			return Settings.amoled ? 0x5D5D5D : 0x9A9A9A;
 		case COLOR_BUTTON_HOVER_BG:
 			return 0xCCCCCC;
 		case COLOR_TIMETEXT:
 			return 0xDDDDDD;
+		case COLOR_SCROLLBAR_BORDER:
+			return Settings.amoled ? 0 : -1;
 		default:
 			return 0;
 		}
@@ -201,6 +203,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void setScreen(UIScreen s) {
 		display(null);
+		if(current != null) {
+			current.hide();
+		}
 		current = s;
 		canv.resetScreen();
 		repaint(true);
@@ -274,7 +279,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		try {
 			AbstractJSON r = App.invApi("v1/"+s+"?",
 					VIDEO_FIELDS +
-					(Settings.videoPreviews ? ",videoThumbnails" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			if(r instanceof JSONObject) {
@@ -330,8 +334,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		app.stopAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all",
-					SEARCH_FIELDS +
-					",type" + (Settings.videoPreviews ? ",videoThumbnails" : "") +
+					SEARCH_FIELDS + ",type" +
 					(Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,subCount,playlistId,videoCount" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
@@ -436,14 +439,19 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void refresh() {
 		try {
 			App.inst.stopAsyncTasks();
-			mainScr.clear();
 			display(null);
-			if(Settings.startScreen == 0) {
-				loadTrends();
+			if(current == searchScr) {
+				searchScr.clear();
+				search(searchScr.getTitle());
 			} else {
-				loadPopular();
+				mainScr.clear();
+				if(Settings.startScreen == 0) {
+					loadTrends();
+				} else {
+					loadPopular();
+				}
 			}
-			mainScr.repaint();
+			current.repaint();
 		} catch (InvidiousException e) {
 			App.error(this, Errors.AppUI_loadForm, e);
 		} catch (OutOfMemoryError e) {
@@ -501,9 +509,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				case 1:
 				{
 					// Refresh
-					if(current == mainScr) {
-						app.schedule(new RunnableTask(3));
-					}
+					app.schedule(new RunnableTask(3));
 					break;
 				}
 				case 2:
@@ -581,6 +587,37 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			if(current != null && current.getParent() != null) {
 				setScreen(current.getParent());
 			}
+			return;
+		}
+		if(c == switchToPopularCmd || c == switchToTrendsCmd) {
+			app.schedule(new RunnableTask(4));
+			return;
+		}
+		if(c == searchCmd) {
+			App.inst.stopAsyncTasks();
+			if(searchScr != null) {
+				disposeSearchPage();
+			}
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle(Locale.s(CMD_Search));
+			t.addCommand(searchOkCmd);
+			t.addCommand(cancelCmd);
+			display(t);
+			return;
+		}
+		if(c == refreshCmd) {
+			app.schedule(new RunnableTask(3));
+			return;
+		}
+		if(c == openByIdCmd) {
+			app.stopAsyncTasks();
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle("Video URL or ID");
+			t.addCommand(goCmd);
+			t.addCommand(cancelCmd);
+			display(t);
 			return;
 		}
 		/*
@@ -777,9 +814,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public static int getScrollBarWidth() {
 		if(scrollBarWidth == 0) {
 			scrollBarWidth = PlatformUtils.isS603rd() || !canv.hasPointerEvents() ? 4 : 6;
-			if(PlatformUtils.isSymbian94()
-					|| PlatformUtils.isAshaTouchAndType()
-					 || PlatformUtils.isAshaFullTouch()) scrollBarWidth = 10;
+			if(PlatformUtils.isSymbian94()) scrollBarWidth = 10;
 		}
 		return scrollBarWidth;
 	}
@@ -855,6 +890,19 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public boolean fastScrolling() {
 		return Settings.fastScrolling;
+	}
+
+	public void addOptionCommands() {
+		if(PlatformUtils.isBelle()) {
+			addCommand(searchCmd);
+			addCommand(refreshCmd);
+			addCommand(Settings.startScreen == 0 ? switchToPopularCmd : switchToTrendsCmd);
+			addCommand(openByIdCmd);
+			addCommand(settingsCmd);
+			addCommand(aboutCmd);
+			return;
+		}
+		addCommand(optsCmd);
 	}
 
 }

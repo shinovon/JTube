@@ -17,8 +17,11 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
 
+	private String query;
+
 	public SearchScreen(String q, UIScreen parent) {
 		super(Locale.s(TITLE_SearchQuery) + " - " + q, parent);
+		query = q;
 	}
 	
 	public void paint(Graphics g, int w, int h) {
@@ -36,7 +39,7 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 
 	protected void show() {
 		clearCommands();
-		addCommand(optsCmd);
+		ui.addOptionCommands();
 		addCommand(backCmd);
 		if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
@@ -70,6 +73,10 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 			ui.showOptions();
 			return;
 		}
+	}
+	
+	public String getQuery() {
+		return query;
 	}
 
 }

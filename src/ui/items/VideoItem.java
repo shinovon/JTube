@@ -36,6 +36,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private int lastW;
 
+	private boolean isSmall;
+
 	private static Font titleFont;
 	private static Font bottomFont;
 	
@@ -87,7 +89,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			g.setFont(titleFont);
 			int tfh = titleFont.getHeight();
-			yy += 4;
+			if(w > 300) yy += 4;
 			if(titleArr != null) {
 				if(titleArr[0] != null)
 					g.drawString(titleArr[0], xx, yy, 0);
@@ -96,11 +98,12 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			}
 			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 			g.setFont(bottomFont);
+			if(w > 320 || App.width <= 240) yy += 4;
 			if(author != null) {
-				g.drawString(author, xx, yy += tfh + 4, 0);
+				g.drawString(author, xx, yy += tfh, 0);
 			}
 			if(bottomFont != null && bottomText != null) {
-				g.drawString(bottomText, xx, yy += bottomFont.getHeight() + 2, 0);
+				g.drawString(bottomText, xx, yy += bottomFont.getHeight(), 0);
 			}
 		} else {
 			if(Settings.videoPreviews) {
@@ -137,13 +140,13 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				g.drawString(bottomText, x + 4, t += bottomFont.getHeight() + 2, 0);
 			}
 		}
+		if(inFocus && ui.isKeyInputMode()) {
+			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
+			g.drawRect(x, y, w-1, h-2);
+			g.drawRect(x+1, y+1, w-3, h-4);
+		}
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y+h-1, w, y+h-1);
-		if(isInFocus() && ui.isKeyInputMode()) {
-			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
-			g.drawRect(x, y, w-1, h-1);
-			g.drawRect(x+1, y+1, w-3, h-3);
-		}
 	}
 
 	private void makeTitleArr(int sw) {
@@ -186,10 +189,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 	
 	private int getTextMaxWidth(int w) {
-		if(textWidth > 0) return textWidth;
 		if(Settings.smallPreviews) {
 			return w - getImgWidth(w) - 24;
 		}
+		if(textWidth > 0) return textWidth;
 		int i;
 		if(lengthStr != null) {
 			i = smallfont.stringWidth(lengthStr) + 10;
@@ -214,7 +217,9 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	protected void layout(int w) {
 		if(Settings.smallPreviews) {
-			titleFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
+			if(ui.getWidth() >= 360)
+				titleFont = DirectFontUtil.getFont(0, Font.STYLE_BOLD, 25, Font.SIZE_SMALL);
+			else titleFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
 		} else {
 			titleFont = mediumfont;
 			if(ui.getWidth() >= 360)
@@ -223,12 +228,21 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		bottomFont = smallfont;
 		if(ui.getWidth() >= 360)
 			bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
-		if(w != lastW) {
+		if(w != lastW || Settings.smallPreviews != isSmall) {
 			makeTitleArr(w);
 			imgHeight = 0;
 			video.setImageWidth(getImgWidth(w));
-			if(img != null)
-				img = video.customResize(img);
+			if(img != null) {
+				if(Settings.rmsPreviews) {
+					try {
+						Image i = Records.saveOrGetImage(video.getVideoId(), null);
+						if(i != null) img = video.customResize(i);
+					} catch (Exception e) {
+					}
+				} else {
+					img = video.customResize(img);
+				}
+			}
 		}
 		if(ui.getWidth() >= 320 && bottomText == null && (views > 0 || published != null)) {
 			String s = Locale.views(views);
@@ -244,6 +258,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		} else {
 			h = (Settings.videoPreviews ? getImgHeight(w) : 0) + getTextHeight();
 		}
+		isSmall = Settings.smallPreviews;
 	}
 
 	protected void action() {

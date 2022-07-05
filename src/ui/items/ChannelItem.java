@@ -69,7 +69,7 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 			g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 			g.drawLine(x, y+h-1, w, y+h-1);
 		}
-		if(isInFocus() && ui.isKeyInputMode()) {
+		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1);
 			g.drawRect(x+1, y+1, w-3, h-3);

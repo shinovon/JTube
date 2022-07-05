@@ -102,7 +102,6 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 		try {
 			json = ((JSONObject) App.invApi("v1/playlists/" + playlist.getPlaylistId() + "?",
 					PLAYLIST_EXTENDED_FIELDS +
-					(Settings.videoPreviews ? ",videoThumbnails" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					)).getArray("videos");
 			init();

@@ -331,6 +331,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			applySettings();
 			AppUI.inst.display(null);
+			if(AppUI.inst.getCurrentScreen() != null) {
+				AppUI.inst.getCurrentScreen().relayout();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

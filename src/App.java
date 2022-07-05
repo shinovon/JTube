@@ -602,6 +602,22 @@ public class App implements Constants {
 		waitAsyncTasks();
 	}
 	
+	public static String getThumbUrl(String id, int tw) {
+		String s;
+		if(tw < 240) {
+			s = "default";
+		} else if(tw < 480) {
+			s = "mqdefault";
+		} else if(tw < 640) {
+			s = "hqdefault";
+		} else if(tw < 720) {
+			s = "sddefault";
+		} else {
+			s = "maxresdefault";
+		}
+		return "/vi/" + id + "/" + s + ".jpg";
+	}
+
 	public static String getThumbUrl(JSONArray arr, int tw) {
 		JSONObject s = null;
 		int ld = 16384;

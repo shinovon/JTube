@@ -40,7 +40,6 @@ import ui.items.VideoItem;
 import ui.items.VideoPreviewItem;
 import ui.screens.PlaylistScreen;
 import ui.screens.VideoScreen;
-import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 
@@ -103,10 +102,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		this.extended = extended;
 		videoId = j.getString("videoId");
 		title = j.getNullableString("title");
-		JSONArray videoThumbnails = null;
-		if(Settings.videoPreviews) {
-			videoThumbnails = j.getNullableArray("videoThumbnails");
-		}
 		author = j.getNullableString("author");
 		authorId = j.getNullableString("authorId");
 		lengthSeconds = j.getInt("lengthSeconds", 0);
@@ -118,20 +113,22 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
 			if(Settings.videoPreviews) {
-				authorThumbnailUrl = App.getThumbUrl(j.getNullableArray("authorThumbnails"), AUTHORITEM_IMAGE_HEIGHT);
+				authorThumbnailUrl = App.getThumbUrl(videoId, AUTHORITEM_IMAGE_HEIGHT);
 			}
 		}
-		if(videoThumbnails != null) {
+		if(Settings.videoPreviews) {
 			imageWidth = AppUI.inst.getItemWidth();
-			thumbnailUrl = App.getThumbUrl(videoThumbnails, imageWidth);
-			videoThumbnails = null;	
+			if(!extended && Settings.smallPreviews) {
+				imageWidth /= 3;
+			}
+			thumbnailUrl = App.getThumbUrl(videoId, imageWidth);
 		}
 		j = null;
 	}
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
 			try {
 				JSONObject j = (JSONObject) App.invApi("v1/channels/" + authorId + "?", "subCount");
 				if(j.has("subCount"))
@@ -147,7 +144,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		float ih = img.getHeight();
 		Util.gc();
 		float f = iw / ih;
-		if(f == 4F / 3F) {
+		if(f == 4F / 3F && !Settings.smallPreviews) {
 			// cropping to 16:9
 			float ch = iw * (9F / 16F);
 			int chh = (int) ((ih - ch) / 2F);
@@ -166,10 +163,15 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(item == null && prevItem == null && !extended) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
-			if(Settings.rmsPreviews && item != null) {
+			if(prevItem != null) {
+				Image img = Image.createImage(b, 0, b.length);
+				b = null;
+				Util.gc();
+				prevItem.setImage(customResize(img));
+			} else if(Settings.rmsPreviews) {
 				if(Settings.isLowEndDevice()) {
 					Records.save(videoId, b);
-					if(index <= 1 && index != -1) {
+					if(item != null && index <= 1 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
 						b = null;
 						Util.gc();
@@ -179,7 +181,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				} else {
 					tempImgBytes = b;
 					App.inst.schedule(this);
-					if(index <= 2 && index != -1) {
+					if(item != null && index <= 2 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
 						Util.gc();
 						item.setImage(customResize(img));
@@ -190,8 +192,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				b = null;
 				Util.gc();
 				if(item != null) {
-					item.setImage(customResize(img));
-				} else if(prevItem != null) {
 					item.setImage(customResize(img));
 				}
 			}
@@ -346,10 +346,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 
 	public UIItem makePreviewItem() {
 		Image img = null;
-		if(item != null) {
+		loadDone = false;
+		imgLoaded = false;
+		/*if(item != null) {
 			img = item.getImage();
-		}
-		if(img == null && Settings.rmsPreviews) {
+		}*/
+		if(Settings.rmsPreviews && Settings.videoPreviews) {
 			try {
 				img = Records.saveOrGetImage(videoId, thumbnailUrl);
 			} catch (IOException e) {

@@ -18,6 +18,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 	private Command okCmd = new Command("OK", Command.OK, 5);
 	
 	private boolean okAdded;
+	private boolean wasHidden;
 
 	public MainScreen() {
 		super("", null);
@@ -25,13 +26,14 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 	
 	protected void show() {
 		clearCommands();
-		addCommand(optsCmd);
+		ui.addOptionCommands();
 		addCommand(exitCmd);
 		if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}
-		if(Settings.videoPreviews) {
+		if(Settings.videoPreviews && wasHidden) {
+			wasHidden = false;
 			// resume loading previews
 			App.inst.stopAsyncTasks();
 			for(int i = 0; i < items.size(); i++) {
@@ -41,6 +43,18 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 				}
 			}
 			App.inst.startAsyncTasks();
+		}
+	}
+	
+	protected void hide() {
+		wasHidden = true;
+		if(Settings.rmsPreviews) {
+			for(int i = 0; i < items.size(); i++) {
+				Object o = items.elementAt(i);
+				if(o instanceof VideoItem) {
+					((VideoItem)o).onHide();
+				}
+			}
 		}
 	}
 	
