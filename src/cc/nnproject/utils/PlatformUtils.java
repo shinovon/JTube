@@ -231,5 +231,8 @@ public class PlatformUtils {
 		return platform != null && platform.startsWith("Nokia");
 	}
 
+	public static boolean isSonyEricsson() {
+		return platform != null && platform.startsWith("SonyEricsson");
+	}
 
 }

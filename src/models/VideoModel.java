@@ -144,7 +144,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		float ih = img.getHeight();
 		Util.gc();
 		float f = iw / ih;
-		if(f == 4F / 3F) {
+		int sw = AppUI.inst.getWidth();
+		if(f == 4F / 3F && (extended || (sw > 480 && sw > AppUI.inst.getHeight()))) {
 			// cropping to 16:9
 			float ch = iw * (9F / 16F);
 			int chh = (int) ((ih - ch) / 2F);

@@ -29,7 +29,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 		clearCommands();
 		ui.addOptionCommands();
 		addCommand(exitCmd);
-		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
 			okAdded = true;
 		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;

@@ -73,8 +73,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			int xx = x + 4;
 			int yy = y + 4;
 			if(Settings.videoPreviews) {
-				g.setColor(0);
 				int iw = getImgWidth(w);
+				g.setColor(0);
 				g.fillRect(xx, yy, iw, ih);
 				if(img != null) {
 					g.drawImage(img, xx + (iw - img.getWidth()) / 2, yy + (ih - img.getHeight()) / 2, 0);
@@ -151,8 +151,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			g.drawRect(x, y, w-1, h-2);
 			g.drawRect(x+1, y+1, w-3, h-4);
 		}
-		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-		g.drawLine(x, y+h-1, w, y+h-1);
 	}
 
 	private void makeTitleArr(int sw) {
@@ -163,9 +161,9 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			titleArr[0] = arr[0];
 			if(arr.length > 1) {
 				if(titleArr.length == 1) {
-					titleArr[0] = arr[0].trim().concat("..");
+					titleArr[0] = arr[0].trim();
 				} else if(arr.length > 1) {
-					titleArr[1] = arr[1].trim().concat("..");
+					titleArr[1] = arr[1].trim();
 				} else {
 					titleArr[1] = arr[1];
 				}
@@ -242,16 +240,18 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		if(w != lastW || Settings.smallPreviews != isSmall) {
 			makeTitleArr(w);
 			imgHeight = 0;
-			video.setImageWidth(getImgWidth(w));
-			if(img != null) {
-				if(Settings.rmsPreviews) {
-					try {
-						Image i = Records.saveOrGetImage(video.getVideoId(), null);
-						if(i != null) img = video.customResize(i);
-					} catch (Exception e) {
+			if(Settings.videoPreviews) {
+				video.setImageWidth(getImgWidth(w));
+				if(img != null) {
+					if(Settings.rmsPreviews) {
+						try {
+							Image i = Records.saveOrGetImage(video.getVideoId(), null);
+							if(i != null) img = video.customResize(i);
+						} catch (Exception e) {
+						}
+					} else {
+						img = video.customResize(img);
 					}
-				} else {
-					img = video.customResize(img);
 				}
 			}
 		}
@@ -282,21 +282,21 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	
 	public void onShow() {
 		super.onShow();
-		if(Settings.rmsPreviews) {
+		if(Settings.videoPreviews && Settings.rmsPreviews) {
 			App.inst.schedule(this);
 		}
 	}
 	
 	public void onHide() {
 		super.onHide();
-		if(Settings.rmsPreviews) {
+		if(Settings.videoPreviews && Settings.rmsPreviews) {
 			img = null;
 			App.inst.cancel(this);
 		}
 	}
 
 	public void run() {
-		if(img == null && Settings.rmsPreviews) {
+		if(img == null && Settings.videoPreviews && Settings.rmsPreviews) {
 			try {
 				Image i = Records.saveOrGetImage(video.getVideoId(), null);
 				if(i != null)

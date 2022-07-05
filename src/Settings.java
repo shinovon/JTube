@@ -57,7 +57,7 @@ public class Settings implements Constants {
 	public static boolean renderDebug;
 	public static boolean amoled;
 	public static boolean fastScrolling;
-	public static boolean smallPreviews = false;
+	public static boolean smallPreviews = true;
 
 	public static Vector rootsVector;
 	

@@ -41,7 +41,7 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 		}
 		g.setFont(smallfont);
 		if(length != null) {
-			int xx = iw+x-(smallfont.stringWidth(length))-4;
+			int xx = iw+(w-iw)/2+x-(smallfont.stringWidth(length))-4;
 			int yy = y+h-smallfontheight-2;
 			g.setColor(0);
 			g.drawString(length, xx+2, yy, 0);
@@ -58,9 +58,13 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	}
 
 	protected void layout(int w) {
-		h = (int) (ui.getHeight() * 0.9f);
+		int sh = ui.getHeight();
+		if(w > sh) {
+			h = (int) (sh * 0.9f);
+			w = (int) (h * 16F / 9F);
+		}
 		if(w != lastW) {
-			video.setImageWidth((int)(h * 16F / 9F));
+			video.setImageWidth(w);
 			if(img != null) img = video.customResize(img);
 		}
 		if(img != null) {

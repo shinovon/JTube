@@ -42,7 +42,7 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 		clearCommands();
 		ui.addOptionCommands();
 		addCommand(backCmd);
-		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
 			okAdded = true;
 		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;

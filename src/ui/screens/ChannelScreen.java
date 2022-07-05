@@ -18,7 +18,6 @@ import ui.Commands;
 import ui.UIScreen;
 import ui.ModelScreen;
 import ui.UIItem;
-import ui.items.LabelItem;
 import models.ChannelModel;
 import models.PlaylistModel;
 import models.VideoModel;
@@ -30,13 +29,16 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 
-public class ChannelScreen extends ModelScreen implements Commands, CommandListener, Constants {
+public class ChannelScreen extends ModelScreen implements Commands, CommandListener, Constants, Runnable {
 
 	private ChannelModel channel;
 	
 	private UIScreen containerScreen;
 
 	private boolean shown;
+
+	private Object loadingLock = new Object();
+	private boolean loaded;
 	
 	protected AbstractListScreen searchScr;
 	protected AbstractListScreen playlistsScr;
@@ -54,7 +56,6 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	public ChannelScreen(ChannelModel c) {
 		super(c.getAuthor());
 		this.channel = c;
-		add(new LabelItem(Locale.s(TITLE_Loading)));
 	}
 	
 	public void paint(Graphics g, int w, int h) {
@@ -132,16 +133,22 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			App.inst.addAsyncLoad(this);
 			App.inst.startAsyncTasks();
 		}
-		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
 			okAdded = true;
 		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}
+		new Thread(this).run();
 	}
 	
 	private void init() {
+		loaded = true;
+		synchronized(loadingLock) {
+			loadingLock.notify();
+		}
 		scroll = 0;
+		AppUI.loadingState = false;
 		if(channel == null) return;
 		add(channel.makeListItem());
 		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun ));
@@ -199,16 +206,35 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 
 	public void load() {
+		AppUI.loadingState = true;
 		try {
 			if(!channel.isExtended()) {
 				channel.extend();
-				clear();
 				init();
 			}
 			if(Settings.videoPreviews) channel.load();
 			latestVideos();
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_load, e);
+		}
+		AppUI.loadingState = false;
+	}
+
+	public void run() {
+		try {
+			synchronized(loadingLock) {
+				loadingLock.wait(2000);
+			}
+			if(!loaded) {
+				App.inst.stopAsyncTasks();
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+				}
+				App.inst.addAsyncLoad(this);
+				App.inst.startAsyncTasks();
+			}
+		} catch (Exception e) {
 		}
 	}
 

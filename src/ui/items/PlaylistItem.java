@@ -49,8 +49,6 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 		if(author != null) {
 			g.drawString(author, x+2, y + smallfontheight + 2, 0);
 		}
-		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-		g.drawLine(x, y+h-1, w, y+h-1);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, yy, w-1, h-1);

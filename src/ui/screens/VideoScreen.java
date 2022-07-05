@@ -97,11 +97,11 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	protected void show() {
 		clearCommands();
 		addCommand(backCmd);
+		addCommand(watchCmd);
 		addCommand(settingsCmd);
 		addCommand(showLinkCmd);
 		addCommand(downloadCmd);
 		addCommand(vOpenChannelCmd);
-		addCommand(watchCmd);
 		if(!shown) {
 			shown = true;
 			try {
@@ -219,7 +219,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(5000);
+				loadingLock.wait(2000);
 			}
 			if(!loaded) {
 				App.inst.stopAsyncTasks();
