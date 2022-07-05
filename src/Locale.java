@@ -612,12 +612,23 @@ public class Locale implements LocaleConstants {
 						s = "часа назад";
 					}
 					s = i + " " + s;
-				} else {
+				} else if(s.indexOf("minutes ago") != -1) {
+					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+					if(i % 10 == 1) {
+						s = "минуту назад";
+					} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						s = "минут назад";
+					} else {
+						s = "минуты назад";
+					}
+					s = i + " " + s;
+				} {
 					s = Util.replace(s, "year ago", "год назад");
 					s = Util.replace(s, "month ago", "месяц назад");
 					s = Util.replace(s, "week ago", "неделю назад");
 					s = Util.replace(s, "day ago", "день назад");
 					s = Util.replace(s, "hour ago", "час назад");
+					s = Util.replace(s, "minute ago", "минуту назад");
 				}
 			} catch (Exception e) {
 			}
