@@ -190,6 +190,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			return;
 		}
 		if(c == backCmd) {
+			AppUI.loadingState = false;
 			if(containerScreen != null) {
 				ui.setScreen(containerScreen);
 			} else {
@@ -219,7 +220,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(2000);
+				loadingLock.wait(3500);
 			}
 			if(!loaded) {
 				App.inst.stopAsyncTasks();

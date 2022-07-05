@@ -592,7 +592,7 @@ public class Locale implements LocaleConstants {
 						s = "недели назад";
 					}
 					s = i + " " + s;
-				}else if(s.indexOf("days ago") != -1) {
+				} else if(s.indexOf("days ago") != -1) {
 					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
 					if(i % 10 == 1) {
 						s = "день назад";

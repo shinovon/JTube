@@ -68,6 +68,7 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 			return;
 		}
 		if(c == backCmd) {
+			AppUI.loadingState = false;
 			ui.showMain();
 			ui.disposeSearchPage();
 			return;

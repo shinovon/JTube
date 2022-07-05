@@ -223,7 +223,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(2000);
+				loadingLock.wait(3500);
 			}
 			if(!loaded) {
 				App.inst.stopAsyncTasks();
@@ -263,6 +263,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		}
 		*/
 		if(c == backCmd) {
+			AppUI.loadingState = false;
 			App.inst.stopAsyncTasks();
 			if(containerScreen != null) {
 				ui.setScreen(containerScreen);
