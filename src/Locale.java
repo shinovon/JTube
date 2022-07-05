@@ -621,9 +621,6 @@ public class Locale implements LocaleConstants {
 					s = Util.replace(s, "day ago", "день назад");
 					s = Util.replace(s, "hour ago", "час назад");
 				}
-				if(Settings.smallPreviews) {
-					s = Util.replace(s, " назад", "");
-				}
 			} catch (Exception e) {
 			}
 		}

@@ -102,7 +102,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			if(author != null) {
 				g.drawString(author, xx, yy += tfh, 0);
 			}
-			if(bottomFont != null && bottomText != null) {
+			if(bottomFont != null && bottomText != null && (ui.getWidth() == 320 || ui.getWidth() >= 480)) {
 				g.drawString(bottomText, xx, yy += bottomFont.getHeight(), 0);
 			}
 		} else {
