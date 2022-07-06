@@ -23,7 +23,6 @@ import models.PlaylistModel;
 import models.VideoModel;
 import ui.items.ButtonItem;
 import models.AbstractModel;
-import ui.AbstractListScreen;
 import ui.AppUI;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
@@ -39,19 +38,23 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 
 	private Object loadingLock = new Object();
 	private boolean loaded;
-	
-	protected AbstractListScreen searchScr;
-	protected AbstractListScreen playlistsScr;
 
 	private Runnable playlistsRun = new Runnable() {
 		public void run() {
 			playlists();
 		}
 	};
+	private Runnable latestRun = new Runnable() {
+		public void run() {
+			latestVideos();
+		}
+	};
 
 	private boolean okAdded;
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
+
+	private UIItem channelItem;
 
 	public ChannelScreen(ChannelModel c) {
 		super(c.getAuthor());
@@ -72,6 +75,9 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 	
 	protected void latestVideos() {
+		clear();
+		add(channelItem);
+		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun ));
 		try {
 			Thread.sleep(100);
 			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
@@ -102,16 +108,17 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 
 	protected void playlists() {
-		playlistsScr = new ChannelPlaylistsScreen(this);
+		clear();
+		add(channelItem);
+		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
 		App.inst.stopAsyncTasks();
-		ui.setScreen(playlistsScr);
 		try {
 			JSONArray j = ((JSONObject) App.invApi("v1/channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = playlist(j.getObject(i));
 				if(item == null) continue;
-				playlistsScr.add(item);
+				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
 		} catch (Exception e) {
@@ -150,23 +157,19 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		scroll = 0;
 		AppUI.loadingState = false;
 		if(channel == null) return;
-		add(channel.makeListItem());
-		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun ));
+		add(channelItem = channel.makeListItem());
+		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 	}
 
 	protected UIItem playlist(JSONObject j) {
-		PlaylistModel p = new PlaylistModel(j, playlistsScr, channel);
+		PlaylistModel p = new PlaylistModel(j, this, channel);
 		return p.makeListItem();
 	}
 
 	private void search(String q) {
-		searchScr = new AbstractListScreen(channel.getAuthor() + " - " + Locale.s(TITLE_SearchQuery), ChannelScreen.this) {
-			protected void show() {
-				clearCommands();
-				addCommand(backCmd);
-			}
-		};
-		ui.setScreen(searchScr);
+		clear();
+		add(channelItem);
+		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
 		App.inst.stopAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
@@ -176,7 +179,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), true);
 				if(item == null) continue;
-				searchScr.add(item);
+				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
 			App.inst.startAsyncTasks();
@@ -195,8 +198,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
-		VideoModel v = new VideoModel(j, search ? searchScr : this);
-		if(search) v.setFromSearch();
+		VideoModel v = new VideoModel(j, this);
 		if(Settings.videoPreviews) App.inst.addAsyncLoad(v);
 		return v.makeListItem();
 	}

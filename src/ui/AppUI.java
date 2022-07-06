@@ -676,6 +676,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		app.stopAsyncTasks();
 		ModelScreen scr = model.makeScreen();
+		scr.setContainerScreen(formContainer);
 		display(null);
 		setScreen(scr);
 		if(scr instanceof VideoScreen) {
