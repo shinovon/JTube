@@ -246,6 +246,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		App.width = width = w;
 		App.height = height = h;
 		g = getGraphics();
+		g.setColor(AppUI.getColor(COLOR_MAINBG));
+		g.fillRect(0, 0, width, height);
 		needRepaint();
 	}
 

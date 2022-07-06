@@ -112,16 +112,17 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			description = j.getNullableString("description");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
-			if(Settings.videoPreviews) {
-				authorThumbnailUrl = App.getThumbUrl(videoId, AUTHORITEM_IMAGE_HEIGHT);
+			if(Settings.videoPreviews && j.has("authorThumbnails")) {
+				authorThumbnailUrl = App.getThumbUrl(j.getArray("authorThumbnails"), AUTHORITEM_IMAGE_HEIGHT);
 			}
 		}
 		if(Settings.videoPreviews) {
-			imageWidth = AppUI.inst.getItemWidth();
+			int w = AppUI.inst.getItemWidth();
 			if(!extended && Settings.smallPreviews) {
-				imageWidth /= 3;
+				w /= 3;
 			}
-			thumbnailUrl = App.getThumbUrl(videoId, imageWidth);
+			if(imageWidth == 0) imageWidth = w;
+			thumbnailUrl = App.getThumbUrl(videoId, w);
 		}
 		j = null;
 	}
@@ -145,7 +146,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		Util.gc();
 		float f = iw / ih;
 		int sw = AppUI.inst.getWidth();
-		if(f == 4F / 3F && (extended || (sw > 480 && sw > AppUI.inst.getHeight()))) {
+		if(f == 4F / 3F && (sw > 480 && sw > AppUI.inst.getHeight())) {
 			// cropping to 16:9
 			float ch = iw * (9F / 16F);
 			int chh = (int) ((ih - ch) / 2F);
@@ -156,6 +157,24 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		float nw = (float) imageWidth;
 		int nh = (int) (nw * (ih / iw));
 		img = ImageUtils.resize(img, imageWidth, nh);
+		return img;
+	}
+	
+	public Image previewResize(int w, Image img) {
+		float iw = img.getWidth();
+		float ih = img.getHeight();
+		Util.gc();
+		float f = iw / ih;
+		if(f == 4F / 3F) {
+			// cropping to 16:9
+			float ch = iw * (9F / 16F);
+			int chh = (int) ((ih - ch) / 2F);
+			img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			iw = img.getWidth();
+			ih = img.getHeight();
+		}
+		int nh = (int) (w * (ih / iw));
+		img = ImageUtils.resize(img, w, nh);
 		return img;
 	}
 
@@ -170,7 +189,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				Image img = Image.createImage(b, 0, b.length);
 				b = null;
 				Util.gc();
-				prevItem.setImage(customResize(img));
+				prevItem.setImage(img);
 			} else if(Settings.rmsPreviews) {
 				if(Settings.isLowEndDevice()) {
 					Records.save(videoId, b);

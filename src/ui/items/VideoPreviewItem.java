@@ -64,8 +64,7 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 			w = (int) (h * 16F / 9F);
 		}
 		if(w != lastW) {
-			video.setImageWidth(w);
-			if(img != null) img = video.customResize(img);
+			if(img != null) img = video.previewResize(w, img);
 		}
 		if(img != null) {
 			h = img.getHeight();
@@ -74,7 +73,7 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 
 	public void setImage(Image img) {
 		this.img = img;
-		repaint();
+		relayout();
 	}
 
 }
