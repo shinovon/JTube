@@ -28,10 +28,12 @@ public class Records {
 	
 	public static void save(String id, byte[] b) {
 		try {
+			RecordStore.deleteRecordStore("jС"+id);
+		} catch (Exception e) {
+		}
+		try {
 			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			if(rs.getNumRecords() <= 0) {
-				rs.addRecord(b, 0, b.length);
-			}
+			rs.addRecord(b, 0, b.length);
 			rs.closeRecordStore();
 		} catch (Exception e) {
 		}
@@ -39,12 +41,14 @@ public class Records {
 	
 	public static void save(String id, String url) {
 		try {
+			RecordStore.deleteRecordStore("jС"+id);
+		} catch (Exception e) {
+		}
+		try {
 			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			if(rs.getNumRecords() <= 0) {
-				byte[] b = App.hproxy(url);
-				rs.addRecord(b, 0, b.length);
-				b = null;
-			}
+			byte[] b = App.hproxy(url);
+			rs.addRecord(b, 0, b.length);
+			b = null;
 			rs.closeRecordStore();
 		} catch (Exception e) {
 		}
