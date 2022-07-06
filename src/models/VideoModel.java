@@ -40,7 +40,6 @@ import ui.items.VideoItem;
 import ui.items.VideoPreviewItem;
 import ui.screens.PlaylistScreen;
 import ui.screens.VideoScreen;
-import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import tube42.lib.imagelib.ImageUtils;
 
@@ -77,6 +76,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private boolean imgLoaded;
 	
 	private byte[] tempImgBytes;
+	
+	private boolean loadDone;
 
 	// create model without parsing
 	public VideoModel(String id) {
@@ -101,10 +102,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		this.extended = extended;
 		videoId = j.getString("videoId");
 		title = j.getNullableString("title");
-		JSONArray videoThumbnails = null;
-		if(Settings.videoPreviews) {
-			videoThumbnails = j.getNullableArray("videoThumbnails");
-		}
 		author = j.getNullableString("author");
 		authorId = j.getNullableString("authorId");
 		lengthSeconds = j.getInt("lengthSeconds", 0);
@@ -115,21 +112,30 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			description = j.getNullableString("description");
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
-			if(Settings.videoPreviews) {
-				authorThumbnailUrl = App.getThumbUrl(j.getNullableArray("authorThumbnails"), AUTHORITEM_IMAGE_HEIGHT);
+			if(Settings.videoPreviews && j.has("authorThumbnails")) {
+				authorThumbnailUrl = App.getThumbUrl(j.getArray("authorThumbnails"), AUTHORITEM_IMAGE_HEIGHT);
 			}
 		}
-		if(videoThumbnails != null) {
-			imageWidth = AppUI.inst.getItemWidth();
-			thumbnailUrl = App.getThumbUrl(videoThumbnails, imageWidth);
-			videoThumbnails = null;	
+		if(Settings.videoPreviews) {
+			int w = AppUI.inst.getItemWidth();
+			if(!extended && Settings.smallPreviews) {
+				w /= 3;
+			}
+			if(imageWidth == 0) imageWidth = w;
+			thumbnailUrl = App.getThumbUrl(videoId, w);
 		}
 		j = null;
 	}
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",videoThumbnails,authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
+			try {
+				JSONObject j = (JSONObject) App.invApi("v1/channels/" + authorId + "?", "subCount");
+				if(j.has("subCount"))
+					subCount = j.getInt("subCount", 0);
+			} catch (Exception e) {
+			}
 		}
 		return this;
 	}
@@ -139,15 +145,36 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		float ih = img.getHeight();
 		Util.gc();
 		float f = iw / ih;
-		if(f == 4F / 3F) {
+		int sw = AppUI.inst.getWidth();
+		if(f == 4F / 3F && (sw > 480 && sw > AppUI.inst.getHeight())) {
 			// cropping to 16:9
 			float ch = iw * (9F / 16F);
 			int chh = (int) ((ih - ch) / 2F);
-			return ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			iw = img.getWidth();
+			ih = img.getHeight();
 		}
 		float nw = (float) imageWidth;
 		int nh = (int) (nw * (ih / iw));
 		img = ImageUtils.resize(img, imageWidth, nh);
+		return img;
+	}
+	
+	public Image previewResize(int w, Image img) {
+		float iw = img.getWidth();
+		float ih = img.getHeight();
+		Util.gc();
+		float f = iw / ih;
+		if(f == 4F / 3F) {
+			// cropping to 16:9
+			float ch = iw * (9F / 16F);
+			int chh = (int) ((ih - ch) / 2F);
+			img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
+			iw = img.getWidth();
+			ih = img.getHeight();
+		}
+		int nh = (int) (w * (ih / iw));
+		img = ImageUtils.resize(img, w, nh);
 		return img;
 	}
 
@@ -158,10 +185,15 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(item == null && prevItem == null && !extended) return;
 		try {
 			byte[] b = App.hproxy(thumbnailUrl);
-			if(Settings.rmsPreviews && item != null) {
+			if(prevItem != null && extended) {
+				Image img = Image.createImage(b, 0, b.length);
+				b = null;
+				Util.gc();
+				prevItem.setImage(img);
+			} else if(Settings.rmsPreviews) {
 				if(Settings.isLowEndDevice()) {
 					Records.save(videoId, b);
-					if(index <= 1 && index != -1) {
+					if(item != null && index <= 1 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
 						b = null;
 						Util.gc();
@@ -171,7 +203,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				} else {
 					tempImgBytes = b;
 					App.inst.schedule(this);
-					if(index <= 2 && index != -1) {
+					if(item != null && index <= 2 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
 						Util.gc();
 						item.setImage(customResize(img));
@@ -183,8 +215,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				Util.gc();
 				if(item != null) {
 					item.setImage(customResize(img));
-				} else if(prevItem != null) {
-					item.setImage(customResize(img));
 				}
 			}
 			thumbnailUrl = null;
@@ -194,10 +224,9 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			Util.gc();
-			App.inst.stopDoingAsyncTasks();
+			App.inst.stopAsyncTasks();
 			App.warn(this, "Not enough memory to load video previews!");
 		}
 	}
@@ -207,18 +236,15 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		try {
 			_loadAuthorImg();
 		} catch (IllegalArgumentException e) {
-			if(e.getMessage().indexOf("format") != -1) {
+			if(e.toString().indexOf("format") != -1) {
 				try {
 					_loadAuthorImg();
 				} catch (Exception e1) {
 				} catch (Error e1) {
 				}
 			}
-			e.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -264,6 +290,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	public void load() {
+		if(loadDone) return;
 		try {
 			loadImage();
 			if(extended) {
@@ -272,8 +299,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		loadDone = true;
 	}
 
 	public void setFromSearch() {
@@ -336,10 +363,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 
 	public UIItem makePreviewItem() {
 		Image img = null;
-		if(item != null) {
+		loadDone = false;
+		imgLoaded = false;
+		/*if(item != null) {
 			img = item.getImage();
-		}
-		if(img == null && Settings.rmsPreviews) {
+		}*/
+		if(Settings.rmsPreviews && Settings.videoPreviews) {
 			try {
 				img = Records.saveOrGetImage(videoId, thumbnailUrl);
 			} catch (IOException e) {

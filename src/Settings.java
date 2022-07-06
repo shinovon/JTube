@@ -56,6 +56,8 @@ public class Settings implements Constants {
 	public static boolean iteroniPlaybackProxy = true;
 	public static boolean renderDebug;
 	public static boolean amoled;
+	public static boolean fastScrolling;
+	public static boolean smallPreviews = true;
 
 	public static Vector rootsVector;
 	
@@ -155,6 +157,7 @@ public class Settings implements Constants {
 					asyncLoading = false;
 					videoPreviews = false;
 					serverstream = stream;
+					fastScrolling = true;
 				} else {
 					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
 						httpStream = true;
@@ -257,9 +260,10 @@ public class Settings implements Constants {
 					renderDebug = j.getBoolean("renderDebug");
 				if(j.has("amoled"))
 					amoled = j.getBoolean("amoled");
+				if(j.has("smallPreviews"))
+					smallPreviews = j.getBoolean("smallPreviews");
 				return;
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 	}
@@ -295,21 +299,20 @@ public class Settings implements Constants {
 			j.put("iteroniPlaybackProxy", new Boolean(iteroniPlaybackProxy));
 			j.put("renderDebug", new Boolean(renderDebug));
 			j.put("amoled", new Boolean(amoled));
+			j.put("smallPreviews", new Boolean(smallPreviews));
 			byte[] b = j.build().getBytes("UTF-8");
-			
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
 	public static boolean isLowEndDevice() {
 		return PlatformUtils.isNotS60() &&
 				!PlatformUtils.isS603rd() && 
-				(PlatformUtils.isS40() || 
-						App.width < 240 || 
-						PlatformUtils.startMemory < 2048 * 1024 ||
+				(PlatformUtils.isS30() || 
+						App.width < 176 || 
+						PlatformUtils.startMemory < 1024 * 1024 ||
 						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
 	}
 

@@ -80,8 +80,12 @@ public class LoaderThread extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			App.error(this, Errors.LoaderThread_run, e);
 			e.printStackTrace();
+			try {
+				App.error(this, Errors.LoaderThread_run, e);
+			} catch (Error e2) {
+				e.printStackTrace();
+			}
 		}
 	}
 

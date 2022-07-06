@@ -63,11 +63,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_VideoPreviews), 
 			Locale.s(SET_SearchChannels), 
 			Locale.s(SET_SearchPlaylists),
-			Locale.s(SET_Amoled)
+			Locale.s(SET_Amoled),
+			Locale.s(SET_SmallPreviews)
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug memory",
-			"Debug render"
+			"Debug render",
+			"Async loading",
+			"Fast scrolling"
 			};
 	static final String[] PLAYBACK_METHODS = new String[] { 
 			Locale.s(SET_Browser),
@@ -131,6 +134,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		dirBtn.setItemCommandListener(this);
 		append(dirBtn);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
+		invidiousText.setLayout(Item.LAYOUT_2 | Item.LAYOUT_LEFT);
 		append(invidiousText);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 				Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
@@ -152,13 +156,20 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		uiChoice.setSelectedIndex(1, Settings.searchChannels);
 		uiChoice.setSelectedIndex(2, Settings.searchPlaylists);
 		uiChoice.setSelectedIndex(3, Settings.amoled);
+		uiChoice.setSelectedIndex(4, Settings.smallPreviews);
 		checksChoice.setSelectedIndex(0, Settings.rememberSearch);
 		checksChoice.setSelectedIndex(1, Settings.httpStream);
 		checksChoice.setSelectedIndex(2, Settings.rmsPreviews);
 		checksChoice.setSelectedIndex(3, Settings.iteroniPlaybackProxy);
 		debugChoice.setSelectedIndex(0, Settings.debugMemory);
 		debugChoice.setSelectedIndex(1, Settings.renderDebug);
-		playMethodChoice.setSelectedIndex(Settings.watchMethod, true);
+		debugChoice.setSelectedIndex(2, Settings.asyncLoading);
+		debugChoice.setSelectedIndex(3, Settings.fastScrolling);
+		try {
+			playMethodChoice.setSelectedIndex(Settings.watchMethod, true);
+		} catch (IndexOutOfBoundsException e) {
+			playMethodChoice.setSelectedIndex(Settings.watchMethod = 0, true);
+		}
 		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
 		setResolution();
 	}
@@ -209,6 +220,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.searchChannels = ui[1];
 			Settings.searchPlaylists = ui[2];
 			Settings.amoled = ui[3];
+			Settings.smallPreviews = ui[4];
 			Settings.rememberSearch = s[0];
 			Settings.httpStream = s[1];
 			Settings.rmsPreviews = s[2];
@@ -222,9 +234,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
 			Settings.checkUpdates = checkUpdatesChoice.isSelected(0);
 			Settings.renderDebug = debugChoice.isSelected(1);
+			Settings.asyncLoading = debugChoice.isSelected(2);
+			Settings.fastScrolling = debugChoice.isSelected(3);
 			Settings.saveConfig();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.Settings_apply, e);
 		}
 	}
@@ -249,7 +262,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			fc.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		AppUI.inst.display(dirList);
 	}
@@ -317,8 +329,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			applySettings();
 			AppUI.inst.display(null);
+			if(AppUI.inst.getCurrentScreen() != null) {
+				AppUI.inst.getCurrentScreen().relayout();
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

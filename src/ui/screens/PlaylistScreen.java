@@ -46,7 +46,7 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 			} catch (InterruptedException e) {
 			}
 			App.inst.addAsyncLoad(this);
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		}
 	}
 	
@@ -79,13 +79,11 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Throwable e) {
-				e.printStackTrace();
 				App.error(this, Errors.PlaylistForm_init_previews, e);
 			}
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
 	}
@@ -102,14 +100,12 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 		try {
 			json = ((JSONObject) App.invApi("v1/playlists/" + playlist.getPlaylistId() + "?",
 					PLAYLIST_EXTENDED_FIELDS +
-					(Settings.videoPreviews ? ",videoThumbnails" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					)).getArray("videos");
 			init();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			App.error(this, Errors.PlaylistForm_load, e);
 		}
 	}

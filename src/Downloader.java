@@ -40,6 +40,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	
 	private String id;
 	private String res;
+	private String name;
 	
 	private Alert alert;
 	private Gauge indicator;
@@ -56,8 +57,9 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	static final Command dlOpenCmd = new Command(Locale.s(CMD_Open), Command.OK, 1);
 	static final Command dlCancelCmd = new Command(Locale.s(CMD_Cancel), Command.CANCEL, 1);
 
-	public Downloader(String vid, String res, String downloadDir) {
+	public Downloader(String vid, String res, String downloadDir, String name) {
 		this.id = vid;
+		this.name = name;
 		this.res = res;
 		this.file = "file:///" + downloadDir;
 		if(!(file.endsWith("/") || file.endsWith("\\"))) {
@@ -86,6 +88,11 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			InputStream in = null;
 			try {
 				String f = id;
+				if(name != null) {
+					f = Util.getFileName(name);
+					if(f.length() <= 1)
+						f = id;
+				}
 				if(res != null) {
 					if(res.equals("144p")) {
 						f += ".3gp";

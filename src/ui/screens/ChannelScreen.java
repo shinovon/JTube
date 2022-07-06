@@ -3,6 +3,7 @@ package ui.screens;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -17,30 +18,35 @@ import ui.Commands;
 import ui.UIScreen;
 import ui.ModelScreen;
 import ui.UIItem;
-import ui.items.LabelItem;
 import models.ChannelModel;
 import models.PlaylistModel;
 import models.VideoModel;
 import ui.items.ButtonItem;
 import models.AbstractModel;
-import ui.AbstractListScreen;
+import ui.AppUI;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
+import cc.nnproject.utils.PlatformUtils;
 
-public class ChannelScreen extends ModelScreen implements Commands, CommandListener, Constants {
+public class ChannelScreen extends ModelScreen implements Commands, CommandListener, Constants, Runnable {
 
 	private ChannelModel channel;
 	
 	private UIScreen containerScreen;
 
 	private boolean shown;
-	
-	protected AbstractListScreen searchScr;
-	protected AbstractListScreen playlistsScr;
+
+	private Object loadingLock = new Object();
+	private boolean loaded;
 
 	private Runnable playlistsRun = new Runnable() {
 		public void run() {
 			playlists();
+		}
+	};
+	private Runnable latestRun = new Runnable() {
+		public void run() {
+			latestVideos();
 		}
 	};
 
@@ -48,18 +54,33 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
 
+	private UIItem channelItem;
+
 	public ChannelScreen(ChannelModel c) {
 		super(c.getAuthor());
 		this.channel = c;
-		add(new LabelItem(Locale.s(TITLE_Loading)));
+	}
+	
+	public void paint(Graphics g, int w, int h) {
+		if(AppUI.loadingState) {
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
+			g.fillRect(0, 0, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			String s = Locale.s(TITLE_Loading) + "...";
+			g.setFont(smallfont);
+			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			return;
+		}
+		super.paint(g, w, h);
 	}
 	
 	protected void latestVideos() {
-		//App.inst.stopDoingAsyncTasks();
+		clear();
+		add(channelItem);
+		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun ));
 		try {
 			Thread.sleep(100);
 			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
-					(Settings.videoPreviews ? ",videoThumbnails" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
@@ -69,17 +90,15 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 				add(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_latestVideos, e);
 		}
-		//App.inst.notifyAsyncTasks();
 	}
 
 	protected void search() {
 		disposeSearchForm();
-		App.inst.stopDoingAsyncTasks();
+		App.inst.stopAsyncTasks();
 		TextBox t = new TextBox("", "", 256, TextField.ANY);
 		t.setCommandListener(this);
 		t.setTitle(Locale.s(CMD_Search));
@@ -89,23 +108,23 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 
 	protected void playlists() {
-		playlistsScr = new ChannelPlaylistsScreen(this);
-		App.inst.stopDoingAsyncTasks();
-		ui.setScreen(playlistsScr);
+		clear();
+		add(channelItem);
+		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
+		App.inst.stopAsyncTasks();
 		try {
-			JSONArray j = ((JSONObject) App.invApi("v1/channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount" + (Settings.videoPreviews ? ",videoThumbnails" : ""))).getArray("playlists");
+			JSONArray j = ((JSONObject) App.invApi("v1/channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = playlist(j.getObject(i));
 				if(item == null) continue;
-				playlistsScr.add(item);
+				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		App.inst.notifyAsyncTasks();
+		App.inst.startAsyncTasks();
 	}
 
 	protected void show() {
@@ -119,50 +138,52 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			} catch (InterruptedException e) {
 			}
 			App.inst.addAsyncLoad(this);
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		}
-		if(okAdded || ui.isKeyInputMode()) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
+			okAdded = true;
+		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}
+		new Thread(this).run();
 	}
 	
 	private void init() {
+		loaded = true;
+		synchronized(loadingLock) {
+			loadingLock.notify();
+		}
 		scroll = 0;
+		AppUI.loadingState = false;
 		if(channel == null) return;
-		add(channel.makeListItem());
-		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun ));
+		add(channelItem = channel.makeListItem());
+		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 	}
 
 	protected UIItem playlist(JSONObject j) {
-		PlaylistModel p = new PlaylistModel(j, playlistsScr, channel);
+		PlaylistModel p = new PlaylistModel(j, this, channel);
 		return p.makeListItem();
 	}
 
 	private void search(String q) {
-		searchScr = new AbstractListScreen(channel.getAuthor() + " - " + Locale.s(TITLE_SearchQuery), ChannelScreen.this) {
-			protected void show() {
-				clearCommands();
-				addCommand(backCmd);
-			}
-		};
-		ui.setScreen(searchScr);
-		App.inst.stopDoingAsyncTasks();
+		clear();
+		add(channelItem);
+		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
+		App.inst.stopAsyncTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
-					(Settings.videoPreviews ? ",videoThumbnails" : "") +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), true);
 				if(item == null) continue;
-				searchScr.add(item);
+				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_search, e);
 		}
 	}
@@ -177,8 +198,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
-		VideoModel v = new VideoModel(j, search ? searchScr : this);
-		if(search) v.setFromSearch();
+		VideoModel v = new VideoModel(j, this);
 		if(Settings.videoPreviews) App.inst.addAsyncLoad(v);
 		return v.makeListItem();
 	}
@@ -188,17 +208,35 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 
 	public void load() {
+		AppUI.loadingState = true;
 		try {
 			if(!channel.isExtended()) {
 				channel.extend();
-				clear();
 				init();
 			}
 			if(Settings.videoPreviews) channel.load();
 			latestVideos();
 		} catch (Exception e) {
-			e.printStackTrace();
 			App.error(this, Errors.ChannelForm_load, e);
+		}
+		AppUI.loadingState = false;
+	}
+
+	public void run() {
+		try {
+			synchronized(loadingLock) {
+				loadingLock.wait(3500);
+			}
+			if(!loaded) {
+				App.inst.stopAsyncTasks();
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+				}
+				App.inst.addAsyncLoad(this);
+				App.inst.startAsyncTasks();
+			}
+		} catch (Exception e) {
 		}
 	}
 
@@ -227,7 +265,8 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		}
 		*/
 		if(c == backCmd) {
-			App.inst.stopDoingAsyncTasks();
+			AppUI.loadingState = false;
+			App.inst.stopAsyncTasks();
 			if(containerScreen != null) {
 				ui.setScreen(containerScreen);
 			} else {

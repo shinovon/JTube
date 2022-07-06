@@ -1,6 +1,5 @@
 package ui.items;
 
-import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
@@ -33,20 +32,17 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		layout(w);
-		g.setColor(-1);
-		g.fillRect(x, y, w, h);
 		g.setColor(0);
+		g.fillRect(x, y, w, h);
+		int iw = w;
 		if(img != null) {
-			g.drawImage(img, x, y, 0);
-		} else {
-			g.fillRect(x, y, w, h);
+			iw = img.getWidth();
+			g.drawImage(img, x+(w-iw)/2, y, 0);
 		}
 		g.setFont(smallfont);
 		if(length != null) {
-			Font f = g.getFont();
-			int xx = w+x-(f.stringWidth(length))-4;
-			int yy = y+h-f.getHeight()-2;
+			int xx = iw+(w-iw)/2+x-(smallfont.stringWidth(length))-4;
+			int yy = y+h-smallfontheight-2;
 			g.setColor(0);
 			g.drawString(length, xx+2, yy, 0);
 			g.drawString(length, xx, yy, 0);
@@ -62,11 +58,14 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	}
 
 	protected void layout(int w) {
-		if(w != lastW) {
-			video.setImageWidth(w);
-			if(img != null) img = video.customResize(img);
+		int sh = ui.getHeight();
+		if(w > sh) {
+			h = (int) (sh * 0.9f);
+			w = (int) (h * 16F / 9F);
 		}
-		h = w * 9 / 16;
+		if(w != lastW) {
+			if(img != null) img = video.previewResize(w, img);
+		}
 		if(img != null) {
 			h = img.getHeight();
 		}
@@ -74,7 +73,7 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 
 	public void setImage(Image img) {
 		this.img = img;
-		repaint();
+		relayout();
 	}
 
 }

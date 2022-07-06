@@ -33,13 +33,11 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 
 	protected void paint(Graphics g, int w, int h) {
-		g.setColor(AppUI.getColor(COLOR_MAINBACKGROUND));
-		g.fillRect(0, 0, w, h);
 		w -= AppUI.getScrollBarWidth();
 		boolean sizeChanged = width != w;
 		width = w;
 		screenHeight = h;
-		if(height == 0 || needLayout) {
+		if(height == 0 || needLayout || sizeChanged) {
 			needLayout = false;
 			int y = 0;
 			for (int i = 0; i < items.size(); i++) {
@@ -86,16 +84,16 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			}
 			height = y;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_BG));
 		g.fillRect(w, 0, AppUI.getScrollBarWidth(), h);
 		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_FG));
+		int sw = AppUI.getScrollBarWidth();
 		int hh = height;
 		if(hh <= 0) hh = 1;
 		int sby = (int)(((float)-scroll / (float)hh) * h);
 		int sbh = (int)(((float)h / (float)hh) * h);
-		g.fillRect(w, sby, AppUI.getScrollBarWidth(), sbh);
+		g.fillRect(w+1, sby, sw-2, sbh);
 		if(scrollTarget <= 0) {
 			ui.scrolling = true;
 			if (Math.abs(scroll - scrollTarget) < 1) {
@@ -116,9 +114,17 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				ui.scrolling = false;
 			}
 		}
+		/*
+		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_BORDER));
+		g.drawLine(w, 0, w+sw, 0);
+		g.drawLine(w, 0, w, h);
+		g.drawLine(w+sw-1, 0, w+sw-1, h);
+		g.drawLine(w, h-1, w+sw, h-1);
+		*/
 	}
 	
 	public boolean scroll(int units) {
+		if(AppUI.loadingState) return false;
 		if(height == 0 || height <= screenHeight) {
 			scroll = 0;
 			return false;
@@ -144,6 +150,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void press(int x, int y) {
+		if(AppUI.loadingState) return;
 		int yy = 0;
 		int sy = (int)scroll;
 		for (int i = 0; i < items.size(); i++) {
@@ -162,6 +169,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void release(int x, int y) {
+		if(AppUI.loadingState) return;
 		int yy = 0;
 		int sy = (int)scroll;
 		for (int i = 0; i < items.size(); i++) {
@@ -198,6 +206,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void keyPress(int i) {
+		if(AppUI.loadingState) return;
 		if((!ui.isKeyInputMode() || cItem == null) && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
 			ui.setKeyInputMode();
 			selectItem();
@@ -243,6 +252,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void keyRelease(int i) {
+		if(AppUI.loadingState) return;
 		if(i == -5 || i == -6 || i == -7 || i == Canvas.FIRE || i == Canvas.KEY_NUM5) {
 			if(selectItem()) {
 				cItem.keyRelease(i);
@@ -251,6 +261,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void keyRepeat(int i) {
+		if(AppUI.loadingState) return;
 		if(System.currentTimeMillis()-lastRepeat < 200) return;
 		if(i == -1 || i == -2) {
 			if(i == -1) {
@@ -321,7 +332,11 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 
 	private void smoothlyScrollTo(int i) {
 		if(i > 0) i = 0;
-		scrollTarget = i;
+		if(ui.fastScrolling()) {
+			scroll = i;
+		} else {
+			scrollTarget = i;
+		}
 		repaint();
 	}
 
@@ -386,7 +401,8 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	public void setScrollBarY(int y) {
 		int hh = height;
 		int h = screenHeight;
-		scroll = -(int) (((float)hh/(float)h)*y);
+		float sbh = (((float)h / (float)hh) * h);
+		scroll = -(int) (((float)hh/(float)h) * (y - (sbh / 2)));
 		if(scroll > 0) scroll = 0;
 		if(scroll < -height + screenHeight) {
 			scroll = -height + screenHeight;

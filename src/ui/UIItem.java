@@ -7,7 +7,7 @@ public abstract class UIItem {
 	protected static AppUI ui = AppUI.inst;
 	
 	private UIScreen screen;
-	private boolean inFocus;
+	protected boolean inFocus;
 	private int y;
 
 	protected int index;
@@ -39,10 +39,6 @@ public abstract class UIItem {
 	
 	public void defocus() {
 		inFocus = false;
-	}
-	
-	public boolean isInFocus() {
-		return inFocus;
 	}
 	
 	public void setScreen(UIScreen screen) {

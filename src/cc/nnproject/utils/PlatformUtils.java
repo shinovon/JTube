@@ -82,6 +82,11 @@ public class PlatformUtils {
 	public static boolean isSymbianAnna() {
 		return !isNotS60() && isS60PlatformVersion("5.2");
 	}
+
+	public static boolean isBelle() {
+		int i = platform.indexOf("version=5.") + "version=5.".length();
+		return !isNotS60() && isS60PlatformVersion("5") && Integer.parseInt(platform.substring(i, i+1)) >= 3;
+	}
 	
 	public static boolean isSymbian93() {
 		return isS60PlatformVersion("3.2");
@@ -92,24 +97,33 @@ public class PlatformUtils {
 			String s;
 			boolean b = false;
 			try {
-				b = isS60PlatformVersion("3") || (platform.startsWith("Nokia") &&
+				b = (isSymbian9() && !isSymbianTouch()) || isS60PlatformVersion("3") || 
+					(platform.startsWith("Nokia") &&
 					(s = platform.substring(5)).length() > 0 &&
-					(s.startsWith("N73") || s.startsWith("N95") || s.startsWith("E90") || 
+					//9.1 & 9.2 nokia models
+					(s.startsWith("N73")|| s.startsWith("N95") || s.startsWith("E90") || 
 					s.startsWith("N93") || s.startsWith("N82") || s.startsWith("E71") || 
 					s.startsWith("E70") || s.startsWith("N80") || s.startsWith("E63") || 
 					s.startsWith("E66") || s.startsWith("E51") || s.startsWith("E50") || 
 					s.startsWith("E65") || s.startsWith("E61") || s.startsWith("E60") ||
 					s.startsWith("N91") || s.startsWith("E62") || s.startsWith("N78") ||
-					s.startsWith("3250") ||s.startsWith("N71") || s.startsWith("N75") ||
-					s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500") ||
-					s.startsWith("5700") ||s.startsWith("6110") ||s.startsWith("612") ||
-					s.startsWith("6290") ||s.startsWith("N76") || s.startsWith("N81")
+					s.startsWith("3250")|| s.startsWith("N71") || s.startsWith("N75") ||
+					s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500")||
+					s.startsWith("5700")|| s.startsWith("6110")|| s.startsWith("612") ||
+					s.startsWith("6290")|| s.startsWith("N76") || s.startsWith("N81")
 					));
 			} catch (Exception e) {
 			}
 			isS603rd = b ? 1 : -1;
 		}
 		return isS603rd == 1;
+	}
+
+	// Symbian 9.x or higher check
+	public static boolean isSymbian9() {
+		return platform.indexOf("platform=S60") != -1 ||
+				System.getProperty("com.symbian.midp.serversocket.support") != null ||
+				System.getProperty("com.symbian.default.to.suite.icon") != null;
 	}
 
 	public static boolean isS40() {
@@ -207,6 +221,18 @@ public class PlatformUtils {
 
 	public static boolean isPhoneme() {
 		return PlatformUtils.version != null && PlatformUtils.version.indexOf("phoneme") != -1;
+	}
+
+	public static boolean isS30() {
+		return platform != null && platform.indexOf("Series30") != -1;
+	}
+
+	public static boolean isNokia() {
+		return platform != null && platform.startsWith("Nokia");
+	}
+
+	public static boolean isSonyEricsson() {
+		return platform != null && platform.startsWith("SonyEricsson");
 	}
 
 }

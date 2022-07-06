@@ -20,7 +20,7 @@ public abstract class UIScreen {
 	protected int width;
 	protected int height;
 
-	private boolean repaintBlocked;
+	protected boolean repaintBlocked;
 
 	protected UIScreen(String label, UIScreen parent) {
 		this.label = label;
@@ -31,6 +31,11 @@ public abstract class UIScreen {
 	
 	public String getTitle() {
 		return label;
+	}
+	
+	public void setTitle(String s) {
+		this.label = s;
+		ui.updateScreenTitle(this);
 	}
 	
 	public UIScreen getParent() {
@@ -49,14 +54,6 @@ public abstract class UIScreen {
 	public void repaint(UIItem item) {
 		if(!repaintBlocked)
 			ui.repaint(false);
-	}
-
-	public boolean hideBottomBar() {
-		return false;
-	}
-
-	public boolean hideTopBar() {
-		return false;
 	}
 
 	public int getHeight() {
@@ -112,13 +109,7 @@ public abstract class UIScreen {
 	}
 
 	protected void show() {}
-	
-	protected void blockRepaint() {
-		repaintBlocked = true;
-	}
-	
-	protected void unlockRepaint() {
-		repaintBlocked = false;
-	}
+
+	protected void hide() {}
 
 }

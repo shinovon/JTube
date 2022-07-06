@@ -10,7 +10,6 @@ class DirectUtilsInvoker {
 		try {
 			return DirectUtils.getFont(face, style, height);
 		} catch (Throwable e) {
-			e.printStackTrace();
 		}
 		return null;
 	}

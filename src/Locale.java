@@ -81,13 +81,11 @@ public class Locale implements LocaleConstants {
 						table.put(n, sl);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
 				} finally {
 					d.close();
 				}
 				loaded = true;
 			} catch (IOException e) {
-				e.printStackTrace();
 			} 
 		} else {
 			if(b) {
@@ -275,11 +273,13 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Use iteroni proxy for playback";
 			case CMD_Func:
-				return "Opts";
+				return "Menu";
 			case CMD_Refresh:
 				return "Refresh";
 			case SET_Amoled:
 				return "Night theme";
+			case SET_SmallPreviews:
+				return "Small previews";
 			}
 		}
 		case 1: {
@@ -443,11 +443,13 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Прокси iteroni для проигрывания";
 			case CMD_Func:
-				return "Опции";
+				return "Меню";
 			case CMD_Refresh:
 				return "Обновить";
 			case SET_Amoled:
 				return "Ночная тема";
+			case SET_SmallPreviews:
+				return "Маленькие превью";
 			}
 		}
 		}
@@ -475,13 +477,15 @@ public class Locale implements LocaleConstants {
 				s = ((int) ((i / 1000000D) * 100) / 100D) + " млн.";
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000D) * 100) / 100D) + " тыс.";
-			} 
-			s = Util.replace(s, ".0", "");
-			if(i >= 5) {
+			} else if(i % 10 == 1) {
+				return i + " подписчик";
+			} else if(i >= 5) {
 				return i + " подписчиков";
 			} else {
 				return i + " подписчика";
 			}
+			s = Util.replace(s, ".0", "") + " подписчиков";
+			return s;
 		}
 		if(i >= 1000000) {
 			s = ((int) ((i / 1000000D) * 10) / 10D) + "M";
@@ -518,7 +522,7 @@ public class Locale implements LocaleConstants {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + " млн. просмотров";
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000D) * 10) / 10D) + " тыс. просмотров";
-			} else if(i >= 5) {
+			} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 				s += " просмотров";
 			} else {
 				s += " просмотра";
@@ -556,65 +560,78 @@ public class Locale implements LocaleConstants {
 	public static String date(String s) {
 		if(s == null) return null;
 		if(localei == 1) {
-			try {
-				if(s.indexOf("years ago") != -1) {
-					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i % 10 == 1) {
-						s = "год назад";
-					} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
-						s = "лет назад";
-					} else {
-						s = "года назад";
+			if(s.indexOf("ago") != -1) {
+				try {
+					if(s.indexOf("years ago") != -1) {
+						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+						if(i % 10 == 1) {
+							s = "год назад";
+						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+							s = "лет назад";
+						} else {
+							s = "года назад";
+						}
+						s = i + " " + s;
+					} else if(s.indexOf("months ago") != -1) {
+						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+						if(i % 10 == 1) {
+							s = "месяц назад";
+						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+							s = "месяцев назад";
+						} else {
+							s = "месяца назад";
+						}
+						s = i + " " + s;
+					} else if(s.indexOf("weeks ago") != -1) {
+						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+						if(i % 10 == 1) {
+							s = "неделю назад";
+						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+							s = "недель назад";
+						} else {
+							s = "недели назад";
+						}
+						s = i + " " + s;
+					} else if(s.indexOf("days ago") != -1) {
+						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+						if(i % 10 == 1) {
+							s = "день назад";
+						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+							s = "дней назад";
+						} else {
+							s = "дня назад";
+						}
+						s = i + " " + s;
+					} else if(s.indexOf("hours ago") != -1) {
+						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+						if(i % 10 == 1) {
+							s = "час назад";
+						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+							s = "часов назад";
+						} else {
+							s = "часа назад";
+						}
+						s = i + " " + s;
+					} else if(s.indexOf("minutes ago") != -1) {
+						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
+						if(i % 10 == 1) {
+							s = "минуту назад";
+						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+							s = "минут назад";
+						} else {
+							s = "минуты назад";
+						}
+						s = i + " " + s;
+					} {
+						s = Util.replace(s, "year ago", "год назад");
+						s = Util.replace(s, "month ago", "месяц назад");
+						s = Util.replace(s, "week ago", "неделю назад");
+						s = Util.replace(s, "day ago", "день назад");
+						s = Util.replace(s, "hour ago", "час назад");
+						s = Util.replace(s, "minute ago", "минуту назад");
 					}
-					s = i + " " + s;
-				} else if(s.indexOf("months ago") != -1) {
-					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i % 10 == 1) {
-						s = "месяц назад";
-					} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
-						s = "месяцев назад";
-					} else {
-						s = "месяца назад";
-					}
-					s = i + " " + s;
-				} else if(s.indexOf("weeks ago") != -1) {
-					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i % 10 == 1) {
-						s = "неделю назад";
-					} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
-						s = "недель назад";
-					} else {
-						s = "недели назад";
-					}
-					s = i + " " + s;
-				}else if(s.indexOf("days ago") != -1) {
-					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i % 10 == 1) {
-						s = "день назад";
-					} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
-						s = "дней назад";
-					} else {
-						s = "дня назад";
-					}
-					s = i + " " + s;
-				} else if(s.indexOf("hours ago") != -1) {
-					int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-					if(i % 10 == 1) {
-						s = "час назад";
-					} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
-						s = "часов назад";
-					} else {
-						s = "часа назад";
-					}
-					s = i + " " + s;
-				} else {
-					s = Util.replace(s, "year ago", "год назад");
-					s = Util.replace(s, "month ago", "месяц назад");
-					s = Util.replace(s, "week ago", "неделю назад");
-					s = Util.replace(s, "day ago", "день назад");
-					s = Util.replace(s, "hour ago", "час назад");
+				} catch (Exception e) {
 				}
-			} catch (Exception e) {
 			}
 		}
 		return s;

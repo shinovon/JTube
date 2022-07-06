@@ -52,8 +52,6 @@ public class App implements Constants {
 	public static App2 midlet;
 	private AppUI ui;
 	
-	//private static PlayerCanvas playerCanv;
-	
 	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
@@ -173,7 +171,6 @@ public class App implements Constants {
 		if(Settings.region.toLowerCase().equals("en")) {
 			Settings.region = "US";
 		}
-		setLoadingState("Initializing loader thread");
 		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
 			v1 = new Vector();
 			v2 = new Vector();
@@ -187,7 +184,6 @@ public class App implements Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
-		setLoadingState("Loading start page");
 		ui.loadMain();
 		checkUpdate();
 		if(Settings.debugMemory) {
@@ -219,7 +215,6 @@ public class App implements Constants {
 							Thread.sleep(1000);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			};
@@ -263,7 +258,6 @@ public class App implements Constants {
 				ui.display(a);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -312,7 +306,7 @@ public class App implements Constants {
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, dbg);
 			}
 			if(((JSONObject) res).has("error")) {
-				throw new InvidiousException((JSONObject) res, null, url, dbg);
+				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getNullableString("error"), url, dbg);
 			}
 		} else {
 			res = JSON.getArray(s);
@@ -465,8 +459,8 @@ public class App implements Constants {
 		return getVideoLink(id, res, false);
 	}
 	
-	public static void download(final String id) {
-		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir);
+	public static void download(final String id, String name) {
+		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir, name);
 		d.start();
 	}
 	public static void download(String[] vids) {
@@ -475,16 +469,7 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		/*
-		try {
-			String url = getVideoLink(id, videoRes);
-			platReq(url);
-		} catch (Exception e) {
-			e.printStackTrace();
-			error(null, Errors.App_watch, e);
-		}
-		*/
-		inst.stopDoingAsyncTasks();
+		inst.stopAsyncTasks();
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
@@ -497,15 +482,6 @@ public class App implements Constants {
 				}
 				break;
 			}
-			/*
-			case 1: {
-				Player p = Manager.createPlayer(url);
-				playerCanv = new PlayerCanvas(p);
-				AppUI.display(playerCanv);
-				playerCanv.init();
-				break;
-			}
-			*/
 			case 1: {
 				String url = getVideoLink(id, Settings.videoRes, true);
 				String file = "file:///" + Settings.downloadDir;
@@ -574,7 +550,7 @@ public class App implements Constants {
 		}
 	}
 	
-	public void notifyAsyncTasks() {
+	public void startAsyncTasks() {
 		synchronized(lazyLoadLock) {
 			lazyLoadLock.notifyAll();
 		}
@@ -592,7 +568,7 @@ public class App implements Constants {
 		}
 	}
 
-	public void stopDoingAsyncTasks() {
+	public void stopAsyncTasks() {
 		if(t0 != null) t0.pleaseInterrupt();
 		if(t1 != null) t1.pleaseInterrupt();
 		if(t2 != null) t2.pleaseInterrupt();
@@ -602,6 +578,22 @@ public class App implements Constants {
 		waitAsyncTasks();
 	}
 	
+	public static String getThumbUrl(String id, int tw) {
+		String s;
+		if(tw < 120) {
+			s = "default";
+		} else if(tw < 480) {
+			s = "mqdefault";
+		} else if(tw < 640) {
+			s = "hqdefault";
+		} else if(tw < 720) {
+			s = "sddefault";
+		} else {
+			s = "maxresdefault";
+		}
+		return "/vi/" + id + "/" + s + ".jpg";
+	}
+
 	public static String getThumbUrl(JSONArray arr, int tw) {
 		JSONObject s = null;
 		int ld = 16384;

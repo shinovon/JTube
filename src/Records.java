@@ -28,27 +28,29 @@ public class Records {
 	
 	public static void save(String id, byte[] b) {
 		try {
+			RecordStore.deleteRecordStore("jС"+id);
+		} catch (Exception e) {
+		}
+		try {
 			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			if(rs.getNumRecords() <= 0) {
-				rs.addRecord(b, 0, b.length);
-			}
+			rs.addRecord(b, 0, b.length);
 			rs.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
 	public static void save(String id, String url) {
 		try {
+			RecordStore.deleteRecordStore("jС"+id);
+		} catch (Exception e) {
+		}
+		try {
 			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			if(rs.getNumRecords() <= 0) {
-				byte[] b = App.hproxy(url);
-				rs.addRecord(b, 0, b.length);
-				b = null;
-			}
+			byte[] b = App.hproxy(url);
+			rs.addRecord(b, 0, b.length);
+			b = null;
 			rs.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -62,7 +64,6 @@ public class Records {
 					b = rs.getRecord(1);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			if(b == null) {
 				if(url == null) {
@@ -75,7 +76,6 @@ public class Records {
 							rs.addRecord(b, 0, b.length);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			}
@@ -83,7 +83,6 @@ public class Records {
 				try {
 					rs.closeRecordStore();
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
 			}
 			return Image.createImage(b, 0, b.length);

@@ -3,9 +3,12 @@ package ui.screens;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
 
 import Locale;
+import cc.nnproject.utils.PlatformUtils;
 import ui.AbstractListScreen;
+import ui.AppUI;
 import ui.Commands;
 import ui.UIScreen;
 
@@ -15,15 +18,33 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
 
+	private String query;
+
 	public SearchScreen(String q, UIScreen parent) {
 		super(Locale.s(TITLE_SearchQuery) + " - " + q, parent);
+		query = q;
+	}
+	
+	public void paint(Graphics g, int w, int h) {
+		if(AppUI.loadingState) {
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
+			g.fillRect(0, 0, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			String s = Locale.s(TITLE_Loading) + "...";
+			g.setFont(smallfont);
+			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			return;
+		}
+		super.paint(g, w, h);
 	}
 
 	protected void show() {
 		clearCommands();
-		addCommand(optsCmd);
+		ui.addOptionCommands();
 		addCommand(backCmd);
-		if(okAdded || ui.isKeyInputMode()) {
+		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
+			okAdded = true;
+		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
 		}
@@ -47,6 +68,7 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 			return;
 		}
 		if(c == backCmd) {
+			AppUI.loadingState = false;
 			ui.showMain();
 			ui.disposeSearchPage();
 			return;
@@ -55,6 +77,10 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 			ui.showOptions();
 			return;
 		}
+	}
+	
+	public String getQuery() {
+		return query;
 	}
 
 }

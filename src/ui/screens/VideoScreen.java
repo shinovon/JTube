@@ -4,6 +4,7 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -17,6 +18,7 @@ import ui.DirectFontUtil;
 import ui.UIScreen;
 import ui.ModelScreen;
 import models.VideoModel;
+import ui.items.ChannelItem;
 import ui.items.LabelItem;
 import ui.items.LineSplitItem;
 import models.AbstractModel;
@@ -32,27 +34,41 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	private Object loadingLock = new Object();
 	private boolean loaded;
 
+	private ChannelItem channelItem;
+
 	public VideoScreen(VideoModel v) {
 		super(v.getTitle());
 		this.video = v;
-		add(new LabelItem(Locale.s(TITLE_Loading)));
+	}
+	
+	public void paint(Graphics g, int w, int h) {
+		if(AppUI.loadingState) {
+			g.setColor(AppUI.getColor(COLOR_MAINBG));
+			g.fillRect(0, 0, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			String s = Locale.s(TITLE_Loading) + "...";
+			g.setFont(smallfont);
+			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			return;
+		}
+		super.paint(g, w, h);
 	}
 
 	private void init() {
 		loaded = true;
-		blockRepaint();
 		synchronized(loadingLock) {
 			loadingLock.notify();
 		}
 		scroll = 0;
 		if(video == null) return;
 		VideoModel video = this.video;
-		add(video.makePreviewItem());
+		if(Settings.videoPreviews)
+			add(video.makePreviewItem());
 		LabelItem title = new LabelItem(video.getTitle(), mediumfont);
 		title.setMarginWidth(6);
 		title.setMaxLines(2);
 		add(title);
-		add(video.makeChannelItem());
+		add(channelItem = video.makeChannelItem());
 		Font f = smallfont;
 		try {
 			if(ui.getWidth() >= 360) {
@@ -73,7 +89,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		d.setMarginTop(8);
 		d.setMarginWidth(8);
 		add(d);
-		unlockRepaint();
+		
 		relayout();
 		repaint();
 	}
@@ -81,10 +97,11 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	protected void show() {
 		clearCommands();
 		addCommand(backCmd);
+		addCommand(watchCmd);
 		addCommand(settingsCmd);
 		addCommand(showLinkCmd);
 		addCommand(downloadCmd);
-		addCommand(watchCmd);
+		addCommand(vOpenChannelCmd);
 		if(!shown) {
 			shown = true;
 			try {
@@ -92,7 +109,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			} catch (InterruptedException e) {
 			}
 			App.inst.addAsyncLoad(this);
-			App.inst.notifyAsyncTasks();
+			App.inst.startAsyncTasks();
 		}
 		new Thread(this).run();
 	}
@@ -102,10 +119,10 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	}
 
 	public void load() {
+		AppUI.loadingState = true;
 		try {
 			if(!video.isExtended()) {
 				video.extend();
-				clear();
 				init();
 			}
 			if(Settings.videoPreviews) video.load();
@@ -116,6 +133,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		} catch (Exception e) {
 			App.error(this, Errors.VideoForm_load, e);
 		}
+		AppUI.loadingState = false;
 	}
 
 	public void commandAction(Command c, Displayable d) {
@@ -123,8 +141,12 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			App.watch(video.getVideoId());
 			return;
 		}
+		if(c == vOpenChannelCmd) {
+			ui.open(channelItem.getChannel());
+			return;
+		}
 		if(c == downloadCmd) {
-			App.download(video.getVideoId());
+			App.download(video.getVideoId(), video.getTitle());
 			return;
 		}
 		if(containerScreen != null && video.isFromPlaylist()) {
@@ -168,6 +190,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			return;
 		}
 		if(c == backCmd) {
+			AppUI.loadingState = false;
 			if(containerScreen != null) {
 				ui.setScreen(containerScreen);
 			} else {
@@ -190,22 +213,23 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		clear();
 		video.disposeExtendedVars();
 		video = null;
+		channelItem = null;
 		containerScreen = null;
 	}
 
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(5000);
+				loadingLock.wait(3500);
 			}
 			if(!loaded) {
-				App.inst.stopDoingAsyncTasks();
+				App.inst.stopAsyncTasks();
 				try {
 					Thread.sleep(200);
 				} catch (InterruptedException e) {
 				}
 				App.inst.addAsyncLoad(this);
-				App.inst.notifyAsyncTasks();
+				App.inst.startAsyncTasks();
 			}
 		} catch (Exception e) {
 		}
