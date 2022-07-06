@@ -306,7 +306,7 @@ public class App implements Constants {
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, dbg);
 			}
 			if(((JSONObject) res).has("error")) {
-				throw new InvidiousException((JSONObject) res, null, url, dbg);
+				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getNullableString("error"), url, dbg);
 			}
 		} else {
 			res = JSON.getArray(s);
