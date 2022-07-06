@@ -477,13 +477,15 @@ public class Locale implements LocaleConstants {
 				s = ((int) ((i / 1000000D) * 100) / 100D) + " млн.";
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000D) * 100) / 100D) + " тыс.";
-			} 
-			s = Util.replace(s, ".0", "");
-			if(i >= 5) {
+			} else if(i % 10 == 1) {
+				return i + " подписчик";
+			} else if(i >= 5) {
 				return i + " подписчиков";
 			} else {
 				return i + " подписчика";
 			}
+			s = Util.replace(s, ".0", "");
+			return s;
 		}
 		if(i >= 1000000) {
 			s = ((int) ((i / 1000000D) * 10) / 10D) + "M";
@@ -520,13 +522,10 @@ public class Locale implements LocaleConstants {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + " млн. просмотров";
 			} else if(i >= 1000) {
 				s = ((int) ((i / 1000D) * 10) / 10D) + " тыс. просмотров";
-			} else if(i >= 5) {
+			} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 				s += " просмотров";
 			} else {
 				s += " просмотра";
-			}
-			if(Settings.smallPreviews) {
-				s = Util.replace(s, ". просмотров", ".");
 			}
 			s = Util.replace(s, ".0", "");
 			return s;
