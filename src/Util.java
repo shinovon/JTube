@@ -254,4 +254,38 @@ public class Util implements Constants {
 		App.height = c.getHeight();
 	}
 
+	public static String getFileName(String s) {
+		char[] cs = s.toCharArray();
+		StringBuffer sb = new StringBuffer();
+		final char[] arr1 = new char[]     { 'щ',  'ю', 'я',  'ц',  'ч',  'ш',  'а', 'б', 'в', 'г', 'д', 'е', 'ж',  'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ъ','ы','ь', 'э'};
+		final String[] arr2 = new String[] { "sh", "u", "ya", "ts", "ch", "sh", "a", "b", "v", "g", "d", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "", "y", "", "e"};
+		for(int i = 0; i < cs.length && i < 24; i++) {
+			char c = cs[i];
+			// replace spaces
+			if(c <= 32) sb.append('_');
+			// chars to remove
+			else if(c == '/' || c == '\\'|| c == '.' ||
+					c == ',' || c == '*' || c == ':' ||
+					c == '?' || c == '!' || c == '\''|| 
+					c == '"' || c == '<' || c == '>' || 
+					c == '[' || c == ']' || c == '(' || 
+					c == ')' || c == '^' || c == '`' ||
+					c == ';')
+				continue;
+			else if(c >= 1040 && c <= 1103) {
+				c = Character.toLowerCase(c);
+				// replace russian letters
+				for(int j = 0; j < arr1.length; j++) {
+					if(arr1[j] == c) {
+						sb.append(arr2[j]);
+						break;
+					}
+				}
+			} else if(c >= 123) continue;
+			else sb.append(c);
+		}
+		s = sb.toString();
+		return s;
+	}
+
 }

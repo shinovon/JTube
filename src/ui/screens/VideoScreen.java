@@ -146,7 +146,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			return;
 		}
 		if(c == downloadCmd) {
-			App.download(video.getVideoId());
+			App.download(video.getVideoId(), video.getTitle());
 			return;
 		}
 		if(containerScreen != null && video.isFromPlaylist()) {

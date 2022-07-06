@@ -459,8 +459,8 @@ public class App implements Constants {
 		return getVideoLink(id, res, false);
 	}
 	
-	public static void download(final String id) {
-		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir);
+	public static void download(final String id, String name) {
+		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir, name);
 		d.start();
 	}
 	public static void download(String[] vids) {
