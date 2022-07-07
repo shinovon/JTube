@@ -270,7 +270,7 @@ public class Util implements Constants {
 		StringBuffer sb = new StringBuffer();
 		final char[] arr1 = new char[]     { 'щ',  'ю', 'я',  'ц',  'ч',  'ш',  'а', 'б', 'в', 'г', 'д', 'е', 'ж',  'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ъ','ы','ь', 'э'};
 		final String[] arr2 = new String[] { "sh", "u", "ya", "ts", "ch", "sh", "a", "b", "v", "g", "d", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "", "y", "", "e"};
-		for(int i = 0; i < cs.length && i < 24; i++) {
+		for(int i = 0; i < cs.length && i < 32; i++) {
 			char c = cs[i];
 			// replace spaces
 			if(c <= 32) sb.append('_');
