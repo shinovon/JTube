@@ -201,6 +201,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void setScreen(UIScreen s) {
+		removeCommands();
 		display(null);
 		if(current != null) {
 			current.hide();
@@ -360,20 +361,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(Settings.videoPreviews) app.addAsyncLoad(v);
+			if(Settings.videoPreviews) app.addAsyncTask(v);
 			return v.makeListItem();
 		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(Settings.videoPreviews) app.addAsyncLoad(v);
+			if(Settings.videoPreviews) app.addAsyncTask(v);
 			return v.makeListItem();
 		}
 		if(Settings.searchChannels && type.equals("channel")) {
 			ChannelModel c = new ChannelModel(j);
 			if(search) c.setFromSearch();
-			if(Settings.videoPreviews) app.addAsyncLoad(c);
+			if(Settings.videoPreviews) app.addAsyncTask(c);
 			return c.makeListItem();
 		}
 		if(Settings.searchPlaylists && type.equals("playlist")) {
@@ -725,6 +726,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void addCommand(Command c) {
 		canv.addCommand(c);
 		commands.addElement(c);
+	}
+	
+	public void removeCommand(Command c) {
+		canv.removeCommand(c);
+		commands.removeElement(c);
 	}
 	
 	public void removeCommands() {

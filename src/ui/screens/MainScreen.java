@@ -26,7 +26,6 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 	}
 	
 	protected void show() {
-		clearCommands();
 		ui.addOptionCommands();
 		addCommand(exitCmd);
 		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
@@ -35,17 +34,20 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 			okAdded = true;
 			addCommand(okCmd);
 		}
+		super.show();
 		if(Settings.videoPreviews && wasHidden) {
 			wasHidden = false;
 			// resume loading previews
 			App.inst.stopAsyncTasks();
+			boolean b = false;
 			for(int i = 0; i < items.size(); i++) {
 				Object o = items.elementAt(i);
 				if(o instanceof VideoItem) {
-					App.inst.addAsyncLoad(((VideoItem)o).getVideo());
+					App.inst.addAsyncTask(((VideoItem)o).getVideo());
+					b = true;
 				}
 			}
-			App.inst.startAsyncTasks();
+			if(b) App.inst.startAsyncTasks();
 		}
 	}
 	
@@ -99,6 +101,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 			ui.showOptions();
 			return;
 		}
+		super.commandAction(c, d);
 	}
 
 }

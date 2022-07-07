@@ -1,5 +1,6 @@
 package ui;
 
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Graphics;
 
 public abstract class UIItem {
@@ -94,6 +95,18 @@ public abstract class UIItem {
 	
 	protected void onShow() {
 		hidden = false;
+	}
+	
+	public boolean hasCommands() {
+		return false;
+	}
+	
+	public boolean commandAction(Command c) {
+		return false;
+	}
+
+	public Command[] getCommands() {
+		return null;
 	}
 
 }

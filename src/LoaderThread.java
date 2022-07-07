@@ -31,7 +31,7 @@ public class LoaderThread extends Thread {
 	private Vector vector;
 
 	public LoaderThread(int priority, Object lock, Vector v, Object lock2, int i) {
-		super();
+		super("Loader-"+i);
 		this.lock = lock;
 		this.vector = v;
 		this.lock2 = lock2;
@@ -44,7 +44,7 @@ public class LoaderThread extends Thread {
 				synchronized(lock) {
 					lock.wait();
 				}
-				if(checkInterrupted()) continue;
+				checkInterrupted();
 				int len = vector.size();
 				if(len == 0) {
 					synchronized(lock2) {
@@ -66,7 +66,7 @@ public class LoaderThread extends Thread {
 						if(!e.getClass().equals(RuntimeException.class)) {
 							throw e;
 						}
-						String msg = e.getMessage();
+						String msg = e.toString();
 						if(msg != null && (msg.endsWith("interrupt") || msg.endsWith("interrupted"))) {
 							break;
 						} else {
@@ -75,9 +75,7 @@ public class LoaderThread extends Thread {
 					}
 					if(checkInterrupted()) break;
 				}
-				synchronized(lock2) {
-					lock2.notifyAll();
-				}
+				checkInterrupted();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -91,10 +89,10 @@ public class LoaderThread extends Thread {
 
 	boolean checkInterrupted() {
 		if(myInterrupt) {
+			myInterrupt = false;
 			synchronized(lock2) {
 				lock2.notifyAll();
 			}
-			myInterrupt = false;
 			return true;
 		}
 		return false;

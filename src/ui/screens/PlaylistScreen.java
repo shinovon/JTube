@@ -37,15 +37,15 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 	}
 	
 	public void show() {
-		clearCommands();
 		addCommand(backCmd);
+		super.show();
 		if(!shown) {
 			shown = true;
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
-			App.inst.addAsyncLoad(this);
+			App.inst.addAsyncTask(this);
 			App.inst.startAsyncTasks();
 		}
 	}
@@ -120,6 +120,7 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 			dispose();
 			return;
 		}
+		super.commandAction(c, d);
 	}
 
 	private void dispose() {

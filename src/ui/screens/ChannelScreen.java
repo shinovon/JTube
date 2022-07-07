@@ -128,16 +128,17 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	}
 
 	protected void show() {
-		clearCommands();
 		addCommand(backCmd);
 		addCommand(searchCmd);
+		super.show();
 		if(!shown) {
 			shown = true;
+			App.inst.stopAsyncTasks();
 			try {
-				Thread.sleep(100);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 			}
-			App.inst.addAsyncLoad(this);
+			App.inst.addAsyncTask(this);
 			App.inst.startAsyncTasks();
 		}
 		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
@@ -199,7 +200,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
 		VideoModel v = new VideoModel(j, this);
-		if(Settings.videoPreviews) App.inst.addAsyncLoad(v);
+		if(Settings.videoPreviews) App.inst.addAsyncTask(v);
 		return v.makeListItem();
 	}
 	
@@ -225,15 +226,15 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(3500);
+				loadingLock.wait(1000);
 			}
 			if(!loaded) {
 				App.inst.stopAsyncTasks();
 				try {
-					Thread.sleep(200);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
-				App.inst.addAsyncLoad(this);
+				App.inst.addAsyncTask(this);
 				App.inst.startAsyncTasks();
 			}
 		} catch (Exception e) {
@@ -275,6 +276,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			ui.disposeChannelPage();
 			return;
 		}
+		super.commandAction(c, d);
 	}
 
 	private void disposeSearchForm() {

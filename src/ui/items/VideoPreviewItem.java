@@ -1,5 +1,6 @@
 package ui.items;
 
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 

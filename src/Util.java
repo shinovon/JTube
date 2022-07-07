@@ -189,49 +189,53 @@ public class Util implements Constants {
 	}
 	
 	public static String[] getStringArray(String text, int maxWidth, Font font) {
-		if (text == null || text.length() == 0 || text.equals(" ")) {
+		if (text == null || text.length() == 0 || text.equals(" ") || maxWidth < font.charWidth('W') + 2) {
 			return new String[0];
 		}
+		text = replace(text, "\r", "");
 		Vector v = new Vector(3);
-		//v: {
-		if (font.stringWidth(text) > maxWidth) {
-			int i1 = 0;
-			for (int i2 = 0; i2 < text.length(); i2++) {
-				//if(v.size() >= max) break v;
-				if (text.charAt(i2) == '\n') {
-					v.addElement(text.substring(i1, i2));
-					i2 = i1 = i2 + 1;
-				} else {
-					if (text.length() - i2 <= 1) {
-						v.addElement(text.substring(i1, text.length()));
-						break;
-					} else if (font.stringWidth(text.substring(i1, i2)) >= maxWidth - 1) {
+		char[] chars = text.toCharArray();
+		if (text.indexOf('\n') > -1) {
+			int j = 0;
+			for (int i = 0; i < text.length(); i++) {
+				if (chars[i] == '\n') {
+					v.addElement(text.substring(j, i));
+					j = i + 1;
+				}
+			}
+			v.addElement(text.substring(j, text.length()));
+		} else {
+			v.addElement(text);
+		}
+		for (int i = 0; i < v.size(); i++) {
+			String s = (String) v.elementAt(i);
+			if(font.stringWidth(s) >= maxWidth) {
+				int i1 = 0;
+				for (int i2 = 0; i2 < s.length(); i2++) {
+					if (font.stringWidth(text.substring(i1, i2)) >= maxWidth) {
 						boolean space = false;
 						for (int j = i2; j > i1; j--) {
-							char c = text.charAt(j);
-							if (c == ' ' || (c >= ',' && c <= '/')) {
-								String s = text.substring(i1, j + 1);
-								if(font.stringWidth(s) >= maxWidth - 1) {
-									continue;
-								}
+							char c = s.charAt(j);
+							if (c == ' '|| (c >= ',' && c <= '/')) {
 								space = true;
-								v.addElement(s);
+								v.setElementAt(s.substring(i1, j + 1), i);
+								v.insertElementAt(s.substring(j + 1), i + 1);
+								i += 1;
 								i2 = i1 = j + 1;
 								break;
 							}
 						}
 						if (!space) {
 							i2 = i2 - 2;
-							v.addElement(text.substring(i1, i2));
+							v.setElementAt(s.substring(i1, i2), i);
+							v.insertElementAt(s.substring(i2), i + 1);
 							i2 = i1 = i2 + 1;
+							i += 1;
 						}
 					}
 				}
 			}
-		} else {
-			return new String[] { text };
 		}
-		//}
 		String[] arr = new String[v.size()];
 		v.copyInto(arr);
 		return arr;

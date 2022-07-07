@@ -530,7 +530,7 @@ public class App implements Constants {
 		}
 	}
 	
-	public void addAsyncLoad(ILoader v) {
+	public void addAsyncTask(ILoader v) {
 		if(v == null) throw new NullPointerException("l");
 		synchronized(lazyLoadLock) {
 			if(v1 == null) {
@@ -539,9 +539,9 @@ public class App implements Constants {
 				int s0 = v0.size();
 				int s1 = v1.size();
 				int s2 = v2.size();
-				if(s0 < s1) {
+				if(s0 <= s1) {
 					v0.addElement(v);
-				} else if(s1 < s2) {
+				} else if(s1 <= s2) {
 					v1.addElement(v);
 				} else {
 					v2.addElement(v);

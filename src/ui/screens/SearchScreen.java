@@ -39,9 +39,9 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 	}
 
 	protected void show() {
-		clearCommands();
 		ui.addOptionCommands();
 		addCommand(backCmd);
+		super.show();
 		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
 			okAdded = true;
 		} else if(okAdded || ui.isKeyInputMode()) {
@@ -77,6 +77,7 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 			ui.showOptions();
 			return;
 		}
+		super.commandAction(c, d);
 	}
 	
 	public String getQuery() {

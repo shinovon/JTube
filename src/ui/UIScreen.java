@@ -88,10 +88,6 @@ public abstract class UIScreen {
 
 	public void setScrollBarY(int y) {
 	}
-	
-	protected final void clearCommands() {
-		ui.removeCommands();
-	}
 
 	protected final void addCommand(Command c) {
 		ui.addCommand(c);

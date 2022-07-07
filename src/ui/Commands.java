@@ -25,7 +25,8 @@ public interface Commands extends LocaleConstants {
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
 	
 	// Video page commands
-	static final Command watchCmd = new Command(Locale.s(CMD_Watch), Command.OK, 1);
+	static final Command watchOkCmd = new Command(Locale.s(CMD_Watch), Command.OK, 1);
+	static final Command watchScrCmd = new Command(Locale.s(CMD_Watch), Command.SCREEN, 1);
 	static final Command downloadCmd = new Command(Locale.s(CMD_Download), Command.SCREEN, 4);
 	static final Command showLinkCmd = new Command(Locale.s(CMD_ShowLink), Command.SCREEN, 5);
 	//static final Command browserCmd = new Command("Open with browser", Command.SCREEN, 3);

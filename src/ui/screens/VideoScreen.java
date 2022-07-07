@@ -95,20 +95,24 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	}
 	
 	protected void show() {
-		clearCommands();
 		addCommand(backCmd);
-		addCommand(watchCmd);
+		if(ui.isKeyInputMode())
+			addCommand(watchOkCmd);
+		else
+			addCommand(watchScrCmd);
 		addCommand(settingsCmd);
 		addCommand(showLinkCmd);
 		addCommand(downloadCmd);
 		addCommand(vOpenChannelCmd);
+		super.show();
 		if(!shown) {
 			shown = true;
+			App.inst.stopAsyncTasks();
 			try {
-				Thread.sleep(100);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 			}
-			App.inst.addAsyncLoad(this);
+			App.inst.addAsyncTask(this);
 			App.inst.startAsyncTasks();
 		}
 		new Thread(this).run();
@@ -137,7 +141,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(c == watchCmd) {
+		if(c == watchOkCmd || c == watchScrCmd) {
 			App.watch(video.getVideoId());
 			return;
 		}
@@ -199,6 +203,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			ui.disposeVideoPage();
 			return;
 		}
+		super.commandAction(c, d);
 	}
 
 	public AbstractModel getModel() {
@@ -220,15 +225,15 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(3500);
+				loadingLock.wait(1000);
 			}
 			if(!loaded) {
 				App.inst.stopAsyncTasks();
 				try {
-					Thread.sleep(200);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
-				App.inst.addAsyncLoad(this);
+				App.inst.addAsyncTask(this);
 				App.inst.startAsyncTasks();
 			}
 		} catch (Exception e) {

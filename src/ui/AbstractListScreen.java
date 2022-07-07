@@ -3,11 +3,14 @@ package ui;
 import java.util.Vector;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 
 import Util;
 
-public abstract class AbstractListScreen extends UIScreen implements UIConstants {
+public abstract class AbstractListScreen extends UIScreen implements UIConstants, CommandListener {
 	
 	protected Vector items;
 	private UIItem cItem;
@@ -18,6 +21,8 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	private boolean needLayout;
 	
 	private long lastRepeat;
+	
+	//private Vector itemCommands = new Vector();
 
 	protected AbstractListScreen(String label, UIScreen parent, Vector v) {
 		super(label, parent);
@@ -158,9 +163,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			if (it != null) {
 				int ih = it.getHeight();
 				if(y > sy + yy && y < sy + yy + ih) {
-					if(cItem != null) cItem.defocus();
-					cItem = it;
-					it.focus();
+					focusItem(it);
 					it.press(x, (int)scroll + y - yy);
 				}
 				yy += ih;
@@ -177,9 +180,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			if (it != null) {
 				int ih = it.getHeight();
 				if(y > sy + yy && y < sy + yy + ih) {
-					if(cItem != null) cItem.defocus();
-					cItem = it;
-					it.focus();
+					focusItem(it);
 					it.release(x, (int)scroll + y - yy);
 				}
 				yy += ih;
@@ -195,9 +196,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			if (it != null) {
 				int ih = it.getHeight();
 				if(y > sy + yy && y < sy + yy + ih) {
-					if(cItem != null) cItem.defocus();
-					cItem = it;
-					it.focus();
+					focusItem(it);
 					it.tap(x, (int)scroll + y - yy, time);
 				}
 				yy += ih;
@@ -221,9 +220,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					}
 					return;
 				}
-				cItem.defocus();
-				cItem = (UIItem) items.elementAt(cItem.getIndex()-1);
-				cItem.focus();
+				focusItem((UIItem) items.elementAt(cItem.getIndex()-1));
 				if(!isItemSeenOnScreen(cItem, screenHeight/4)) {
 					smoothlyScrollTo(-cItem.getY());
 				}
@@ -233,9 +230,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				smoothlyScrollTo((int)scroll-(screenHeight/3));
 			} else {
 				if(cItem.getIndex() == items.size()-1) return;
-				cItem.defocus();
-				cItem = (UIItem) items.elementAt(cItem.getIndex()+1);
-				cItem.focus();
+				focusItem((UIItem) items.elementAt(cItem.getIndex()+1));
 				if(!isItemSeenOnScreen(cItem, screenHeight/4)) {
 					smoothlyScrollTo(-cItem.getY());
 				}
@@ -271,8 +266,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					}
 					return;
 				}
-				cItem.defocus();
-				cItem = (UIItem) items.elementAt(cItem.getIndex()-1);
+				focusItem((UIItem) items.elementAt(cItem.getIndex()-1));
 			} else if(i == -2) {
 				if(cItem.getIndex() == items.size() - 1) {
 					if(cItem.getY()+cItem.getHeight() > -(scroll-screenHeight)) {
@@ -280,10 +274,8 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					}
 					return;
 				}
-				cItem.defocus();
-				cItem = (UIItem) items.elementAt(cItem.getIndex()+1);
+				focusItem((UIItem) items.elementAt(cItem.getIndex()-1));
 			}
-			cItem.focus();
 			smoothlyScrollTo(-cItem.getY());
 			if(scroll < -height + screenHeight) {
 				scroll = -height + screenHeight;
@@ -382,7 +374,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		items.removeAllElements();
 		height = 0;
 		scroll = 0;
-		relayout();
 	}
 	
 	protected void relayout() {
@@ -409,4 +400,40 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		}
 	}
 
+	private void focusItem(UIItem it) {
+		if(cItem == it) return;
+		if(cItem != null) {
+		//	removeItemCommands();
+			cItem.defocus();
+		}
+		cItem = it;
+		//if(it.hasCommands()) addItemCommands(it);
+		it.focus();
+	}
+	/*
+	private void removeItemCommands() {
+		while(itemCommands.size() > 0) {
+			ui.removeCommand((Command) itemCommands.elementAt(0));
+			itemCommands.removeElementAt(0);
+		}
+	}
+	
+	private void addItemCommands(UIItem it) {
+		Command[] arr = it.getCommands();
+		if(arr == null) return;
+		for(int i = 0; i < arr.length; i++) {
+			Command c = arr[i];
+			ui.addCommand(c);
+			itemCommands.addElement(c);
+		}
+	}
+	public boolean supportCommands() {
+		return true;
+	}
+	*/
+	public void commandAction(Command c, Displayable d) {
+		/*if(c != null && c.getCommandType() == Command.ITEM && cItem != null && cItem.hasCommands()) {
+			cItem.commandAction(c);
+		}*/
+	}
 }

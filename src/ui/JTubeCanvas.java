@@ -7,6 +7,7 @@ import App;
 import Settings;
 
 public class JTubeCanvas extends GameCanvas implements UIConstants {
+	
 	private AppUI ui;
 	int width;
 	int height;
