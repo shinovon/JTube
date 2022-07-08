@@ -141,6 +141,10 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if(d instanceof TextBox && c == backCmd) {
+			ui.display(null);
+			return;
+		}
 		if(c == watchOkCmd || c == watchScrCmd) {
 			App.watch(video.getVideoId());
 			return;
