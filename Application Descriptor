@@ -7,6 +7,7 @@ Nokia-MIDlet-On-Screen-Keypad: no
 MIDlet-Vendor: nnproject
 MIDlet-Icon: /icon.png
 Nokia-MIDlet-Category: Application
+S60-Selection-Key-Compatibility: true
 MIDlet-1: JTube,/icon.png,cc.nnproject.ytapp.App2
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-URL: JTube.jar
