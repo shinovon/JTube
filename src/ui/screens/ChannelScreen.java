@@ -46,7 +46,9 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	};
 	private Runnable latestRun = new Runnable() {
 		public void run() {
+			App.inst.stopAsyncTasks();
 			latestVideos();
+			App.inst.startAsyncTasks();
 		}
 	};
 
@@ -90,7 +92,8 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 				add(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
-			App.inst.startAsyncTasks();
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_latestVideos, e);
 		}
@@ -217,6 +220,8 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 			}
 			if(Settings.videoPreviews) channel.load();
 			latestVideos();
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_load, e);
 		}

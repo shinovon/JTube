@@ -53,6 +53,10 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	private String imageUrl;
 	private boolean rounded;
+	
+	public ChannelModel(String id) {
+		this.authorId = id;
+	}
 
 	public ChannelModel(JSONObject o) {
 		parse(o, false);

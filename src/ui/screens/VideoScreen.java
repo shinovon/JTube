@@ -128,8 +128,8 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			if(!video.isExtended()) {
 				video.extend();
 				init();
+				if(Settings.videoPreviews) video.load();
 			}
-			if(Settings.videoPreviews) video.load();
 		} catch (NullPointerException e) {
 			// ignore
 		} catch (RuntimeException e) {

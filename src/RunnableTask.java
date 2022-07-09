@@ -16,7 +16,10 @@ public class RunnableTask implements Runnable {
 	public void run() {
 		switch(i) {
 		case 1:
-			AppUI.inst.openVideo(s);
+			try {
+				App.openURL(s);
+			} catch (IllegalArgumentException e) {
+			}
 			break;
 		case 2:
 			AppUI.inst.search(s);

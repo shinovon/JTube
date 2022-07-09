@@ -37,7 +37,10 @@ public class App2 extends MIDlet {
 	protected void pauseApp() {}
 
 	protected void startApp() {
-		if(started) return;
+		if(started) {
+			App.checkStartArguments();
+			return;
+		}
 		App.midlet = this;
 		started = true;
 		running = true;

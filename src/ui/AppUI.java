@@ -243,12 +243,17 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void loadMain() {
 		try {
+			loadingState = true;
+			if(mainScr == null) {
+				mainScr = new MainScreen();
+			}
 			setScreen(mainScr);
 			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
 				loadPopular();
 			}
+			loadingState = false;
 			Util.gc();
 		} catch (InvidiousException e) {
 			App.error(this, Errors.AppUI_loadForm, e);
@@ -265,7 +270,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		canv = new JTubeCanvas(this);
 		canv.setCommandListener(this);
 		repaintThread.start();
-		mainScr = new MainScreen();
 		try {
 			DirectFontUtil.init();
 		} catch (Throwable e) {
@@ -384,25 +388,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return p.makeListItem();
 		}
 		return null;
-	}
-
-	public void openVideo(String id) {
-		final String https = "https://";
-		final String ytshort = "youtu.be/";
-		final String www = "www.";
-		final String watch = "youtube.com/watch?v=";
-		if(id.startsWith(https)) id = id.substring(https.length());
-		if(id.startsWith(ytshort)) id = id.substring(ytshort.length());
-		if(id.startsWith(www)) id = id.substring(www.length());
-		if(id.startsWith(watch)) id = id.substring(watch.length());
-		try {
-			open(new VideoModel(id).extend());
-			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
-				disposeMainPage();
-			}
-		} catch (Exception e) {
-			App.error(this, Errors.App_openVideo, e);
-		}
 	}
 
 	void disposeMainPage() {
@@ -654,11 +639,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void open(AbstractModel model, UIScreen formContainer) {
 		App app = App.inst;
 		AppUI ui = inst;
-		if(current instanceof ChannelScreen && model instanceof ChannelModel) {
+		if(current instanceof ChannelScreen && model instanceof ChannelModel
+			&& ((ChannelModel)model).getAuthorId().equals(((ChannelScreen)current).getChannel().getAuthorId())) {
 			return;
 		}
 		// check if already loading
-		if(formContainer == null && model instanceof VideoModel && current instanceof VideoScreen && ui.videoScr != null) {
+		if(model instanceof VideoModel && current instanceof VideoScreen && ui.videoScr != null
+			&& ((VideoModel)model).getVideoId().equals(((VideoModel)((VideoScreen)current).getModel()).getVideoId())) {
 			return;
 		}
 		if(model instanceof PlaylistModel) {
@@ -812,6 +799,39 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		addCommand(optsCmd);
+	}
+
+	public void openVideo(String id) {
+		try {
+			open(new VideoModel(id));
+			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+				disposeMainPage();
+			}
+		} catch (Exception e) {
+			App.error(this, Errors.AppUI_openVideo, e);
+		}
+	}
+
+	public void openChannel(String id) {
+		try {
+			open(new ChannelModel(id));
+			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+				disposeMainPage();
+			}
+		} catch (Exception e) {
+			App.error(this, Errors.AppUI_openVideo, e);
+		}
+	}
+
+	public void openPlaylist(String id) {
+		try {
+			open(new PlaylistModel(id));
+			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+				disposeMainPage();
+			}
+		} catch (Exception e) {
+			App.error(this, Errors.AppUI_openVideo, e);
+		}
 	}
 
 }

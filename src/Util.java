@@ -22,6 +22,7 @@ SOFTWARE.
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
@@ -297,6 +298,49 @@ public class Util implements Constants {
 		}
 		s = sb.toString();
 		return s;
+	}
+	
+	public static String decodeURL(String s) {
+		boolean needToChange = false;
+		int numChars = s.length();
+		StringBuffer sb = new StringBuffer(numChars > 500 ? numChars / 2 : numChars);
+		int i = 0;
+		char c;
+		byte[] bytes = null;
+		while (i < numChars) {
+			c = s.charAt(i);
+			switch (c) {
+			case '%':
+				try {
+					if (bytes == null)
+						bytes = new byte[(numChars - i) / 3];
+					int pos = 0;
+					while (((i + 2) < numChars) && (c == '%')) {
+						int v = Integer.parseInt(s.substring(i + 1, i + 3), 16);
+						if (v < 0)
+							throw new IllegalArgumentException();
+						bytes[pos++] = (byte) v;
+						i += 3;
+						if (i < numChars)
+							c = s.charAt(i);
+					}
+					if ((i < numChars) && (c == '%'))
+						throw new IllegalArgumentException();
+					sb.append(new String(bytes, 0, pos, "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalArgumentException();
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException();
+				}
+				needToChange = true;
+				break;
+			default:
+				sb.append(c);
+				i++;
+				break;
+			}
+		}
+		return (needToChange ? sb.toString() : s);
 	}
 
 }

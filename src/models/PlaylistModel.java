@@ -41,6 +41,10 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 	
 	private UIScreen containerScreen;
 
+	public PlaylistModel(String id) {
+		this.playlistId = id;
+	}
+
 	public PlaylistModel(JSONObject o) {
 		parse(o, false);
 	}

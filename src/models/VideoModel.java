@@ -79,7 +79,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	
 	private boolean loadDone;
 
-	// create model without parsing
 	public VideoModel(String id) {
 		videoId = id;
 	}

@@ -111,6 +111,9 @@ public class App implements Constants {
 	
 	public static int width;
 	public static int height;
+	
+	private static int instances;
+	private static Object initLock = new Object();
 
 	public void startApp() {
 		loadingForm = new Form("Loading");
@@ -184,7 +187,12 @@ public class App implements Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
-		ui.loadMain();
+		if(!checkStartArguments()) {
+			ui.loadMain();
+		}
+		synchronized(initLock) {
+			initLock.notifyAll();
+		}
 		checkUpdate();
 		if(Settings.debugMemory) {
 			Thread t = new Thread() {
@@ -569,12 +577,12 @@ public class App implements Constants {
 	}
 
 	public void stopAsyncTasks() {
-		if(t0 != null) t0.pleaseInterrupt();
-		if(t1 != null) t1.pleaseInterrupt();
-		if(t2 != null) t2.pleaseInterrupt();
 		if(v0 != null) v0.removeAllElements();
 		if(v1 != null) v1.removeAllElements();
 		if(v2 != null) v2.removeAllElements();
+		if(t0 != null) t0.pleaseInterrupt();
+		if(t1 != null) t1.pleaseInterrupt();
+		if(t2 != null) t2.pleaseInterrupt();
 		waitAsyncTasks();
 	}
 	
@@ -643,6 +651,129 @@ public class App implements Constants {
 		a.setTimeout(-2);
 		Display.getDisplay(midlet).setCurrent(a);
 	}
+	
+	public static boolean checkStartArguments() {
+		if(System.getProperty("com.nokia.mid.cmdline.instance") == null)
+			return false;
+		try {
+			int i = Integer.parseInt(System.getProperty("com.nokia.mid.cmdline.instance")) ;
+			if(i > instances) {
+				instances = i;
+				String cmd = System.getProperty("com.nokia.mid.cmdline");
+				if(cmd == null || cmd.length() == 0) {
+					return false;
+				}
+				return parseStartArguments();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static boolean parseStartArguments() {
+		System.out.println("parseStartArguments");
+		String s;
+		if((s = System.getProperty("url")) != null && s.length() > 0) {
+			try {
+				inst.schedule(new RunnableTask(Util.decodeURL(System.getProperty("url")), 1));
+				return true;
+			} catch (IllegalArgumentException e) {
+				App.warn(null, "Arguments parse failed. \nContant your app developer.");
+				return false;
+			}
+		} else if((s = System.getProperty("videoId")) != null && s.length() > 0) {
+			inst.ui.openChannel(System.getProperty("videoId"));
+			return true;
+		} else if((s = System.getProperty("channelId")) != null && s.length() > 0) {
+			inst.ui.openChannel(System.getProperty("channelId"));
+			return true;
+		} else if((s = System.getProperty("playlistId")) != null && s.length() > 0) {
+			inst.ui.openPlaylist(System.getProperty("playlistId"));
+			return true;
+		}
+		App.warn(null, "Arguments parse failed. \nContant your app developer.");
+		return false;
+	}
 
+	public static void openURL(String url) {
+		if(inst == null || inst.ui == null) {
+			// wait till app initialize
+			try {
+				synchronized(initLock) {
+					initLock.wait();
+				}
+			} catch (Exception e) {
+				return;
+			}
+		}
+		System.out.println("openURL " + url);
+		final String https = "https://";
+		final String http = "http://";
+		final String www = "www.";
+		if(url.startsWith(https)) url = url.substring(https.length());
+		else if(url.startsWith(http)) url = url.substring(http.length());
+		if(url.startsWith(www)) url = url.substring(www.length());
+		if(url.startsWith("youtu.be")) {
+			int i = url.indexOf('/');
+			if(i == -1)
+				throw new IllegalArgumentException();
+			url = url.substring(i + 1);
+			if((i = url.indexOf('/')) != -1) {
+				url = url.substring(0, i);
+			}
+			inst.ui.openVideo(url);
+		} else if(url.startsWith("youtube.com") || 
+				url.startsWith("iteroni.com") || 
+				url.startsWith("invidious.snopyta.org")) {
+			int i = url.indexOf('/');
+			if(i == -1)
+				throw new IllegalArgumentException();
+			url = url.substring(i + 1);
+			if(url.startsWith("watch")) {
+				i = url.indexOf("?v=");
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 3);
+				if((i = url.indexOf('&')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openVideo(url);
+			} else if(url.startsWith("embed")) {
+				i = url.indexOf('/');
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 1);
+				if((i = url.indexOf('/')) != -1) {
+					url = url.substring(0, i);
+				} else if((i = url.indexOf('?')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openVideo(url);
+			} else if(url.startsWith("c")) {
+				i = url.indexOf('/');
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 1);
+				if((i = url.indexOf('/')) != -1) {
+					url = url.substring(0, i);
+				} else if((i = url.indexOf('?')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openChannel(url);
+			} else if(url.startsWith("playlist")) {
+				i = url.indexOf("?list=");
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 6);
+				if((i = url.indexOf('&')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openPlaylist(url);
+			}
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
 
 }
