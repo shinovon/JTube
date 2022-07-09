@@ -169,6 +169,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				}
 			}
 		}
+		if(Settings.smallPreviews && bottomFont.stringWidth(author) > w) {
+			arr = Util.getStringArray(author, w, bottomFont);
+			author = arr[0];
+		}
 	}
 	
 	private int getImgWidth(int w) {
