@@ -672,11 +672,11 @@ public class App implements Constants {
 	}
 	
 	public static boolean parseStartArguments() {
-		System.out.println("parseStartArguments");
 		String s;
 		if((s = System.getProperty("url")) != null && s.length() > 0) {
 			try {
-				inst.schedule(new RunnableTask(Util.decodeURL(System.getProperty("url")), 1));
+				s = Util.decodeURL(System.getProperty("url"));
+				openURL(s);
 				return true;
 			} catch (IllegalArgumentException e) {
 				App.warn(null, "Arguments parse failed. \nContant your app developer.");
