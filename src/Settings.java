@@ -64,11 +64,14 @@ public class Settings implements Constants {
 	public static void getRoots() {
 		if(rootsVector != null) return;
 		rootsVector = new Vector();
-		Enumeration roots = FileSystemRegistry.listRoots();
-		while(roots.hasMoreElements()) {
-			String s = (String) roots.nextElement();
-			if(s.startsWith("file:///")) s = s.substring("file:///".length());
-			rootsVector.addElement(s);
+		try {
+			Enumeration roots = FileSystemRegistry.listRoots();
+			while(roots.hasMoreElements()) {
+				String s = (String) roots.nextElement();
+				if(s.startsWith("file:///")) s = s.substring("file:///".length());
+				rootsVector.addElement(s);
+			}
+		} catch (Exception e) {
 		}
 	}
 	
@@ -98,45 +101,47 @@ public class Settings implements Constants {
 				boolean s40 = PlatformUtils.isS40();
 				if(!s40) {
 					getRoots();
-					String root = "";
-					for(int i = 0; i < rootsVector.size(); i++) {
-						String s = (String) rootsVector.elementAt(i);
-						if(s.startsWith("file:///")) s = s.substring("file:///".length());
-						if(s.startsWith("Video")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("SDCard")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("F:")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("E:")) {
-							root = s;
-							break;
-						}
-						if(PlatformUtils.isPhoneme()) {
-							if(s.startsWith("/Storage")) {
+					if(rootsVector.size() > 0) {
+						String root = "";
+						for(int i = 0; i < rootsVector.size(); i++) {
+							String s = (String) rootsVector.elementAt(i);
+							if(s.startsWith("file:///")) s = s.substring("file:///".length());
+							if(s.startsWith("Video")) {
 								root = s;
 								break;
 							}
-							if(s.startsWith("/MyDocs")) {
+							if(s.startsWith("SDCard")) {
 								root = s;
+								break;
+							}
+							if(s.startsWith("F:")) {
+								root = s;
+								break;
+							}
+							if(s.startsWith("E:")) {
+								root = s;
+								break;
+							}
+							if(PlatformUtils.isPhoneme()) {
+								if(s.startsWith("/Storage")) {
+									root = s;
+									break;
+								}
+								if(s.startsWith("/MyDocs")) {
+									root = s;
+								}
 							}
 						}
-					}
-					if(!root.endsWith("/")) root += "/";
-					downloadDir = root;
-					try {
-						FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
-						if(fc.exists()) {
-							downloadDir = root + "videos/";
+						if(!root.endsWith("/")) root += "/";
+						downloadDir = root;
+						try {
+							FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
+							if(fc.exists()) {
+								downloadDir = root + "videos/";
+							}
+							fc.close();
+						} catch (Exception e) {
 						}
-						fc.close();
-					} catch (Exception e) {
 					}
 				} else {
 					String downloadDir = System.getProperty("fileconn.dir.videos");
@@ -269,10 +274,7 @@ public class Settings implements Constants {
 	}
 	
 	public static void saveConfig() {
-		try {
-			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
-		} catch (Throwable e) {
-		}
+		removeConfig();
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
@@ -304,6 +306,13 @@ public class Settings implements Constants {
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
 		} catch (Exception e) {
+		}
+	}
+	
+	public static void removeConfig() {
+		try {
+			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
+		} catch (Throwable e) {
 		}
 	}
 	

@@ -29,6 +29,7 @@ import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
@@ -53,10 +54,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"720p", 
 			Locale.s(SET_VQ_AudioOnly),
 			"240p (" + Locale.s(SET_VQ_NoAudio) + ")" };
-	static final String[] SETTINGS_CHECKS = new String[] { 
-			Locale.s(SET_RememberSearch), 
-			Locale.s(SET_HTTPProxy), 
-			Locale.s(SET_PreLoadRMS),
+	static final String[] NET_CHECKS = new String[] { 
+			Locale.s(SET_HTTPProxy),
 			Locale.s(SET_IteroniProxy)
 			};
 	static final String[] APPEARANCE_CHECKS = new String[] { 
@@ -65,6 +64,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_SearchPlaylists),
 			Locale.s(SET_Amoled),
 			Locale.s(SET_SmallPreviews)
+			};
+	static final String[] MISC_CHECKS = new String[] { 
+			Locale.s(SET_RememberSearch),
+			Locale.s(SET_PreLoadRMS)
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug memory",
@@ -84,12 +87,13 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
+	static final Command resetCmd = new Command(Locale.s(SET_Reset), Command.ITEM, 3);
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
 	private TextField downloadDirText;
 	private TextField httpProxyText;
-	private ChoiceGroup checksChoice;
+	private ChoiceGroup netChoice;
 	private TextField invidiousText;
 	private TextField imgProxyText;
 	private ChoiceGroup uiChoice;
@@ -99,6 +103,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup playMethodChoice;
 	private TextField downloadBufferText;
 	private ChoiceGroup checkUpdatesChoice;
+	private ChoiceGroup miscChoice;
 
 	private List dirList;
 	private String curDir;
@@ -114,41 +119,64 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		setItemStateListener(this);
 		setCommandListener(this);
 		addCommand(applyCmd);
+		Font defaultFont = Font.getDefaultFont();
+		int titleLayout = Item.LAYOUT_2 | Item.LAYOUT_LEFT;
+		StringItem videoLabel = new StringItem("\n" + Locale.s(SET_Video), null);
+		videoLabel.setFont(defaultFont);
+		videoLabel.setLayout(titleLayout);
+		StringItem uiLabel = new StringItem("\n" + Locale.s(SET_Appearance), null);
+		uiLabel.setFont(defaultFont);
+		uiLabel.setLayout(titleLayout);
+		StringItem netLabel = new StringItem("\n" + Locale.s(SET_Network), null);
+		netLabel.setFont(defaultFont);
+		netLabel.setLayout(titleLayout);
+		StringItem miscLabel = new StringItem("\n" + Locale.s(SET_OtherSettings), null);
+		miscLabel.setFont(defaultFont);
+		miscLabel.setLayout(titleLayout);
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
-		append(videoResChoice);
 		regionText = new TextField(Locale.s(SET_CountryCode), Settings.region, 3, TextField.ANY);
 		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
-		append(playMethodChoice);
-		append(regionText);
 		checkUpdatesChoice = new ChoiceGroup(Locale.s(SET_CheckUpdates), ChoiceGroup.POPUP, ON_OFF, null);
-		append(checkUpdatesChoice);
-		uiChoice = new ChoiceGroup(Locale.s(SET_Appearance), ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
-		append(uiChoice);
-		checksChoice = new ChoiceGroup(Locale.s(SET_OtherSettings), ChoiceGroup.MULTIPLE, SETTINGS_CHECKS, null);
-		append(checksChoice);
+		uiChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
+		netChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, NET_CHECKS, null);
+		miscChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, MISC_CHECKS, null);
 		downloadDirText = new TextField(Locale.s(SET_DownloadDir), Settings.downloadDir, 256, TextField.URL);
-		append(downloadDirText);
 		dirBtn = new StringItem(null, "...", Item.BUTTON);
 		dirBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
 		dirBtn.setDefaultCommand(dirCmd);
 		dirBtn.setItemCommandListener(this);
-		append(dirBtn);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
 		invidiousText.setLayout(Item.LAYOUT_2 | Item.LAYOUT_LEFT);
-		append(invidiousText);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 				Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
-		proxyTextIdx = append(httpProxyText);
-		append(Locale.s(SET_Tip3) + "\n");
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), Settings.imgproxy, 256, TextField.URL);
-		append(imgProxyText);
-		append(Locale.s(SET_Tip2) + "\n");
 		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), Settings.customLocale, 8, TextField.ANY);
-		append(customLocaleText);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
-		append(downloadBufferText);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
+		append(videoLabel);
+		append(videoResChoice);
+		append(playMethodChoice);
+		append(downloadDirText);
+		append(dirBtn);
+		append(uiLabel);
+		append(uiChoice);
+		append(regionText);
+		append(customLocaleText);
+		append(netLabel);
+		append(netChoice);
+		append(invidiousText);
+		proxyTextIdx = append(httpProxyText);
+		append(imgProxyText);
+		append(downloadBufferText);
+		append(miscLabel);
+		append(checkUpdatesChoice);
 		append(debugChoice);
+		StringItem resetBtn = new StringItem(null, Locale.s(SET_Reset), StringItem.BUTTON);
+		resetBtn.addCommand(resetCmd);
+		resetBtn.setDefaultCommand(resetCmd);
+		resetBtn.setItemCommandListener(this);
+		resetBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_EXPAND);
+		append(resetBtn);
 	}
 	
 	public void show() {
@@ -157,14 +185,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		uiChoice.setSelectedIndex(2, Settings.searchPlaylists);
 		uiChoice.setSelectedIndex(3, Settings.amoled);
 		uiChoice.setSelectedIndex(4, Settings.smallPreviews);
-		checksChoice.setSelectedIndex(0, Settings.rememberSearch);
-		checksChoice.setSelectedIndex(1, Settings.httpStream);
-		checksChoice.setSelectedIndex(2, Settings.rmsPreviews);
-		checksChoice.setSelectedIndex(3, Settings.iteroniPlaybackProxy);
+		netChoice.setSelectedIndex(0, Settings.httpStream);
+		netChoice.setSelectedIndex(1, Settings.iteroniPlaybackProxy);
 		debugChoice.setSelectedIndex(0, Settings.debugMemory);
 		debugChoice.setSelectedIndex(1, Settings.renderDebug);
 		debugChoice.setSelectedIndex(2, Settings.asyncLoading);
 		debugChoice.setSelectedIndex(3, Settings.fastScrolling);
+		miscChoice.setSelectedIndex(0, Settings.rememberSearch);
+		miscChoice.setSelectedIndex(1, Settings.rmsPreviews);
 		try {
 			playMethodChoice.setSelectedIndex(Settings.watchMethod, true);
 		} catch (IndexOutOfBoundsException e) {
@@ -212,19 +240,21 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				dir = dir.substring(0, dir.length() - 1);
 			}
 			Settings.downloadDir = dir;
-			boolean[] s = new boolean[checksChoice.size()];
-			checksChoice.getSelectedFlags(s);
+			boolean[] net = new boolean[netChoice.size()];
+			netChoice.getSelectedFlags(net);
 			boolean[] ui = new boolean[uiChoice.size()];
 			uiChoice.getSelectedFlags(ui);
+			boolean[] misc = new boolean[miscChoice.size()];
+			miscChoice.getSelectedFlags(misc);
 			Settings.videoPreviews = ui[0];
 			Settings.searchChannels = ui[1];
 			Settings.searchPlaylists = ui[2];
 			Settings.amoled = ui[3];
 			Settings.smallPreviews = ui[4];
-			Settings.rememberSearch = s[0];
-			Settings.httpStream = s[1];
-			Settings.rmsPreviews = s[2];
-			Settings.iteroniPlaybackProxy = s[3];
+			Settings.httpStream = net[0];
+			Settings.iteroniPlaybackProxy = net[1];
+			Settings.rememberSearch = misc[0];
+			Settings.rmsPreviews = misc[1];
 			Settings.serverstream = httpProxyText.getString();
 			Settings.inv = invidiousText.getString();
 			Settings.imgproxy = imgProxyText.getString();
@@ -337,6 +367,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 
 	public void commandAction(Command c, Item item) {
+		if(c == resetCmd) {
+			Settings.removeConfig();
+		}
 		if(c == dirCmd) {
 			dirList = new List("", List.IMPLICIT);
 			Settings.getRoots();
@@ -355,9 +388,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 
 	public void itemStateChanged(Item item) {
-		if(item == checksChoice) {
+		if(item == netChoice) {
 			boolean b = Settings.iteroniPlaybackProxy;
-			Settings.iteroniPlaybackProxy = checksChoice.isSelected(3);
+			Settings.iteroniPlaybackProxy = netChoice.isSelected(3);
 			if(Settings.iteroniPlaybackProxy != b) {
 				httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 						Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
