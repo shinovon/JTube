@@ -10,8 +10,8 @@ import Locale;
 import Records;
 import Settings;
 import ui.AppUI;
-import ui.DirectFontUtil;
 import ui.UIConstants;
+import ui.nokia_extensions.DirectFontUtil;
 import ui.screens.SearchScreen;
 import models.VideoModel;
 

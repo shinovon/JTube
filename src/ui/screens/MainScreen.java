@@ -10,16 +10,14 @@ import Locale;
 import Settings;
 import cc.nnproject.utils.PlatformUtils;
 import ui.Commands;
-import ui.AbstractListScreen;
 import ui.AppUI;
 import ui.items.VideoItem;
 
-public class MainScreen extends AbstractListScreen implements Commands, CommandListener {
+public class MainScreen extends SearchBarScreen implements Commands, CommandListener  {
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
 	
 	private boolean okAdded;
-	private boolean wasHidden;
 
 	public MainScreen() {
 		super("", null);
@@ -35,24 +33,26 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 			addCommand(okCmd);
 		}
 		super.show();
-		if(Settings.videoPreviews && wasHidden) {
+		if(wasHidden) {
 			wasHidden = false;
-			// resume loading previews
-			App.inst.stopAsyncTasks();
-			boolean b = false;
-			for(int i = 0; i < items.size(); i++) {
-				Object o = items.elementAt(i);
-				if(o instanceof VideoItem) {
-					App.inst.addAsyncTask(((VideoItem)o).getVideo());
-					b = true;
+			if(Settings.videoPreviews) {
+				// resume loading previews
+				App.inst.stopAsyncTasks();
+				boolean b = false;
+				for(int i = 0; i < items.size(); i++) {
+					Object o = items.elementAt(i);
+					if(o instanceof VideoItem) {
+						App.inst.addAsyncTask(((VideoItem)o).getVideo());
+						b = true;
+					}
 				}
+				if(b) App.inst.startAsyncTasks();
 			}
-			if(b) App.inst.startAsyncTasks();
 		}
 	}
 	
 	protected void hide() {
-		wasHidden = true;
+		super.hide();
 		if(Settings.rmsPreviews) {
 			for(int i = 0; i < items.size(); i++) {
 				Object o = items.elementAt(i);
@@ -65,6 +65,9 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 	
 	public void paint(Graphics g, int w, int h) {
 		if(AppUI.loadingState) {
+			if(editor != null && editor.isVisible()) {
+				editor.setVisible(false);
+			}
 			g.setColor(AppUI.getColor(COLOR_MAINBG));
 			g.fillRect(0, 0, w, h);
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
@@ -75,6 +78,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 		}
 		super.paint(g, w, h);
 	}
+	
 	
 	public void keyPress(int i) {
 		if(!okAdded && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {

@@ -286,6 +286,8 @@ public class Locale implements LocaleConstants {
 				return "Video";
 			case SET_Network:
 				return "Network";
+			case TXT_SearchHint:
+				return "Search..";
 			}
 		}
 		case 1: {
@@ -462,6 +464,8 @@ public class Locale implements LocaleConstants {
 				return "Видео";
 			case SET_Network:
 				return "Сеть";
+			case TXT_SearchHint:
+				return "Поиск..";
 			}
 		}
 		}

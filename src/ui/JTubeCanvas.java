@@ -3,7 +3,7 @@ package ui;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
 
-import App;
+import Util;
 import Settings;
 
 public class JTubeCanvas extends GameCanvas implements UIConstants {
@@ -28,6 +28,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private boolean draggedScrollbar;
 	private int flushTime;
 	private Graphics g;
+	private int bufferWidth;
 	
 	JTubeCanvas(AppUI ui) {
 		super(false);
@@ -38,10 +39,13 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		if(!super.hasPointerEvents()) {
 			ui.setKeyInputMode();
 		}
-		g = getGraphics();
 	}
 
 	public void updateScreen() {
+		if(bufferWidth != width) {
+			g = getGraphics();
+			bufferWidth = width;
+		}
 		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.getCurrentScreen();
@@ -244,11 +248,9 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	protected void sizeChanged(int w, int h) {
-		App.width = width = w;
-		App.height = height = h;
-		g = getGraphics();
-		g.setColor(AppUI.getColor(COLOR_MAINBG));
-		g.fillRect(0, 0, width, height);
+		width = w;
+		height = h;
+		Util.testCanvas();
 		needRepaint();
 	}
 

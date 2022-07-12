@@ -49,6 +49,8 @@ import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.json.AbstractJSON;
 import models.VideoModel;
+import ui.nokia_extensions.DirectFontUtil;
+import ui.nokia_extensions.TextEditorUtil;
 import ui.screens.ChannelScreen;
 import ui.screens.MainScreen;
 import ui.screens.SearchScreen;
@@ -268,6 +270,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		mainScr = new MainScreen();
 		try {
 			DirectFontUtil.init();
+		} catch (Throwable e) {
+		}
+		try {
+			TextEditorUtil.init();
 		} catch (Throwable e) {
 		}
 	}
@@ -676,10 +682,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			disposeVideoPage();
 		}
 		app.stopAsyncTasks();
-		ModelScreen scr = model.makeScreen();
+		IModelScreen scr = model.makeScreen();
 		scr.setContainerScreen(formContainer);
 		display(null);
-		setScreen(scr);
+		setScreen((UIScreen) scr);
 		if(scr instanceof VideoScreen) {
 			ui.videoScr = (VideoScreen) scr;
 		} else if(scr instanceof ChannelScreen) {
@@ -790,7 +796,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void back(UIScreen s) {
-		if(s instanceof ModelScreen && ((ModelScreen)s).getModel().isFromSearch() && searchScr != null) {
+		if(s instanceof IModelScreen && ((IModelScreen)s).getModel().isFromSearch() && searchScr != null) {
 			setScreen(searchScr);
 		} else {
 			showMain();
@@ -812,6 +818,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		addCommand(optsCmd);
+	}
+
+	public JTubeCanvas getCanvas() {
+		return canv;
 	}
 
 }

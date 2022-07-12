@@ -16,7 +16,7 @@ import Settings;
 import Constants;
 import ui.Commands;
 import ui.UIScreen;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.UIItem;
 import models.ChannelModel;
 import models.PlaylistModel;
@@ -28,7 +28,7 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 
-public class ChannelScreen extends ModelScreen implements Commands, CommandListener, Constants, Runnable {
+public class ChannelScreen extends SearchBarScreen implements IModelScreen, Commands, CommandListener, Constants, Runnable {
 
 	private ChannelModel channel;
 	
@@ -57,8 +57,9 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 	private UIItem channelItem;
 
 	public ChannelScreen(ChannelModel c) {
-		super(c.getAuthor());
+		super(c.getAuthor(), null);
 		this.channel = c;
+		setSearchText("");
 	}
 	
 	public void paint(Graphics g, int w, int h) {
@@ -131,8 +132,12 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		addCommand(backCmd);
 		addCommand(searchCmd);
 		super.show();
+		if(wasHidden) {
+			wasHidden = false;
+		}
 		if(!shown) {
 			shown = true;
+			new Thread(this).run();
 			App.inst.stopAsyncTasks();
 			try {
 				Thread.sleep(50);
@@ -146,8 +151,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		} else if(okAdded || ui.isKeyInputMode()) {
 			okAdded = true;
 			addCommand(okCmd);
-		}
-		new Thread(this).run();
+		};
 	}
 	
 	private void init() {
@@ -167,7 +171,7 @@ public class ChannelScreen extends ModelScreen implements Commands, CommandListe
 		return p.makeListItem();
 	}
 
-	private void search(String q) {
+	protected void search(String q) {
 		clear();
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));

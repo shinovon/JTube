@@ -58,6 +58,7 @@ public class Settings implements Constants {
 	public static boolean amoled;
 	public static boolean fastScrolling;
 	public static boolean smallPreviews = true;
+	public static boolean searchBar = true;
 
 	public static Vector rootsVector;
 	
@@ -154,6 +155,7 @@ public class Settings implements Constants {
 					Settings.downloadDir = downloadDir;
 				}
 				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
+				searchBar = false;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					httpStream = true;
@@ -171,6 +173,7 @@ public class Settings implements Constants {
 					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
+						searchBar = true;
 					}
 					if(PlatformUtils.isPhoneme()) {
 						asyncLoading = true;
@@ -185,6 +188,9 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					serverstream = stream;
 					videoPreviews = true;
+					if(PlatformUtils.isAshaFullTouch()) {
+						searchBar = true;
+					}
 					//char c = PlatformUtils.platform.charAt(5);
 					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
@@ -267,6 +273,10 @@ public class Settings implements Constants {
 					amoled = j.getBoolean("amoled");
 				if(j.has("smallPreviews"))
 					smallPreviews = j.getBoolean("smallPreviews");
+				if(j.has("fastScrolling"))
+					fastScrolling = j.getBoolean("fastScrolling");
+				if(j.has("searchBar"))
+					searchBar = j.getBoolean("searchBar");
 				return;
 			} catch (Exception e) {
 			}
@@ -302,6 +312,8 @@ public class Settings implements Constants {
 			j.put("renderDebug", new Boolean(renderDebug));
 			j.put("amoled", new Boolean(amoled));
 			j.put("smallPreviews", new Boolean(smallPreviews));
+			j.put("fastScrolling", new Boolean(fastScrolling));
+			j.put("searchBar", new Boolean(searchBar));
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();

@@ -115,5 +115,6 @@ public interface LocaleConstants {
 	public static final int SET_Reset = 93;
 	public static final int SET_Video = 94;
 	public static final int SET_Network = 95;
+	public static final int TXT_SearchHint = 96;
 
 }

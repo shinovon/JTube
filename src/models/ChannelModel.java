@@ -28,7 +28,7 @@ import javax.microedition.lcdui.Image;
 import App;
 import Settings;
 import Constants;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.UIItem;
 import InvidiousException;
 import ui.items.ChannelItem;
@@ -167,7 +167,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		return item = new ChannelItem(this);
 	}
 
-	public ModelScreen makeScreen() {
+	public IModelScreen makeScreen() {
 		return new ChannelScreen(this);
 	}
 

@@ -14,16 +14,17 @@ import Locale;
 import Settings;
 import ui.AppUI;
 import ui.Commands;
-import ui.DirectFontUtil;
 import ui.UIScreen;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import models.VideoModel;
-import ui.items.ChannelItem;
 import ui.items.LabelItem;
-import ui.items.LineSplitItem;
+import ui.items.ChannelItem;
 import models.AbstractModel;
+import ui.AbstractListScreen;
+import ui.items.LineSplitItem;
+import ui.nokia_extensions.DirectFontUtil;
 
-public class VideoScreen extends ModelScreen implements CommandListener, Commands, Runnable {
+public class VideoScreen extends AbstractListScreen implements IModelScreen, CommandListener, Commands, Runnable {
 
 	private VideoModel video;
 	
@@ -37,7 +38,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 	private ChannelItem channelItem;
 
 	public VideoScreen(VideoModel v) {
-		super(v.getTitle());
+		super(v.getTitle(), null);
 		this.video = v;
 	}
 	
@@ -107,6 +108,7 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 		super.show();
 		if(!shown) {
 			shown = true;
+			new Thread(this).run();
 			App.inst.stopAsyncTasks();
 			try {
 				Thread.sleep(50);
@@ -115,7 +117,6 @@ public class VideoScreen extends ModelScreen implements CommandListener, Command
 			App.inst.addAsyncTask(this);
 			App.inst.startAsyncTasks();
 		}
-		new Thread(this).run();
 	}
 	
 	public boolean supportCommands() {

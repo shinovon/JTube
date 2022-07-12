@@ -8,9 +8,10 @@ import Util;
 import Errors;
 import Settings;
 import Constants;
+import ui.AbstractListScreen;
 import ui.Commands;
 import ui.UIScreen;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.UIItem;
 import models.VideoModel;
 import models.AbstractModel;
@@ -18,7 +19,7 @@ import models.PlaylistModel;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 
-public class PlaylistScreen extends ModelScreen implements Commands, Constants {
+public class PlaylistScreen extends AbstractListScreen implements IModelScreen, Commands, Constants {
 
 	private PlaylistModel playlist;
 	
@@ -31,7 +32,7 @@ public class PlaylistScreen extends ModelScreen implements Commands, Constants {
 	private boolean shown;
 
 	public PlaylistScreen(PlaylistModel p) {
-		super(p.getTitle());
+		super(p.getTitle(), null);
 		this.playlist = p;
 		containerScreen = p.getContainerScreen();
 	}

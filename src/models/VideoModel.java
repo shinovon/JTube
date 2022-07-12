@@ -32,7 +32,7 @@ import Settings;
 import Constants;
 import InvidiousException;
 import ui.AppUI;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.UIItem;
 import ui.UIScreen;
 import ui.items.ChannelItem;
@@ -377,7 +377,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		return prevItem = new VideoPreviewItem(this, img);
 	}
 
-	public ModelScreen makeScreen() {
+	public IModelScreen makeScreen() {
 		return new VideoScreen(this);
 	}
 	

@@ -36,6 +36,8 @@ public class Util implements Constants {
 	
 	private static int buffer_size;
 	
+	private static Canvas testCanvas;
+	
 	static {
 		try {
 			buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
@@ -260,9 +262,10 @@ public class Util implements Constants {
 	}
 
 	public static void testCanvas() {
-		Canvas c = new TestCanvas();
-		App.width = c.getWidth();
-		App.height = c.getHeight();
+		if(testCanvas == null)
+			testCanvas = new TestCanvas();
+		App.width = testCanvas.getWidth();
+		App.height = testCanvas.getHeight();
 	}
 
 	public static String getFileName(String s) {
