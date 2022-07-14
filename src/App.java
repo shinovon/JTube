@@ -40,6 +40,7 @@ import ui.AppUI;
 import models.ILoader;
 import cc.nnproject.json.JSON;
 import cc.nnproject.ytapp.App2;
+import midletintegration.MIDletIntegration;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.json.AbstractJSON;
@@ -112,7 +113,6 @@ public class App implements Constants {
 	public static int width;
 	public static int height;
 	
-	private static int instances;
 	private static Object initLock = new Object();
 
 	public void startApp() {
@@ -653,16 +653,8 @@ public class App implements Constants {
 	}
 	
 	public static boolean checkStartArguments() {
-		if(System.getProperty("com.nokia.mid.cmdline.instance") == null)
-			return false;
 		try {
-			int i = Integer.parseInt(System.getProperty("com.nokia.mid.cmdline.instance")) ;
-			if(i > instances) {
-				instances = i;
-				String cmd = System.getProperty("com.nokia.mid.cmdline");
-				if(cmd == null || cmd.length() == 0) {
-					return false;
-				}
+			if(MIDletIntegration.checkLaunch()) {
 				return parseStartArguments();
 			}
 		} catch (Exception e) {

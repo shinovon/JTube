@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="json"/>
 	<classpathentry kind="src" path="res"/>
-	<classpathentry kind="con" path="org.elipse.mtj.JavaMEContainer/Series 40 5th Edition SDK/S40_5th_Edition_SDK"/>
+	<classpathentry kind="src" path="MIDletIntegrationLibrary/src"/>
+	<classpathentry kind="con" path="org.elipse.mtj.JavaMEContainer/Nokia Symbian3 SDK v1.0 /SymbianDevice"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

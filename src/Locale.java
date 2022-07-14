@@ -288,6 +288,8 @@ public class Locale implements LocaleConstants {
 				return "Network";
 			case TXT_SearchHint:
 				return "Search..";
+			case SET_AutoStart:
+				return "Auto-start from other applications";
 			}
 		}
 		case 1: {
@@ -466,6 +468,8 @@ public class Locale implements LocaleConstants {
 				return "Сеть";
 			case TXT_SearchHint:
 				return "Поиск..";
+			case SET_AutoStart:
+				return "Авто-старт из других приложений";
 			}
 		}
 		}

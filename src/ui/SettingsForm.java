@@ -104,6 +104,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private TextField downloadBufferText;
 	private ChoiceGroup checkUpdatesChoice;
 	private ChoiceGroup miscChoice;
+	private ChoiceGroup autoStartChoice;
 
 	private List dirList;
 	private String curDir;
@@ -153,6 +154,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), Settings.customLocale, 8, TextField.ANY);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
+		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
@@ -170,6 +172,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(downloadBufferText);
 		append(miscLabel);
 		append(checkUpdatesChoice);
+		append(autoStartChoice);
 		append(debugChoice);
 		StringItem resetBtn = new StringItem(null, Locale.s(SET_Reset), StringItem.BUTTON);
 		resetBtn.addCommand(resetCmd);
@@ -199,6 +202,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			playMethodChoice.setSelectedIndex(Settings.watchMethod = 0, true);
 		}
 		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
+		autoStartChoice.setSelectedIndex(Settings.autoStart ? 0 : 1, true);
 		setResolution();
 	}
 	
@@ -266,10 +270,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.renderDebug = debugChoice.isSelected(1);
 			Settings.asyncLoading = debugChoice.isSelected(2);
 			Settings.fastScrolling = debugChoice.isSelected(3);
+			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.saveConfig();
 		} catch (Exception e) {
 			App.error(this, Errors.Settings_apply, e);
 		}
+		Settings.registerPush();
 	}
 	
 	private void dirListOpen(String f, String title) {

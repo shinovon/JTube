@@ -30,6 +30,7 @@ import javax.microedition.rms.RecordStore;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
+import midletintegration.MIDletIntegration;
 
 public class Settings implements Constants {
 	
@@ -59,6 +60,7 @@ public class Settings implements Constants {
 	public static boolean fastScrolling;
 	public static boolean smallPreviews = true;
 	public static boolean searchBar = true;
+	public static boolean autoStart;
 
 	public static Vector rootsVector;
 	
@@ -277,10 +279,13 @@ public class Settings implements Constants {
 					fastScrolling = j.getBoolean("fastScrolling");
 				if(j.has("searchBar"))
 					searchBar = j.getBoolean("searchBar");
+				if(j.has("autoStart"))
+					autoStart = j.getBoolean("autoStart");
 				return;
 			} catch (Exception e) {
 			}
 		}
+		registerPush();
 	}
 	
 	public static void saveConfig() {
@@ -314,6 +319,7 @@ public class Settings implements Constants {
 			j.put("smallPreviews", new Boolean(smallPreviews));
 			j.put("fastScrolling", new Boolean(fastScrolling));
 			j.put("searchBar", new Boolean(searchBar));
+			j.put("autoStart", new Boolean(autoStart));
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
@@ -335,6 +341,18 @@ public class Settings implements Constants {
 						App.width < 176 || 
 						PlatformUtils.startMemory < 1024 * 1024 ||
 						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
+	}
+	
+	public static void registerPush() {
+		try {
+			int port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
+			if(autoStart) {
+				MIDletIntegration.registerPush(App.midlet, port);
+			} else {
+				MIDletIntegration.unregisterPush(port);
+			}
+		} catch (Exception e) {
+		}
 	}
 
 }
