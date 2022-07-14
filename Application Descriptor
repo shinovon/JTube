@@ -14,5 +14,5 @@ S60-Selection-Key-Compatibility: true
 MIDlet-1: JTube,/icon.png,cc.nnproject.ytapp.App2
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-URL: JTube.jar
-MIDlet-Permissions: javax.microedition.io.Connector.http,javax.microedition.io.Connector.file.write,javax.microedition.io.Connector.file.read,javax.microedition.io.Connector.datagram,javax.microedition.io.PushRegistry
+MIDlet-Permissions: javax.microedition.io.Connector.http,javax.microedition.io.Connector.file.write,javax.microedition.io.Connector.file.read,javax.microedition.io.PushRegistry
 Nokia-Scalable-Icon-MIDlet-1: /icon.svg
