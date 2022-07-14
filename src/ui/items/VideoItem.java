@@ -10,8 +10,8 @@ import Locale;
 import Records;
 import Settings;
 import ui.AppUI;
-import ui.DirectFontUtil;
 import ui.UIConstants;
+import ui.nokia_extensions.DirectFontUtil;
 import ui.screens.SearchScreen;
 import models.VideoModel;
 
@@ -168,6 +168,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 					titleArr[1] = arr[1];
 				}
 			}
+		}
+		if(Settings.smallPreviews && bottomFont.stringWidth(author) > w) {
+			arr = Util.getStringArray(author, w, bottomFont);
+			author = arr[0];
 		}
 	}
 	

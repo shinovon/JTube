@@ -58,17 +58,21 @@ public class Settings implements Constants {
 	public static boolean amoled;
 	public static boolean fastScrolling;
 	public static boolean smallPreviews = true;
+	public static boolean searchBar = true;
 
 	public static Vector rootsVector;
 	
 	public static void getRoots() {
 		if(rootsVector != null) return;
 		rootsVector = new Vector();
-		Enumeration roots = FileSystemRegistry.listRoots();
-		while(roots.hasMoreElements()) {
-			String s = (String) roots.nextElement();
-			if(s.startsWith("file:///")) s = s.substring("file:///".length());
-			rootsVector.addElement(s);
+		try {
+			Enumeration roots = FileSystemRegistry.listRoots();
+			while(roots.hasMoreElements()) {
+				String s = (String) roots.nextElement();
+				if(s.startsWith("file:///")) s = s.substring("file:///".length());
+				rootsVector.addElement(s);
+			}
+		} catch (Exception e) {
 		}
 	}
 	
@@ -98,45 +102,47 @@ public class Settings implements Constants {
 				boolean s40 = PlatformUtils.isS40();
 				if(!s40) {
 					getRoots();
-					String root = "";
-					for(int i = 0; i < rootsVector.size(); i++) {
-						String s = (String) rootsVector.elementAt(i);
-						if(s.startsWith("file:///")) s = s.substring("file:///".length());
-						if(s.startsWith("Video")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("SDCard")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("F:")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("E:")) {
-							root = s;
-							break;
-						}
-						if(PlatformUtils.isPhoneme()) {
-							if(s.startsWith("/Storage")) {
+					if(rootsVector.size() > 0) {
+						String root = "";
+						for(int i = 0; i < rootsVector.size(); i++) {
+							String s = (String) rootsVector.elementAt(i);
+							if(s.startsWith("file:///")) s = s.substring("file:///".length());
+							if(s.startsWith("Video")) {
 								root = s;
 								break;
 							}
-							if(s.startsWith("/MyDocs")) {
+							if(s.startsWith("SDCard")) {
 								root = s;
+								break;
+							}
+							if(s.startsWith("F:")) {
+								root = s;
+								break;
+							}
+							if(s.startsWith("E:")) {
+								root = s;
+								break;
+							}
+							if(PlatformUtils.isPhoneme()) {
+								if(s.startsWith("/Storage")) {
+									root = s;
+									break;
+								}
+								if(s.startsWith("/MyDocs")) {
+									root = s;
+								}
 							}
 						}
-					}
-					if(!root.endsWith("/")) root += "/";
-					downloadDir = root;
-					try {
-						FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
-						if(fc.exists()) {
-							downloadDir = root + "videos/";
+						if(!root.endsWith("/")) root += "/";
+						downloadDir = root;
+						try {
+							FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
+							if(fc.exists()) {
+								downloadDir = root + "videos/";
+							}
+							fc.close();
+						} catch (Exception e) {
 						}
-						fc.close();
-					} catch (Exception e) {
 					}
 				} else {
 					String downloadDir = System.getProperty("fileconn.dir.videos");
@@ -149,6 +155,7 @@ public class Settings implements Constants {
 					Settings.downloadDir = downloadDir;
 				}
 				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
+				searchBar = false;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					httpStream = true;
@@ -166,6 +173,7 @@ public class Settings implements Constants {
 					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
+						searchBar = true;
 					}
 					if(PlatformUtils.isPhoneme()) {
 						asyncLoading = true;
@@ -180,6 +188,9 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					serverstream = stream;
 					videoPreviews = true;
+					if(PlatformUtils.isAshaFullTouch()) {
+						searchBar = true;
+					}
 					//char c = PlatformUtils.platform.charAt(5);
 					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
@@ -262,6 +273,10 @@ public class Settings implements Constants {
 					amoled = j.getBoolean("amoled");
 				if(j.has("smallPreviews"))
 					smallPreviews = j.getBoolean("smallPreviews");
+				if(j.has("fastScrolling"))
+					fastScrolling = j.getBoolean("fastScrolling");
+				if(j.has("searchBar"))
+					searchBar = j.getBoolean("searchBar");
 				return;
 			} catch (Exception e) {
 			}
@@ -269,10 +284,7 @@ public class Settings implements Constants {
 	}
 	
 	public static void saveConfig() {
-		try {
-			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
-		} catch (Throwable e) {
-		}
+		removeConfig();
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
@@ -300,10 +312,19 @@ public class Settings implements Constants {
 			j.put("renderDebug", new Boolean(renderDebug));
 			j.put("amoled", new Boolean(amoled));
 			j.put("smallPreviews", new Boolean(smallPreviews));
+			j.put("fastScrolling", new Boolean(fastScrolling));
+			j.put("searchBar", new Boolean(searchBar));
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
 		} catch (Exception e) {
+		}
+	}
+	
+	public static void removeConfig() {
+		try {
+			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
+		} catch (Throwable e) {
 		}
 	}
 	

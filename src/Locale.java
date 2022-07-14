@@ -153,7 +153,7 @@ public class Locale implements LocaleConstants {
 			case SET_Appearance:
 				return "Appearance";
 			case SET_OtherSettings:
-				return "Common";
+				return "Misc";
 			case SET_DownloadDir:
 				return "Download directory";
 			case SET_InvAPI:
@@ -280,6 +280,14 @@ public class Locale implements LocaleConstants {
 				return "Night theme";
 			case SET_SmallPreviews:
 				return "Small previews";
+			case SET_Reset:
+				return "Reset settings";
+			case SET_Video:
+				return "Video";
+			case SET_Network:
+				return "Network";
+			case TXT_SearchHint:
+				return "Search..";
 			}
 		}
 		case 1: {
@@ -323,7 +331,7 @@ public class Locale implements LocaleConstants {
 			case SET_Appearance:
 				return "Внешность";
 			case SET_OtherSettings:
-				return "Общие";
+				return "Настройки приложения";
 			case SET_DownloadDir:
 				return "Папка для скачивания";
 			case SET_InvAPI:
@@ -450,6 +458,14 @@ public class Locale implements LocaleConstants {
 				return "Ночная тема";
 			case SET_SmallPreviews:
 				return "Маленькие превью";
+			case SET_Reset:
+				return "Сбросить настройки";
+			case SET_Video:
+				return "Видео";
+			case SET_Network:
+				return "Сеть";
+			case TXT_SearchHint:
+				return "Поиск..";
 			}
 		}
 		}

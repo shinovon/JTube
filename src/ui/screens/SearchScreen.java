@@ -6,27 +6,29 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 
 import Locale;
-import cc.nnproject.utils.PlatformUtils;
-import ui.AbstractListScreen;
 import ui.AppUI;
 import ui.Commands;
 import ui.UIScreen;
+import cc.nnproject.utils.PlatformUtils;
 
-public class SearchScreen extends AbstractListScreen implements Commands, CommandListener {
+public class SearchScreen extends SearchBarScreen implements Commands, CommandListener {
 
 	private boolean okAdded;
 	
 	private Command okCmd = new Command("OK", Command.OK, 5);
-
-	private String query;
+	
+	private String query = "";
 
 	public SearchScreen(String q, UIScreen parent) {
 		super(Locale.s(TITLE_SearchQuery) + " - " + q, parent);
-		query = q;
+		setSearchText(query = q);
 	}
 	
 	public void paint(Graphics g, int w, int h) {
 		if(AppUI.loadingState) {
+			if(MainScreen.editor != null && MainScreen.editor.isVisible()) {
+				MainScreen.editor.setVisible(false);
+			}
 			g.setColor(AppUI.getColor(COLOR_MAINBG));
 			g.fillRect(0, 0, w, h);
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
@@ -42,6 +44,9 @@ public class SearchScreen extends AbstractListScreen implements Commands, Comman
 		ui.addOptionCommands();
 		addCommand(backCmd);
 		super.show();
+		if(wasHidden) {
+			wasHidden = false;
+		}
 		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
 			okAdded = true;
 		} else if(okAdded || ui.isKeyInputMode()) {

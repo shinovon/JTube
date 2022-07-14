@@ -1,4 +1,4 @@
-package ui;
+package ui.nokia_extensions;
 
 import javax.microedition.lcdui.Font;
 
