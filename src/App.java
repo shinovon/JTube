@@ -21,6 +21,7 @@ SOFTWARE.
 */
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.Connector;
@@ -112,8 +113,6 @@ public class App implements Constants {
 	
 	public static int width;
 	public static int height;
-	
-	private static Object initLock = new Object();
 
 	public void startApp() {
 		loadingForm = new Form("Loading");
@@ -189,9 +188,6 @@ public class App implements Constants {
 		}
 		if(!checkStartArguments()) {
 			ui.loadMain();
-		}
-		synchronized(initLock) {
-			initLock.notifyAll();
 		}
 		checkUpdate();
 		if(Settings.debugMemory) {
@@ -664,42 +660,33 @@ public class App implements Constants {
 	}
 	
 	public static boolean parseStartArguments() {
+		Hashtable args = MIDletIntegration.getArguments(MIDletIntegration.getLaunchCommand());
 		String s;
-		if((s = System.getProperty("url")) != null && s.length() > 0) {
+		if((s = (String) args.get("url")) != null && s.length() > 0) {
 			try {
-				s = Util.decodeURL(System.getProperty("url"));
+				s = Util.decodeURL(s);
 				openURL(s);
 				return true;
 			} catch (IllegalArgumentException e) {
-				App.warn(null, "Arguments parse failed. \nContant your app developer.");
 				return false;
 			}
-		} else if((s = System.getProperty("videoId")) != null && s.length() > 0) {
-			inst.ui.openChannel(System.getProperty("videoId"));
+		} else if((s = (String) args.get("videoId")) != null && s.length() > 0) {
+			inst.ui.openChannel(s);
 			return true;
-		} else if((s = System.getProperty("channelId")) != null && s.length() > 0) {
-			inst.ui.openChannel(System.getProperty("channelId"));
+		} else if((s = (String) args.get("channelId")) != null && s.length() > 0) {
+			inst.ui.openChannel(s);
 			return true;
-		} else if((s = System.getProperty("playlistId")) != null && s.length() > 0) {
-			inst.ui.openPlaylist(System.getProperty("playlistId"));
+		} else if((s = (String) args.get("playlistId")) != null && s.length() > 0) {
+			inst.ui.openPlaylist(s);
 			return true;
 		}
-		App.warn(null, "Arguments parse failed. \nContant your app developer.");
 		return false;
 	}
 
 	public static void openURL(String url) {
 		if(inst == null || inst.ui == null) {
-			// wait till app initialize
-			try {
-				synchronized(initLock) {
-					initLock.wait();
-				}
-			} catch (Exception e) {
-				return;
-			}
+			return;
 		}
-		System.out.println("openURL " + url);
 		final String https = "https://";
 		final String http = "http://";
 		final String www = "www.";

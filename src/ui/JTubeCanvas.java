@@ -27,8 +27,6 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private boolean controlBlock;
 	private boolean draggedScrollbar;
 	private int flushTime;
-	private Graphics g;
-	private int bufferWidth;
 	
 	JTubeCanvas(AppUI ui) {
 		super(false);
@@ -39,13 +37,11 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		if(!super.hasPointerEvents()) {
 			ui.setKeyInputMode();
 		}
+		updateScreen();
 	}
 
 	public void updateScreen() {
-		if(bufferWidth != width) {
-			g = getGraphics();
-			bufferWidth = width;
-		}
+		Graphics g = getGraphics();
 		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.getCurrentScreen();
