@@ -62,7 +62,13 @@ public class Util implements Constants {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
-			hc.setRequestProperty("accept-language", "en-US");
+			String locale = null;
+			if(Locale.systemLocale != null)
+				locale = Locale.systemLocale;
+			if(Settings.customLocale != null)
+				locale = Settings.customLocale;
+			if(locale != null)
+				hc.setRequestProperty("accept-language", locale);
 			if(isLoader) {
 				if(il.checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");

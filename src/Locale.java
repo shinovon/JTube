@@ -290,30 +290,6 @@ public class Locale implements LocaleConstants {
 				return "Search..";
 			case SET_AutoStart:
 				return "Auto-start from other applications";
-			case DATE_YearAgo:
-				return "year ago";
-			case DATE_YearsAgo:
-				return "years ago";
-			case DATE_MonthAgo:
-				return "month ago";
-			case DATE_MonthsAgo:
-				return "months ago";
-			case DATE_WeekAgo:
-				return "week ago";
-			case DATE_WeeksAgo:
-				return "weeks ago";
-			case DATE_DayAgo:
-				return "day ago";
-			case DATE_DaysAgo:
-				return "days ago";
-			case DATE_HourAgo:
-				return "hour ago";
-			case DATE_HoursAgo:
-				return "hours ago";
-			case DATE_MinuteAgo:
-				return "minute ago";
-			case DATE_MinutesAgo:
-				return "minutes ago";
 			}
 		}
 		case 1: {
@@ -603,20 +579,7 @@ public class Locale implements LocaleConstants {
 
 	public static String date(String s) {
 		if(s == null) return null;
-		if(loaded) {
-			s = Util.replace(s, "year ago", s(DATE_YearAgo));
-			s = Util.replace(s, "years ago", s(DATE_YearsAgo));
-			s = Util.replace(s, "month ago", s(DATE_MonthAgo));
-			s = Util.replace(s, "months ago", s(DATE_MonthsAgo));
-			s = Util.replace(s, "week ago", s(DATE_WeekAgo));
-			s = Util.replace(s, "weeks ago", s(DATE_WeeksAgo));
-			s = Util.replace(s, "day ago", s(DATE_DayAgo));
-			s = Util.replace(s, "days ago", s(DATE_DaysAgo));
-			s = Util.replace(s, "hour ago", s(DATE_HourAgo));
-			s = Util.replace(s, "hours ago", s(DATE_HoursAgo));
-			s = Util.replace(s, "minute ago", s(DATE_MinuteAgo));
-			s = Util.replace(s, "minutes ago", s(DATE_MinutesAgo));
-		} else if(localei == 1) {
+		if(localei == 1) {
 			if(s.indexOf("ago") != -1) {
 				try {
 					if(s.indexOf("years ago") != -1) {

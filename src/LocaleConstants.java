@@ -117,17 +117,5 @@ public interface LocaleConstants {
 	public static final int SET_Network = 95;
 	public static final int TXT_SearchHint = 96;
 	public static final int SET_AutoStart = 97;
-	public static final int DATE_YearAgo = 98;
-	public static final int DATE_YearsAgo = 99;
-	public static final int DATE_MonthAgo = 100;
-	public static final int DATE_MonthsAgo = 101;
-	public static final int DATE_WeekAgo = 102;
-	public static final int DATE_WeeksAgo = 103;
-	public static final int DATE_DayAgo = 104;
-	public static final int DATE_DaysAgo = 105;
-	public static final int DATE_HourAgo = 106;
-	public static final int DATE_HoursAgo = 107;
-	public static final int DATE_MinuteAgo = 108;
-	public static final int DATE_MinutesAgo = 109;
 
 }
