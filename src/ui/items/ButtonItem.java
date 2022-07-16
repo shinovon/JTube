@@ -39,6 +39,7 @@ public class ButtonItem extends AbstractButtonItem implements UIConstants {
 		g.drawString(text, x + (w - f.stringWidth(text)) / 2, y + (h - f.getHeight()) / 2, 0);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y+h-1, w, y+h-1);
+		g.drawLine(x, y, w, y);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1);
