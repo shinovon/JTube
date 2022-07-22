@@ -614,6 +614,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void display(Displayable d) {
 		if(d == null) {
 			display.setCurrent(canv);
+			if(current != null) {
+				current.show();
+			}
 			return;
 		}
 		if(!(d instanceof Alert)) {

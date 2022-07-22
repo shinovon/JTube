@@ -156,21 +156,19 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 	
 	protected void show() {
-		if(wasHidden) {
-			if(Settings.amoled != amoledImgs) {
-				try {
-					searchImg = Image.createImage("/search24.png");
-					backImg = Image.createImage("/back24.png");
-					menuImg = Image.createImage("/menu24.png");
-					if(Settings.amoled) {
-						searchImg = Util.invert(searchImg);
-						backImg = Util.invert(backImg);
-						menuImg = Util.invert(menuImg);
-					}
-				} catch (Exception e) {
+		if(Settings.amoled != amoledImgs) {
+			try {
+				searchImg = Image.createImage("/search24.png");
+				backImg = Image.createImage("/back24.png");
+				menuImg = Image.createImage("/menu24.png");
+				if(Settings.amoled) {
+					searchImg = Util.invert(searchImg);
+					backImg = Util.invert(backImg);
+					menuImg = Util.invert(menuImg);
 				}
-				amoledImgs = Settings.amoled;
+			} catch (Exception e) {
 			}
+			amoledImgs = Settings.amoled;
 		}
 	}
 	

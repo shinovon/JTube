@@ -233,7 +233,7 @@ public class Util implements Constants {
 			if(font.stringWidth(s) >= maxWidth) {
 				int i1 = 0;
 				for (int i2 = 0; i2 < s.length(); i2++) {
-					if (font.stringWidth(s.substring(i1, i2)) >= maxWidth) {
+					if (font.stringWidth(s.substring(i1, i2+1)) >= maxWidth) {
 						boolean space = false;
 						for (int j = i2; j > i1; j--) {
 							char c = s.charAt(j);
