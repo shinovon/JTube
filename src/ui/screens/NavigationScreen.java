@@ -575,7 +575,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	public void inputAction(TextEditorInst editor, int event) {
 		if((event & ACTION_CONTENT_CHANGE) > 0) {
 			searchText = editor.getContent();
-			System.out.println(searchText);
 			if(searchText.endsWith("\n")) {
 				searchText = searchText.trim();
 				editor.setContent(searchText);

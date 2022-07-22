@@ -168,7 +168,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		langBtn.addCommand(langCmd);
 		langBtn.setDefaultCommand(langCmd);
 		langBtn.setItemCommandListener(this);
-		langBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
+		langBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_EXPAND);
 		append(langBtn);
 		append(netLabel);
 		append(netChoice);
@@ -394,6 +394,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		if(c == langCmd) {
 			if(langsList == null) {
 				langsList = new List("", List.EXCLUSIVE);
+				langsList.setFitPolicy(List.TEXT_WRAP_ON);
 				langsList.addCommand(backCmd);
 				langsList.addCommand(List.SELECT_COMMAND);
 				langsList.setSelectCommand(List.SELECT_COMMAND);
@@ -401,7 +402,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				int i = 0;
 				while(i < Settings.langsList.size()) {
 					String[] a = (String[]) Settings.langsList.elementAt(i++);
-					int x = langsList.append((a[2].length() > 0 ? a[2] : a[1]) + "\n" + a[3], null);
+					int x = langsList.append((a[2].length() > 0 ? a[2] + (a[1].equalsIgnoreCase(a[2]) ? "" : " (" + a[1] + ")") : a[1]) + "\n" + a[3], null);
 					if(a[0].equals(Settings.customLocale)) {
 						langsList.setSelectedIndex(x, true);
 					}

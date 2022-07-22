@@ -272,7 +272,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	public void run() {
 		try {
 			synchronized(loadingLock) {
-				loadingLock.wait(1000);
+				loadingLock.wait(2000);
 			}
 			if(!loaded) {
 				App.inst.stopAsyncTasks();
