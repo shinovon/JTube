@@ -19,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -28,6 +30,7 @@ import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.JSON;
+import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
 import midletintegration.MIDletIntegration;
@@ -61,18 +64,20 @@ public class Settings implements Constants {
 	public static boolean smallPreviews = true;
 	public static boolean searchBar = true;
 	public static boolean autoStart;
+	public static boolean fullScreen = true;
 
-	public static Vector rootsVector;
+	public static Vector rootsList;
+	public static Vector langsList;
 	
 	public static void getRoots() {
-		if(rootsVector != null) return;
-		rootsVector = new Vector();
+		if(rootsList != null) return;
+		rootsList = new Vector();
 		try {
 			Enumeration roots = FileSystemRegistry.listRoots();
 			while(roots.hasMoreElements()) {
 				String s = (String) roots.nextElement();
 				if(s.startsWith("file:///")) s = s.substring("file:///".length());
-				rootsVector.addElement(s);
+				rootsList.addElement(s);
 			}
 		} catch (Exception e) {
 		}
@@ -87,6 +92,54 @@ public class Settings implements Constants {
 			watchMethod = 1;
 		}
 		*/
+		try {
+			langsList = new Vector();
+			langsList.addElement(new String[] { "en", "English", "", "Built-in"});
+			langsList.addElement(new String[] { "ru", "Russian", "Русский", "Built-in"});
+			InputStream is = "".getClass().getResourceAsStream("/jtindex");
+			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+			char[] cbuf = new char[2048];
+			isr.read(cbuf);
+			isr.close();
+			is.close();
+			int i = 0;
+			char c;
+			boolean skipLine = false;
+			StringBuffer tmp = new StringBuffer();
+			boolean b = true;
+			while(b) {
+				c = cbuf[i++];
+				switch(c) {
+				case '#':
+					skipLine = true;
+					break;
+				case '\r':
+					break;
+				case 0:
+					b = false;
+				case '\n':
+					if(!skipLine && tmp.length() > 6) {
+						String line = tmp.toString();
+						if(line.startsWith("jtlng_")) {
+							int idx = line.indexOf('=');
+							String[] arr = new String[4];
+							arr[0] = line.substring(6, idx);
+							line = line.substring(idx+1);
+							JSONArray j = JSON.getArray("[".concat(line).concat("]"));
+							j.copyInto(arr, 1, 3);
+							langsList.addElement(arr);
+						}
+					}
+					skipLine = false;
+					tmp.setLength(0);
+					break;
+				default:
+					tmp.append(c);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		RecordStore r = null;
 		try {
 			r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
@@ -104,10 +157,10 @@ public class Settings implements Constants {
 				boolean s40 = PlatformUtils.isS40();
 				if(!s40) {
 					getRoots();
-					if(rootsVector.size() > 0) {
+					if(rootsList.size() > 0) {
 						String root = "";
-						for(int i = 0; i < rootsVector.size(); i++) {
-							String s = (String) rootsVector.elementAt(i);
+						for(int i = 0; i < rootsList.size(); i++) {
+							String s = (String) rootsList.elementAt(i);
 							if(s.startsWith("file:///")) s = s.substring("file:///".length());
 							if(s.startsWith("Video")) {
 								root = s;

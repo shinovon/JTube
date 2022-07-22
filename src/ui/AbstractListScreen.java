@@ -1,16 +1,34 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui;
 
 import java.util.Vector;
 
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 
 import Util;
 
-public abstract class AbstractListScreen extends UIScreen implements UIConstants, CommandListener {
+public abstract class AbstractListScreen extends UIScreen implements UIConstants {
 	
 	protected Vector items;
 	private UIItem cItem;
@@ -22,7 +40,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	private long lastRepeat;
 	
-	//private Vector itemCommands = new Vector();
+	private int scrollTimer;
 
 	protected AbstractListScreen(String label, UIScreen parent, Vector v) {
 		super(label, parent);
@@ -38,7 +56,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 
 	protected void paint(Graphics g, int w, int h) {
-		w -= AppUI.getScrollBarWidth();
 		boolean sizeChanged = width != w;
 		width = w;
 		screenHeight = h;
@@ -90,15 +107,18 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			height = y;
 		} catch (Exception e) {
 		}
-		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_BG));
-		g.fillRect(w, 0, AppUI.getScrollBarWidth(), h);
-		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_FG));
-		int sw = AppUI.getScrollBarWidth();
-		int hh = height;
-		if(hh <= 0) hh = 1;
-		int sby = (int)(((float)-scroll / (float)hh) * h);
-		int sbh = (int)(((float)h / (float)hh) * h);
-		g.fillRect(w+1, sby, sw-2, sbh);
+		//g.setColor(AppUI.getColor(COLOR_SCROLLBAR_BG));
+		//g.fillRect(w, 0, AppUI.getScrollBarWidth(), h);
+		if(height > 0 && height > screenHeight && scrollTimer < 2) {
+			scrollTimer++;
+			g.setColor(AppUI.getColor(COLOR_SCROLLBAR_FG));
+			int sw = AppUI.getScrollBarWidth();
+			int hh = height;
+			if(hh <= 0) hh = 1;
+			int sby = (int)(((float)-scroll / (float)hh) * h);
+			int sbh = (int)(((float)h / (float)hh) * h);
+			g.fillRect(w+1, sby, sw-2, sbh);
+		}
 		if(scrollTarget <= 0) {
 			ui.scrolling = true;
 			if (Math.abs(scroll - scrollTarget) < 1) {
@@ -128,7 +148,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		*/
 	}
 	
-	public boolean scroll(int units) {
+	protected boolean scroll(int units) {
 		if(AppUI.loadingState) return false;
 		if(height == 0 || height <= screenHeight) {
 			scroll = 0;
@@ -144,6 +164,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			scroll = 0;
 			return false;
 		}
+		scrollTimer = 0;
 		scrollTarget = 1;
 		return true;
 	}
@@ -221,7 +242,10 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					return;
 				}
 				focusItem((UIItem) items.elementAt(cItem.getIndex()-1));
-				if(!isItemSeenOnScreen(cItem, screenHeight/4)) {
+				if(cItem.skipScrolling && cItem.getIndex() != 0) {
+					focusItem((UIItem) items.elementAt(cItem.getIndex()-1));
+				}
+				if(!isItemSeenOnScreen(cItem, 24)) {
 					smoothlyScrollTo(-cItem.getY());
 				}
 			}
@@ -231,7 +255,10 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			} else {
 				if(cItem.getIndex() == items.size()-1) return;
 				focusItem((UIItem) items.elementAt(cItem.getIndex()+1));
-				if(!isItemSeenOnScreen(cItem, screenHeight/4)) {
+				if(cItem.skipScrolling && cItem.getIndex() != items.size()-1) {
+					focusItem((UIItem) items.elementAt(cItem.getIndex()+1));
+				}
+				if(!isItemSeenOnScreen(cItem, 24)) {
 					smoothlyScrollTo(-cItem.getY());
 				}
 			}
@@ -239,7 +266,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				scroll = -height + screenHeight;
 			}
 		}
-		if(i == -5 || i == -6 || i == -7 || i == Canvas.FIRE || i == Canvas.KEY_NUM5) {
+		if((i <= -3 && i >= -7) || i == Canvas.FIRE || i == Canvas.KEY_NUM5) {
 			if(selectItem()) {
 				cItem.keyPress(i);
 			}
@@ -248,7 +275,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	protected void keyRelease(int i) {
 		if(AppUI.loadingState) return;
-		if(i == -5 || i == -6 || i == -7 || i == Canvas.FIRE || i == Canvas.KEY_NUM5) {
+		if((i <= -3 && i >= -7) || i == Canvas.FIRE || i == Canvas.KEY_NUM5) {
 			if(selectItem()) {
 				cItem.keyRelease(i);
 			}
@@ -274,7 +301,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					}
 					return;
 				}
-				focusItem((UIItem) items.elementAt(cItem.getIndex()-1));
+				focusItem((UIItem) items.elementAt(cItem.getIndex()+1));
 			}
 			smoothlyScrollTo(-cItem.getY());
 			if(scroll < -height + screenHeight) {
@@ -386,7 +413,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 
 	public boolean hasScrollBar() {
-		return true;
+		return false;
 	}
 
 	public void setScrollBarY(int y) {
@@ -403,37 +430,13 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	private void focusItem(UIItem it) {
 		if(cItem == it) return;
 		if(cItem != null) {
-		//	removeItemCommands();
 			cItem.defocus();
 		}
 		cItem = it;
-		//if(it.hasCommands()) addItemCommands(it);
 		it.focus();
 	}
-	/*
-	private void removeItemCommands() {
-		while(itemCommands.size() > 0) {
-			ui.removeCommand((Command) itemCommands.elementAt(0));
-			itemCommands.removeElementAt(0);
-		}
-	}
-	
-	private void addItemCommands(UIItem it) {
-		Command[] arr = it.getCommands();
-		if(arr == null) return;
-		for(int i = 0; i < arr.length; i++) {
-			Command c = arr[i];
-			ui.addCommand(c);
-			itemCommands.addElement(c);
-		}
-	}
-	public boolean supportCommands() {
-		return true;
-	}
-	*/
-	public void commandAction(Command c, Displayable d) {
-		/*if(c != null && c.getCommandType() == Command.ITEM && cItem != null && cItem.hasCommands()) {
-			cItem.commandAction(c);
-		}*/
+
+	public UIItem getCurrentItem() {
+		return cItem;
 	}
 }

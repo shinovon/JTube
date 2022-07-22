@@ -30,12 +30,16 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.Image;
 
 import ui.TestCanvas;
 
 public class Util implements Constants {
 	
 	private static int buffer_size;
+	
+	private static String charset = "utf-8, iso-8859-1;q=0.5";
+	private static String alt_charset = "iso-8859-1";
 	
 	private static Canvas testCanvas;
 	
@@ -44,6 +48,17 @@ public class Util implements Constants {
 			buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
 		} catch (Throwable t) {
 			buffer_size = 1024;
+		}
+		String s = System.getProperty("microedition.encoding");
+		if(s != null) {
+			alt_charset = s.toLowerCase();
+		}
+		// Test UTF-8 support
+		try {
+			String tmp = new String("test".getBytes("UTF-8"), "UTF-8");
+			tmp.charAt(0);
+		} catch (Throwable e) {
+			charset = alt_charset;
 		}
 	} 
 
@@ -62,13 +77,13 @@ public class Util implements Constants {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
-			String locale = null;
-			if(Locale.systemLocale != null)
-				locale = Locale.systemLocale;
-			if(Settings.customLocale != null)
-				locale = Settings.customLocale;
-			if(locale != null)
+			if(charset != null) {
+				hc.setRequestProperty("accept-charset", charset);
+			}
+			String locale = Locale.s(Locale.ISOLanguageCode);
+			if(locale != null) {
 				hc.setRequestProperty("accept-language", locale);
+			}
 			if(isLoader) {
 				if(il.checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");
@@ -125,6 +140,7 @@ public class Util implements Constants {
 		try {
 			return new String(b, "UTF-8");
 		} catch (Throwable e) {
+			charset = alt_charset;
 			return new String(b);
 		}
 	}
@@ -185,6 +201,8 @@ public class Util implements Constants {
 		String m = "" + (i % 3600) / 60;
 		int h = i / 3600;
 		if(h > 0) {
+			if(m.length() < 2)
+				m = "0" + m;
 			return h + ":" + m + ":" + s;
 		} else {
 			return m + ":" + s;
@@ -215,11 +233,11 @@ public class Util implements Constants {
 			if(font.stringWidth(s) >= maxWidth) {
 				int i1 = 0;
 				for (int i2 = 0; i2 < s.length(); i2++) {
-					if (font.stringWidth(text.substring(i1, i2)) >= maxWidth) {
+					if (font.stringWidth(s.substring(i1, i2)) >= maxWidth) {
 						boolean space = false;
 						for (int j = i2; j > i1; j--) {
 							char c = s.charAt(j);
-							if (c == ' '|| (c >= ',' && c <= '/')) {
+							if (c == ' ' || (c >= ',' && c <= '/')) {
 								space = true;
 								v.setElementAt(s.substring(i1, j + 1), i);
 								v.insertElementAt(s.substring(j + 1), i + 1);
@@ -344,6 +362,25 @@ public class Util implements Constants {
 			}
 		}
 		return (needToChange ? sb.toString() : s);
+	}
+	
+	public static Image invert(Image img) {
+		int w = img.getWidth();
+		int h = img.getHeight();
+
+		int[] buffer = new int[w * h];
+
+		img.getRGB(buffer, 0, w, 0, 0, w, h);
+		img = null;
+		for(int i = 0; i < buffer.length; i++) {
+			int c = buffer[i];
+			int a = (c >> 24) & 0xFF;
+			int r = 0xFF - ((c >> 16) & 0xFF);
+			int g = 0xFF - ((c >> 8) & 0xFF);
+			int b = 0xFF - (c & 0xFF);
+			buffer[i] = (a<<24) | (r<<16) | (g<<8) | b;
+		}
+		return Image.createRGBImage(buffer, w, h, true);
 	}
 
 }

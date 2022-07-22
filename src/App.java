@@ -277,7 +277,7 @@ public class App implements Constants {
 	}
 
 	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("//")) return Util.get("https:" + s);
+		if(s.startsWith("//")) return Util.get("http:" + s);
 		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
 		if(Settings.imgproxy == null || Settings.imgproxy.length() <= 1)
 			return Util.get(s);
@@ -292,7 +292,7 @@ public class App implements Constants {
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
-		s = s.concat("region=" + Settings.region);
+		s = s.concat("region=" + Settings.region != null ? Settings.region.toUpperCase() : "US");
 		if(fields != null) {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
@@ -316,17 +316,6 @@ public class App implements Constants {
 			res = JSON.getArray(s);
 		}
 		return res;
-	}
-	
-	public static boolean needsCheckMemory() {
-		return Settings.isLowEndDevice() && !Settings.videoPreviews;
-	}
-	
-	public static void checkMemoryAndGc() {
-		Runtime r = Runtime.getRuntime();
-		if(r.freeMemory() > r.totalMemory() - 500 * 1024) {
-			Util.gc();
-		}
 	}
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
@@ -465,10 +454,6 @@ public class App implements Constants {
 	
 	public static void download(final String id, String name) {
 		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir, name);
-		d.start();
-	}
-	public static void download(String[] vids) {
-		Downloader d = new Downloader(vids, Settings.videoRes, Settings.downloadDir);
 		d.start();
 	}
 	
@@ -752,6 +737,16 @@ public class App implements Constants {
 			}
 		} else {
 			throw new IllegalArgumentException();
+		}
+	}
+
+	public static void requestURL(String url) {
+		try {
+			if(url.indexOf("://") == -1) {
+				url = "http://" + url;
+			}
+			midlet.platformRequest(url);
+		} catch(Exception e) {
 		}
 	}
 

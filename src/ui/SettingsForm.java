@@ -88,6 +88,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
 	static final Command resetCmd = new Command(Locale.s(SET_Reset), Command.ITEM, 3);
+	static final Command langCmd = new Command(Locale.s(SET_ChooseLanguage), Command.ITEM, 1);
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -98,7 +99,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private TextField imgProxyText;
 	private ChoiceGroup uiChoice;
 	private StringItem dirBtn;
-	private TextField customLocaleText;
 	private ChoiceGroup debugChoice;
 	private ChoiceGroup playMethodChoice;
 	private TextField downloadBufferText;
@@ -109,6 +109,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private List dirList;
 	private String curDir;
 	private int proxyTextIdx;
+	
+	private List langsList;
 
 	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 
@@ -122,16 +124,16 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		addCommand(applyCmd);
 		Font defaultFont = Font.getDefaultFont();
 		int titleLayout = Item.LAYOUT_2 | Item.LAYOUT_LEFT;
-		StringItem videoLabel = new StringItem("\n" + Locale.s(SET_Video), null);
+		StringItem videoLabel = new StringItem("\n" + Locale.s(SET_Video), "");
 		videoLabel.setFont(defaultFont);
 		videoLabel.setLayout(titleLayout);
-		StringItem uiLabel = new StringItem("\n" + Locale.s(SET_Appearance), null);
+		StringItem uiLabel = new StringItem("\n" + Locale.s(SET_Appearance), "");
 		uiLabel.setFont(defaultFont);
 		uiLabel.setLayout(titleLayout);
-		StringItem netLabel = new StringItem("\n" + Locale.s(SET_Network), null);
+		StringItem netLabel = new StringItem("\n" + Locale.s(SET_Network), "");
 		netLabel.setFont(defaultFont);
 		netLabel.setLayout(titleLayout);
-		StringItem miscLabel = new StringItem("\n" + Locale.s(SET_OtherSettings), null);
+		StringItem miscLabel = new StringItem("\n" + Locale.s(SET_OtherSettings), "");
 		miscLabel.setFont(defaultFont);
 		miscLabel.setLayout(titleLayout);
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
@@ -151,7 +153,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 				Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), Settings.imgproxy, 256, TextField.URL);
-		customLocaleText = new TextField(Locale.s(SET_CustomLocaleId), Settings.customLocale, 8, TextField.ANY);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
@@ -163,7 +164,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(uiLabel);
 		append(uiChoice);
 		append(regionText);
-		append(customLocaleText);
+		StringItem langBtn = new StringItem(null, Locale.s(SET_ChooseLanguage), StringItem.BUTTON);
+		langBtn.addCommand(langCmd);
+		langBtn.setDefaultCommand(langCmd);
+		langBtn.setItemCommandListener(this);
+		langBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
+		append(langBtn);
 		append(netLabel);
 		append(netChoice);
 		append(invidiousText);
@@ -236,7 +242,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			} else if(i == 4) {
 				Settings.videoRes = "_240p";
 			}
-			Settings.region = regionText.getString();
+			Settings.region = regionText.getString().trim().toUpperCase();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
 			dir = Util.replace(dir, "\\", Path_separator);
@@ -262,7 +268,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.serverstream = httpProxyText.getString();
 			Settings.inv = invidiousText.getString();
 			Settings.imgproxy = imgProxyText.getString();
-			Settings.customLocale = customLocaleText.getString().trim().toLowerCase();
 			Settings.debugMemory = debugChoice.isSelected(0);
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
@@ -317,8 +322,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 							dirList.addCommand(List.SELECT_COMMAND);
 							dirList.setSelectCommand(List.SELECT_COMMAND);
 							dirList.setCommandListener(this);
-							for(int i = 0; i < Settings.rootsVector.size(); i++) {
-								String s = (String) Settings.rootsVector.elementAt(i);
+							for(int i = 0; i < Settings.rootsList.size(); i++) {
+								String s = (String) Settings.rootsList.elementAt(i);
 								if(s.startsWith("file:///")) s = s.substring("file:///".length());
 								if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
 								dirList.append(s, null);
@@ -363,6 +368,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				}
 				return;
 			}
+			if(d == langsList) {
+				if(c == List.SELECT_COMMAND) {
+					Settings.customLocale = ((String[])Settings.langsList.elementAt(langsList.getSelectedIndex()))[0];
+				} else {
+					AppUI.inst.display(this);
+				}
+				return;
+			}
 			applySettings();
 			AppUI.inst.display(null);
 			if(AppUI.inst.getCurrentScreen() != null) {
@@ -375,12 +388,33 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	public void commandAction(Command c, Item item) {
 		if(c == resetCmd) {
 			Settings.removeConfig();
+			App.midlet.notifyDestroyed();
+			return;
+		}
+		if(c == langCmd) {
+			if(langsList == null) {
+				langsList = new List("", List.EXCLUSIVE);
+				langsList.addCommand(backCmd);
+				langsList.addCommand(List.SELECT_COMMAND);
+				langsList.setSelectCommand(List.SELECT_COMMAND);
+				langsList.setCommandListener(this);
+				int i = 0;
+				while(i < Settings.langsList.size()) {
+					String[] a = (String[]) Settings.langsList.elementAt(i++);
+					int x = langsList.append((a[2].length() > 0 ? a[2] : a[1]) + "\n" + a[3], null);
+					if(a[0].equals(Settings.customLocale)) {
+						langsList.setSelectedIndex(x, true);
+					}
+				}
+			}
+			AppUI.inst.display(langsList);
+			return;
 		}
 		if(c == dirCmd) {
 			dirList = new List("", List.IMPLICIT);
 			Settings.getRoots();
-			for(int i = 0; i < Settings.rootsVector.size(); i++) {
-				String s = (String) Settings.rootsVector.elementAt(i);
+			for(int i = 0; i < Settings.rootsList.size(); i++) {
+				String s = (String) Settings.rootsList.elementAt(i);
 				if(s.startsWith("file:///")) s = s.substring("file:///".length());
 				if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
 				dirList.append(s, null);

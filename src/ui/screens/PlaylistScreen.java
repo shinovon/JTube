@@ -1,15 +1,31 @@
-package ui.screens;
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+package ui.screens;
 
 import App;
 import Util;
 import Errors;
 import Settings;
 import Constants;
-import ui.AbstractListScreen;
-import ui.Commands;
 import ui.UIScreen;
 import ui.IModelScreen;
 import ui.UIItem;
@@ -19,11 +35,9 @@ import models.PlaylistModel;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 
-public class PlaylistScreen extends AbstractListScreen implements IModelScreen, Commands, Constants {
+public class PlaylistScreen extends NavigationScreen implements IModelScreen, Constants {
 
 	private PlaylistModel playlist;
-	
-	private UIScreen containerScreen;
 
 	private JSONArray json;
 
@@ -32,13 +46,13 @@ public class PlaylistScreen extends AbstractListScreen implements IModelScreen, 
 	private boolean shown;
 
 	public PlaylistScreen(PlaylistModel p) {
-		super(p.getTitle(), null);
+		super(p.getTitle(), p.getContainerScreen());
 		this.playlist = p;
-		containerScreen = p.getContainerScreen();
+		menuOptions = null;
+		hasSearch = false;
 	}
 	
 	public void show() {
-		addCommand(backCmd);
 		super.show();
 		if(!shown) {
 			shown = true;
@@ -49,10 +63,6 @@ public class PlaylistScreen extends AbstractListScreen implements IModelScreen, 
 			App.inst.addAsyncTask(this);
 			App.inst.startAsyncTasks();
 		}
-	}
-	
-	public boolean supportCommands() {
-		return true;
 	}
 	
 	private void init() {
@@ -110,18 +120,10 @@ public class PlaylistScreen extends AbstractListScreen implements IModelScreen, 
 			App.error(this, Errors.PlaylistForm_load, e);
 		}
 	}
-
-	public void commandAction(Command c, Displayable d) {
-		if(c == backCmd) {
-			if(containerScreen != null) {
-				ui.setScreen(containerScreen);
-			} else {
-				ui.back(this);
-			}
-			dispose();
-			return;
-		}
-		super.commandAction(c, d);
+	
+	protected void back() {
+		super.back();
+		dispose();
 	}
 
 	private void dispose() {
@@ -137,11 +139,14 @@ public class PlaylistScreen extends AbstractListScreen implements IModelScreen, 
 	}
 
 	public void setContainerScreen(UIScreen s) {
-		this.containerScreen = s;
+		parent = s;
 	}
 
 	public int getLength() {
 		return videos.length;
+	}
+
+	protected void menuAction(int action) {
 	}
 	
 	public VideoModel getVideo(int i) {

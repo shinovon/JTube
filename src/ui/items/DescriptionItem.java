@@ -19,60 +19,55 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package ui.screens;
+package ui.items;
 
-import App;
-import Settings;
-import ui.items.VideoItem;
+import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.Graphics;
 
-public class MainScreen extends NavigationScreen {
+import Util;
+import ui.AppUI;
+import ui.UIConstants;
+import ui.UIItem;
 
-	public MainScreen() {
-		super("", null);
-	}
+public class DescriptionItem extends UIItem implements UIConstants {
 	
-	protected void show() {
-		super.show();
-		if(wasHidden) {
-			wasHidden = false;
-			if(Settings.videoPreviews) {
-				// resume loading previews
-				App.inst.stopAsyncTasks();
-				boolean b = false;
-				for(int i = 0; i < items.size(); i++) {
-					Object o = items.elementAt(i);
-					if(o instanceof VideoItem) {
-						App.inst.addAsyncTask(((VideoItem)o).getVideo());
-						b = true;
-					}
-				}
-				if(b) App.inst.startAsyncTasks();
-			}
-		}
-	}
+	private String[] textArr;
+	private String text;
+	private Font font;
 	
-	protected void hide() {
-		super.hide();
-		if(Settings.rmsPreviews) {
-			for(int i = 0; i < items.size(); i++) {
-				Object o = items.elementAt(i);
-				if(o instanceof VideoItem) {
-					((VideoItem)o).onHide();
-				}
+	private int h;
+	private int lastW;
+	
+	public DescriptionItem(String s, Font f) {
+		this.font = f;
+		this.text = s;
+	}
+
+	public void paint(Graphics g, int w, int x, int y, int sc) {
+		if(textArr == null) return;
+		g.setFont(font);
+		y+=8;
+		int fh = 4+font.getHeight();
+		g.setColor(AppUI.getColor(COLOR_MAINFG));
+		for(int i = 0; i < textArr.length; i++) {
+			if(y+fh > 0 && y < ui.getHeight()) {
+				g.drawString(textArr[i], x + 8, y, 0);
 			}
+			y+=fh;
 		}
 	}
-/*
-	public void commandAction(Command c, Displayable d) {
-		if(c == backCmd) {
-			ui.display(null);
-			return;
-		}
-		if(c == optsCmd) {
-			ui.showOptions();
-			return;
-		}
-		super.commandAction(c, d);
+
+	public int getHeight() {
+		return h;
 	}
-*/
+
+	protected void layout(int w) {
+		if(w == lastW) return;
+		lastW = w;
+		h = 8;
+		text = Util.replace(text, "\r", "");
+		textArr = Util.getStringArray(text, w - 20, font);
+		h += textArr.length * (font.getHeight() + 4);
+	}
+
 }

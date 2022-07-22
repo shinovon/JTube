@@ -1,3 +1,24 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui.items;
 
 import javax.microedition.lcdui.Graphics;
@@ -5,6 +26,7 @@ import javax.microedition.lcdui.Image;
 
 import App;
 import Util;
+import LocaleConstants;
 import models.VideoModel;
 import ui.UIConstants;
 
@@ -59,12 +81,13 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 
 	protected void layout(int w) {
 		int sh = ui.getHeight();
+		int sw = w;
 		if(w > sh) {
 			h = (int) (sh * 0.9f);
 			w = (int) (h * 16F / 9F);
 		}
 		if(w != lastW) {
-			if(img != null) img = video.previewResize(w, img);
+			if(img != null) img = video.previewResize(Math.min(w, sw), img);
 		}
 		if(img != null) {
 			h = img.getHeight();
@@ -74,6 +97,10 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	public void setImage(Image img) {
 		this.img = img;
 		relayout();
+	}
+	
+	public int getOKLabel() {
+		return LocaleConstants.CMD_Watch;
 	}
 
 }

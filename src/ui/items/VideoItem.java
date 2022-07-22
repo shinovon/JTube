@@ -1,3 +1,24 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui.items;
 
 import javax.microedition.lcdui.Font;
@@ -22,7 +43,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	private String title;
 	private String author;
 	private int views;
-	private String published;
 
 	private String[] titleArr;
 	private String lengthStr;
@@ -48,7 +68,6 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		this.title = v.getTitle();
 		this.author = v.getAuthor();
 		this.views = v.getViewCount();
-		this.published = v.getPublishedText();
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
@@ -149,7 +168,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-2);
-			g.drawRect(x+1, y+1, w-3, h-4);
+			//g.drawRect(x+1, y+1, w-3, h-4);
 		}
 	}
 
@@ -203,7 +222,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	
 	private int getTextMaxWidth(int w) {
 		if(Settings.smallPreviews) {
-			return w - getImgWidth(w) - 24;
+			return w - getImgWidth(w) - 16;
 		}
 		if(textWidth > 0) return textWidth;
 		int i;
@@ -259,13 +278,8 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				}
 			}
 		}
-		if(ui.getWidth() >= 320 && bottomText == null && (views > 0 || published != null)) {
-			String s = Locale.views(views);
-			if(published != null) {
-				s = s.concat(" • ").concat(Locale.date(published));
-				published = null;
-			}
-			bottomText = s;
+		if(ui.getWidth() >= 320 && bottomText == null && views > 0) {
+			bottomText = Locale.views(views);
 		}
 		lastW = w;
 		if(Settings.smallPreviews) {

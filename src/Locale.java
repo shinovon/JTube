@@ -65,7 +65,7 @@ public class Locale implements LocaleConstants {
 		}
 		InputStream in = null;
 		try {
-			in = Locale.class.getResourceAsStream("/jtlng." + s.toLowerCase());
+			in = Locale.class.getResourceAsStream("/jtlng_" + s.toLowerCase());
 		} catch (Exception e) {
 		}
 		if(in != null) {
@@ -114,6 +114,8 @@ public class Locale implements LocaleConstants {
 		switch(localei) {
 		case 0: {
 			switch(c) {
+			case ISOLanguageCode:
+				return "en-US";
 			case CMD_Settings:
 				return "Settings";
 			case CMD_Search:
@@ -290,10 +292,16 @@ public class Locale implements LocaleConstants {
 				return "Search..";
 			case SET_AutoStart:
 				return "Auto-start from other applications";
+			case BTN_Share:
+				return "Share";
+			case SET_ChooseLanguage:
+				return "Choose language";
 			}
 		}
 		case 1: {
 			switch(c) {
+			case ISOLanguageCode:
+				return "ru-RU";
 			case CMD_Settings:
 				return "Настройки";
 			case CMD_Search:
@@ -333,7 +341,7 @@ public class Locale implements LocaleConstants {
 			case SET_Appearance:
 				return "Внешность";
 			case SET_OtherSettings:
-				return "Настройки приложения";
+				return "Прочие настройки";
 			case SET_DownloadDir:
 				return "Папка для скачивания";
 			case SET_InvAPI:
@@ -470,6 +478,10 @@ public class Locale implements LocaleConstants {
 				return "Поиск..";
 			case SET_AutoStart:
 				return "Авто-старт из других приложений";
+			case BTN_Share:
+				return "Поделиться";
+			case SET_ChooseLanguage:
+				return "Выбрать язык";
 			}
 		}
 		}

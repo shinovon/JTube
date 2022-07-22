@@ -1,13 +1,38 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui.items;
 
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import Locale;
+import LocaleConstants;
 import ui.AppUI;
+import ui.nokia_extensions.DirectFontUtil;
 import ui.UIScreen;
 import ui.UIConstants;
 import models.VideoModel;
+import tube42.lib.imagelib.ImageUtils;
 import models.ChannelModel;
 import ui.screens.ChannelScreen;
 import ui.screens.VideoScreen;
@@ -15,6 +40,7 @@ import ui.screens.VideoScreen;
 public class ChannelItem extends AbstractButtonItem implements UIConstants {
 
 	private static Image defaultImg;
+	private static Image defaultImg36;
 
 	private ChannelModel channel;
 
@@ -26,9 +52,13 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	
 	private int h;
 	
+	private static Font titleFont;
+	private static Font subsCountFont;
+
 	static {
 		try {
-			defaultImg = roundImage(Image.createImage("".getClass().getResourceAsStream("/user.png")));
+			defaultImg = roundImage(Image.createImage("".getClass().getResourceAsStream("/user48.png")));
+			defaultImg36 = roundImage(Image.createImage("".getClass().getResourceAsStream("/user36.png")));
 		} catch (Exception e) {
 		}
 	}
@@ -41,7 +71,9 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 				this.img = roundImage(c.getImg());
 				c.setImage(img, true);
 			} else {
-				this.img = c.getImg();
+				int s = c.hasSmallImage() ? 36 : 48;
+				this.img = ImageUtils.resize(c.getImg(), s, s);
+				c.setImage(img, true);
 			}
 		}
 		this.author = c.getAuthor();
@@ -49,26 +81,27 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		g.drawImage(img != null ? img : defaultImg, x+2, y+2, 0);
+		int iw = channel.hasSmallImage() ? 36 : 48;
+		g.drawImage(img != null ? img : channel.hasSmallImage() ? defaultImg36 : defaultImg, x+4, y+(h - iw)/2, 0);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
-		g.setFont(smallfont);
-		int fh = smallfontheight;
-		int sfh = smallfontheight;
+		g.setFont(titleFont);
+		int fh = titleFont.getHeight();
+		int sfh = subsCountFont.getHeight();
 		int ty = y+((52 - fh) / 2);
 		if(subsStr != null) {
 			ty -= (sfh + 4) / 2;
 		}
-		int xx = x + 56;
+		int xx = x + 8 + iw;
 		g.drawString(author, xx, ty, 0);
 		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
-		g.setFont(smallfont);
+		g.setFont(subsCountFont);
 		if(subsStr != null) {
 			g.drawString(subsStr, xx, ty + fh + 4, 0);
 		}
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1);
-			g.drawRect(x+1, y+1, w-3, h-3);
+			//g.drawRect(x+1, y+1, w-3, h-3);
 		}
 	}
 
@@ -77,7 +110,11 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	protected void layout(int w) {
-		h = 53;
+		h = 52;
+		if(titleFont == null) {
+			titleFont = DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL);
+			subsCountFont = DirectFontUtil.getFont(0, 0, 17, Font.SIZE_SMALL);
+		}
 	}
 
 	public void setImage(Image img) {
@@ -123,6 +160,13 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 		} else {
 			ui.open(channel);
 		}
+	}
+	
+	public int getOKLabel() {
+		if(getScreen() instanceof VideoScreen) {
+			return LocaleConstants.CMD_ViewChannel;
+		}
+		 return -1;
 	}
 
 }

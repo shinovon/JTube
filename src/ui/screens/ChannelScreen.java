@@ -1,9 +1,26 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui.screens;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -14,7 +31,6 @@ import Errors;
 import Locale;
 import Settings;
 import Constants;
-import ui.Commands;
 import ui.UIScreen;
 import ui.IModelScreen;
 import ui.UIItem;
@@ -26,13 +42,10 @@ import models.AbstractModel;
 import ui.AppUI;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
-import cc.nnproject.utils.PlatformUtils;
 
-public class ChannelScreen extends SearchBarScreen implements IModelScreen, Commands, CommandListener, Constants, Runnable {
+public class ChannelScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
 
 	private ChannelModel channel;
-	
-	private UIScreen containerScreen;
 
 	private boolean shown;
 
@@ -52,29 +65,18 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 		}
 	};
 
-	private boolean okAdded;
-	
-	private Command okCmd = new Command("OK", Command.OK, 5);
-
 	private UIItem channelItem;
 
 	public ChannelScreen(ChannelModel c) {
 		super(c.getAuthor(), null);
 		this.channel = c;
 		setSearchText("");
-	}
-	
-	public void paint(Graphics g, int w, int h) {
-		if(AppUI.loadingState) {
-			g.setColor(AppUI.getColor(COLOR_MAINBG));
-			g.fillRect(0, 0, w, h);
-			g.setColor(AppUI.getColor(COLOR_MAINFG));
-			String s = Locale.s(TITLE_Loading) + "...";
-			g.setFont(smallfont);
-			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
-			return;
-		}
-		super.paint(g, w, h);
+		menuOptions = !topBar ? new String[] {
+				Locale.s(CMD_Search),
+				Locale.s(CMD_Settings)
+		} : new String[] {
+				Locale.s(CMD_Settings)
+		};
 	}
 	
 	protected void latestVideos() {
@@ -132,8 +134,6 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 	}
 
 	protected void show() {
-		addCommand(backCmd);
-		addCommand(searchCmd);
 		super.show();
 		if(wasHidden) {
 			wasHidden = false;
@@ -149,12 +149,6 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 			App.inst.addAsyncTask(this);
 			App.inst.startAsyncTasks();
 		}
-		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
-			okAdded = true;
-		} else if(okAdded || ui.isKeyInputMode()) {
-			okAdded = true;
-			addCommand(okCmd);
-		};
 	}
 	
 	private void init() {
@@ -165,7 +159,7 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 		scroll = 0;
 		AppUI.loadingState = false;
 		if(channel == null) return;
-		add(channelItem = channel.makeListItem());
+		add(channelItem = channel.makePageItem());
 		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 	}
 
@@ -195,24 +189,11 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 			App.error(this, Errors.ChannelForm_search, e);
 		}
 	}
-	
-	public void keyPress(int i) {
-		if(!okAdded && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
-			okAdded = true;
-			addCommand(okCmd);
-		}
-		super.keyPress(i);
-	}
-
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
 		VideoModel v = new VideoModel(j, this);
 		if(Settings.videoPreviews) App.inst.addAsyncTask(v);
 		return v.makeListItem();
-	}
-	
-	public boolean supportCommands() {
-		return true;
 	}
 
 	public void load() {
@@ -250,7 +231,7 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 		}
 	}
 
-	public void commandAction(Command c, Displayable d) {
+	/*public void commandAction(Command c, Displayable d) {
 		if(c == okCmd) {
 			keyPress(-5);
 			return;
@@ -267,18 +248,11 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 			ui.display(null);
 			return;
 		}
-		/*
-		if((d == searchForm || d == lastVideosForm || d == playlistsForm) && c == backCmd) {
-			ui.setScreen(this);
-			disposeSearchForm();
-			return;
-		}
-		*/
 		if(c == backCmd) {
 			AppUI.loadingState = false;
 			App.inst.stopAsyncTasks();
-			if(containerScreen != null) {
-				ui.setScreen(containerScreen);
+			if(parent != null) {
+				ui.setScreen(parent);
 			} else {
 				ui.back(this);
 			}
@@ -286,7 +260,7 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 			return;
 		}
 		super.commandAction(c, d);
-	}
+	}*/
 
 	private void disposeSearchForm() {
 		Util.gc();
@@ -301,13 +275,30 @@ public class ChannelScreen extends SearchBarScreen implements IModelScreen, Comm
 	}
 
 	public void setContainerScreen(UIScreen s) {
-		this.containerScreen = s;
+		this.parent = s;
 	}
 
 	public void dispose() {
 		clear();
 		channel.disposeExtendedVars();
 		channel = null;
-		containerScreen = null;
+		parent = null;
+	}
+	
+	protected void menuAction(int action) {
+		if(!topBar) action--;
+		switch(action) {
+		case -1:
+			openSearchTextBox();
+			break;
+		case 0:
+			ui.showSettings();
+			break;
+		}
+	}
+	
+	protected void back() {
+		super.back();
+		ui.disposeChannelPage();
 	}
 }

@@ -51,8 +51,7 @@ public interface Constants {
 	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";
 	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	
-	public static final int VIDEOFORM_AUTHOR_IMAGE_HEIGHT = 32;
-	public static final int AUTHORITEM_IMAGE_HEIGHT = 48;
+	public static final int AUTHOR_IMAGE_HEIGHT = 36;
 	
 	public static String Path_separator = "/";
 
