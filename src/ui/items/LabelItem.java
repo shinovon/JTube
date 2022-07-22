@@ -88,7 +88,7 @@ public class LabelItem extends UIItem implements UIConstants {
 
 	protected void layout(int w) {
 		h = marginTop + marginBottom;
-		String[] arr = Util.getStringArray(text, w - 2 - (marginLeft + marginRight), font);
+		String[] arr = Util.getStringArray(text, w - 4 - (marginLeft + marginRight), font);
 		textArr = new String[arr.length > maxLines && maxLines > 0 ? maxLines : arr.length];
 		for(int i = 0; i < textArr.length; i++) {
 			textArr[i] = arr[i];

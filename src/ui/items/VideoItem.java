@@ -222,7 +222,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	
 	private int getTextMaxWidth(int w) {
 		if(Settings.smallPreviews) {
-			return w - getImgWidth(w) - 16;
+			return w - getImgWidth(w) - 24;
 		}
 		if(textWidth > 0) return textWidth;
 		int i;

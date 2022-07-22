@@ -95,6 +95,11 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
+			new Thread() {
+				public void run() {
+					App.inst.startAsyncTasks();
+				}
+			}.start();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -127,6 +132,11 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
+			new Thread() {
+				public void run() {
+					App.inst.startAsyncTasks();
+				}
+			}.start();
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
@@ -184,7 +194,11 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
-			App.inst.startAsyncTasks();
+			new Thread() {
+				public void run() {
+					App.inst.startAsyncTasks();
+				}
+			}.start();
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
