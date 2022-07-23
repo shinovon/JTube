@@ -292,7 +292,7 @@ public class App implements Constants {
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
-		s = s.concat("region=" + Settings.region != null ? Settings.region.toUpperCase() : "US");
+		s = s.concat("region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US"));
 		if(fields != null) {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
