@@ -49,9 +49,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	private boolean shown;
 
-	private Object loadingLock = new Object();
-	private boolean loaded;
-
 	private Runnable playlistsRun = new Runnable() {
 		public void run() {
 			playlists();
@@ -59,9 +56,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	};
 	private Runnable latestRun = new Runnable() {
 		public void run() {
-			App.inst.stopAsyncTasks();
 			latestVideos();
-			App.inst.startAsyncTasks();
 		}
 	};
 
@@ -82,9 +77,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	protected void latestVideos() {
 		clear();
 		add(channelItem);
-		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun ));
+		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 		try {
-			Thread.sleep(100);
+			App.inst.stopAsyncTasks();
 			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
@@ -95,11 +90,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
-			new Thread() {
-				public void run() {
-					App.inst.startAsyncTasks();
-				}
-			}.start();
+			App.inst.startAsyncTasks();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -150,22 +141,11 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		}
 		if(!shown) {
 			shown = true;
-			new Thread(this).run();
-			App.inst.stopAsyncTasks();
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-			}
-			App.inst.addAsyncTask(this);
-			App.inst.startAsyncTasks();
+			new Thread(this).start();
 		}
 	}
 	
 	private void init() {
-		loaded = true;
-		synchronized(loadingLock) {
-			loadingLock.notify();
-		}
 		scroll = 0;
 		AppUI.loadingState = false;
 		if(channel == null) return;
@@ -229,18 +209,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	public void run() {
 		try {
-			synchronized(loadingLock) {
-				loadingLock.wait(1000);
-			}
-			if(!loaded) {
-				App.inst.stopAsyncTasks();
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-				}
-				App.inst.addAsyncTask(this);
-				App.inst.startAsyncTasks();
-			}
+			load();
 		} catch (Exception e) {
 		}
 	}

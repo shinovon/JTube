@@ -35,7 +35,7 @@ import models.PlaylistModel;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 
-public class PlaylistScreen extends NavigationScreen implements IModelScreen, Constants {
+public class PlaylistScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
 
 	private PlaylistModel playlist;
 
@@ -56,12 +56,8 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		super.show();
 		if(!shown) {
 			shown = true;
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-			App.inst.addAsyncTask(this);
-			App.inst.startAsyncTasks();
+			App.inst.stopAsyncTasks();
+			new Thread(this).start();
 		}
 	}
 	
@@ -78,20 +74,11 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 				add(item);
 				Util.gc();
 			}
+			if(Settings.videoPreviews) {
+				App.inst.startAsyncTasks();
+			}
 			json = null;
 			Util.gc();
-			try {
-				if(Settings.videoPreviews) {
-					for(int i = 0; i < l && i < 20; i++) {
-						if(videos[i] == null) continue;
-						videos[i].loadImage();
-					}
-				}
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Throwable e) {
-				App.error(this, Errors.PlaylistForm_init_previews, e);
-			}
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Throwable e) {
@@ -103,6 +90,9 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		VideoModel v = new VideoModel(j);
 		v.setIndex(i);
 		v.setContainerScreen(this);
+		if(Settings.videoPreviews && i < 20) {
+			App.inst.addAsyncTask(v);
+		}
 		videos[i] = v;
 		return v.makeListItem();
 	}
@@ -119,6 +109,10 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		} catch (Throwable e) {
 			App.error(this, Errors.PlaylistForm_load, e);
 		}
+	}
+	
+	public void run() {
+		load();
 	}
 	
 	protected void back() {

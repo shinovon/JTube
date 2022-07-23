@@ -46,9 +46,6 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	
 	private boolean shown;
 
-	private Object loadingLock = new Object();
-	private boolean loaded;
-
 	public VideoScreen(VideoModel v) {
 		super(v.getTitle(), null);
 		this.video = v;
@@ -63,10 +60,6 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	private void init() {
-		loaded = true;
-		synchronized(loadingLock) {
-			loadingLock.notify();
-		}
 		scroll = 0;
 		if(video == null) return;
 		VideoModel video = this.video;
@@ -100,14 +93,8 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		super.show();
 		if(!shown) {
 			shown = true;
-			new Thread(this).run();
 			App.inst.stopAsyncTasks();
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-			}
-			App.inst.addAsyncTask(this);
-			App.inst.startAsyncTasks();
+			new Thread(this).start();
 		}
 	}
 
@@ -270,23 +257,9 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void run() {
-		try {
-			synchronized(loadingLock) {
-				loadingLock.wait(2000);
-			}
-			if(!loaded) {
-				App.inst.stopAsyncTasks();
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-				}
-				App.inst.addAsyncTask(this);
-				App.inst.startAsyncTasks();
-			}
-		} catch (Exception e) {
-		}
+		load();
 	}
-
+	
 	public void showLink() {
 		TextBox t = new TextBox("", "", 64, TextField.URL);
 		t.setString("https://www.youtube.com/watch?v=" + video.getVideoId() + (video.isFromPlaylist() ? "&list=" + video.getPlaylistId() : ""));
