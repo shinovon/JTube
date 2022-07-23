@@ -1,3 +1,24 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui.items;
 
 import javax.microedition.lcdui.Font;
@@ -47,9 +68,7 @@ public class LabelItem extends UIItem implements UIConstants {
 		int fh = lineSpaces+font.getHeight();
 		g.setColor(colorSet ? color : AppUI.getColor(COLOR_MAINFG));
 		for(int i = 0; i < textArr.length; i++) {
-			if(y + fh > 0 && y < ui.getHeight()) {
-				g.drawString(textArr[i], x + marginLeft, y, 0);
-			}
+			g.drawString(textArr[i], x + marginLeft, y, 0);
 			y+=fh;
 		}
 	}
@@ -69,7 +88,7 @@ public class LabelItem extends UIItem implements UIConstants {
 
 	protected void layout(int w) {
 		h = marginTop + marginBottom;
-		String[] arr = Util.getStringArray(text, w - 10 - (marginLeft + marginRight), font);
+		String[] arr = Util.getStringArray(text, w - 4 - (marginLeft + marginRight), font);
 		textArr = new String[arr.length > maxLines && maxLines > 0 ? maxLines : arr.length];
 		for(int i = 0; i < textArr.length; i++) {
 			textArr[i] = arr[i];
@@ -100,8 +119,7 @@ public class LabelItem extends UIItem implements UIConstants {
 	}
 
 	public void setMarginWidth(int i) {
-		marginLeft = i;
-		marginRight = i;
+		marginRight = marginLeft = i;
 		relayout();
 	}
 
@@ -116,8 +134,7 @@ public class LabelItem extends UIItem implements UIConstants {
 	}
 
 	public void setMarginHeight(int i) {
-		marginTop = i;
-		marginBottom = i;
+		marginBottom = marginTop = i;
 		relayout();
 	}
 

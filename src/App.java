@@ -21,6 +21,7 @@ SOFTWARE.
 */
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.Connector;
@@ -40,6 +41,7 @@ import ui.AppUI;
 import models.ILoader;
 import cc.nnproject.json.JSON;
 import cc.nnproject.ytapp.App2;
+import midletintegration.MIDletIntegration;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.json.AbstractJSON;
@@ -184,7 +186,9 @@ public class App implements Constants {
 			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
 			t0.start();
 		}
-		ui.loadMain();
+		if(!checkStartArguments()) {
+			ui.loadMain();
+		}
 		checkUpdate();
 		if(Settings.debugMemory) {
 			Thread t = new Thread() {
@@ -273,8 +277,8 @@ public class App implements Constants {
 	}
 
 	public static byte[] hproxy(String s) throws IOException {
+		if(s.startsWith("//")) return Util.get("http:" + s);
 		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
-		if(s.startsWith("//")) return Util.get("https:" + s);
 		if(Settings.imgproxy == null || Settings.imgproxy.length() <= 1)
 			return Util.get(s);
 		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
@@ -288,7 +292,7 @@ public class App implements Constants {
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
-		s = s.concat("region=" + Settings.region);
+		s = s.concat("region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US"));
 		if(fields != null) {
 			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
 		}
@@ -312,17 +316,6 @@ public class App implements Constants {
 			res = JSON.getArray(s);
 		}
 		return res;
-	}
-	
-	public static boolean needsCheckMemory() {
-		return Settings.isLowEndDevice() && !Settings.videoPreviews;
-	}
-	
-	public static void checkMemoryAndGc() {
-		Runtime r = Runtime.getRuntime();
-		if(r.freeMemory() > r.totalMemory() - 500 * 1024) {
-			Util.gc();
-		}
 	}
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
@@ -463,10 +456,6 @@ public class App implements Constants {
 		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir, name);
 		d.start();
 	}
-	public static void download(String[] vids) {
-		Downloader d = new Downloader(vids, Settings.videoRes, Settings.downloadDir);
-		d.start();
-	}
 	
 	public static void watch(final String id) {
 		inst.stopAsyncTasks();
@@ -530,7 +519,7 @@ public class App implements Constants {
 		}
 	}
 	
-	public void addAsyncLoad(ILoader v) {
+	public void addAsyncTask(ILoader v) {
 		if(v == null) throw new NullPointerException("l");
 		synchronized(lazyLoadLock) {
 			if(v1 == null) {
@@ -539,9 +528,9 @@ public class App implements Constants {
 				int s0 = v0.size();
 				int s1 = v1.size();
 				int s2 = v2.size();
-				if(s0 < s1) {
+				if(s0 <= s1) {
 					v0.addElement(v);
-				} else if(s1 < s2) {
+				} else if(s1 <= s2) {
 					v1.addElement(v);
 				} else {
 					v2.addElement(v);
@@ -569,12 +558,12 @@ public class App implements Constants {
 	}
 
 	public void stopAsyncTasks() {
-		if(t0 != null) t0.pleaseInterrupt();
-		if(t1 != null) t1.pleaseInterrupt();
-		if(t2 != null) t2.pleaseInterrupt();
 		if(v0 != null) v0.removeAllElements();
 		if(v1 != null) v1.removeAllElements();
 		if(v2 != null) v2.removeAllElements();
+		if(t0 != null) t0.pleaseInterrupt();
+		if(t1 != null) t1.pleaseInterrupt();
+		if(t2 != null) t2.pleaseInterrupt();
 		waitAsyncTasks();
 	}
 	
@@ -643,6 +632,122 @@ public class App implements Constants {
 		a.setTimeout(-2);
 		Display.getDisplay(midlet).setCurrent(a);
 	}
+	
+	public static boolean checkStartArguments() {
+		try {
+			if(MIDletIntegration.checkLaunch()) {
+				return parseStartArguments();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static boolean parseStartArguments() {
+		Hashtable args = MIDletIntegration.getArguments(MIDletIntegration.getLaunchCommand());
+		String s;
+		if((s = (String) args.get("url")) != null && s.length() > 0) {
+			try {
+				s = Util.decodeURL(s);
+				openURL(s);
+				return true;
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
+		} else if((s = (String) args.get("videoId")) != null && s.length() > 0) {
+			inst.ui.openChannel(s);
+			return true;
+		} else if((s = (String) args.get("channelId")) != null && s.length() > 0) {
+			inst.ui.openChannel(s);
+			return true;
+		} else if((s = (String) args.get("playlistId")) != null && s.length() > 0) {
+			inst.ui.openPlaylist(s);
+			return true;
+		}
+		return false;
+	}
 
+	public static void openURL(String url) {
+		if(inst == null || inst.ui == null) {
+			return;
+		}
+		final String https = "https://";
+		final String http = "http://";
+		final String www = "www.";
+		if(url.startsWith(https)) url = url.substring(https.length());
+		else if(url.startsWith(http)) url = url.substring(http.length());
+		if(url.startsWith(www)) url = url.substring(www.length());
+		if(url.startsWith("youtu.be")) {
+			int i = url.indexOf('/');
+			if(i == -1)
+				throw new IllegalArgumentException();
+			url = url.substring(i + 1);
+			if((i = url.indexOf('/')) != -1) {
+				url = url.substring(0, i);
+			}
+			inst.ui.openVideo(url);
+		} else if(url.startsWith("youtube.com") || 
+				url.startsWith("iteroni.com") || 
+				url.startsWith("invidious.snopyta.org")) {
+			int i = url.indexOf('/');
+			if(i == -1)
+				throw new IllegalArgumentException();
+			url = url.substring(i + 1);
+			if(url.startsWith("watch")) {
+				i = url.indexOf("?v=");
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 3);
+				if((i = url.indexOf('&')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openVideo(url);
+			} else if(url.startsWith("embed")) {
+				i = url.indexOf('/');
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 1);
+				if((i = url.indexOf('/')) != -1) {
+					url = url.substring(0, i);
+				} else if((i = url.indexOf('?')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openVideo(url);
+			} else if(url.startsWith("c")) {
+				i = url.indexOf('/');
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 1);
+				if((i = url.indexOf('/')) != -1) {
+					url = url.substring(0, i);
+				} else if((i = url.indexOf('?')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openChannel(url);
+			} else if(url.startsWith("playlist")) {
+				i = url.indexOf("?list=");
+				if(i == -1)
+					throw new IllegalArgumentException();
+				url = url.substring(i + 6);
+				if((i = url.indexOf('&')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openPlaylist(url);
+			}
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static void requestURL(String url) {
+		try {
+			if(url.indexOf("://") == -1) {
+				url = "http://" + url;
+			}
+			midlet.platformRequest(url);
+		} catch(Exception e) {
+		}
+	}
 
 }

@@ -23,7 +23,7 @@ package models;
 
 import ui.UIItem;
 import ui.UIScreen;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.items.PlaylistItem;
 import ui.screens.PlaylistScreen;
 import cc.nnproject.json.JSONObject;
@@ -40,6 +40,10 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 	private int videoCount;
 	
 	private UIScreen containerScreen;
+
+	public PlaylistModel(String id) {
+		this.playlistId = id;
+	}
 
 	public PlaylistModel(JSONObject o) {
 		parse(o, false);
@@ -114,7 +118,7 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 		return new PlaylistItem(this);
 	}
 
-	public ModelScreen makeScreen() {
+	public IModelScreen makeScreen() {
 		return new PlaylistScreen(this);
 	}
 

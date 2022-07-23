@@ -32,7 +32,7 @@ import Settings;
 import Constants;
 import InvidiousException;
 import ui.AppUI;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.UIItem;
 import ui.UIScreen;
 import ui.items.ChannelItem;
@@ -79,7 +79,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	
 	private boolean loadDone;
 
-	// create model without parsing
 	public VideoModel(String id) {
 		videoId = id;
 	}
@@ -113,7 +112,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			likeCount = j.getInt("likeCount", -1);
 			dislikeCount = j.getInt("dislikeCount", -1);
 			if(Settings.videoPreviews && j.has("authorThumbnails")) {
-				authorThumbnailUrl = App.getThumbUrl(j.getArray("authorThumbnails"), AUTHORITEM_IMAGE_HEIGHT);
+				authorThumbnailUrl = App.getThumbUrl(j.getArray("authorThumbnails"), AUTHOR_IMAGE_HEIGHT);
 			}
 		}
 		if(Settings.videoPreviews) {
@@ -141,6 +140,10 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 	
 	public Image customResize(Image img) {
+		return resize(img, false, 0);
+	}
+	
+	public Image resize(Image img, boolean prev, int w) {
 		float iw = img.getWidth();
 		float ih = img.getHeight();
 		Util.gc();
@@ -154,28 +157,14 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			iw = img.getWidth();
 			ih = img.getHeight();
 		}
-		float nw = (float) imageWidth;
+		float nw = (float) (prev ? w : imageWidth);
 		int nh = (int) (nw * (ih / iw));
-		img = ImageUtils.resize(img, imageWidth, nh);
+		img = ImageUtils.resize(img, (int)nw, nh);
 		return img;
 	}
 	
 	public Image previewResize(int w, Image img) {
-		float iw = img.getWidth();
-		float ih = img.getHeight();
-		Util.gc();
-		float f = iw / ih;
-		if(f == 4F / 3F) {
-			// cropping to 16:9
-			float ch = iw * (9F / 16F);
-			int chh = (int) ((ih - ch) / 2F);
-			img = ImageUtils.crop(img, 0, chh, img.getWidth(), (int) (ch + chh));
-			iw = img.getWidth();
-			ih = img.getHeight();
-		}
-		int nh = (int) (w * (ih / iw));
-		img = ImageUtils.resize(img, w, nh);
-		return img;
+		return resize(img, true, w);
 	}
 
 	public void loadImage() {
@@ -251,7 +240,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private void _loadAuthorImg() throws Exception {
 		byte[] b = App.hproxy(authorThumbnailUrl);
 		authorThumbnailUrl = null;
-		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHORITEM_IMAGE_HEIGHT, AUTHORITEM_IMAGE_HEIGHT));
+		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHOR_IMAGE_HEIGHT, AUTHOR_IMAGE_HEIGHT));
 	}
 	public String getTitle() {
 		return title;
@@ -377,12 +366,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		return prevItem = new VideoPreviewItem(this, img);
 	}
 
-	public ModelScreen makeScreen() {
+	public IModelScreen makeScreen() {
 		return new VideoScreen(this);
 	}
 	
 	public ChannelItem makeChannelItem() {
-		return channelItem = (ChannelItem) new ChannelModel(getAuthorId(), getAuthor(), null, subCount).makeListItem();
+		return channelItem = (ChannelItem) new ChannelModel(getAuthorId(), getAuthor(), null, subCount).makePageItem();
 	}
 
 	public void setContainerScreen(UIScreen s) {

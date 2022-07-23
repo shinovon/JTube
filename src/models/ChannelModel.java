@@ -28,7 +28,7 @@ import javax.microedition.lcdui.Image;
 import App;
 import Settings;
 import Constants;
-import ui.ModelScreen;
+import ui.IModelScreen;
 import ui.UIItem;
 import InvidiousException;
 import ui.items.ChannelItem;
@@ -53,6 +53,11 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	private String imageUrl;
 	private boolean rounded;
+	private boolean page;
+	
+	public ChannelModel(String id) {
+		this.authorId = id;
+	}
 
 	public ChannelModel(JSONObject o) {
 		parse(o, false);
@@ -82,7 +87,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		if(Settings.videoPreviews) {
 			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
 			if(authorThumbnails != null) {
-				imageUrl = App.getThumbUrl(authorThumbnails, AUTHORITEM_IMAGE_HEIGHT);
+				imageUrl = App.getThumbUrl(authorThumbnails, page ? 36 : 48);
 			}
 		}
 		subCount = o.getInt("subCount", -1);
@@ -108,7 +113,8 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		if(imageUrl == null) return;
 		try {
 			byte[] b = App.hproxy(imageUrl);
-			img = ImageUtils.resize(Image.createImage(b, 0, b.length), AUTHORITEM_IMAGE_HEIGHT, AUTHORITEM_IMAGE_HEIGHT);
+			int i = page ? 36 : 48;
+			img = ImageUtils.resize(Image.createImage(b, 0, b.length), i, i);
 			item.setImage(img);
 			imageUrl = null;
 		} catch (Exception e) {
@@ -164,10 +170,16 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	}
 
 	public UIItem makeListItem() {
+		page = false;
 		return item = new ChannelItem(this);
 	}
 
-	public ModelScreen makeScreen() {
+	public UIItem makePageItem() {
+		page = true;
+		return item = new ChannelItem(this);
+	}
+
+	public IModelScreen makeScreen() {
 		return new ChannelScreen(this);
 	}
 
@@ -182,6 +194,10 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	public boolean isImageRounded() {
 		return rounded;
+	}
+
+	public boolean hasSmallImage() {
+		return page;
 	}
 
 }

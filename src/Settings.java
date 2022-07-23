@@ -19,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -28,8 +30,10 @@ import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.JSON;
+import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.utils.PlatformUtils;
+import midletintegration.MIDletIntegration;
 
 public class Settings implements Constants {
 	
@@ -58,17 +62,24 @@ public class Settings implements Constants {
 	public static boolean amoled;
 	public static boolean fastScrolling;
 	public static boolean smallPreviews = true;
+	public static boolean searchBar = true;
+	public static boolean autoStart;
+	public static boolean fullScreen = true;
 
-	public static Vector rootsVector;
+	public static Vector rootsList;
+	public static Vector langsList;
 	
 	public static void getRoots() {
-		if(rootsVector != null) return;
-		rootsVector = new Vector();
-		Enumeration roots = FileSystemRegistry.listRoots();
-		while(roots.hasMoreElements()) {
-			String s = (String) roots.nextElement();
-			if(s.startsWith("file:///")) s = s.substring("file:///".length());
-			rootsVector.addElement(s);
+		if(rootsList != null) return;
+		rootsList = new Vector();
+		try {
+			Enumeration roots = FileSystemRegistry.listRoots();
+			while(roots.hasMoreElements()) {
+				String s = (String) roots.nextElement();
+				if(s.startsWith("file:///")) s = s.substring("file:///".length());
+				rootsList.addElement(s);
+			}
+		} catch (Exception e) {
 		}
 	}
 	
@@ -81,6 +92,54 @@ public class Settings implements Constants {
 			watchMethod = 1;
 		}
 		*/
+		try {
+			langsList = new Vector();
+			langsList.addElement(new String[] { "en", "English", "", "Built-in"});
+			langsList.addElement(new String[] { "ru", "Russian", "Русский", "Built-in"});
+			InputStream is = "".getClass().getResourceAsStream("/jtindex");
+			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+			char[] cbuf = new char[2048];
+			isr.read(cbuf);
+			isr.close();
+			is.close();
+			int i = 0;
+			char c;
+			boolean skipLine = false;
+			StringBuffer tmp = new StringBuffer();
+			boolean b = true;
+			while(b) {
+				c = cbuf[i++];
+				switch(c) {
+				case '#':
+					skipLine = true;
+					break;
+				case '\r':
+					break;
+				case 0:
+					b = false;
+				case '\n':
+					if(!skipLine && tmp.length() > 6) {
+						String line = tmp.toString();
+						if(line.startsWith("jtlng_")) {
+							int idx = line.indexOf('=');
+							String[] arr = new String[4];
+							arr[0] = line.substring(6, idx);
+							line = line.substring(idx+1);
+							JSONArray j = JSON.getArray("[".concat(line).concat("]"));
+							j.copyInto(arr, 1, 3);
+							langsList.addElement(arr);
+						}
+					}
+					skipLine = false;
+					tmp.setLength(0);
+					break;
+				default:
+					tmp.append(c);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		RecordStore r = null;
 		try {
 			r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, false);
@@ -98,45 +157,47 @@ public class Settings implements Constants {
 				boolean s40 = PlatformUtils.isS40();
 				if(!s40) {
 					getRoots();
-					String root = "";
-					for(int i = 0; i < rootsVector.size(); i++) {
-						String s = (String) rootsVector.elementAt(i);
-						if(s.startsWith("file:///")) s = s.substring("file:///".length());
-						if(s.startsWith("Video")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("SDCard")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("F:")) {
-							root = s;
-							break;
-						}
-						if(s.startsWith("E:")) {
-							root = s;
-							break;
-						}
-						if(PlatformUtils.isPhoneme()) {
-							if(s.startsWith("/Storage")) {
+					if(rootsList.size() > 0) {
+						String root = "";
+						for(int i = 0; i < rootsList.size(); i++) {
+							String s = (String) rootsList.elementAt(i);
+							if(s.startsWith("file:///")) s = s.substring("file:///".length());
+							if(s.startsWith("Video")) {
 								root = s;
 								break;
 							}
-							if(s.startsWith("/MyDocs")) {
+							if(s.startsWith("SDCard")) {
 								root = s;
+								break;
+							}
+							if(s.startsWith("F:")) {
+								root = s;
+								break;
+							}
+							if(s.startsWith("E:")) {
+								root = s;
+								break;
+							}
+							if(PlatformUtils.isPhoneme()) {
+								if(s.startsWith("/Storage")) {
+									root = s;
+									break;
+								}
+								if(s.startsWith("/MyDocs")) {
+									root = s;
+								}
 							}
 						}
-					}
-					if(!root.endsWith("/")) root += "/";
-					downloadDir = root;
-					try {
-						FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
-						if(fc.exists()) {
-							downloadDir = root + "videos/";
+						if(!root.endsWith("/")) root += "/";
+						downloadDir = root;
+						try {
+							FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
+							if(fc.exists()) {
+								downloadDir = root + "videos/";
+							}
+							fc.close();
+						} catch (Exception e) {
 						}
-						fc.close();
-					} catch (Exception e) {
 					}
 				} else {
 					String downloadDir = System.getProperty("fileconn.dir.videos");
@@ -149,6 +210,7 @@ public class Settings implements Constants {
 					Settings.downloadDir = downloadDir;
 				}
 				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
+				searchBar = false;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					httpStream = true;
@@ -166,6 +228,7 @@ public class Settings implements Constants {
 					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
+						searchBar = true;
 					}
 					if(PlatformUtils.isPhoneme()) {
 						asyncLoading = true;
@@ -180,6 +243,9 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					serverstream = stream;
 					videoPreviews = true;
+					if(PlatformUtils.isAshaFullTouch()) {
+						searchBar = true;
+					}
 					//char c = PlatformUtils.platform.charAt(5);
 					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
@@ -262,17 +328,21 @@ public class Settings implements Constants {
 					amoled = j.getBoolean("amoled");
 				if(j.has("smallPreviews"))
 					smallPreviews = j.getBoolean("smallPreviews");
+				if(j.has("fastScrolling"))
+					fastScrolling = j.getBoolean("fastScrolling");
+				if(j.has("searchBar"))
+					searchBar = j.getBoolean("searchBar");
+				if(j.has("autoStart"))
+					autoStart = j.getBoolean("autoStart");
 				return;
 			} catch (Exception e) {
 			}
 		}
+		registerPush();
 	}
 	
 	public static void saveConfig() {
-		try {
-			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
-		} catch (Throwable e) {
-		}
+		removeConfig();
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
@@ -300,10 +370,20 @@ public class Settings implements Constants {
 			j.put("renderDebug", new Boolean(renderDebug));
 			j.put("amoled", new Boolean(amoled));
 			j.put("smallPreviews", new Boolean(smallPreviews));
+			j.put("fastScrolling", new Boolean(fastScrolling));
+			j.put("searchBar", new Boolean(searchBar));
+			j.put("autoStart", new Boolean(autoStart));
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
 		} catch (Exception e) {
+		}
+	}
+	
+	public static void removeConfig() {
+		try {
+			RecordStore.deleteRecordStore(CONFIG_RECORD_NAME);
+		} catch (Throwable e) {
 		}
 	}
 	
@@ -314,6 +394,18 @@ public class Settings implements Constants {
 						App.width < 176 || 
 						PlatformUtils.startMemory < 1024 * 1024 ||
 						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
+	}
+	
+	public static void registerPush() {
+		try {
+			int port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
+			if(autoStart) {
+				MIDletIntegration.registerPush(App.midlet, port);
+			} else {
+				MIDletIntegration.unregisterPush(port);
+			}
+		} catch (Exception e) {
+		}
 	}
 
 }

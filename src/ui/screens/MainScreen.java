@@ -1,56 +1,58 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui.screens;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Graphics;
-
 import App;
-import Locale;
 import Settings;
-import cc.nnproject.utils.PlatformUtils;
-import ui.Commands;
-import ui.AbstractListScreen;
-import ui.AppUI;
 import ui.items.VideoItem;
 
-public class MainScreen extends AbstractListScreen implements Commands, CommandListener {
-	
-	private Command okCmd = new Command("OK", Command.OK, 5);
-	
-	private boolean okAdded;
-	private boolean wasHidden;
+public class MainScreen extends NavigationScreen {
 
 	public MainScreen() {
 		super("", null);
 	}
 	
 	protected void show() {
-		clearCommands();
-		ui.addOptionCommands();
-		addCommand(exitCmd);
-		if((PlatformUtils.isS603rd() && ui.getWidth() > ui.getHeight()) || PlatformUtils.isKemulator || PlatformUtils.isSonyEricsson()) {
-			okAdded = true;
-		} else if(okAdded || ui.isKeyInputMode()) {
-			okAdded = true;
-			addCommand(okCmd);
-		}
-		if(Settings.videoPreviews && wasHidden) {
+		super.show();
+		if(wasHidden) {
 			wasHidden = false;
-			// resume loading previews
-			App.inst.stopAsyncTasks();
-			for(int i = 0; i < items.size(); i++) {
-				Object o = items.elementAt(i);
-				if(o instanceof VideoItem) {
-					App.inst.addAsyncLoad(((VideoItem)o).getVideo());
+			if(Settings.videoPreviews) {
+				// resume loading previews
+				App.inst.stopAsyncTasks();
+				boolean b = false;
+				for(int i = 0; i < items.size(); i++) {
+					Object o = items.elementAt(i);
+					if(o instanceof VideoItem) {
+						App.inst.addAsyncTask(((VideoItem)o).getVideo());
+						b = true;
+					}
 				}
+				if(b) App.inst.startAsyncTasks();
 			}
-			App.inst.startAsyncTasks();
 		}
 	}
 	
 	protected void hide() {
-		wasHidden = true;
+		super.hide();
 		if(Settings.rmsPreviews) {
 			for(int i = 0; i < items.size(); i++) {
 				Object o = items.elementAt(i);
@@ -60,37 +62,8 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 			}
 		}
 	}
-	
-	public void paint(Graphics g, int w, int h) {
-		if(AppUI.loadingState) {
-			g.setColor(AppUI.getColor(COLOR_MAINBG));
-			g.fillRect(0, 0, w, h);
-			g.setColor(AppUI.getColor(COLOR_MAINFG));
-			String s = Locale.s(TITLE_Loading) + "...";
-			g.setFont(smallfont);
-			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
-			return;
-		}
-		super.paint(g, w, h);
-	}
-	
-	public void keyPress(int i) {
-		if(!okAdded && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
-			okAdded = true;
-			addCommand(okCmd);
-		}
-		super.keyPress(i);
-	}
-
-	public boolean supportCommands() {
-		return true;
-	}
-
+/*
 	public void commandAction(Command c, Displayable d) {
-		if(c == okCmd) {
-			keyPress(-5);
-			return;
-		}
 		if(c == backCmd) {
 			ui.display(null);
 			return;
@@ -99,6 +72,7 @@ public class MainScreen extends AbstractListScreen implements Commands, CommandL
 			ui.showOptions();
 			return;
 		}
+		super.commandAction(c, d);
 	}
-
+*/
 }

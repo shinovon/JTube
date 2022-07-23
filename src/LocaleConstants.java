@@ -20,7 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 public interface LocaleConstants {
-	
+
+	public static final int ISOLanguageCode = -2;
 	public static final int CMD_Settings = 1;
 	public static final int CMD_Search = 2;
 	public static final int CMD_OK = 3;
@@ -112,5 +113,12 @@ public interface LocaleConstants {
 	public static final int TXT_views = 90;
 	public static final int SET_Amoled = 91;
 	public static final int SET_SmallPreviews = 92;
+	public static final int SET_Reset = 93;
+	public static final int SET_Video = 94;
+	public static final int SET_Network = 95;
+	public static final int TXT_SearchHint = 96;
+	public static final int SET_AutoStart = 97;
+	public static final int BTN_Share = 110;
+	public static final int SET_ChooseLanguage = 111;
 
 }

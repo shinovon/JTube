@@ -21,7 +21,7 @@ SOFTWARE.
 */
 package models;
 
-import ui.ModelScreen;
+import ui.IModelScreen;
 
 public abstract class AbstractModel {
 
@@ -35,6 +35,6 @@ public abstract class AbstractModel {
 	
 	public abstract void disposeExtendedVars();
 
-	public abstract ModelScreen makeScreen();
+	public abstract IModelScreen makeScreen();
 	
 }

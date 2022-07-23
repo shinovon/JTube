@@ -238,7 +238,7 @@ public class JSONArray extends AbstractJSON {
 		}
 		return s;
 	}
-	
+
 	public Enumeration elements() {
 		return new Enumeration() {
 			int i = 0;
@@ -255,5 +255,15 @@ public class JSONArray extends AbstractJSON {
 		};
 	}
 */
+	public void copyInto(Object[] arr, int offset, int length) {
+		int i = offset;
+		int j = 0;
+		while(i < arr.length && j < length && j < size()) {
+			Object o = get(j++);
+			if(o == JSON.null_equivalent) o = null;
+			arr[i++] = o;
+		}
+	}
+
 }
 

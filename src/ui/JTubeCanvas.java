@@ -1,12 +1,34 @@
+/*
+Copyright (c) 2022 Arman Jussupgaliyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package ui;
 
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
 
-import App;
+import Util;
 import Settings;
 
 public class JTubeCanvas extends GameCanvas implements UIConstants {
+	
 	private AppUI ui;
 	int width;
 	int height;
@@ -26,21 +48,21 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private boolean controlBlock;
 	private boolean draggedScrollbar;
 	private int flushTime;
-	private Graphics g;
 	
 	JTubeCanvas(AppUI ui) {
 		super(false);
 		this.ui = ui;
-		super.setFullScreenMode(false);
+		super.setFullScreenMode(Settings.fullScreen);
 		width = super.getWidth();
 		height = super.getHeight();
 		if(!super.hasPointerEvents()) {
 			ui.setKeyInputMode();
 		}
-		g = getGraphics();
+		updateScreen();
 	}
 
 	public void updateScreen() {
+		Graphics g = getGraphics();
 		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.getCurrentScreen();
@@ -129,12 +151,14 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		int ady = Math.abs(dy);
 		if(pressed) {
 			UIScreen s = ui.getCurrentScreen();
+			/*
 			if(s != null && s.hasScrollBar()) {
 				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
 					s.setScrollBarY(y);
 					draggedScrollbar = true;
 				}
 			}
+			*/
 			if(!draggedScrollbar) {
 				if(s != null) s.release(x, y);
 				if(draggedMuch) {
@@ -168,7 +192,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			return;
 		}
 		UIScreen s = ui.getCurrentScreen();
-		if(s != null) {
+		if(s != null && !s.blockScrolling()) {
+			/*
 			if(s.hasScrollBar()) {
 				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
 					s.setScrollBarY(y);
@@ -180,6 +205,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 					return;
 				}
 			}
+			*/
 			//dragTime = System.currentTimeMillis();
 			final int sdX = Math.abs(pressX - x);
 			final int sdY = Math.abs(pressY - y);
@@ -243,11 +269,9 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	protected void sizeChanged(int w, int h) {
-		App.width = width = w;
-		App.height = height = h;
-		g = getGraphics();
-		g.setColor(AppUI.getColor(COLOR_MAINBG));
-		g.fillRect(0, 0, width, height);
+		width = w;
+		height = h;
+		Util.testCanvas();
 		needRepaint();
 	}
 

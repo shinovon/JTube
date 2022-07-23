@@ -26,7 +26,7 @@ public class Errors {
 	public static final int Settings_apply = 3;
 	public static final int LoaderThread_run = 4;
 	public static final int App_watch = 5;
-	public static final int App_openVideo = 6;
+	public static final int AppUI_openVideo = 6;
 	public static final int AppUI_loadForm = 7;
 	public static final int AppUI_load = 8;
 	public static final int AppUI_search = 10;

@@ -22,6 +22,7 @@ SOFTWARE.
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 import javax.microedition.io.ConnectionNotFoundException;
@@ -29,6 +30,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.Image;
 
 import ui.TestCanvas;
 
@@ -36,11 +38,27 @@ public class Util implements Constants {
 	
 	private static int buffer_size;
 	
+	private static String charset = "utf-8, iso-8859-1;q=0.5";
+	private static String alt_charset = "iso-8859-1";
+	
+	private static Canvas testCanvas;
+	
 	static {
 		try {
 			buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
 		} catch (Throwable t) {
 			buffer_size = 1024;
+		}
+		String s = System.getProperty("microedition.encoding");
+		if(s != null) {
+			alt_charset = s.toLowerCase();
+		}
+		// Test UTF-8 support
+		try {
+			String tmp = new String("test".getBytes("UTF-8"), "UTF-8");
+			tmp.charAt(0);
+		} catch (Throwable e) {
+			charset = alt_charset;
 		}
 	} 
 
@@ -59,13 +77,13 @@ public class Util implements Constants {
 			hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
-			String locale = null;
-			if(Locale.systemLocale != null)
-				locale = Locale.systemLocale;
-			if(Settings.customLocale != null)
-				locale = Settings.customLocale;
-			if(locale != null)
+			if(charset != null) {
+				hc.setRequestProperty("accept-charset", charset);
+			}
+			String locale = Locale.s(Locale.ISOLanguageCode);
+			if(locale != null) {
 				hc.setRequestProperty("accept-language", locale);
+			}
 			if(isLoader) {
 				if(il.checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");
@@ -122,6 +140,7 @@ public class Util implements Constants {
 		try {
 			return new String(b, "UTF-8");
 		} catch (Throwable e) {
+			charset = alt_charset;
 			return new String(b);
 		}
 	}
@@ -182,6 +201,8 @@ public class Util implements Constants {
 		String m = "" + (i % 3600) / 60;
 		int h = i / 3600;
 		if(h > 0) {
+			if(m.length() < 2)
+				m = "0" + m;
 			return h + ":" + m + ":" + s;
 		} else {
 			return m + ":" + s;
@@ -189,49 +210,53 @@ public class Util implements Constants {
 	}
 	
 	public static String[] getStringArray(String text, int maxWidth, Font font) {
-		if (text == null || text.length() == 0 || text.equals(" ")) {
+		if (text == null || text.length() == 0 || text.equals(" ") || maxWidth < font.charWidth('W') + 2) {
 			return new String[0];
 		}
+		text = replace(text, "\r", "");
 		Vector v = new Vector(3);
-		//v: {
-		if (font.stringWidth(text) > maxWidth) {
-			int i1 = 0;
-			for (int i2 = 0; i2 < text.length(); i2++) {
-				//if(v.size() >= max) break v;
-				if (text.charAt(i2) == '\n') {
-					v.addElement(text.substring(i1, i2));
-					i2 = i1 = i2 + 1;
-				} else {
-					if (text.length() - i2 <= 1) {
-						v.addElement(text.substring(i1, text.length()));
-						break;
-					} else if (font.stringWidth(text.substring(i1, i2)) >= maxWidth - 1) {
+		char[] chars = text.toCharArray();
+		if (text.indexOf('\n') > -1) {
+			int j = 0;
+			for (int i = 0; i < text.length(); i++) {
+				if (chars[i] == '\n') {
+					v.addElement(text.substring(j, i));
+					j = i + 1;
+				}
+			}
+			v.addElement(text.substring(j, text.length()));
+		} else {
+			v.addElement(text);
+		}
+		for (int i = 0; i < v.size(); i++) {
+			String s = (String) v.elementAt(i);
+			if(font.stringWidth(s) >= maxWidth) {
+				int i1 = 0;
+				for (int i2 = 0; i2 < s.length(); i2++) {
+					if (font.stringWidth(s.substring(i1, i2+1)) >= maxWidth) {
 						boolean space = false;
 						for (int j = i2; j > i1; j--) {
-							char c = text.charAt(j);
+							char c = s.charAt(j);
 							if (c == ' ' || (c >= ',' && c <= '/')) {
-								String s = text.substring(i1, j + 1);
-								if(font.stringWidth(s) >= maxWidth - 1) {
-									continue;
-								}
 								space = true;
-								v.addElement(s);
+								v.setElementAt(s.substring(i1, j + 1), i);
+								v.insertElementAt(s.substring(j + 1), i + 1);
+								i += 1;
 								i2 = i1 = j + 1;
 								break;
 							}
 						}
 						if (!space) {
 							i2 = i2 - 2;
-							v.addElement(text.substring(i1, i2));
+							v.setElementAt(s.substring(i1, i2), i);
+							v.insertElementAt(s.substring(i2), i + 1);
 							i2 = i1 = i2 + 1;
+							i += 1;
 						}
 					}
 				}
 			}
-		} else {
-			return new String[] { text };
 		}
-		//}
 		String[] arr = new String[v.size()];
 		v.copyInto(arr);
 		return arr;
@@ -256,9 +281,10 @@ public class Util implements Constants {
 	}
 
 	public static void testCanvas() {
-		Canvas c = new TestCanvas();
-		App.width = c.getWidth();
-		App.height = c.getHeight();
+		if(testCanvas == null)
+			testCanvas = new TestCanvas();
+		App.width = testCanvas.getWidth();
+		App.height = testCanvas.getHeight();
 	}
 
 	public static String getFileName(String s) {
@@ -266,7 +292,7 @@ public class Util implements Constants {
 		StringBuffer sb = new StringBuffer();
 		final char[] arr1 = new char[]     { 'щ',  'ю', 'я',  'ц',  'ч',  'ш',  'а', 'б', 'в', 'г', 'д', 'е', 'ж',  'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ъ','ы','ь', 'э'};
 		final String[] arr2 = new String[] { "sh", "u", "ya", "ts", "ch", "sh", "a", "b", "v", "g", "d", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "", "y", "", "e"};
-		for(int i = 0; i < cs.length && i < 24; i++) {
+		for(int i = 0; i < cs.length && i < 32; i++) {
 			char c = cs[i];
 			// replace spaces
 			if(c <= 32) sb.append('_');
@@ -293,6 +319,68 @@ public class Util implements Constants {
 		}
 		s = sb.toString();
 		return s;
+	}
+	
+	public static String decodeURL(String s) {
+		boolean needToChange = false;
+		int numChars = s.length();
+		StringBuffer sb = new StringBuffer(numChars > 500 ? numChars / 2 : numChars);
+		int i = 0;
+		char c;
+		byte[] bytes = null;
+		while (i < numChars) {
+			c = s.charAt(i);
+			switch (c) {
+			case '%':
+				try {
+					if (bytes == null)
+						bytes = new byte[(numChars - i) / 3];
+					int pos = 0;
+					while (((i + 2) < numChars) && (c == '%')) {
+						int v = Integer.parseInt(s.substring(i + 1, i + 3), 16);
+						if (v < 0)
+							throw new IllegalArgumentException();
+						bytes[pos++] = (byte) v;
+						i += 3;
+						if (i < numChars)
+							c = s.charAt(i);
+					}
+					if ((i < numChars) && (c == '%'))
+						throw new IllegalArgumentException();
+					sb.append(new String(bytes, 0, pos, "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalArgumentException();
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException();
+				}
+				needToChange = true;
+				break;
+			default:
+				sb.append(c);
+				i++;
+				break;
+			}
+		}
+		return (needToChange ? sb.toString() : s);
+	}
+	
+	public static Image invert(Image img) {
+		int w = img.getWidth();
+		int h = img.getHeight();
+
+		int[] buffer = new int[w * h];
+
+		img.getRGB(buffer, 0, w, 0, 0, w, h);
+		img = null;
+		for(int i = 0; i < buffer.length; i++) {
+			int c = buffer[i];
+			int a = (c >> 24) & 0xFF;
+			int r = 0xFF - ((c >> 16) & 0xFF);
+			int g = 0xFF - ((c >> 8) & 0xFF);
+			int b = 0xFF - (c & 0xFF);
+			buffer[i] = (a<<24) | (r<<16) | (g<<8) | b;
+		}
+		return Image.createRGBImage(buffer, w, h, true);
 	}
 
 }
