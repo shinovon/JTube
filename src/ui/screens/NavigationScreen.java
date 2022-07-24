@@ -183,8 +183,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(lastW != w) {
 			lastW = w;
 			lastH = h;
-			menuW = w-w/4;
-			menuH = menuOptions.length * (mediumfontheight+8);
+			if(menuOptions != null) {
+				menuW = w-w/4;
+				menuH = menuOptions.length * (mediumfontheight+8);
+			}
 			setEditorPositions();
 		}
 		if(topBar) {
