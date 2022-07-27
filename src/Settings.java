@@ -101,7 +101,10 @@ public class Settings implements Constants {
 			char[] cbuf = new char[2048];
 			isr.read(cbuf);
 			isr.close();
-			is.close();
+			try {
+				is.close();
+			} catch (Exception e) {
+			}
 			int i = 0;
 			char c;
 			boolean skipLine = false;
