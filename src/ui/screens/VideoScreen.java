@@ -68,14 +68,14 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		VideoModel video = this.video;
 		if(Settings.videoPreviews)
 			add(video.makePreviewItem());
-		Font f = DirectFontUtil.getFont(0, 0, 24, Font.SIZE_MEDIUM);
+		Font f = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_MEDIUM) : mediumfont;
 		LabelItem title = new LabelItem(video.getTitle(), f);
 		title.setMarginWidth(9);
 		title.setMarginTop(12);
 		title.setMaxLines(2);
 		title.setSkipScrolling(true);
 		add(title);
-		f = DirectFontUtil.getFont(0, 0, 18, Font.SIZE_SMALL);
+		f = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 18, Font.SIZE_SMALL) : smallfont;
 		LabelItem views = new LabelItem(Locale.views(video.getViewCount()).concat(" • ").concat(Locale.date(video.getPublishedText())), f, AppUI.getColor(COLOR_GRAYTEXT));
 		views.setMarginTop(3);
 		views.setMarginWidth(9);
