@@ -372,13 +372,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				return;
 			}
 			if(d == langsList) {
-				if(c == List.SELECT_COMMAND) {
-					if(langsList.getSelectedIndex() == -1) {
-						Settings.customLocale = Locale.l;
-					} else {
-						Settings.customLocale = ((String[])Settings.langsList.elementAt(langsList.getSelectedIndex()))[0];
-					}
+				if(langsList.getSelectedIndex() == -1) {
+					Settings.customLocale = Locale.l;
 				} else {
+					Settings.customLocale = ((String[])Settings.langsList.elementAt(langsList.getSelectedIndex()))[0];
+				}
+				if(c != List.SELECT_COMMAND) {
 					AppUI.inst.display(this);
 				}
 				return;
@@ -388,6 +387,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			UIScreen screen = AppUI.inst.getCurrentScreen();
 			if(screen != null) {
 				screen.relayout();
+			}
+			try {
+				AppUI.inst.getCanvas().setFullScreenMode(Settings.fullScreen);
+			} catch (Exception e) {
 			}
 		} catch (Exception e) {
 		}
