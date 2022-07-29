@@ -135,7 +135,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
 				editor.setBackgroundColor(AppUI.getColor(COLOR_MAINBG) | 0xFF000000);
 				Font f = Font.getDefaultFont();
-				if(DirectFontUtil.isSupported()) {
+				if(DirectFontUtil.isSupported() && App.width >= 360) {
 					f = DirectFontUtil.getFont(0, 0, 23, 0);
 				}
 				editor.setFont(f);

@@ -195,6 +195,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		uiChoice.setSelectedIndex(2, Settings.searchPlaylists);
 		uiChoice.setSelectedIndex(3, Settings.amoled);
 		uiChoice.setSelectedIndex(4, Settings.smallPreviews);
+		uiChoice.setSelectedIndex(5, Settings.fullScreen);
 		netChoice.setSelectedIndex(0, Settings.httpStream);
 		netChoice.setSelectedIndex(1, Settings.iteroniPlaybackProxy);
 		debugChoice.setSelectedIndex(0, Settings.debugMemory);
@@ -262,6 +263,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.searchPlaylists = ui[2];
 			Settings.amoled = ui[3];
 			Settings.smallPreviews = ui[4];
+			Settings.fullScreen = ui[5];
 			Settings.httpStream = net[0];
 			Settings.iteroniPlaybackProxy = net[1];
 			Settings.rememberSearch = misc[0];

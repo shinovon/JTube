@@ -26,6 +26,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
+import App;
 import Settings;
 import Locale;
 import LocaleConstants;
@@ -47,7 +48,7 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 	private static void init() {
 		try {
 			if(font == null) {
-				font = DirectFontUtil.getFont(0, 0, 18, 8);
+				font = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 18, 8) : smallfont;
 			}
 			likeImg = Image.createImage("/like24.png");
 			shareImg = Image.createImage("/share24.png");

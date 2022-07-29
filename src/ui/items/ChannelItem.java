@@ -25,6 +25,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
+import App;
 import Locale;
 import LocaleConstants;
 import ui.AppUI;
@@ -112,8 +113,8 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	protected void layout(int w) {
 		h = 52;
 		if(titleFont == null) {
-			titleFont = DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL);
-			subsCountFont = DirectFontUtil.getFont(0, 0, 17, Font.SIZE_SMALL);
+			titleFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;
+			subsCountFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 17, Font.SIZE_SMALL) : smallfont;
 		}
 	}
 
