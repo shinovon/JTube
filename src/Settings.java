@@ -86,6 +86,7 @@ public class Settings implements Constants {
 
 	public static void loadConfig() {
 		customLocale = Locale.l;
+		fullScreen = Util.testCanvas().hasPointerEvents();
 		/*
 		String s = System.getProperty("kemulator.libvlc.supported");
 		if(s != null && s.equals("true")) {
@@ -101,7 +102,10 @@ public class Settings implements Constants {
 			char[] cbuf = new char[2048];
 			isr.read(cbuf);
 			isr.close();
-			is.close();
+			try {
+				is.close();
+			} catch (Exception e) {
+			}
 			int i = 0;
 			char c;
 			boolean skipLine = false;
@@ -334,6 +338,8 @@ public class Settings implements Constants {
 					searchBar = j.getBoolean("searchBar");
 				if(j.has("autoStart"))
 					autoStart = j.getBoolean("autoStart");
+				if(j.has("fullScreen"))
+					fullScreen = j.getBoolean("fullScreen");
 				return;
 			} catch (Exception e) {
 			}
@@ -373,6 +379,7 @@ public class Settings implements Constants {
 			j.put("fastScrolling", new Boolean(fastScrolling));
 			j.put("searchBar", new Boolean(searchBar));
 			j.put("autoStart", new Boolean(autoStart));
+			j.put("fullScreen", new Boolean(fullScreen));
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();

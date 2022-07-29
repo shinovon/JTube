@@ -21,12 +21,15 @@ SOFTWARE.
 */
 package ui.screens;
 
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
 import App;
 import Errors;
+import ui.Commands;
 import Locale;
 import Settings;
 import ui.AppUI;
@@ -40,7 +43,7 @@ import ui.items.LineSplitItem;
 import ui.items.VideoExtrasItem;
 import ui.nokia_extensions.DirectFontUtil;
 
-public class VideoScreen extends NavigationScreen implements IModelScreen, Runnable {
+public class VideoScreen extends NavigationScreen implements IModelScreen, Runnable, Commands {
 
 	private VideoModel video;
 	
@@ -96,6 +99,15 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			App.inst.stopAsyncTasks();
 			new Thread(this).start();
 		}
+		addCommand(backCmd);
+		addCommand(watchCmd);
+		addCommand(showLinkCmd);
+		addCommand(downloadCmd);
+		if(parent != null && video.isFromPlaylist()) {
+			addCommand(openPlaylistCmd);
+			addCommand(prevCmd);
+			addCommand(nextCmd);
+		}
 	}
 
 	public void load() {
@@ -116,18 +128,10 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		}
 		AppUI.loadingState = false;
 	}
-/*
+
 	public void commandAction(Command c, Displayable d) {
 		if(d instanceof TextBox && c == backCmd) {
 			ui.display(null);
-			return;
-		}
-		if(c == watchOkCmd || c == watchScrCmd) {
-			App.watch(video.getVideoId());
-			return;
-		}
-		if(c == vOpenChannelCmd) {
-			ui.open(channelItem.getChannel());
 			return;
 		}
 		if(c == downloadCmd) {
@@ -167,27 +171,17 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			}
 		}
 		if(c == showLinkCmd) {
-			TextBox t = new TextBox("", "", 64, TextField.URL);
-			t.setString("https://www.youtube.com/watch?v=" + video.getVideoId() + (video.isFromPlaylist() ? "&list=" + video.getPlaylistId() : ""));
-			t.addCommand(backCmd);
-			t.setCommandListener(this);
-			ui.display(t);
+			showLink();
 			return;
 		}
 		if(c == backCmd) {
-			AppUI.loadingState = false;
-			if(parent != null) {
-				ui.setScreen(parent);
-			} else {
-				ui.back(this);
-			}
-			ui.disposeVideoPage();
+			back();
 			return;
 		}
 		
 		super.commandAction(c, d);
 	}
-*/
+
 	protected void menuAction(int action) {
 		switch(action) {
 		case 0:
@@ -251,7 +245,9 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 
 	public void dispose() {
 		clear();
-		video.disposeExtendedVars();
+		if(video != null) {
+			video.disposeExtendedVars();
+		}
 		video = null;
 		parent = null;
 	}

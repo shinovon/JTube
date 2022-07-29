@@ -205,10 +205,6 @@ public class PlatformUtils {
 		}
 		return false;
 	}
-	
-	public static boolean supportsTouch() {
-		return isSymbianTouch() || isAshaFullTouch() || isAshaTouchAndType();
-	}
 
 	// J2ME Loader check
 	public static boolean isJ2ML() {

@@ -1,3 +1,4 @@
+
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -25,29 +26,28 @@ import java.io.InputStream;
 import java.util.Hashtable;
 
 public class Locale implements LocaleConstants {
-	
+
 	public static final String systemLocale;
 	public static boolean loaded;
 	protected static int localei;
 	private static Hashtable table;
 	public static String l;
-	
+
 	static {
 		// J9, JRE language property
 		String s = System.getProperty("user.language");
-		if(s == null) {
+		if (s == null) {
 			s = System.getProperty("microedition.locale");
-			if(s == null)  {
+			if (s == null) {
 				s = "en";
 			}
 		}
-		if(s.length() >= 2) {
+		if (s.length() >= 2) {
 			s = s.substring(0, 2);
 		}
 		systemLocale = s.toLowerCase();
-		if(!s.equals("en") && (s.equals("ru")
-				|| s.equals("uk") || s.equals("be") || s.equals("kk")
-				|| s.equals("ua") || s.equals("by") || s.equals("kz"))) {
+		if (!s.equals("en") && (s.equals("ru") || s.equals("uk") || s.equals("be") || s.equals("kk") || s.equals("ua")
+				|| s.equals("by") || s.equals("kz"))) {
 			localei = 1;
 			l = "ru";
 		} else {
@@ -55,11 +55,11 @@ public class Locale implements LocaleConstants {
 			l = "en";
 		}
 	}
-	
+
 	public static void init() {
 		String s = Settings.customLocale;
 		boolean b = true;
-		if(s == null || (s = s.trim()).length() == 0) {
+		if (s == null || (s = s.trim()).length() == 0) {
 			s = systemLocale;
 			b = false;
 		}
@@ -68,16 +68,17 @@ public class Locale implements LocaleConstants {
 			in = Locale.class.getResourceAsStream("/jtlng_" + s.toLowerCase());
 		} catch (Exception e) {
 		}
-		if(in != null) {
+		if (in != null) {
 			DataInputStream d = new DataInputStream(in);
 			table = new Hashtable();
 			try {
 				try {
 					int i;
-					while( (i = d.readShort()) != -1) {
+					while ((i = d.readShort()) != -1) {
 						Integer n = new Integer(i);
 						String sl = d.readUTF();
-						if(table.containsKey(n)) continue;
+						if (table.containsKey(n))
+							continue;
 						table.put(n, sl);
 					}
 				} catch (IOException e) {
@@ -86,12 +87,12 @@ public class Locale implements LocaleConstants {
 				}
 				loaded = true;
 			} catch (IOException e) {
-			} 
+			}
 		} else {
-			if(b) {
-				if(s.equals("ru")) {
+			if (b) {
+				if (s.equals("ru")) {
 					localei = 1;
-				} else if(s.equals("en")) {
+				} else if (s.equals("en")) {
 					localei = 0;
 				}
 			} else {
@@ -101,19 +102,19 @@ public class Locale implements LocaleConstants {
 		l = s;
 		s = null;
 	}
-	
+
 	public static String s(int c) {
 		Integer i = new Integer(c);
-		if(loaded && table.containsKey(i)) {
+		if (loaded && table.containsKey(i)) {
 			return (String) table.get(i);
 		}
 		// Author
-		if(c == 0 && !loaded) {
+		if (c == 0 && !loaded) {
 			return "Shinovon";
 		}
-		switch(localei) {
+		switch (localei) {
 		case 0: {
-			switch(c) {
+			switch (c) {
 			case ISOLanguageCode:
 				return "en-US";
 			case CMD_Settings:
@@ -296,10 +297,12 @@ public class Locale implements LocaleConstants {
 				return "Share";
 			case SET_ChooseLanguage:
 				return "Choose language";
+			case SET_FullScreenMode:
+				return "Full-Screen mode";
 			}
 		}
 		case 1: {
-			switch(c) {
+			switch (c) {
 			case ISOLanguageCode:
 				return "ru-RU";
 			case CMD_Settings:
@@ -482,36 +485,41 @@ public class Locale implements LocaleConstants {
 				return "Поделиться";
 			case SET_ChooseLanguage:
 				return "Выбрать язык";
+			case SET_FullScreenMode:
+				return "Полноэкранный режим";
 			}
 		}
 		}
 		return null;
 	}
-	
+
 	public static String subscribers(int i) {
-		if(i <= 0) return null;
+		if (i <= 0)
+			return null;
 		String s = "" + i;
-		if(loaded) {
-			if(i >= 1000000) {
+		if (loaded) {
+			if (i >= 1000000) {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + "M";
-			} else if(i >= 1000) {
+			} else if (i >= 1000) {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + "K";
 			}
 			s = Util.replace(s, ".0", "");
-			if(i == 1) return s + " " + s(TXT_1subscriber);
-			if(i % 10 == 1) return s + " " + s(TXT_10_1subscribers);
+			if (i == 1)
+				return s + " " + s(TXT_1subscriber);
+			if (i % 10 == 1)
+				return s + " " + s(TXT_10_1subscribers);
 			return s + " " + s(TXT_subscribers);
 		}
-		if(localei == 1) {
-			if(i >= 1000000000) {
+		if (localei == 1) {
+			if (i >= 1000000000) {
 				s = ((int) ((i / 1000000000D) * 100) / 100D) + " млрд.";
-			} else if(i >= 1000000) {
+			} else if (i >= 1000000) {
 				s = ((int) ((i / 1000000D) * 100) / 100D) + " млн.";
-			} else if(i >= 1000) {
+			} else if (i >= 1000) {
 				s = ((int) ((i / 1000D) * 100) / 100D) + " тыс.";
-			} else if(i % 10 == 1) {
+			} else if (i % 10 == 1) {
 				return i + " подписчик";
-			} else if(i >= 5) {
+			} else if (i >= 5) {
 				return i + " подписчиков";
 			} else {
 				return i + " подписчика";
@@ -519,24 +527,25 @@ public class Locale implements LocaleConstants {
 			s = Util.replace(s, ".0", "") + " подписчиков";
 			return s;
 		}
-		if(i >= 1000000) {
+		if (i >= 1000000) {
 			s = ((int) ((i / 1000000D) * 10) / 10D) + "M";
-		} else if(i >= 1000) {
+		} else if (i >= 1000) {
 			s = ((int) ((i / 1000D) * 10) / 10D) + "K";
 		}
 		s = Util.replace(s, ".0", "");
-		if(i == 1) return s + " subscriber";
+		if (i == 1)
+			return s + " subscriber";
 		return s + " subscribers";
 	}
-	
+
 	public static String views(int i) {
-		if(loaded) {
-			String s = ""+i;
-			if(i == 1) {
+		if (loaded) {
+			String s = "" + i;
+			if (i == 1) {
 				s += " " + Locale.s(TXT_1view);
-			} else if(i >= 1000000) {
+			} else if (i >= 1000000) {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + "M " + Locale.s(TXT_views);
-			} else if(i >= 1000) {
+			} else if (i >= 1000) {
 				s = ((int) ((i / 1000D) * 10) / 10D) + "K " + Locale.s(TXT_views);
 			} else {
 				s += " " + Locale.s(TXT_views);
@@ -544,17 +553,17 @@ public class Locale implements LocaleConstants {
 			s = Util.replace(s, ".0", "");
 			return s;
 		}
-		if(localei == 1) {
-			String s = ""+i;
-			if(i == 1) {
+		if (localei == 1) {
+			String s = "" + i;
+			if (i == 1) {
 				s += " просмотр";
-			} else if(i >= 1000000000) {
+			} else if (i >= 1000000000) {
 				s = ((int) ((i / 1000000000D) * 10) / 10D) + " млрд. просмотров";
-			} else if(i >= 1000000) {
+			} else if (i >= 1000000) {
 				s = ((int) ((i / 1000000D) * 10) / 10D) + " млн. просмотров";
-			} else if(i >= 1000) {
+			} else if (i >= 1000) {
 				s = ((int) ((i / 1000D) * 10) / 10D) + " тыс. просмотров";
-			} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+			} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 				s += " просмотров";
 			} else {
 				s += " просмотра";
@@ -562,12 +571,12 @@ public class Locale implements LocaleConstants {
 			s = Util.replace(s, ".0", "");
 			return s;
 		}
-		String s = ""+i;
-		if(i == 1) {
+		String s = "" + i;
+		if (i == 1) {
 			s += " view";
-		} else if(i >= 1000000) {
+		} else if (i >= 1000000) {
 			s = ((int) ((i / 1000000D) * 10) / 10D) + "M views";
-		} else if(i >= 1000) {
+		} else if (i >= 1000) {
 			s = ((int) ((i / 1000D) * 10) / 10D) + "K views";
 		} else {
 			s += " views";
@@ -577,84 +586,89 @@ public class Locale implements LocaleConstants {
 	}
 
 	public static String videos(int i) {
-		if(i <= 0) return null;
-		if(loaded) {
-			if(i == 1) return i + " " + s(TXT_1video);
+		if (i <= 0)
+			return null;
+		if (loaded) {
+			if (i == 1)
+				return i + " " + s(TXT_1video);
 			return i + " " + s(TXT_videos);
 		}
-		if(localei == 1) {
+		if (localei == 1) {
 			return i + " видео";
 		}
-		if(i == 1) return i + " video";
+		if (i == 1)
+			return i + " video";
 		return i + " videos";
 	}
 
 	public static String date(String s) {
-		if(s == null) return null;
-		if(localei == 1) {
-			if(s.indexOf("ago") != -1) {
+		if (s == null)
+			return null;
+		if (localei == 1) {
+			if (s.indexOf("ago") != -1) {
 				try {
-					if(s.indexOf("years ago") != -1) {
+					if (s.indexOf("years ago") != -1) {
 						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-						if(i % 10 == 1) {
+						if (i % 10 == 1) {
 							s = "год назад";
-						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 							s = "лет назад";
 						} else {
 							s = "года назад";
 						}
 						s = i + " " + s;
-					} else if(s.indexOf("months ago") != -1) {
+					} else if (s.indexOf("months ago") != -1) {
 						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-						if(i % 10 == 1) {
+						if (i % 10 == 1) {
 							s = "месяц назад";
-						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 							s = "месяцев назад";
 						} else {
 							s = "месяца назад";
 						}
 						s = i + " " + s;
-					} else if(s.indexOf("weeks ago") != -1) {
+					} else if (s.indexOf("weeks ago") != -1) {
 						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-						if(i % 10 == 1) {
+						if (i % 10 == 1) {
 							s = "неделю назад";
-						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 							s = "недель назад";
 						} else {
 							s = "недели назад";
 						}
 						s = i + " " + s;
-					} else if(s.indexOf("days ago") != -1) {
+					} else if (s.indexOf("days ago") != -1) {
 						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-						if(i % 10 == 1) {
+						if (i % 10 == 1) {
 							s = "день назад";
-						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 							s = "дней назад";
 						} else {
 							s = "дня назад";
 						}
 						s = i + " " + s;
-					} else if(s.indexOf("hours ago") != -1) {
+					} else if (s.indexOf("hours ago") != -1) {
 						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-						if(i % 10 == 1) {
+						if (i % 10 == 1) {
 							s = "час назад";
-						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 							s = "часов назад";
 						} else {
 							s = "часа назад";
 						}
 						s = i + " " + s;
-					} else if(s.indexOf("minutes ago") != -1) {
+					} else if (s.indexOf("minutes ago") != -1) {
 						int i = Integer.parseInt(s.substring(0, s.indexOf(' ')));
-						if(i % 10 == 1) {
+						if (i % 10 == 1) {
 							s = "минуту назад";
-						} else if((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
+						} else if ((i % 100 >= 5 && i % 100 <= 20) || i % 10 == 0) {
 							s = "минут назад";
 						} else {
 							s = "минуты назад";
 						}
 						s = i + " " + s;
-					} {
+					}
+					{
 						s = Util.replace(s, "year ago", "год назад");
 						s = Util.replace(s, "month ago", "месяц назад");
 						s = Util.replace(s, "week ago", "неделю назад");

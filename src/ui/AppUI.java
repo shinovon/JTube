@@ -22,12 +22,16 @@ SOFTWARE.
 package ui;
 
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.List;
+import javax.microedition.lcdui.TextBox;
+import javax.microedition.lcdui.TextField;
 import javax.microedition.rms.RecordStore;
 
 import App;
@@ -36,6 +40,7 @@ import Errors;
 import Locale;
 import Settings;
 import Constants;
+import RunnableTask;
 import LocaleConstants;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
@@ -88,13 +93,15 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public boolean oddFrame;
 	
-	//private Vector commands = new Vector();
+	private Vector commands = new Vector();
 	
 	protected boolean keyInput = false;
 	
 	public static boolean loadingState;
 
 	private Thread repaintThread = new Thread(this);
+
+	private List optionsList;
 	
 	public void run() {
 		boolean wasScrolling = false;
@@ -198,7 +205,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void setScreen(UIScreen s) {
-		//removeCommands();
+		removeCommands();
 		display(null);
 		if(current != null) {
 			current.hide();
@@ -265,7 +272,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void init() {
 		inst = this;
 		canv = new JTubeCanvas(this);
-		//canv.setCommandListener(this);
+		try {
+			canv.setCommandListener(this);
+		} catch (Exception e) {
+		}
 		repaintThread.start();
 		try {
 			DirectFontUtil.init();
@@ -456,18 +466,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			App.error(this, Errors.App_commandAction_switchCmd, e);
 		}
 	}
-	
+
 	public void commandAction(Command c, Displayable d) {
-		if(d instanceof Alert) {
-			display(null);
-			return;
-		}
-	}
-/*
-	public void commandAction(Command c, Displayable d) {
-		if(optionsForm != null && d == optionsForm) {
+		if(optionsList != null && d == optionsList) {
 			if(c == List.SELECT_COMMAND) {
-				switch(optionsForm.getSelectedIndex()) {
+				switch(optionsList.getSelectedIndex()) {
 				case 0:
 				{
 					// Search
@@ -527,78 +530,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				return;
 			}
 		}
-		if(c == cancelCmd && d instanceof TextBox) {
-			display(optionsForm);
-			return;
-		}
-		if(c == goCmd && d instanceof TextBox) {
-			app.schedule(new RunnableTask(((TextBox) d).getString(), 1));
-			return;
-		}
-		if(c == searchOkCmd && d instanceof TextBox) {
-			app.schedule(new RunnableTask(((TextBox) d).getString(), 2));
-			return;
-		}
-		if(d instanceof Alert) {
-			display(optionsForm);
-			return;
-		}
-		if(c == settingsCmd) {
-			app.stopAsyncTasks();
-			showSettings();
-			return;
-		}
 		if(c == exitCmd) {
 			exit();
 			return;
 		}
-		if(c == aboutCmd) {
-			showAbout(this);
+		if(d instanceof Alert) {
+			display(null);
 			return;
 		}
-		if(c == switchToPopularCmd || c == switchToTrendsCmd) {
-			app.schedule(new RunnableTask(4));
-			return;
-		}
-		if(c == searchCmd) {
-			App.inst.stopAsyncTasks();
-			if(searchScr != null) {
-				disposeSearchPage();
-			}
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle(Locale.s(CMD_Search));
-			t.addCommand(searchOkCmd);
-			t.addCommand(cancelCmd);
-			display(t);
-			return;
-		}
-		if(c == refreshCmd) {
-			app.schedule(new RunnableTask(3));
-			return;
-		}
-		if(c == openByIdCmd) {
-			app.stopAsyncTasks();
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle("Video URL or ID");
-			t.addCommand(goCmd);
-			t.addCommand(cancelCmd);
-			display(t);
-			return;
-		}
-		if(this.current != null && current.supportCommands()) {
+		if(this.current != null && current instanceof CommandListener) {
 			((CommandListener)current).commandAction(c, d);
 			return;
 		}
-		if(c == backCmd) {
-			if(current != null && current.getParent() != null) {
-				setScreen(current.getParent());
-			}
-			return;
-		}
 	}
-	*/
+	
 	public void exit() {
 		try {
 			String[] a = RecordStore.listRecordStores();
@@ -709,25 +654,34 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		return scrollBarWidth;
 	}
-/*
+
 	public void addCommand(Command c) {
-		canv.addCommand(c);
+		try {
+			canv.addCommand(c);
+		} catch (Exception e) {
+		}
 		commands.addElement(c);
 	}
 	
 	public void removeCommand(Command c) {
-		canv.removeCommand(c);
+		try {
+			canv.removeCommand(c);
+		} catch (Exception e) {
+		}
 		commands.removeElement(c);
 	}
 	
 	public void removeCommands() {
-		for(int i = 0; i < commands.size(); i++) {
-			Command c = (Command) commands.elementAt(i);
-			canv.removeCommand(c);
+		try {
+			for(int i = 0; i < commands.size(); i++) {
+				Command c = (Command) commands.elementAt(i);
+				canv.removeCommand(c);
+			}
+		} catch (Exception e) {
 		}
 		commands.removeAllElements();
 	}
-*/
+
 	public void setKeyInputMode() {
 		keyInput = true;
 	}
@@ -757,25 +711,25 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			disposeSearchPage();
 		}
 	}
-/*
+
 	public void showOptions() {
-		if(optionsForm == null) {
-			optionsForm = new List("JTube Menu", List.IMPLICIT);
-			optionsForm.append(Locale.s(CMD_Search), null);
-			optionsForm.append(Locale.s(CMD_Refresh), null);
-			optionsForm.append(Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
-			optionsForm.append(Locale.s(CMD_OpenByID), null);
-			optionsForm.append(Locale.s(CMD_Settings), null);
-			optionsForm.append(Locale.s(CMD_About), null);
-			optionsForm.append(Locale.s(CMD_Exit), null);
-			optionsForm.addCommand(List.SELECT_COMMAND);
-			optionsForm.setSelectCommand(List.SELECT_COMMAND);
-			optionsForm.addCommand(backCmd);
-			optionsForm.setCommandListener(this);
+		if(optionsList == null) {
+			optionsList = new List("JTube Menu", List.IMPLICIT);
+			optionsList.append(Locale.s(CMD_Search), null);
+			optionsList.append(Locale.s(CMD_Refresh), null);
+			optionsList.append(Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends), null);
+			optionsList.append(Locale.s(CMD_OpenByID), null);
+			optionsList.append(Locale.s(CMD_Settings), null);
+			optionsList.append(Locale.s(CMD_About), null);
+			optionsList.append(Locale.s(CMD_Exit), null);
+			optionsList.addCommand(List.SELECT_COMMAND);
+			optionsList.setSelectCommand(List.SELECT_COMMAND);
+			optionsList.addCommand(backCmd);
+			optionsList.setCommandListener(this);
 		}
-		display(optionsForm);
+		display(optionsList);
 	}
-*/
+
 	public void back(UIScreen s) {
 		if(s instanceof IModelScreen && ((IModelScreen)s).getModel().isFromSearch() && searchScr != null) {
 			setScreen(searchScr);
@@ -787,20 +741,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public boolean fastScrolling() {
 		return Settings.fastScrolling;
 	}
-/*
+
 	public void addOptionCommands() {
-		if(PlatformUtils.isBelle()) {
-			addCommand(searchCmd);
-			addCommand(refreshCmd);
-			addCommand(Settings.startScreen == 0 ? switchToPopularCmd : switchToTrendsCmd);
-			addCommand(openByIdCmd);
-			addCommand(settingsCmd);
-			addCommand(aboutCmd);
-			return;
+		if(!Settings.fullScreen) {
+			addCommand(optsCmd);
 		}
-		addCommand(optsCmd);
 	}
-*/
+
 	public void openVideo(String id) {
 		try {
 			open(new VideoModel(id));

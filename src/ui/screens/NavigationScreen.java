@@ -22,6 +22,7 @@ SOFTWARE.
 package ui.screens;
 
 import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
@@ -33,6 +34,7 @@ import javax.microedition.lcdui.TextField;
 
 import App;
 import Util;
+import cc.nnproject.utils.PlatformUtils;
 import Locale;
 import Settings;
 import RunnableTask;
@@ -58,6 +60,13 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	private static Image backImg;
 	private static Image menuImg;
 
+	private static boolean init;
+	protected static boolean topBar;
+	private static boolean amoledImgs;
+	private static boolean addOk;
+
+	protected static TextEditorInst editor;
+
 	protected boolean wasHidden;
 
 	private int topBarHeight = 48;
@@ -65,9 +74,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected String searchText = "";
 
-	protected static TextEditorInst editor;
-
 	private int lastW;
+	private int lastH;
 
 	private boolean editorHidden = true;
 
@@ -76,15 +84,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	private int menuW;
 	private int menuH;
-
-	private int lastH;
-
-	private static boolean init;
-	protected static boolean topBar;
-	private static boolean amoledImgs;
 	
 	protected boolean hasSearch;
-	
 	protected String[] menuOptions;
 
 	private int menuSelectedIndex;
@@ -141,6 +142,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 		} catch (Exception e) {
 		}
+		addOk = PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && !PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator && !PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme();
 	}
 
 	protected void hide() {
@@ -170,6 +172,14 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			amoledImgs = Settings.amoled;
 		}
+		if(!Settings.fullScreen) {
+			ui.removeCommands();
+			ui.addOptionCommands();
+			ui.addCommand(this instanceof MainScreen ? exitCmd : backCmd);
+			if(addOk) {
+				ui.addCommand(okCmd);
+			}
+		}
 	}
 	
 	private void setEditorPositions() {
@@ -183,8 +193,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(lastW != w) {
 			lastW = w;
 			lastH = h;
-			menuW = w-w/4;
-			menuH = menuOptions.length * (mediumfontheight+8);
+			if(menuOptions != null) {
+				menuW = w-w/4;
+				menuH = menuOptions.length * (mediumfontheight+8);
+			}
 			setEditorPositions();
 		}
 		if(topBar) {
@@ -225,25 +237,27 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawString(s, 50, 10, 0);
 				}
 			} else {
-				int xx = 4;
-				if(!(this instanceof MainScreen)) {
-					g.drawImage(backImg, 12, 12, 0);
-					xx += 48;
-				}
-				String s = getTitle();
-				if(s != null && s.length() > 0) {
-					int ww = w-96-xx - (smallfont.charWidth('.')*2);
-					if(mediumfont.stringWidth(s) >= ww) {
-						g.setFont(smallfont);
-						while(smallfont.stringWidth(s) >= ww) {
-							s = s.substring(0, s.length()-1);
-						}
-						s += "..";
-					} else {
-						g.setFont(mediumfont);
+				if(Settings.fullScreen) {
+					int xx = 4;
+					if(!(this instanceof MainScreen)) {
+						g.drawImage(backImg, 12, 12, 0);
+						xx += 48;
 					}
-					g.setColor(AppUI.getColor(COLOR_MAINFG));
-					g.drawString(s, xx, (48-g.getFont().getHeight())/2, 0);
+					String s = getTitle();
+					if(s != null && s.length() > 0) {
+						int ww = w-96-xx - (smallfont.charWidth('.')*2);
+						if(mediumfont.stringWidth(s) >= ww) {
+							g.setFont(smallfont);
+							while(smallfont.stringWidth(s) >= ww) {
+								s = s.substring(0, s.length()-1);
+							}
+							s += "..";
+						} else {
+							g.setFont(mediumfont);
+						}
+						g.setColor(AppUI.getColor(COLOR_MAINFG));
+						g.drawString(s, xx, (48-g.getFont().getHeight())/2, 0);
+					}
 				}
 				if(menuOptions != null) {
 					g.drawImage(menuImg, w - 36, 12, 0);
@@ -270,55 +284,59 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			return;
 		}
-		_paint(g, w, h-softBarHeight);
-		if(!AppUI.loadingState) {
-			if(menu) {
-				int xx = (w-menuW)/2;
-				int yy = Math.max(0, (h-softBarHeight-menuH)/2);
-				g.setFont(mediumfont);
-				g.setColor(AppUI.getColor(COLOR_MAINBG));
-				int ih = 8 + mediumfontheight;
-				if(yy+ih*(menuSelectedIndex+1) > h-softBarHeight) {
-					for(int i = 0; i < menuSelectedIndex+1; i++) {
-						if(yy+ih*(i+1) > h-softBarHeight) {
-							yy-=ih;
+		if(Settings.fullScreen) {
+			_paint(g, w, h-softBarHeight);
+			if(!AppUI.loadingState) {
+				if(menu) {
+					int xx = (w-menuW)/2;
+					int yy = Math.max(0, (h-softBarHeight-menuH)/2);
+					g.setFont(mediumfont);
+					g.setColor(AppUI.getColor(COLOR_MAINBG));
+					int ih = 8 + mediumfontheight;
+					if(yy+ih*(menuSelectedIndex+1) > h-softBarHeight) {
+						for(int i = 0; i < menuSelectedIndex+1; i++) {
+							if(yy+ih*(i+1) > h-softBarHeight) {
+								yy-=ih;
+							}
 						}
 					}
-				}
-				g.fillRect(xx, yy, menuW, menuH);
-				for(int i = 0; i < menuOptions.length; i++) {
-					g.setColor(AppUI.getColor(COLOR_MAINFG));
-					if(menuSelectedIndex == i) {
-						g.fillRect(xx, yy, 2, ih);
+					g.fillRect(xx, yy, menuW, menuH);
+					for(int i = 0; i < menuOptions.length; i++) {
+						g.setColor(AppUI.getColor(COLOR_MAINFG));
+						if(menuSelectedIndex == i) {
+							g.fillRect(xx, yy, 2, ih);
+						}
+						g.drawString(menuOptions[i], xx + 4, yy+4, 0);
+						yy += ih;
+						/*if(i != menuOptions.length - 1) {
+							g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
+							g.drawLine(xx, yy, xx+menuW, yy);
+						}*/
 					}
-					g.drawString(menuOptions[i], xx + 4, yy+4, 0);
-					yy += ih;
-					/*if(i != menuOptions.length - 1) {
-						g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-						g.drawLine(xx, yy, xx+menuW, yy);
-					}*/
+				}
+				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
+				g.fillRect(0, h-softBarHeight, w, softBarHeight);
+				g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
+				g.setFont(softFont);
+				if(!menu) {
+					g.drawString(Locale.s(CMD_Func), 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
+				}
+				if(menu || !(this instanceof MainScreen)) {
+					String s = Locale.s(CMD_Back);
+					g.drawString(s, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
+				} else {
+					String s = Locale.s(CMD_Exit);
+					g.drawString(s, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
+				}
+				if(getCurrentItem() != null) {
+					UIItem ci = getCurrentItem();
+					if(ci.getOKLabel() > 0) {
+						g.drawString(Locale.s(ci.getOKLabel()), w/2, h-2, Graphics.BOTTOM | Graphics.HCENTER);
+					}
 				}
 			}
-			g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
-			g.fillRect(0, h-softBarHeight, w, softBarHeight);
-			g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
-			g.setFont(softFont);
-			if(!menu) {
-				g.drawString(Locale.s(CMD_Func), 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
-			}
-			if(menu || !(this instanceof MainScreen)) {
-				String s = Locale.s(CMD_Back);
-				g.drawString(s, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
-			} else {
-				String s = Locale.s(CMD_Exit);
-				g.drawString(s, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
-			}
-			if(getCurrentItem() != null) {
-				UIItem ci = getCurrentItem();
-				if(ci.getOKLabel() > 0) {
-					g.drawString(Locale.s(ci.getOKLabel()), w/2, h-2, Graphics.BOTTOM | Graphics.HCENTER);
-				}
-			}
+		} else {
+			_paint(g, w, h);
 		}
 	}
 	
@@ -349,13 +367,19 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void keyPress(int i) {
 		if(menu) {
-			if(i == -1) {
+			if(i == Canvas.KEY_NUM1) {
+				menuSelectedIndex = 0;
+			}
+			if(i == Canvas.KEY_NUM7) {
+				menuSelectedIndex = menuOptions.length - 1;
+			}
+			if(i == -1 || i == Canvas.KEY_NUM2) {
 				menuSelectedIndex--;
 				if(menuSelectedIndex < 0) {
 					menuSelectedIndex = menuOptions.length - 1;
 				}
 			}
-			if(i == -2) {
+			if(i == -2 || i == Canvas.KEY_NUM8) {
 				menuSelectedIndex++;
 				if(menuSelectedIndex > menuOptions.length - 1) {
 					menuSelectedIndex = 0;
@@ -364,7 +388,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			if(i == -7) {
 				menu = false;
 			}
-			if(i == -5) {
+			if(i == -5 || i == Canvas.KEY_NUM5) {
 				menuAction(menuSelectedIndex);
 				menu = false;
 			}
@@ -604,6 +628,21 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(d instanceof Alert || d instanceof TextBox) {
 			ui.display(null);
 			return;
+		}
+		if(c == optsCmd) {
+			ui.showOptions();
+			return;
+		}
+		if(c == okCmd) {
+			keyPress(-5);
+			return;
+		}
+		if(c == exitCmd) {
+			ui.exit();
+			return;
+		}
+		if(c == backCmd) {
+			back();
 		}
 	}
 	

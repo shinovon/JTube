@@ -63,7 +63,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_SearchChannels), 
 			Locale.s(SET_SearchPlaylists),
 			Locale.s(SET_Amoled),
-			Locale.s(SET_SmallPreviews)
+			Locale.s(SET_SmallPreviews),
+			Locale.s(SET_FullScreenMode)
 			};
 	static final String[] MISC_CHECKS = new String[] { 
 			Locale.s(SET_RememberSearch),
@@ -436,7 +437,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	public void itemStateChanged(Item item) {
 		if(item == netChoice) {
 			boolean b = Settings.iteroniPlaybackProxy;
-			Settings.iteroniPlaybackProxy = netChoice.isSelected(3);
+			Settings.iteroniPlaybackProxy = netChoice.isSelected(1);
 			if(Settings.iteroniPlaybackProxy != b) {
 				httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 						Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);

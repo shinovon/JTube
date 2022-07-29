@@ -1,5 +1,5 @@
 Nokia-MIDlet-Background-Event: pause
-MIDlet-Version: 2.2
+MIDlet-Version: 2.2.1
 MicroEdition-Configuration: CLDC-1.0
 Nokia-MIDlet-UID-1: 0xAFCE0816
 Nokia-MIDlet-Launch-Params: url,videoId,playlistId,channelId
