@@ -120,5 +120,6 @@ public interface LocaleConstants {
 	public static final int SET_AutoStart = 97;
 	public static final int BTN_Share = 110;
 	public static final int SET_ChooseLanguage = 111;
+	public static final int SET_FullScreenMode = 112;
 
 }

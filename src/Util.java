@@ -280,11 +280,12 @@ public class Util implements Constants {
 		}
 	}
 
-	public static void testCanvas() {
+	public static Canvas testCanvas() {
 		if(testCanvas == null)
 			testCanvas = new TestCanvas();
 		App.width = testCanvas.getWidth();
 		App.height = testCanvas.getHeight();
+		return testCanvas;
 	}
 
 	public static String getFileName(String s) {

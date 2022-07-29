@@ -63,7 +63,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_SearchChannels), 
 			Locale.s(SET_SearchPlaylists),
 			Locale.s(SET_Amoled),
-			Locale.s(SET_SmallPreviews)
+			Locale.s(SET_SmallPreviews),
+			Locale.s(SET_FullScreenMode)
 			};
 	static final String[] MISC_CHECKS = new String[] { 
 			Locale.s(SET_RememberSearch),

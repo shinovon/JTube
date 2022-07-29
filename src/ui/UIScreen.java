@@ -21,6 +21,7 @@ SOFTWARE.
 */
 package ui;
 
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Graphics;
 
 public abstract class UIScreen {
@@ -104,15 +105,11 @@ public abstract class UIScreen {
 
 	public void setScrollBarY(int y) {
 	}
-/*
+
 	protected final void addCommand(Command c) {
 		ui.addCommand(c);
 	}
-
-	public boolean supportCommands() {
-		return false;
-	}
-*/
+	
 	protected void relayout() {
 	}
 

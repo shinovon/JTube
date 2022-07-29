@@ -21,6 +21,7 @@ SOFTWARE.
 */
 package ui.items;
 
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -112,7 +113,7 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 	}
 	
 	protected void keyPress(int key) {
-		if(key == -5) {
+		if(key == -5 || key == Canvas.KEY_NUM5) {
 			if(selectedIndex == 1) {
 				scr.showLink();
 			} else if(selectedIndex == 2) {
