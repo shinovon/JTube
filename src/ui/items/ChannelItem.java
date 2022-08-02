@@ -29,6 +29,7 @@ import App;
 import Locale;
 import LocaleConstants;
 import ui.AppUI;
+import ui.IModelScreen;
 import ui.nokia_extensions.DirectFontUtil;
 import ui.UIScreen;
 import ui.UIConstants;
@@ -54,7 +55,9 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	private int h;
 	
 	private static Font titleFont;
+	private static Font titleSmallFont;
 	private static Font subsCountFont;
+	private static Font subsCountSmallFont;
 
 	static {
 		try {
@@ -82,20 +85,23 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		int iw = channel.hasSmallImage() ? 36 : 48;
-		g.drawImage(img != null ? img : channel.hasSmallImage() ? defaultImg36 : defaultImg, x+4, y+(h - iw)/2, 0);
+		boolean small = channel.hasSmallImage() && getScreen() instanceof IModelScreen;
+		int iw = small ? 36 : 48;
+		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x+4, y + (h - iw)/2, 0);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
-		g.setFont(titleFont);
-		int fh = titleFont.getHeight();
-		int sfh = subsCountFont.getHeight();
-		int ty = y+((52 - fh) / 2);
+		Font f = small ? titleSmallFont : titleFont;
+		g.setFont(f);
+		int fh = f.getHeight();
+		f = small ? subsCountSmallFont : subsCountFont;
+		int sfh = f.getHeight();
+		int ty = y + ((52 - fh) / 2);
 		if(subsStr != null) {
 			ty -= (sfh + 4) / 2;
 		}
 		int xx = x + 8 + iw;
 		g.drawString(author, xx, ty, 0);
 		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
-		g.setFont(subsCountFont);
+		g.setFont(f);
 		if(subsStr != null) {
 			g.drawString(subsStr, xx, ty + fh + 4, 0);
 		}
@@ -113,8 +119,10 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	protected void layout(int w) {
 		h = 52;
 		if(titleFont == null) {
-			titleFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;
-			subsCountFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 17, Font.SIZE_SMALL) : smallfont;
+			titleFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_SMALL) : smallfont;
+			titleSmallFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;
+			subsCountFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL) : smallfont;
+			subsCountSmallFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 18, Font.SIZE_SMALL) : smallfont;
 		}
 	}
 

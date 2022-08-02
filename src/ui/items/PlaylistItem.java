@@ -52,9 +52,9 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		g.setColor(-1);
-		g.fillRect(x, y, w, h);
-		g.setColor(0);
+		//g.setColor(COLOR_MAINBG);
+		//g.fillRect(x, y, w, h);
+		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		g.setFont(mediumfont);
 		int yy = y;
 		y += 2;
@@ -62,7 +62,7 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 			if(titleArr[0] != null) g.drawString(titleArr[0], x+2, y, 0);
 			if(titleArr[1] != null) g.drawString(titleArr[1], x+2, y += mediumfontheight + 2, 0);
 		}
-		g.setColor(COLOR_GRAYTEXT);
+		g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 		g.setFont(smallfont);
 		if(videosStr != null) {
 			g.drawString(videosStr, x+2, y += mediumfontheight + 4, 0);

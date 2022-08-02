@@ -184,7 +184,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		case COLOR_ITEM_HIGHLIGHT:
 			return Settings.amoled ? 0x5D5D5D : 0x9A9A9A;
 		case COLOR_BUTTON_HOVER_BG:
-			return 0xCCCCCC;
+			return Settings.amoled ? 0x111111 : 0xCCCCCC;
 		case COLOR_TIMETEXT:
 			return 0xDDDDDD;
 		case COLOR_SCROLLBAR_BORDER:

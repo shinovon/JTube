@@ -131,7 +131,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		App.inst.startAsyncTasks();
 	}
 
 	protected void show() {

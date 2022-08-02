@@ -131,6 +131,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
 	public void disposeExtendedVars() {
 		extended = false;
+		page = false;
 	}
 
 	public String getAuthor() {
