@@ -545,7 +545,15 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			exit();
 			return;
 		}
-		if(d instanceof Alert) {
+		if(c == searchOkCmd && d instanceof TextBox) {
+			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 2));
+			return;
+		}
+		if(c == goCmd && d instanceof TextBox) {
+			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 1));
+			return;
+		}
+		if(d instanceof Alert || d instanceof TextBox) {
 			display(null);
 			return;
 		}
@@ -648,16 +656,29 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void showAbout(CommandListener l) {
 		//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
+		TextBox t = new TextBox("", "", 200, TextField.ANY | TextField.UNEDITABLE);
+		t.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + EOL
+				+ "By Shinovon (nnp.nnchan.ru)" + EOL
+				+ "t.me/nnmidlets" + EOL
+				+ "vk.com/nnprojectcc" + EOL + EOL
+				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
+				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+		t.setCommandListener(l == null ? this : l);
+		t.addCommand(new Command("OK", Command.OK, 1));
+		display(t);
+		/*
 		Alert a = new Alert("", "", null, null);
 		a.setTimeout(-2);
-		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + " \n"
-				+ "By Shinovon (nnp.nnchan.ru) \n"
-				+ "t.me/nnmidlets\n"
-				+ "vk.com/nnprojectcc \n\n"
-				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + EOL
+				+ "By Shinovon (nnp.nnchan.ru)" + EOL
+				+ "t.me/nnmidlets" + EOL
+				+ "vk.com/nnprojectcc" + EOL + EOL
+				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
+				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
 		a.setCommandListener(l == null ? this : l);
 		a.addCommand(new Command("OK", Command.OK, 1));
 		display(a);
+		*/
 	}
 
 	public int getItemWidth() {

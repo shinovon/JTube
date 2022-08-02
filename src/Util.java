@@ -58,12 +58,13 @@ public class Util implements Constants {
 			charset = alt_charset;
 		} else {
 			// Test UTF-8 support
+			boolean test = false;
 			try {
-				String tmp = new String("test".getBytes("UTF-8"), "UTF-8");
-				tmp.charAt(0);
+				String tmp = new String("выф".getBytes("UTF-8"), "UTF-8");
+				if(tmp.charAt(0) == 'в') test = true;
 			} catch (Throwable e) {
-				charset = alt_charset;
 			}
+			if(!test) charset = alt_charset;
 		}
 	} 
 
