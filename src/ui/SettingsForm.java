@@ -127,16 +127,19 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		int titleLayout = Item.LAYOUT_2 | Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_NEWLINE_AFTER;
 		StringItem videoLabel = new StringItem(null, " " + Locale.s(SET_Video));
 		videoLabel.setFont(titleFont);
-		videoLabel.setLayout(Item.LAYOUT_2 | Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER);
 		StringItem uiLabel = new StringItem(null, " " + Locale.s(SET_Appearance));
 		uiLabel.setFont(titleFont);
-		uiLabel.setLayout(titleLayout);
 		StringItem netLabel = new StringItem(null, " " + Locale.s(SET_Network));
 		netLabel.setFont(titleFont);
-		netLabel.setLayout(titleLayout);
 		StringItem miscLabel = new StringItem(null, " " + Locale.s(SET_OtherSettings));
 		miscLabel.setFont(titleFont);
-		miscLabel.setLayout(titleLayout);
+		try {
+			videoLabel.setLayout(Item.LAYOUT_2 | Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER);
+			uiLabel.setLayout(titleLayout);
+			netLabel.setLayout(titleLayout);
+			miscLabel.setLayout(titleLayout);
+		} catch (Exception e) {
+		}
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
 		regionText = new TextField(Locale.s(SET_CountryCode), Settings.region, 3, TextField.ANY);
 		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
@@ -247,8 +250,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.region = regionText.getString().trim().toUpperCase();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
-			dir = Util.replace(dir, "\\", Path_separator);
-			while (dir.endsWith(Path_separator)) {
+			dir = Util.replace(dir, "\\", PATH_SEPARATOR);
+			while (dir.endsWith(PATH_SEPARATOR)) {
 				dir = dir.substring(0, dir.length() - 1);
 			}
 			Settings.downloadDir = dir;
@@ -389,7 +392,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				screen.relayout();
 			}
 			try {
-				AppUI.inst.getCanvas().setFullScreenMode(Settings.fullScreen);
+				AppUI.inst.resetFullScreenMode();
 			} catch (Exception e) {
 			}
 		} catch (Exception e) {

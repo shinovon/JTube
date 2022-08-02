@@ -272,10 +272,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void init() {
 		inst = this;
 		canv = new JTubeCanvas(this);
-		try {
-			canv.setCommandListener(this);
-		} catch (Exception e) {
-		}
+		resetFullScreenMode();
 		repaintThread.start();
 		try {
 			DirectFontUtil.init();
@@ -284,6 +281,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		try {
 			TextEditorUtil.init();
 		} catch (Throwable e) {
+		}
+	}
+	
+	public void resetFullScreenMode() {
+		try {
+			if(Settings.fullScreen) {
+				canv.setCommandListener(null);
+				canv.setFullScreenMode(true);
+			} else {
+				canv.setCommandListener(this);
+				canv.setFullScreenMode(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -558,6 +569,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void display(Displayable d) {
 		if(d == null) {
+			if(display.getCurrent() == canv) return;
 			display.setCurrent(canv);
 			if(current != null) {
 				current.show();
@@ -594,8 +606,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		if(model instanceof PlaylistModel) {
-			if(((PlaylistModel) model).getVideoCount() > 100) {
-				msg(">100 videos!!!");
+			if(((PlaylistModel) model).getVideoCount() > PLAYLIST_VIDEOS_LIMIT) {
+				msg(">" + PLAYLIST_VIDEOS_LIMIT + " videos!!!");
 				return;
 			}
 		}
@@ -622,11 +634,16 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void showSettings() {
-		if(settingsForm == null) {
-			settingsForm = new SettingsForm();
+		try {
+			if(settingsForm == null) {
+				settingsForm = new SettingsForm();
+			}
+			display(settingsForm);
+			settingsForm.show();
+		} catch (Exception e) {
+			App.error(this, "Could not open settings! \n" + e.toString());
+			e.printStackTrace();
 		}
-		display(settingsForm);
-		settingsForm.show();
 	}
 	
 	public void showAbout(CommandListener l) {
@@ -656,6 +673,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void addCommand(Command c) {
+		if(!Settings.fullScreen)
 		try {
 			canv.addCommand(c);
 		} catch (Exception e) {

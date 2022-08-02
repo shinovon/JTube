@@ -172,8 +172,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			amoledImgs = Settings.amoled;
 		}
+		ui.removeCommands();
 		if(!Settings.fullScreen) {
-			ui.removeCommands();
 			ui.addOptionCommands();
 			ui.addCommand(this instanceof MainScreen ? exitCmd : backCmd);
 			if(addOk) {

@@ -59,7 +59,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 		this.res = res;
 		this.file = "file:///" + downloadDir;
 		if(!(file.endsWith("/") || file.endsWith("\\"))) {
-			file += Path_separator;
+			file += PATH_SEPARATOR;
 		}
 	}
 	

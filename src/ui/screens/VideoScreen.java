@@ -138,7 +138,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			App.download(video.getVideoId(), video.getTitle());
 			return;
 		}
-		if(parent != null && video.isFromPlaylist()) {
+		if(parent != null && video != null && video.isFromPlaylist()) {
 			if(c == openPlaylistCmd) {
 				ui.setScreen(parent);
 				return;

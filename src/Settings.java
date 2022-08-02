@@ -405,7 +405,11 @@ public class Settings implements Constants {
 	
 	public static void registerPush() {
 		try {
-			int port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
+			int port = DEFAULT_PUSH_PORT;
+			try {
+				port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
+			} catch (Exception e) {
+			}
 			if(autoStart) {
 				MIDletIntegration.registerPush(App.midlet, port);
 			} else {

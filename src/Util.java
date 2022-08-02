@@ -32,14 +32,15 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Image;
 
+import cc.nnproject.utils.PlatformUtils;
 import ui.TestCanvas;
 
 public class Util implements Constants {
 	
 	private static int buffer_size;
 	
-	private static String charset = "utf-8, iso-8859-1;q=0.5";
-	private static String alt_charset = "iso-8859-1";
+	private static String charset = "UTF-8";
+	private static String alt_charset = "ISO-8859-1";
 	
 	private static Canvas testCanvas;
 	
@@ -53,12 +54,16 @@ public class Util implements Constants {
 		if(s != null) {
 			alt_charset = s.toLowerCase();
 		}
-		// Test UTF-8 support
-		try {
-			String tmp = new String("test".getBytes("UTF-8"), "UTF-8");
-			tmp.charAt(0);
-		} catch (Throwable e) {
+		if(PlatformUtils.isSamsung() && PlatformUtils.platform.indexOf("E200") > 0) {
 			charset = alt_charset;
+		} else {
+			// Test UTF-8 support
+			try {
+				String tmp = new String("test".getBytes("UTF-8"), "UTF-8");
+				tmp.charAt(0);
+			} catch (Throwable e) {
+				charset = alt_charset;
+			}
 		}
 	} 
 
@@ -138,7 +143,7 @@ public class Util implements Constants {
 	public static String getUtf(String url) throws IOException {
 		byte[] b = get(url);
 		try {
-			return new String(b, "UTF-8");
+			return new String(b, charset);
 		} catch (Throwable e) {
 			charset = alt_charset;
 			return new String(b);

@@ -599,10 +599,16 @@ public class App implements Constants {
 	}
 
 	public static void warn(Object o, String str) {
-		String cls = "";
-		if(o != null) cls = "at " + o.getClass().getName();
-		String s = str + " \n\n" + cls + " \nt:" + Thread.currentThread().getName();
+		String s = str + " \n\n" + getThreadInfo(o);
 		Alert a = new Alert("", s, null, AlertType.WARNING);
+		a.setTimeout(-2);
+		Display.getDisplay(midlet).setCurrent(a);
+	}
+
+	public static void error(Object o, String str) {
+		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " \n\n" + 
+				getThreadInfo(o);
+		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
 		Display.getDisplay(midlet).setCurrent(a);
 	}
@@ -625,12 +631,21 @@ public class App implements Constants {
 	}
 
 	public static void error(Object o, int i, String str, String str2) {
-		String cls = "null";
-		if(o != null) cls = o.getClass().getName();
-		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName() + (str2 != null ? " \n" + str2 : "");
+		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " " + EOL + EOL + "e: " + i + " \n" + 
+				getThreadInfo(o) + 
+				(str2 != null ? " \n" + str2 : "");
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
 		Display.getDisplay(midlet).setCurrent(a);
+	}
+	
+	private static String getThreadInfo(Object o) {
+		Thread t = Thread.currentThread();
+		return (o != null ? "at " + o.getClass().getName() + " " + EOL : "") + 
+				"t: " + t.getName() +
+				" (p: " + t.getPriority() + 
+				" c: " + t.getClass() + ") " + EOL +
+				Thread.activeCount();
 	}
 	
 	public static boolean checkStartArguments() {
