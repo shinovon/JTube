@@ -23,7 +23,6 @@ SOFTWARE.
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashtable;
 
 public class Locale implements LocaleConstants {
 
