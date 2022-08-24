@@ -32,7 +32,6 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Image;
 
-import cc.nnproject.utils.PlatformUtils;
 import ui.TestCanvas;
 
 public class Util implements Constants {
@@ -52,20 +51,16 @@ public class Util implements Constants {
 		}
 		String s = System.getProperty("microedition.encoding");
 		if(s != null) {
-			alt_charset = s.toLowerCase();
+			alt_charset = s;
 		}
-		if(PlatformUtils.isSamsung() && PlatformUtils.platform.indexOf("E200") > 0) {
-			charset = alt_charset;
-		} else {
-			// Test UTF-8 support
-			boolean test = false;
-			try {
-				String tmp = new String("выф".getBytes("UTF-8"), "UTF-8");
-				if(tmp.charAt(0) == 'в') test = true;
-			} catch (Throwable e) {
-			}
-			if(!test) charset = alt_charset;
+		// Test UTF-8 support
+		boolean test = false;
+		try {
+			String tmp = new String("выф".getBytes("UTF-8"), "UTF-8");
+			if(tmp.charAt(0) == 'в') test = true;
+		} catch (Throwable e) {
 		}
+		if(!test) charset = alt_charset;
 	} 
 
 	public static byte[] get(String url) throws IOException {
@@ -84,7 +79,7 @@ public class Util implements Constants {
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
 			if(charset != null) {
-				hc.setRequestProperty("accept-charset", charset);
+				hc.setRequestProperty("accept-charset", charset.toLowerCase());
 			}
 			String locale = Locale.s(Locale.ISOLanguageCode);
 			if(locale != null) {

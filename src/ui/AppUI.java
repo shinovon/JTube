@@ -335,12 +335,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void loadTrends() throws IOException {
-		mainScr.setTitle("JTube - " + Locale.s(TITLE_Trends));
+		mainScr.setTitle(Locale.s(TITLE_Trends));
 		load("trending");
 	}
 
 	public void loadPopular() throws IOException {
-		mainScr.setTitle("JTube - " + Locale.s(TITLE_Popular));
+		mainScr.setTitle(Locale.s(TITLE_Popular));
 		load("popular");
 	}
 
@@ -553,12 +553,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 1));
 			return;
 		}
-		if(d instanceof Alert || d instanceof TextBox) {
-			display(null);
-			return;
-		}
 		if(this.current != null && current instanceof CommandListener) {
 			((CommandListener)current).commandAction(c, d);
+			return;
+		}
+		if(d instanceof Alert || d instanceof TextBox) {
+			display(null);
 			return;
 		}
 	}

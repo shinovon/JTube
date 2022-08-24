@@ -234,7 +234,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 						s = Locale.s(TXT_SearchHint);
 					}
-					g.drawString(s, 50, 10, 0);
+					g.drawString(s, 50, (topBarHeight - searchFont.getHeight()) / 2, 0);
 				}
 			} else {
 				if(Settings.fullScreen) {
@@ -243,20 +243,22 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.drawImage(backImg, 12, 12, 0);
 						xx += 48;
 					}
-					String s = getTitle();
-					if(s != null && s.length() > 0) {
-						int ww = w-96-xx - (smallfont.charWidth('.')*2);
-						if(mediumfont.stringWidth(s) >= ww) {
-							g.setFont(smallfont);
-							while(smallfont.stringWidth(s) >= ww) {
-								s = s.substring(0, s.length()-1);
+					if(!(this instanceof VideoScreen)) {
+						String s = getTitle();
+						if(s != null && s.length() > 0) {
+							int ww = w-96-xx - (smallfont.charWidth('.')*2);
+							if(mediumfont.stringWidth(s) >= ww) {
+								g.setFont(smallfont);
+								while(smallfont.stringWidth(s) >= ww) {
+									s = s.substring(0, s.length()-1);
+								}
+								s += "..";
+							} else {
+								g.setFont(mediumfont);
 							}
-							s += "..";
-						} else {
-							g.setFont(mediumfont);
+							g.setColor(AppUI.getColor(COLOR_MAINFG));
+							g.drawString(s, xx, (48-g.getFont().getHeight())/2, 0);
 						}
-						g.setColor(AppUI.getColor(COLOR_MAINFG));
-						g.drawString(s, xx, (48-g.getFont().getHeight())/2, 0);
 					}
 				}
 				if(menuOptions != null) {
