@@ -27,7 +27,7 @@ import javax.microedition.lcdui.Command;
 
 public interface Commands extends LocaleConstants {
 
-	static final Command okCmd = new Command("", Command.OK, 1);
+	static final Command okCmd = new Command(Locale.s(CMD_OK), Command.OK, 1);
 	static final Command exitCmd = new Command(Locale.s(CMD_Exit), Command.EXIT, 12);
 	static final Command optsCmd = new Command(Locale.s(CMD_Func), Command.SCREEN, 13);
 	static final Command searchOkCmd = new Command(Locale.s(CMD_Search), Command.OK, 1);

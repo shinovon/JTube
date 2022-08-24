@@ -63,7 +63,8 @@ public class App implements Constants {
 	private Vector v2;
 	private Object addLock = new Object();
 	
-	private Vector queuedTasks = new Vector();
+	private Runnable[] queuedTasks = new Runnable[30];
+	private int queuedTasksIdx;
 	private Object tasksLock = new Object();
 	private Thread tasksThread = new Thread() {
 		public void run() {
@@ -72,11 +73,14 @@ public class App implements Constants {
 					synchronized (tasksLock) {
 						tasksLock.wait();
 					}
-					while(queuedTasks.size() > 0) {
-						Object o = queuedTasks.elementAt(0);
-						queuedTasks.removeElementAt(0);
+					while(true) {
+						Runnable r = queuedTasks[0];
+						if(r == null) continue;
+						System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
+						queuedTasks[queuedTasks.length - 1] = null;
+						queuedTasksIdx--;
 						try {
-							if(o instanceof Runnable) ((Runnable)o).run();
+							r.run();
 						} catch (Exception e) {
 						}
 						Thread.yield();
@@ -97,17 +101,31 @@ public class App implements Constants {
 	private Command loadingExitCmd;
 	private Command loadingSetsCmd;
 
-	public void schedule(Object o) {
-		if(queuedTasks.contains(o)) return;
-		queuedTasks.addElement(o);
+	public void schedule(Runnable r) {
+		queuedTasks[queuedTasksIdx++] = r;
+		if(queuedTasksIdx == queuedTasks.length) {
+			Runnable[] tmp = queuedTasks;
+			queuedTasks = new Runnable[queuedTasks.length + 16];
+			System.arraycopy(tmp, 0, queuedTasks, 0, tmp.length);
+		}
 		synchronized(tasksLock) {
 			tasksLock.notify();
 		}
 	}
 
-	public void cancel(Object o) {
+	public void cancel(Runnable r) {
 		synchronized(tasksLock) {
-			queuedTasks.removeElement(o);
+			int idx = -1;
+			for(int i = 0; i < queuedTasks.length; i++) {
+				if(queuedTasks[i] == r) {
+					idx = i;
+					break;
+				}
+			}
+			if(idx != -1) {
+				System.arraycopy(queuedTasks, idx+1, queuedTasks, idx, queuedTasks.length - idx);
+				queuedTasks[queuedTasks.length - 1] = null;
+			}
 		}
 	}
 	
@@ -277,7 +295,7 @@ public class App implements Constants {
 	}
 
 	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("//")) return Util.get("http:" + s);
+		if(s.startsWith("//")) s = "https:" + s;
 		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
 		if(Settings.imgproxy == null || Settings.imgproxy.length() <= 1)
 			return Util.get(s);
@@ -493,7 +511,7 @@ public class App implements Constants {
 						fc.delete();
 					fc.create();
 					o = fc.openDataOutputStream();
-					o.write((url).getBytes("UTF-8"));
+					o.write(url.getBytes("UTF-8"));
 					o.flush();
 				} finally {
 					try {
@@ -508,7 +526,6 @@ public class App implements Constants {
 				break;
 			}
 			case 2: {
-				//platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&type=" + type + "&poisk=you&dw");
 				Util.platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
 				break;
 			}
@@ -599,10 +616,16 @@ public class App implements Constants {
 	}
 
 	public static void warn(Object o, String str) {
-		String cls = "";
-		if(o != null) cls = "at " + o.getClass().getName();
-		String s = str + " \n\n" + cls + " \nt:" + Thread.currentThread().getName();
+		String s = str + " \n\n" + getThreadInfo(o);
 		Alert a = new Alert("", s, null, AlertType.WARNING);
+		a.setTimeout(-2);
+		Display.getDisplay(midlet).setCurrent(a);
+	}
+
+	public static void error(Object o, String str) {
+		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " \n\n" + 
+				getThreadInfo(o);
+		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
 		Display.getDisplay(midlet).setCurrent(a);
 	}
@@ -625,12 +648,21 @@ public class App implements Constants {
 	}
 
 	public static void error(Object o, int i, String str, String str2) {
-		String cls = "null";
-		if(o != null) cls = o.getClass().getName();
-		String s = str + " \n\ne: " + i + " \nat " + cls + " \nt: " + Thread.currentThread().getName() + (str2 != null ? " \n" + str2 : "");
+		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " " + EOL + EOL + "e: " + i + " \n" + 
+				getThreadInfo(o) + 
+				(str2 != null ? " \n" + str2 : "");
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
 		Display.getDisplay(midlet).setCurrent(a);
+	}
+	
+	private static String getThreadInfo(Object o) {
+		Thread t = Thread.currentThread();
+		return (o != null ? "at " + o.getClass().getName() + " " + EOL : "") + 
+				"t: " + t.getName() +
+				" (p: " + t.getPriority() + 
+				" c: " + t.getClass() + ") " + EOL +
+				Thread.activeCount();
 	}
 	
 	public static boolean checkStartArguments() {
@@ -737,16 +769,6 @@ public class App implements Constants {
 			}
 		} else {
 			throw new IllegalArgumentException();
-		}
-	}
-
-	public static void requestURL(String url) {
-		try {
-			if(url.indexOf("://") == -1) {
-				url = "http://" + url;
-			}
-			midlet.platformRequest(url);
-		} catch(Exception e) {
 		}
 	}
 

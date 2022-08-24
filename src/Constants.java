@@ -23,7 +23,7 @@ import cc.nnproject.utils.PlatformUtils;
 
 public interface Constants {
 	
-	// urls
+	// default urls
 	static final String hproxy = "http://nnp.nnchan.ru/proxy.php?";
 	static final String iteroni = "http://iteroni.com/";
 	static final String stream = "http://nnp.nnchan.ru/stream.php?url=";
@@ -35,15 +35,17 @@ public interface Constants {
 	// Limits
 	static final int TRENDS_LIMIT_S60 = 23;
 	static final int SEARCH_LIMIT_S60 = 30; 
-	static final int TRENDS_LIMIT_LOWEND = 20;
-	static final int SEARCH_LIMIT_LOWEND = 25; 
-	static final int TRENDS_LIMIT = PlatformUtils.isNotS60() ? TRENDS_LIMIT_LOWEND : TRENDS_LIMIT_S60;
-	static final int SEARCH_LIMIT = PlatformUtils.isNotS60() ? SEARCH_LIMIT_LOWEND : SEARCH_LIMIT_S60;
+	static final int TRENDS_LIMIT_DEFAULT = 20;
+	static final int SEARCH_LIMIT_DEFAULT = 25; 
+	static final int TRENDS_LIMIT = PlatformUtils.isNotS60() ? TRENDS_LIMIT_DEFAULT : TRENDS_LIMIT_S60;
+	static final int SEARCH_LIMIT = PlatformUtils.isNotS60() ? SEARCH_LIMIT_DEFAULT : SEARCH_LIMIT_S60;
 	static final int LATESTVIDEOS_LIMIT = 30;
+	static final int PLAYLISTS_LIMIT = 30;
+	static final int PLAYLIST_VIDEOS_LIMIT = 100;
 	
 	static final String NAME = "JTube";
 	
-	public static String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
+	static final String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0";
 	
 	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,author,authorId,description,videoCount,publishedText,lengthSeconds,likeCount,dislikeCount,viewCount,subCount";
 	static final String CHANNEL_EXTENDED_FIELDS = "subCount,author,authorId,description,totalViews";
@@ -51,8 +53,13 @@ public interface Constants {
 	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";
 	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	
-	public static final int AUTHOR_IMAGE_HEIGHT = 36;
+	/** @deprecated */
+	static final String SYSTEM_LINE_SEPARATOR = System.getProperty("line.separator");
+	static final String PATH_SEPARATOR = "/";
+	static final String EOL = SYSTEM_LINE_SEPARATOR != null ? SYSTEM_LINE_SEPARATOR : "\n";
 	
-	public static String Path_separator = "/";
+	static final String CONTANT_DEVELOPER_STRING = "Contact developer: t.me/nnmidletschat";
+	
+	static final int DEFAULT_PUSH_PORT = 1260;
 
 }

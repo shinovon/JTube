@@ -38,8 +38,8 @@ public class Util implements Constants {
 	
 	private static int buffer_size;
 	
-	private static String charset = "utf-8, iso-8859-1;q=0.5";
-	private static String alt_charset = "iso-8859-1";
+	private static String charset = "UTF-8";
+	private static String alt_charset = "ISO-8859-1";
 	
 	private static Canvas testCanvas;
 	
@@ -51,15 +51,16 @@ public class Util implements Constants {
 		}
 		String s = System.getProperty("microedition.encoding");
 		if(s != null) {
-			alt_charset = s.toLowerCase();
+			alt_charset = s;
 		}
 		// Test UTF-8 support
+		boolean test = false;
 		try {
-			String tmp = new String("test".getBytes("UTF-8"), "UTF-8");
-			tmp.charAt(0);
+			String tmp = new String("выф".getBytes("UTF-8"), "UTF-8");
+			if(tmp.charAt(0) == 'в') test = true;
 		} catch (Throwable e) {
-			charset = alt_charset;
 		}
+		if(!test) charset = alt_charset;
 	} 
 
 	public static byte[] get(String url) throws IOException {
@@ -78,7 +79,7 @@ public class Util implements Constants {
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
 			if(charset != null) {
-				hc.setRequestProperty("accept-charset", charset);
+				hc.setRequestProperty("accept-charset", charset.toLowerCase());
 			}
 			String locale = Locale.s(Locale.ISOLanguageCode);
 			if(locale != null) {
@@ -138,7 +139,7 @@ public class Util implements Constants {
 	public static String getUtf(String url) throws IOException {
 		byte[] b = get(url);
 		try {
-			return new String(b, "UTF-8");
+			return new String(b, charset);
 		} catch (Throwable e) {
 			charset = alt_charset;
 			return new String(b);

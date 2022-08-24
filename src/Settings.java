@@ -229,7 +229,7 @@ public class Settings implements Constants {
 						httpStream = true;
 						asyncLoading = false;
 					}
-					if(PlatformUtils.isSymbian3Based() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
+					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isSymbian93() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
 						searchBar = true;
@@ -405,7 +405,11 @@ public class Settings implements Constants {
 	
 	public static void registerPush() {
 		try {
-			int port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
+			int port = DEFAULT_PUSH_PORT;
+			try {
+				port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
+			} catch (Exception e) {
+			}
 			if(autoStart) {
 				MIDletIntegration.registerPush(App.midlet, port);
 			} else {

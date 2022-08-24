@@ -121,7 +121,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				UIItem item = playlist(j.getObject(i));
 				if(item == null) continue;
 				add(item);
-				if(i >= SEARCH_LIMIT) break;
+				if(i >= PLAYLISTS_LIMIT) break;
 			}
 			new Thread() {
 				public void run() {
@@ -131,7 +131,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		App.inst.startAsyncTasks();
 	}
 
 	protected void show() {

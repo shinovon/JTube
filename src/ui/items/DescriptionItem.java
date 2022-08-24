@@ -65,7 +65,6 @@ public class DescriptionItem extends UIItem implements UIConstants {
 		if(w == lastW) return;
 		lastW = w;
 		h = 8;
-		text = Util.replace(text, "\r", "");
 		textArr = Util.getStringArray(text, w - 20, font);
 		h += textArr.length * (font.getHeight() + 4);
 	}

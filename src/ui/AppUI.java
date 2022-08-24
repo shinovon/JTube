@@ -184,7 +184,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		case COLOR_ITEM_HIGHLIGHT:
 			return Settings.amoled ? 0x5D5D5D : 0x9A9A9A;
 		case COLOR_BUTTON_HOVER_BG:
-			return 0xCCCCCC;
+			return Settings.amoled ? 0x111111 : 0xCCCCCC;
 		case COLOR_TIMETEXT:
 			return 0xDDDDDD;
 		case COLOR_SCROLLBAR_BORDER:
@@ -272,10 +272,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void init() {
 		inst = this;
 		canv = new JTubeCanvas(this);
-		try {
-			canv.setCommandListener(this);
-		} catch (Exception e) {
-		}
+		resetFullScreenMode();
 		repaintThread.start();
 		try {
 			DirectFontUtil.init();
@@ -284,6 +281,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		try {
 			TextEditorUtil.init();
 		} catch (Throwable e) {
+		}
+	}
+	
+	public void resetFullScreenMode() {
+		try {
+			if(Settings.fullScreen) {
+				canv.setCommandListener(null);
+				canv.setFullScreenMode(true);
+			} else {
+				canv.setCommandListener(this);
+				canv.setFullScreenMode(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -324,12 +335,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void loadTrends() throws IOException {
-		mainScr.setTitle("JTube - " + Locale.s(TITLE_Trends));
+		mainScr.setTitle(Locale.s(TITLE_Trends));
 		load("trending");
 	}
 
 	public void loadPopular() throws IOException {
-		mainScr.setTitle("JTube - " + Locale.s(TITLE_Popular));
+		mainScr.setTitle(Locale.s(TITLE_Popular));
 		load("popular");
 	}
 
@@ -534,12 +545,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			exit();
 			return;
 		}
-		if(d instanceof Alert) {
-			display(null);
+		if(c == searchOkCmd && d instanceof TextBox) {
+			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 2));
+			return;
+		}
+		if(c == goCmd && d instanceof TextBox) {
+			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 1));
 			return;
 		}
 		if(this.current != null && current instanceof CommandListener) {
 			((CommandListener)current).commandAction(c, d);
+			return;
+		}
+		if(d instanceof Alert || d instanceof TextBox) {
+			display(null);
 			return;
 		}
 	}
@@ -558,6 +577,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void display(Displayable d) {
 		if(d == null) {
+			if(display.getCurrent() == canv) return;
 			display.setCurrent(canv);
 			if(current != null) {
 				current.show();
@@ -594,8 +614,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		if(model instanceof PlaylistModel) {
-			if(((PlaylistModel) model).getVideoCount() > 100) {
-				msg(">100 videos!!!");
+			if(((PlaylistModel) model).getVideoCount() > PLAYLIST_VIDEOS_LIMIT) {
+				msg(">" + PLAYLIST_VIDEOS_LIMIT + " videos!!!");
 				return;
 			}
 		}
@@ -622,25 +642,43 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void showSettings() {
-		if(settingsForm == null) {
-			settingsForm = new SettingsForm();
+		try {
+			if(settingsForm == null) {
+				settingsForm = new SettingsForm();
+			}
+			display(settingsForm);
+			settingsForm.show();
+		} catch (Exception e) {
+			App.error(this, "Could not open settings! \n" + e.toString());
+			e.printStackTrace();
 		}
-		display(settingsForm);
-		settingsForm.show();
 	}
 	
 	public void showAbout(CommandListener l) {
 		//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
+		TextBox t = new TextBox("", "", 200, TextField.ANY | TextField.UNEDITABLE);
+		t.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + EOL
+				+ "By Shinovon (nnp.nnchan.ru)" + EOL
+				+ "t.me/nnmidlets" + EOL
+				+ "vk.com/nnprojectcc" + EOL + EOL
+				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
+				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+		t.setCommandListener(l == null ? this : l);
+		t.addCommand(new Command("OK", Command.OK, 1));
+		display(t);
+		/*
 		Alert a = new Alert("", "", null, null);
 		a.setTimeout(-2);
-		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + " \n"
-				+ "By Shinovon (nnp.nnchan.ru) \n"
-				+ "t.me/nnmidlets\n"
-				+ "vk.com/nnprojectcc \n\n"
-				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77" + (Locale.loaded ? " \n\nCustom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + EOL
+				+ "By Shinovon (nnp.nnchan.ru)" + EOL
+				+ "t.me/nnmidlets" + EOL
+				+ "vk.com/nnprojectcc" + EOL + EOL
+				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
+				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
 		a.setCommandListener(l == null ? this : l);
 		a.addCommand(new Command("OK", Command.OK, 1));
 		display(a);
+		*/
 	}
 
 	public int getItemWidth() {
@@ -656,6 +694,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void addCommand(Command c) {
+		if(!Settings.fullScreen)
 		try {
 			canv.addCommand(c);
 		} catch (Exception e) {

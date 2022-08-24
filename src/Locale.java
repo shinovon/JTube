@@ -30,7 +30,7 @@ public class Locale implements LocaleConstants {
 	public static final String systemLocale;
 	public static boolean loaded;
 	protected static int localei;
-	private static Hashtable table;
+	private static String[] values = new String[512];
 	public static String l;
 
 	static {
@@ -70,16 +70,15 @@ public class Locale implements LocaleConstants {
 		}
 		if (in != null) {
 			DataInputStream d = new DataInputStream(in);
-			table = new Hashtable();
 			try {
 				try {
 					int i;
 					while ((i = d.readShort()) != -1) {
-						Integer n = new Integer(i);
 						String sl = d.readUTF();
-						if (table.containsKey(n))
-							continue;
-						table.put(n, sl);
+						if(i == ISOLanguageCode) {
+							i = values.length - 1;
+						}
+						values[i] = sl;
 					}
 				} catch (IOException e) {
 				} finally {
@@ -104,9 +103,17 @@ public class Locale implements LocaleConstants {
 	}
 
 	public static String s(int c) {
-		Integer i = new Integer(c);
-		if (loaded && table.containsKey(i)) {
-			return (String) table.get(i);
+		if (loaded) {
+			switch(c) {
+			case ISOLanguageCode:
+				if(values[values.length - 1] != null) {
+					return values[values.length - 1];
+				}
+				break;
+			default:
+				if(values[c] != null) return values[c];
+			}
+			
 		}
 		// Author
 		if (c == 0 && !loaded) {

@@ -212,7 +212,7 @@ public class PlatformUtils {
 	}
 
 	public static boolean isSamsung() {
-		return platform.toLowerCase().startsWith("samsung");
+		return platform != null && platform.toLowerCase().startsWith("samsung");
 	}
 
 	public static boolean isPhoneme() {

@@ -124,19 +124,22 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		setCommandListener(this);
 		addCommand(applyCmd);
 		Font titleFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
-		int titleLayout = Item.LAYOUT_2 | Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_NEWLINE_AFTER;
-		StringItem videoLabel = new StringItem(null, " " + Locale.s(SET_Video));
+		int titleLayout = Item.LAYOUT_LEFT;
+		StringItem videoLabel = new StringItem(null, " " + Locale.s(SET_Video) + EOL);
 		videoLabel.setFont(titleFont);
-		videoLabel.setLayout(Item.LAYOUT_2 | Item.LAYOUT_LEFT | Item.LAYOUT_NEWLINE_AFTER);
-		StringItem uiLabel = new StringItem(null, " " + Locale.s(SET_Appearance));
+		StringItem uiLabel = new StringItem(null, " " + Locale.s(SET_Appearance) + EOL);
 		uiLabel.setFont(titleFont);
-		uiLabel.setLayout(titleLayout);
-		StringItem netLabel = new StringItem(null, " " + Locale.s(SET_Network));
+		StringItem netLabel = new StringItem(null, " " + Locale.s(SET_Network) + EOL);
 		netLabel.setFont(titleFont);
-		netLabel.setLayout(titleLayout);
-		StringItem miscLabel = new StringItem(null, " " + Locale.s(SET_OtherSettings));
+		StringItem miscLabel = new StringItem(null, " " + Locale.s(SET_OtherSettings) + EOL);
 		miscLabel.setFont(titleFont);
-		miscLabel.setLayout(titleLayout);
+		try {
+			videoLabel.setLayout(titleLayout);
+			uiLabel.setLayout(titleLayout);
+			netLabel.setLayout(titleLayout);
+			miscLabel.setLayout(titleLayout);
+		} catch (Exception e) {
+		}
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
 		regionText = new TextField(Locale.s(SET_CountryCode), Settings.region, 3, TextField.ANY);
 		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
@@ -146,11 +149,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		miscChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, MISC_CHECKS, null);
 		downloadDirText = new TextField(Locale.s(SET_DownloadDir), Settings.downloadDir, 256, TextField.URL);
 		dirBtn = new StringItem(null, "...", Item.BUTTON);
-		dirBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_RIGHT);
+		dirBtn.setLayout(Item.LAYOUT_RIGHT);
 		dirBtn.setDefaultCommand(dirCmd);
 		dirBtn.setItemCommandListener(this);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
-		invidiousText.setLayout(Item.LAYOUT_2 | Item.LAYOUT_LEFT);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 				Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
 		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), Settings.imgproxy, 256, TextField.URL);
@@ -169,7 +171,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		langBtn.addCommand(langCmd);
 		langBtn.setDefaultCommand(langCmd);
 		langBtn.setItemCommandListener(this);
-		langBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_EXPAND);
+		langBtn.setLayout(Item.LAYOUT_EXPAND);
 		append(langBtn);
 		append(netLabel);
 		append(netChoice);
@@ -185,7 +187,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		resetBtn.addCommand(resetCmd);
 		resetBtn.setDefaultCommand(resetCmd);
 		resetBtn.setItemCommandListener(this);
-		resetBtn.setLayout(Item.LAYOUT_2 | Item.LAYOUT_EXPAND);
+		resetBtn.setLayout(Item.LAYOUT_EXPAND);
 		append(resetBtn);
 	}
 	
@@ -247,8 +249,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.region = regionText.getString().trim().toUpperCase();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
-			dir = Util.replace(dir, "\\", Path_separator);
-			while (dir.endsWith(Path_separator)) {
+			dir = Util.replace(dir, "\\", PATH_SEPARATOR);
+			while (dir.endsWith(PATH_SEPARATOR)) {
 				dir = dir.substring(0, dir.length() - 1);
 			}
 			Settings.downloadDir = dir;
@@ -389,7 +391,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				screen.relayout();
 			}
 			try {
-				AppUI.inst.getCanvas().setFullScreenMode(Settings.fullScreen);
+				AppUI.inst.resetFullScreenMode();
 			} catch (Exception e) {
 			}
 		} catch (Exception e) {

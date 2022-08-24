@@ -84,11 +84,11 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		*/
 		g.setColor(0);
 		if(Settings.smallPreviews) {
-			boolean b = ui.getWidth() == 320;
-			boolean b2 = ui.getWidth() >= 480;
+			boolean b = w == 320;
+			boolean b2 = w >= 480;
 			boolean b3 = App.width <= 240;
-			boolean b4 = ui.getWidth() >= 320;
-			boolean b5 = ui.getWidth() > 320;
+			boolean b4 = w >= 320;
+			boolean b5 = w > 320;
 			int xx = x + 4;
 			int yy = y + 4;
 			if(Settings.videoPreviews) {
