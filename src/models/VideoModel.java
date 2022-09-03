@@ -173,7 +173,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(thumbnailUrl == null) return;
 		if(item == null && prevItem == null && !extended) return;
 		try {
-			byte[] b = App.hproxy(thumbnailUrl);
+			byte[] b = App.getImageBytes(thumbnailUrl);
 			if(prevItem != null && extended) {
 				Image img = Image.createImage(b, 0, b.length);
 				b = null;
@@ -238,7 +238,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	private void _loadAuthorImg() throws Exception {
-		byte[] b = App.hproxy(authorThumbnailUrl);
+		byte[] b = App.getImageBytes(authorThumbnailUrl);
 		authorThumbnailUrl = null;
 		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), 36, 36));
 	}

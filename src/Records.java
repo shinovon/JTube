@@ -46,7 +46,7 @@ public class Records {
 		}
 		try {
 			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			byte[] b = App.hproxy(url);
+			byte[] b = App.getImageBytes(url);
 			rs.addRecord(b, 0, b.length);
 			b = null;
 			rs.closeRecordStore();
@@ -69,7 +69,7 @@ public class Records {
 				if(url == null) {
 					return null;
 				}
-				b = App.hproxy(url);
+				b = App.getImageBytes(url);
 				if(rs != null) {
 					try {
 						if(rs.getNumRecords() <= 0) {

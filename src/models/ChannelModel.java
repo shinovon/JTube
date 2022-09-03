@@ -112,7 +112,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		}
 		if(imageUrl == null) return;
 		try {
-			byte[] b = App.hproxy(imageUrl);
+			byte[] b = App.getImageBytes(imageUrl);
 			int i = page ? 36 : 48;
 			img = ImageUtils.resize(Image.createImage(b, 0, b.length), i, i);
 			item.setImage(img);

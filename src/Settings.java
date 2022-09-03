@@ -49,7 +49,6 @@ public class Settings implements Constants {
 	public static boolean httpStream;
 	public static int startScreen; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
-	public static String imgproxy = hproxy;
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists;
 	public static String customLocale;
@@ -294,8 +293,6 @@ public class Settings implements Constants {
 				}
 				if(j.has("inv"))
 					inv = j.getString("inv");
-				if(j.has("imgProxy"))
-					imgproxy = j.getString("imgProxy");
 				if(j.has("startScreen"))
 					startScreen = j.getInt("startScreen");
 				if(j.has("rmsPreviews"))
@@ -312,15 +309,9 @@ public class Settings implements Constants {
 					asyncLoading = j.getBoolean("asyncLoading");
 				if(j.has("downloadBuffer"))
 					downloadBuffer = j.getInt("downloadBuffer");
-				if((serverstream != null && serverstream.indexOf("nnproject.cc") != -1)
-						|| (imgproxy != null && imgproxy.indexOf("nnproject.cc") != -1)) {
+				if((serverstream != null && serverstream.indexOf("nnproject.cc") != -1)) {
 					if(serverstream != null)
 						serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
-					if(imgproxy != null)
-						imgproxy = Util.replace(imgproxy, "nnproject.cc", "nnp.nnchan.ru");
-				}
-				if(imgproxy != null) {
-					imgproxy = Util.replace(imgproxy, "nnp.nnchan.ru/hproxy.php", "nnp.nnchan.ru/proxy.php");
 				}
 				if(j.has("checkUpdates"))
 					checkUpdates = j.getBoolean("checkUpdates");
@@ -362,7 +353,6 @@ public class Settings implements Constants {
 			j.put("httpStream", new Boolean(httpStream));
 			j.put("serverstream", serverstream);
 			j.put("inv", inv);
-			j.put("imgProxy", imgproxy);
 			j.put("startScreen", new Integer(startScreen));
 			j.put("rmsPreviews", new Boolean(rmsPreviews));
 			j.put("customLocale", customLocale);

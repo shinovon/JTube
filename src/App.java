@@ -294,13 +294,13 @@ public class App implements Constants {
 		ui.init();
 	}
 
-	public static byte[] hproxy(String s) throws IOException {
-		if(s.startsWith("//")) s = "https:" + s;
+	public static byte[] getImageBytes(String s) throws IOException {
+		if(s.startsWith("//")) s = "http:" + s;
+		if(s.indexOf("ggpht.com") != -1) {
+			s = "/ggpht" + s.substring(s.indexOf("/ytc"));
+		}
 		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
-		if(Settings.imgproxy == null || Settings.imgproxy.length() <= 1)
-			return Util.get(s);
-		//if(s.indexOf("ggpht.com") != -1) return Util.get(Util.replace(s, "https:", "http:"));
-		return Util.get(Settings.imgproxy + Util.url(s));
+		return Util.get(s);
 	}
 	
 	public static AbstractJSON invApi(String s) throws InvidiousException, IOException {
@@ -458,7 +458,7 @@ public class App implements Constants {
 		if(Settings.httpStream || forceProxy) {
 			if(Settings.iteroniPlaybackProxy) {
 				int i = s.indexOf("/videoplayback");
-				s = "http://iteroni.com" + s.substring(i);
+				s = Settings.inv + s.substring(i+1);
 			} else {
 				s = Settings.serverstream + Util.url(s);
 			}

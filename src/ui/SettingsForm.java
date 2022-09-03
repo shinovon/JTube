@@ -97,7 +97,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private TextField httpProxyText;
 	private ChoiceGroup netChoice;
 	private TextField invidiousText;
-	private TextField imgProxyText;
 	private ChoiceGroup uiChoice;
 	private StringItem dirBtn;
 	private ChoiceGroup debugChoice;
@@ -155,7 +154,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 				Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
-		imgProxyText = new TextField(Locale.s(SET_ImagesProxy), Settings.imgproxy, 256, TextField.URL);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
@@ -171,13 +169,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		langBtn.addCommand(langCmd);
 		langBtn.setDefaultCommand(langCmd);
 		langBtn.setItemCommandListener(this);
-		langBtn.setLayout(Item.LAYOUT_EXPAND);
+		langBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
 		append(langBtn);
 		append(netLabel);
 		append(netChoice);
 		append(invidiousText);
 		proxyTextIdx = append(httpProxyText);
-		append(imgProxyText);
 		append(downloadBufferText);
 		append(miscLabel);
 		append(checkUpdatesChoice);
@@ -272,7 +269,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.rmsPreviews = misc[1];
 			Settings.serverstream = httpProxyText.getString();
 			Settings.inv = invidiousText.getString();
-			Settings.imgproxy = imgProxyText.getString();
 			Settings.debugMemory = debugChoice.isSelected(0);
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
