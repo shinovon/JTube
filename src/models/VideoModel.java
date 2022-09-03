@@ -128,9 +128,9 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("v1/videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
 			try {
-				JSONObject j = (JSONObject) App.invApi("v1/channels/" + authorId + "?", "subCount");
+				JSONObject j = (JSONObject) App.invApi("channels/" + authorId + "?", "subCount");
 				if(j.has("subCount"))
 					subCount = j.getInt("subCount", 0);
 			} catch (Exception e) {
@@ -215,7 +215,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (Exception e) {
 		} catch (OutOfMemoryError e) {
 			Util.gc();
-			App.inst.stopAsyncTasks();
+			App.inst.stopLoadTasks();
 			App.warn(this, "Not enough memory to load video previews!");
 		}
 	}

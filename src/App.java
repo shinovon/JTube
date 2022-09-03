@@ -22,7 +22,6 @@ SOFTWARE.
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -54,19 +53,19 @@ public class App implements Constants {
 	public static App2 midlet;
 	private AppUI ui;
 	
-	private Object lazyLoadLock = new Object();
 	private LoaderThread t0;
 	private LoaderThread t1;
 	private LoaderThread t2;
-	private Vector v0;
-	private Vector v1;
-	private Vector v2;
-	private Object addLock = new Object();
+	Object loadLock1 = new Object();
+	Object loadLock2 = new Object();
+	ILoader[] loadTasks = new ILoader[30];
+	int loadTasksIdx;
+	
 	
 	private Runnable[] queuedTasks = new Runnable[30];
 	private int queuedTasksIdx;
 	private Object tasksLock = new Object();
-	private Thread tasksThread = new Thread() {
+	private Thread tasksThread = new Thread("Task Thread") {
 		public void run() {
 			while(midlet.running) {
 				try {
@@ -178,7 +177,6 @@ public class App implements Constants {
 		setLoadingState("Testing screen size");
 		Util.testCanvas();
 		setLoadingState("Initializing tasks thread");
-		v0 = new Vector();
 		tasksThread.setPriority(4);
 		tasksThread.start();
 		setLoadingState("Loading config");
@@ -192,16 +190,14 @@ public class App implements Constants {
 			Settings.region = "US";
 		}
 		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
-			v1 = new Vector();
-			v2 = new Vector();
-			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
-			t1 = new LoaderThread(5, lazyLoadLock, v1, addLock, 1);
-			t2 = new LoaderThread(5, lazyLoadLock, v2, addLock, 2);
+			t0 = new LoaderThread(5, 0, this);
+			t1 = new LoaderThread(5, 1, this);
+			t2 = new LoaderThread(5, 2, this);
 			t0.start();
 			t1.start();
 			t2.start();
 		} else {
-			t0 = new LoaderThread(5, lazyLoadLock, v0, addLock, 0);
+			t0 = new LoaderThread(5, 0, this);
 			t0.start();
 		}
 		if(!checkStartArguments()) {
@@ -245,6 +241,30 @@ public class App implements Constants {
 	}
 	
 	private void checkUpdate() {
+		boolean b = false;
+		try {
+			// temporary solution
+			JSONObject video = (JSONObject) App.invApi("videos/iTwHY7v9M8c?", "description,title");
+			if(Settings.checkUpdates) {
+				String title = video.getNullableString("title");
+				if(title != null && !title.equalsIgnoreCase("jtube") && !title.trim().equalsIgnoreCase(App.midlet.getAppProperty("MIDlet-Version"))) {
+					b = true;
+					Alert a = new Alert("", "", null, AlertType.INFO);
+					a.setTimeout(-2);
+					a.setString(video.getString("description", "Download from: t.me/nnmidlets"));
+					a.setTitle(Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
+					final Command okCmd = new Command(Locale.s(LocaleConstants.CMD_OK), Command.OK, 1);
+					a.addCommand(okCmd);
+					a.setCommandListener(new CommandListener() {
+						public void commandAction(Command c, Displayable d) {
+							if(c == okCmd) ui.display(null);
+						}
+					});
+					ui.display(a);
+				}
+			}
+		} catch (Exception e) {
+		}
 		try {
 			String s = Util.getUtf(updateurl+
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
@@ -253,7 +273,7 @@ public class App implements Constants {
 					"&p="+Util.url(PlatformUtils.platform)
 					);
 			JSONObject j = JSON.getObject(s);
-			if(j.getBoolean("update_available", false) && Settings.checkUpdates) {
+			if(j.getBoolean("update_available", false) && Settings.checkUpdates && !b) {
 				final String url = j.getString("download_url");
 				String msg = j.getString("message", Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
 				Alert a = new Alert("", "", null, AlertType.INFO);
@@ -312,11 +332,11 @@ public class App implements Constants {
 		if(!s.endsWith("?")) s = s.concat("&");
 		s = s.concat("region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US"));
 		if(fields != null) {
-			s = s.concat("&fields=" + fields + ",error,errorBacktrace,code");
+			s = s.concat("&fields=".concat(fields).concat(",error,errorBacktrace,code"));
 		}
-		String dbg = "Region=" + Settings.region + " Fields=" + fields;
+		String dbg = "Region=".concat(Settings.region).concat(" Fields=").concat(fields);
 		try {
-			s = Util.getUtf(Settings.inv + "api/" + s);
+			s = Util.getUtf(Settings.inv.concat("api/v1/").concat(s));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new NetRequestException(e, s);
@@ -361,7 +381,7 @@ public class App implements Constants {
 		} else {
 		*/
 		String f = combined ? "formatStreams" : "adaptiveFormats";
-		JSONObject j = (JSONObject) invApi("v1/videos/"  + id + "?", f);
+		JSONObject j = (JSONObject) invApi("videos/"  + id + "?", f);
 		JSONArray arr = j.getArray(f);
 		if(j.size() == 0) {
 			throw new RuntimeException("failed to get link for video: " + id);
@@ -476,7 +496,7 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		inst.stopAsyncTasks();
+		inst.stopLoadTasks();
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
@@ -536,52 +556,42 @@ public class App implements Constants {
 		}
 	}
 	
-	public void addAsyncTask(ILoader v) {
-		if(v == null) throw new NullPointerException("l");
-		synchronized(lazyLoadLock) {
-			if(v1 == null) {
-				v0.addElement(v);
-			} else {
-				int s0 = v0.size();
-				int s1 = v1.size();
-				int s2 = v2.size();
-				if(s0 <= s1) {
-					v0.addElement(v);
-				} else if(s1 <= s2) {
-					v1.addElement(v);
-				} else {
-					v2.addElement(v);
+	public void addLoadTask(ILoader v) {
+		try {
+			if(v == null) throw new NullPointerException("l");
+			synchronized(loadLock2) {
+				loadTasks[loadTasksIdx++] = v;
+				if(loadTasksIdx >= loadTasks.length - 1) {
+					ILoader[] tmp = loadTasks;
+					loadTasks = new ILoader[loadTasks.length + 16];
+					System.arraycopy(tmp, 0, loadTasks, 0, tmp.length);
 				}
 			}
-		}
-	}
-	
-	public void startAsyncTasks() {
-		synchronized(lazyLoadLock) {
-			lazyLoadLock.notifyAll();
-		}
-	}
-	
-	void waitAsyncTasks() {
-		synchronized(lazyLoadLock) {
-			lazyLoadLock.notifyAll();
-		}
-		try {
-			synchronized(addLock) {
-				addLock.wait(1000);
+			synchronized(loadLock1) {
+				loadLock1.notifyAll();
 			}
 		} catch (Exception e) {
+			 e.printStackTrace();
 		}
 	}
+	
+	/** @deprecated */
+	public void startAsyncTasks() {
+	}
 
-	public void stopAsyncTasks() {
-		if(v0 != null) v0.removeAllElements();
-		if(v1 != null) v1.removeAllElements();
-		if(v2 != null) v2.removeAllElements();
-		if(t0 != null) t0.pleaseInterrupt();
-		if(t1 != null) t1.pleaseInterrupt();
-		if(t2 != null) t2.pleaseInterrupt();
-		waitAsyncTasks();
+	/** @deprecated */
+	void waitAsyncTasks() {
+	}
+
+	public void stopLoadTasks() {
+		//System.out.println("STOP");
+		if(t0 != null) t0.doInterrupt();
+		if(t1 != null) t1.doInterrupt();
+		if(t2 != null) t2.doInterrupt();
+		synchronized(loadLock2) {
+			loadTasks = new ILoader[loadTasks.length];
+			loadTasksIdx = 0;
+		}
 	}
 	
 	public static String getThumbUrl(String id, int tw) {

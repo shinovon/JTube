@@ -19,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import cc.nnproject.utils.PlatformUtils;
 
 public interface Constants {
 	
@@ -33,13 +32,9 @@ public interface Constants {
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
 	// Limits
-	static final int TRENDS_LIMIT_S60 = 23;
-	static final int SEARCH_LIMIT_S60 = 30; 
-	static final int TRENDS_LIMIT_DEFAULT = 20;
-	static final int SEARCH_LIMIT_DEFAULT = 25; 
-	static final int TRENDS_LIMIT = PlatformUtils.isNotS60() ? TRENDS_LIMIT_DEFAULT : TRENDS_LIMIT_S60;
-	static final int SEARCH_LIMIT = PlatformUtils.isNotS60() ? SEARCH_LIMIT_DEFAULT : SEARCH_LIMIT_S60;
-	static final int LATESTVIDEOS_LIMIT = 30;
+	static final int TRENDS_LIMIT = 20;
+	static final int SEARCH_LIMIT = 25;
+	static final int LATESTVIDEOS_LIMIT = 20;
 	static final int PLAYLISTS_LIMIT = 30;
 	static final int PLAYLIST_VIDEOS_LIMIT = 100;
 	

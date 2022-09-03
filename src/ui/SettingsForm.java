@@ -177,6 +177,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		proxyTextIdx = append(httpProxyText);
 		append(downloadBufferText);
 		append(miscLabel);
+		append(miscChoice);
 		append(checkUpdatesChoice);
 		append(autoStartChoice);
 		append(debugChoice);

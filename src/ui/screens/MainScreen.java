@@ -37,16 +37,13 @@ public class MainScreen extends NavigationScreen {
 			wasHidden = false;
 			if(Settings.videoPreviews) {
 				// resume loading previews
-				App.inst.stopAsyncTasks();
-				boolean b = false;
+				App.inst.stopLoadTasks();
 				for(int i = 0; i < items.size(); i++) {
 					Object o = items.elementAt(i);
 					if(o instanceof VideoItem) {
-						App.inst.addAsyncTask(((VideoItem)o).getVideo());
-						b = true;
+						App.inst.addLoadTask(((VideoItem)o).getVideo());
 					}
 				}
-				if(b) App.inst.startAsyncTasks();
 			}
 		}
 	}

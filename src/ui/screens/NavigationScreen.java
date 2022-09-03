@@ -532,7 +532,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	protected void back() {
 		AppUI.loadingState = false;
-		App.inst.stopAsyncTasks();
+		App.inst.stopLoadTasks();
 		if(parent != null) {
 			ui.setScreen(parent);
 		} else {
@@ -554,7 +554,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			App.inst.schedule(new RunnableTask(4));
 			break;
 		case 2:
-			App.inst.stopAsyncTasks();
+			App.inst.stopLoadTasks();
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
 			t.setCommandListener(this);
 			t.setTitle("Video URL or ID");

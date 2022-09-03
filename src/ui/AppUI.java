@@ -301,7 +301,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void load(String s) throws IOException {
 		loadingState = true;
 		try {
-			AbstractJSON r = App.invApi("v1/"+s+"?",
+			AbstractJSON r = App.invApi(s+"?",
 					VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",viewCount" : "")
 					);
@@ -322,7 +322,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			}
 			Thread.sleep(150);
 			j = null;
-			app.startAsyncTasks();
 			Thread.sleep(150);
 		} catch (RuntimeException e) {
 			throw e;
@@ -352,9 +351,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 			disposeMainPage();
 		}
-		app.stopAsyncTasks();
+		app.stopLoadTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/search?q=" + Util.url(q) + "&type=all",
+			JSONArray j = (JSONArray) App.invApi("search?q=" + Util.url(q) + "&type=all",
 					SEARCH_FIELDS + ",type" +
 					(Settings.searchChannels || Settings.searchPlaylists ? ",authorThumbnails,subCount,playlistId,videoCount" : "") +
 					(getWidth() >= 320 ? ",viewCount" : "")
@@ -367,7 +366,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				if(i >= SEARCH_LIMIT) break;
 			}
 			j = null;
-			app.startAsyncTasks();
 		} catch (Exception e) {
 			App.error(this, Errors.AppUI_search, e);
 		}
@@ -383,26 +381,25 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(Settings.videoPreviews) app.addAsyncTask(v);
+			if(Settings.videoPreviews) app.addLoadTask(v);
 			return v.makeListItem();
 		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(Settings.videoPreviews) app.addAsyncTask(v);
+			if(Settings.videoPreviews) app.addLoadTask(v);
 			return v.makeListItem();
 		}
 		if(Settings.searchChannels && type.equals("channel")) {
 			ChannelModel c = new ChannelModel(j);
 			if(search) c.setFromSearch();
-			if(Settings.videoPreviews) app.addAsyncTask(c);
+			if(Settings.videoPreviews) app.addLoadTask(c);
 			return c.makeListItem();
 		}
 		if(Settings.searchPlaylists && type.equals("playlist")) {
 			PlaylistModel p = new PlaylistModel(j);
 			if(search) p.setFromSearch();
-			//if(videoPreviews) addAsyncLoad(p);
 			return p.makeListItem();
 		}
 		return null;
@@ -438,7 +435,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void refresh() {
 		try {
-			App.inst.stopAsyncTasks();
+			App.inst.stopLoadTasks();
 			display(null);
 			mainScr.clear();
 			if(Settings.startScreen == 0) {
@@ -459,7 +456,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void switchMain() {
 		try {
-			App.inst.stopAsyncTasks();
+			App.inst.stopLoadTasks();
 			mainScr.scroll = 0;
 			mainScr.clear();
 			display(null);
@@ -485,7 +482,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				case 0:
 				{
 					// Search
-					App.inst.stopAsyncTasks();
+					App.inst.stopLoadTasks();
 					if(searchScr != null) {
 						disposeSearchPage();
 					}
@@ -512,7 +509,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				case 3:
 				{
 					// Open by ID
-					app.stopAsyncTasks();
+					app.stopLoadTasks();
 					TextBox t = new TextBox("", "", 256, TextField.ANY);
 					t.setCommandListener(this);
 					t.setTitle("Video URL or ID");
@@ -627,7 +624,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(ui.videoScr != null) {
 			disposeVideoPage();
 		}
-		app.stopAsyncTasks();
+		app.stopLoadTasks();
 		IModelScreen scr = model.makeScreen();
 		scr.setContainerScreen(formContainer);
 		display(null);

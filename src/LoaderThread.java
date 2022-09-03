@@ -1,3 +1,5 @@
+import models.ILoader;
+
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -19,63 +21,51 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import java.util.Vector;
-
-import models.ILoader;
 
 public class LoaderThread extends Thread {
 	
-	private Object lock;
+	private boolean interruptSuccess;
+	private App app;
+	private Object lock1;
 	private Object lock2;
-	private boolean myInterrupt;
-	private Vector vector;
+	private boolean interrupt;
+	private int i;
 
-	public LoaderThread(int priority, Object lock, Vector v, Object lock2, int i) {
+	public LoaderThread(int priority, int i, App app) {
 		super("Loader-"+i);
-		this.lock = lock;
-		this.vector = v;
-		this.lock2 = lock2;
+		this.i = i;
+		this.app = app;
+		this.lock1 = app.loadLock1;
+		this.lock2 = app.loadLock2;
 		setPriority(priority);
 	}
 	
 	public void run() {
 		try {
 			while(true) {
-				synchronized(lock) {
-					lock.wait();
+				synchronized(lock1) {
+					lock1.wait();
 				}
 				checkInterrupted();
-				int len = vector.size();
-				if(len == 0) {
+				ILoader l = null;
+				while(app.loadTasks[0] != null) {
 					synchronized(lock2) {
-						lock2.notifyAll();
+						l = app.loadTasks[0];
+						if(l == null) break;
+						System.arraycopy(app.loadTasks, 1, app.loadTasks, 0, app.loadTasks.length - 1);
+						app.loadTasks[app.loadTasks.length - 1] = null;
+						app.loadTasksIdx--;
 					}
-				}
-				while((len = vector.size()) > 0) {
 					if(checkInterrupted()) break;
-					ILoader l;
 					try {
-						l = ((ILoader) vector.elementAt(0));
-						vector.removeElementAt(0);
-					} catch (ArrayIndexOutOfBoundsException e) {
-						break;
-					}
-					try {
+						System.out.println("Loader-" + i + ": LOADING " + l + "...");
 						l.load();
-					} catch (RuntimeException e) {
-						if(!e.getClass().equals(RuntimeException.class)) {
-							throw e;
-						}
-						String msg = e.toString();
-						if(msg != null && (msg.endsWith("interrupt") || msg.endsWith("interrupted"))) {
-							break;
-						} else {
-							throw e;
-						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					if(checkInterrupted()) break;
+					Thread.sleep(1);
 				}
-				checkInterrupted();
+				System.out.println("Loader-" + i + ": DONE");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -88,18 +78,30 @@ public class LoaderThread extends Thread {
 	}
 
 	boolean checkInterrupted() {
-		if(myInterrupt) {
-			myInterrupt = false;
+		if(interrupt) {
+			interrupt = false;
 			synchronized(lock2) {
 				lock2.notifyAll();
 			}
+			System.out.println("Loader-" + i + ": INTERRUPT SUCCESS");
+			interruptSuccess = true;
 			return true;
 		}
 		return false;
 	}
 
-	public void pleaseInterrupt() {
-		myInterrupt = true;
+	public void doInterrupt() {
+		System.out.println("Loader-" + i + ": INTERRUPT REQUEST");
+		interruptSuccess = false;
+		interrupt = true;
+	}
+	
+	public boolean isInterruptSuccess() {
+		if(interruptSuccess) {
+			interruptSuccess = false;
+			return true;
+		}
+		return false;
 	}
 
 }

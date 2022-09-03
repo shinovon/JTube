@@ -96,7 +96,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		super.show();
 		if(!shown) {
 			shown = true;
-			App.inst.stopAsyncTasks();
+			App.inst.stopLoadTasks();
 			new Thread(this).start();
 		}
 		addCommand(backCmd);

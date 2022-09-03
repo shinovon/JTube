@@ -56,7 +56,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		super.show();
 		if(!shown) {
 			shown = true;
-			App.inst.stopAsyncTasks();
+			App.inst.stopLoadTasks();
 			new Thread(this).start();
 		}
 	}
@@ -74,9 +74,6 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 				add(item);
 				Util.gc();
 			}
-			if(Settings.videoPreviews) {
-				App.inst.startAsyncTasks();
-			}
 			json = null;
 			Util.gc();
 		} catch (RuntimeException e) {
@@ -91,7 +88,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		v.setIndex(i);
 		v.setContainerScreen(this);
 		if(Settings.videoPreviews && i < 20) {
-			App.inst.addAsyncTask(v);
+			App.inst.addLoadTask(v);
 		}
 		videos[i] = v;
 		return v.makeListItem();
@@ -99,7 +96,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 
 	public void load() {
 		try {
-			json = ((JSONObject) App.invApi("v1/playlists/" + playlist.getPlaylistId() + "?",
+			json = ((JSONObject) App.invApi("playlists/" + playlist.getPlaylistId() + "?",
 					PLAYLIST_EXTENDED_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					)).getArray("videos");

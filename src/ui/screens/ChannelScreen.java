@@ -79,8 +79,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 		try {
-			App.inst.stopAsyncTasks();
-			JSONArray j = (JSONArray) App.invApi("v1/channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
+			App.inst.stopLoadTasks();
+			JSONArray j = (JSONArray) App.invApi("channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
@@ -90,7 +90,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= LATESTVIDEOS_LIMIT) break;
 			}
-			App.inst.startAsyncTasks();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -100,7 +99,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	protected void search() {
 		disposeSearchForm();
-		App.inst.stopAsyncTasks();
+		App.inst.stopLoadTasks();
 		TextBox t = new TextBox("", "", 256, TextField.ANY);
 		t.setCommandListener(this);
 		t.setTitle(Locale.s(CMD_Search));
@@ -113,9 +112,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		clear();
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
-		App.inst.stopAsyncTasks();
+		App.inst.stopLoadTasks();
 		try {
-			JSONArray j = ((JSONObject) App.invApi("v1/channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
+			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = playlist(j.getObject(i));
@@ -123,11 +122,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= PLAYLISTS_LIMIT) break;
 			}
-			new Thread() {
-				public void run() {
-					App.inst.startAsyncTasks();
-				}
-			}.start();
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
@@ -161,9 +155,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		clear();
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
-		App.inst.stopAsyncTasks();
+		App.inst.stopLoadTasks();
 		try {
-			JSONArray j = (JSONArray) App.invApi("v1/channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
+			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
@@ -173,11 +167,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				add(item);
 				if(i >= SEARCH_LIMIT) break;
 			}
-			new Thread() {
-				public void run() {
-					App.inst.startAsyncTasks();
-				}
-			}.start();
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
@@ -185,7 +174,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
 		VideoModel v = new VideoModel(j, this);
-		if(Settings.videoPreviews) App.inst.addAsyncTask(v);
+		if(Settings.videoPreviews) App.inst.addLoadTask(v);
 		return v.makeListItem();
 	}
 

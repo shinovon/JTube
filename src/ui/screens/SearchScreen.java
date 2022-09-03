@@ -21,8 +21,11 @@ SOFTWARE.
 */
 package ui.screens;
 
+import App;
 import Locale;
+import Settings;
 import ui.UIScreen;
+import ui.items.VideoItem;
 
 public class SearchScreen extends NavigationScreen {
 	
@@ -38,11 +41,33 @@ public class SearchScreen extends NavigationScreen {
 				Locale.s(CMD_Settings)
 		};
 	}
-
+	
 	protected void show() {
 		super.show();
 		if(wasHidden) {
 			wasHidden = false;
+			if(Settings.videoPreviews) {
+				// resume loading previews
+				App.inst.stopLoadTasks();
+				for(int i = 0; i < items.size(); i++) {
+					Object o = items.elementAt(i);
+					if(o instanceof VideoItem) {
+						App.inst.addLoadTask(((VideoItem)o).getVideo());
+					}
+				}
+			}
+		}
+	}
+	
+	protected void hide() {
+		super.hide();
+		if(Settings.rmsPreviews) {
+			for(int i = 0; i < items.size(); i++) {
+				Object o = items.elementAt(i);
+				if(o instanceof VideoItem) {
+					((VideoItem)o).onHide();
+				}
+			}
 		}
 	}
 /*
