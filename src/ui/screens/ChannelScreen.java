@@ -95,6 +95,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_latestVideos, e);
 		}
+		App.inst.startLoadTasks();
 	}
 
 	protected void search() {
@@ -125,6 +126,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
+		App.inst.startLoadTasks();
 	}
 
 	protected void show() {
@@ -170,6 +172,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
+		App.inst.startLoadTasks();
 	}
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {

@@ -104,6 +104,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private List optionsList;
 	
 	public void run() {
+		if(!Settings.renderPriority) {
+			repaintThread.setPriority(5);
+		}
 		boolean wasScrolling = false;
 		while(App.midlet.running) {
 			try {
@@ -328,6 +331,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (Exception e) {
 			App.error(this, Errors.AppUI_load, e);
 		}
+		app.startLoadTasks();
 		Util.gc();
 		loadingState = false;
 		repaint(false);
@@ -344,6 +348,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void search(String q) {
+		app.stopLoadTasks();
 		loadingState = true;
 		searchScr = new SearchScreen(q, mainScr);
 		display(null);
@@ -351,7 +356,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 			disposeMainPage();
 		}
-		app.stopLoadTasks();
 		try {
 			JSONArray j = (JSONArray) App.invApi("search?q=" + Util.url(q) + "&type=all",
 					SEARCH_FIELDS + ",type" +
@@ -369,6 +373,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (Exception e) {
 			App.error(this, Errors.AppUI_search, e);
 		}
+		app.startLoadTasks();
 		Util.gc();
 		loadingState = false;
 		repaint(false);

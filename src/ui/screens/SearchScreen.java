@@ -55,6 +55,7 @@ public class SearchScreen extends NavigationScreen {
 						App.inst.addLoadTask(((VideoItem)o).getVideo());
 					}
 				}
+				App.inst.startLoadTasks();
 			}
 		}
 	}

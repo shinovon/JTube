@@ -58,7 +58,7 @@ public class App implements Constants {
 	private LoaderThread t2;
 	Object loadLock1 = new Object();
 	Object loadLock2 = new Object();
-	ILoader[] loadTasks = new ILoader[30];
+	ILoader[] loadTasks = new ILoader[32];
 	int loadTasksIdx;
 	
 	
@@ -189,15 +189,16 @@ public class App implements Constants {
 		if(Settings.region.toLowerCase().equals("en")) {
 			Settings.region = "US";
 		}
+		int loadPriority = Settings.renderPriority ? 5 : 6;
 		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
-			t0 = new LoaderThread(5, 0, this);
-			t1 = new LoaderThread(5, 1, this);
-			t2 = new LoaderThread(5, 2, this);
+			t0 = new LoaderThread(loadPriority, 0, this);
+			t1 = new LoaderThread(loadPriority, 1, this);
+			t2 = new LoaderThread(loadPriority, 2, this);
 			t0.start();
 			t1.start();
 			t2.start();
 		} else {
-			t0 = new LoaderThread(5, 0, this);
+			t0 = new LoaderThread(loadPriority, 0, this);
 			t0.start();
 		}
 		if(!checkStartArguments()) {
@@ -559,38 +560,32 @@ public class App implements Constants {
 	public void addLoadTask(ILoader v) {
 		try {
 			if(v == null) throw new NullPointerException("l");
-			synchronized(loadLock2) {
-				loadTasks[loadTasksIdx++] = v;
-				if(loadTasksIdx >= loadTasks.length - 1) {
-					ILoader[] tmp = loadTasks;
-					loadTasks = new ILoader[loadTasks.length + 16];
-					System.arraycopy(tmp, 0, loadTasks, 0, tmp.length);
-				}
-			}
-			synchronized(loadLock1) {
-				loadLock1.notifyAll();
+			loadTasks[loadTasksIdx++] = v;
+			if(loadTasksIdx >= loadTasks.length - 1) {
+				ILoader[] tmp = loadTasks;
+				loadTasks = new ILoader[tmp.length + 16];
+				System.arraycopy(tmp, 0, loadTasks, 0, tmp.length);
 			}
 		} catch (Exception e) {
 			 e.printStackTrace();
 		}
 	}
-	
-	/** @deprecated */
-	public void startAsyncTasks() {
-	}
-
-	/** @deprecated */
-	void waitAsyncTasks() {
-	}
 
 	public void stopLoadTasks() {
-		//System.out.println("STOP");
 		if(t0 != null) t0.doInterrupt();
 		if(t1 != null) t1.doInterrupt();
 		if(t2 != null) t2.doInterrupt();
-		synchronized(loadLock2) {
-			loadTasks = new ILoader[loadTasks.length];
+		synchronized(loadTasks) {
+			for(int i = 0; i < loadTasks.length; i++) {
+				loadTasks[i] = null;
+			}
 			loadTasksIdx = 0;
+		}
+	}
+	
+	public void startLoadTasks() {
+		synchronized(loadLock1) {
+			loadLock1.notifyAll();
 		}
 	}
 	

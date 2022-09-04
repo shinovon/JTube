@@ -64,6 +64,7 @@ public class Settings implements Constants {
 	public static boolean searchBar = true;
 	public static boolean autoStart;
 	public static boolean fullScreen = true;
+	public static boolean renderPriority = true;
 
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -331,6 +332,8 @@ public class Settings implements Constants {
 					autoStart = j.getBoolean("autoStart");
 				if(j.has("fullScreen"))
 					fullScreen = j.getBoolean("fullScreen");
+				if(j.has("renderPriority"))
+					fullScreen = j.getBoolean("renderPriority");
 				return;
 			} catch (Exception e) {
 			}
@@ -370,6 +373,7 @@ public class Settings implements Constants {
 			j.put("searchBar", new Boolean(searchBar));
 			j.put("autoStart", new Boolean(autoStart));
 			j.put("fullScreen", new Boolean(fullScreen));
+			j.put("renderPriority", new Boolean(renderPriority));
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();

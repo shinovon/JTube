@@ -81,6 +81,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		} catch (Throwable e) {
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
+		App.inst.startLoadTasks();
 	}
 
 	private UIItem item(JSONObject j, int i) {

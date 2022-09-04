@@ -29,11 +29,9 @@ public class LoaderThread extends Thread {
 	private Object lock1;
 	private Object lock2;
 	private boolean interrupt;
-	private int i;
 
 	public LoaderThread(int priority, int i, App app) {
 		super("Loader-"+i);
-		this.i = i;
 		this.app = app;
 		this.lock1 = app.loadLock1;
 		this.lock2 = app.loadLock2;
@@ -49,23 +47,23 @@ public class LoaderThread extends Thread {
 				checkInterrupted();
 				ILoader l = null;
 				while(app.loadTasks[0] != null) {
-					synchronized(lock2) {
+					if(checkInterrupted()) break;
+					synchronized(app.loadTasks) {
 						l = app.loadTasks[0];
 						if(l == null) break;
 						System.arraycopy(app.loadTasks, 1, app.loadTasks, 0, app.loadTasks.length - 1);
 						app.loadTasks[app.loadTasks.length - 1] = null;
 						app.loadTasksIdx--;
 					}
-					if(checkInterrupted()) break;
 					try {
-						System.out.println("Loader-" + i + ": LOADING " + l + "...");
 						l.load();
 					} catch (Exception e) {
-						e.printStackTrace();
 					}
 					Thread.sleep(1);
 				}
-				System.out.println("Loader-" + i + ": DONE");
+				synchronized(lock2) {
+					lock2.notify();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,10 +78,6 @@ public class LoaderThread extends Thread {
 	boolean checkInterrupted() {
 		if(interrupt) {
 			interrupt = false;
-			synchronized(lock2) {
-				lock2.notifyAll();
-			}
-			System.out.println("Loader-" + i + ": INTERRUPT SUCCESS");
 			interruptSuccess = true;
 			return true;
 		}
@@ -91,7 +85,6 @@ public class LoaderThread extends Thread {
 	}
 
 	public void doInterrupt() {
-		System.out.println("Loader-" + i + ": INTERRUPT REQUEST");
 		interruptSuccess = false;
 		interrupt = true;
 	}
