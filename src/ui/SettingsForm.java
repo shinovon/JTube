@@ -128,7 +128,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		videoLabel.setFont(titleFont);
 		StringItem uiLabel = new StringItem(null, " " + Locale.s(SET_Appearance) + EOL);
 		uiLabel.setFont(titleFont);
-		StringItem netLabel = new StringItem(null, " " + Locale.s(SET_Network) + EOL);
+		StringItem netLabel = new StringItem(null, EOL + " " + Locale.s(SET_Network) + EOL);
 		netLabel.setFont(titleFont);
 		StringItem miscLabel = new StringItem(null, " " + Locale.s(SET_OtherSettings) + EOL);
 		miscLabel.setFont(titleFont);
@@ -202,7 +202,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		debugChoice.setSelectedIndex(1, Settings.renderDebug);
 		debugChoice.setSelectedIndex(2, Settings.asyncLoading);
 		debugChoice.setSelectedIndex(3, Settings.fastScrolling);
-		debugChoice.setSelectedIndex(4, Settings.renderPriority);
 		miscChoice.setSelectedIndex(0, Settings.rememberSearch);
 		miscChoice.setSelectedIndex(1, Settings.rmsPreviews);
 		try {
@@ -278,7 +277,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.renderDebug = debugChoice.isSelected(1);
 			Settings.asyncLoading = debugChoice.isSelected(2);
 			Settings.fastScrolling = debugChoice.isSelected(3);
-			Settings.renderPriority = debugChoice.isSelected(4);
 			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.saveConfig();
 		} catch (Exception e) {

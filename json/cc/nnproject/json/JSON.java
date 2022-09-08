@@ -321,11 +321,11 @@ public final class JSON {
 	public static Double getDouble(Object o) throws JSONException {
 		try {
 			if (o instanceof Short)
-				return new Double(((Short)o).shortValue());
+				return new Double((double) ((Short)o).shortValue());
 			else if (o instanceof Integer)
-				return new Double(((Integer)o).doubleValue());
+				return new Double((double) ((Integer)o).intValue());
 			else if (o instanceof Long)
-				return new Double(((Long)o).doubleValue());
+				return new Double((double) ((Long)o).longValue());
 			else if (o instanceof Double)
 				return (Double) o;
 			else if (o instanceof String)
@@ -338,15 +338,15 @@ public final class JSON {
 	public static Long getLong(Object o) throws JSONException {
 		try {
 			if (o instanceof Short)
-				return new Long(((Short)o).shortValue());
+				return new Long((long) ((Short)o).shortValue());
 			else if (o instanceof Integer)
-				return new Long(((Integer)o).longValue());
+				return new Long((long) ((Integer)o).longValue());
 			else if (o instanceof Long)
 				return (Long) o;
 			else if (o instanceof Double)
 				return new Long(((Double)o).longValue());
 			else if (o instanceof String)
-				return new Long(Long.parseLong((String) o));
+				return new Long((long) Long.parseLong((String) o));
 		} catch (Throwable e) {
 		}
 		throw new JSONException("Value cast failed: " + o);

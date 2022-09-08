@@ -127,8 +127,26 @@ public class PlatformUtils {
 	}
 
 	public static boolean isS40() {
-		if(isS40 == 0)
-			isS40 = (isNotS60() && platform.startsWith("Nokia") && (startMemory == _2MB || startMemory == _1MB)) ? 1 : -1;
+		if(isS40 == 0) {
+			boolean b = false;
+			if(!isSymbian9() || !platform.startsWith("Nokia")) {
+				int i;
+				if((i = platform.indexOf('.')) != -1 && i != platform.length() - 1 && platform.indexOf('.', i+1) == -1) {
+					String p = System.getProperty("fileconn.dir.private");
+					if(p != null) {
+						if(p.indexOf("/private/") == -1) {
+							b = false;
+						} else {
+							b = true;
+						}
+					} else {
+						b = true;
+					}
+				}
+			}
+			isS40 = b ? -1 : 1;
+			return b;
+		}
 		return isS40 == 1;
 	}
 	
@@ -228,7 +246,11 @@ public class PlatformUtils {
 	}
 
 	public static boolean isSonyEricsson() {
-		return platform != null && platform.startsWith("SonyEricsson");
+		return System.getProperty("com.sonyericsson.java.platform") != null || (platform != null && platform.toLowerCase().startsWith("sonyericsson"));
+	}
+
+	public static boolean isWTK() {
+		return platform != null && (platform.startsWith("wtk") || platform.endsWith("wtk"));
 	}
 
 }

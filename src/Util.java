@@ -32,6 +32,7 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Image;
 
+import cc.nnproject.utils.PlatformUtils;
 import ui.TestCanvas;
 
 public class Util implements Constants {
@@ -49,6 +50,9 @@ public class Util implements Constants {
 		} catch (Throwable t) {
 			buffer_size = 1024;
 		}
+		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
+			charset = "UTF8";
+		}
 		String s = System.getProperty("microedition.encoding");
 		if(s != null) {
 			alt_charset = s;
@@ -60,7 +64,9 @@ public class Util implements Constants {
 			if(tmp.charAt(0) == 'в') test = true;
 		} catch (Throwable e) {
 		}
-		if(!test) charset = alt_charset;
+		if(!test) {
+			charset = alt_charset;
+		}
 	} 
 
 	public static byte[] get(String url) throws IOException {
@@ -79,6 +85,7 @@ public class Util implements Constants {
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
 			if(charset != null) {
+				// this doesn't work
 				hc.setRequestProperty("accept-charset", charset.toLowerCase());
 			}
 			String locale = Locale.s(Locale.ISOLanguageCode);
@@ -141,8 +148,8 @@ public class Util implements Constants {
 		try {
 			return new String(b, charset);
 		} catch (Throwable e) {
-			charset = alt_charset;
-			return new String(b);
+			e.printStackTrace();
+			return new String(b, charset = alt_charset);
 		}
 	}
 	
