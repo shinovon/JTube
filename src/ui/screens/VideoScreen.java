@@ -28,11 +28,12 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
 import App;
+import Loader;
 import Errors;
-import ui.Commands;
 import Locale;
 import Settings;
 import ui.AppUI;
+import ui.Commands;
 import ui.UIScreen;
 import ui.IModelScreen;
 import models.VideoModel;
@@ -96,7 +97,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		super.show();
 		if(!shown) {
 			shown = true;
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			new Thread(this).start();
 		}
 		addCommand(backCmd);

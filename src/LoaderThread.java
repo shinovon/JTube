@@ -25,16 +25,14 @@ SOFTWARE.
 public class LoaderThread extends Thread {
 	
 	private boolean interruptSuccess;
-	private App app;
 	private Object lock1;
 	private Object lock2;
 	private boolean interrupt;
 
-	public LoaderThread(int priority, int i, App app) {
+	public LoaderThread(int priority, int i) {
 		super("Loader-"+i);
-		this.app = app;
-		this.lock1 = app.loadLock1;
-		this.lock2 = app.loadLock2;
+		this.lock1 = Loader.lock1;
+		this.lock2 = Loader.lock2;
 		setPriority(priority);
 	}
 	
@@ -46,14 +44,14 @@ public class LoaderThread extends Thread {
 				}
 				checkInterrupted();
 				ILoader l = null;
-				while(app.loadTasks[0] != null) {
+				while(Loader.tasks[0] != null) {
 					if(checkInterrupted()) break;
-					synchronized(app.loadTasks) {
-						l = app.loadTasks[0];
+					synchronized(Loader.tasks) {
+						l = Loader.tasks[0];
 						if(l == null) break;
-						System.arraycopy(app.loadTasks, 1, app.loadTasks, 0, app.loadTasks.length - 1);
-						app.loadTasks[app.loadTasks.length - 1] = null;
-						app.loadTasksIdx--;
+						System.arraycopy(Loader.tasks, 1, Loader.tasks, 0, Loader.tasks.length - 1);
+						Loader.tasks[Loader.tasks.length - 1] = null;
+						Loader.tasksIdx--;
 					}
 					try {
 						l.load();

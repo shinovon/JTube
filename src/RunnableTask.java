@@ -22,6 +22,12 @@ SOFTWARE.
 import ui.AppUI;
 
 public class RunnableTask implements Runnable {
+
+	public static final int ID = 1;
+	public static final int SEARCH = 2;
+	public static final int REFRESH = 3;
+	public static final int SWITCH = 4;
+	
 	String s;
 	int i;
 	

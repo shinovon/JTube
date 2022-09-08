@@ -21,7 +21,7 @@ SOFTWARE.
 */
 package ui.screens;
 
-import App;
+import Loader;
 import Settings;
 import ui.items.VideoItem;
 
@@ -37,11 +37,11 @@ public class MainScreen extends NavigationScreen {
 			wasHidden = false;
 			if(Settings.videoPreviews) {
 				// resume loading previews
-				App.inst.stopLoadTasks();
+				Loader.stop();
 				for(int i = 0; i < items.size(); i++) {
 					Object o = items.elementAt(i);
 					if(o instanceof VideoItem) {
-						App.inst.addLoadTask(((VideoItem)o).getVideo());
+						Loader.add(((VideoItem)o).getVideo());
 					}
 				}
 			}
@@ -50,6 +50,7 @@ public class MainScreen extends NavigationScreen {
 	
 	protected void hide() {
 		super.hide();
+		Loader.stop();
 		if(Settings.rmsPreviews) {
 			for(int i = 0; i < items.size(); i++) {
 				Object o = items.elementAt(i);

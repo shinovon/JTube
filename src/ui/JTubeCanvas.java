@@ -65,7 +65,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		Graphics g = getGraphics();
 		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
-		UIScreen s = ui.getCurrentScreen();
+		UIScreen s = ui.current;
 		if(s != null) {
 			int h = height;
 			if(!ui.keyInput && ui.scrolling && !draggedScrollbar) {
@@ -277,6 +277,18 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 
 	private void needRepaint() {
 		ui.repaint(false);
+	}
+	
+	public void hideNotify() {
+		if(ui.current != null) {
+			ui.current.hide();
+		}
+	}
+	
+	public void showNotify() {
+		if(ui.current != null) {
+			ui.current.show();
+		}
 	}
 
 }

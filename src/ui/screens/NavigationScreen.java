@@ -34,6 +34,7 @@ import javax.microedition.lcdui.TextField;
 
 import App;
 import Util;
+import Loader;
 import cc.nnproject.utils.PlatformUtils;
 import Locale;
 import Settings;
@@ -532,7 +533,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	protected void back() {
 		AppUI.loadingState = false;
-		App.inst.stopLoadTasks();
+		Loader.stop();
 		if(parent != null) {
 			ui.setScreen(parent);
 		} else {
@@ -547,14 +548,14 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			openSearchTextBox();
 			break;
 		case 0:
-			App.inst.schedule(new RunnableTask(3));
+			new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
 			break;
 		case 1:
 			menuOptions[1] = Locale.s(Settings.startScreen == 0 ? CMD_SwitchToTrends : CMD_SwitchToPopular);
-			App.inst.schedule(new RunnableTask(4));
+			new Thread(new RunnableTask(RunnableTask.SWITCH)).start();
 			break;
 		case 2:
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			TextBox t = new TextBox("", "", 256, TextField.ANY);
 			t.setCommandListener(this);
 			t.setTitle("Video URL or ID");
@@ -577,7 +578,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 
 	protected void search(String s) {
-		App.inst.schedule(new RunnableTask(s, 2));
+		new Thread(new RunnableTask(s, RunnableTask.SEARCH)).start();
 	}
 
 	protected void openSearchTextBox() {
@@ -616,7 +617,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	public void commandAction(Command c, Displayable d) {
 		if(c == goCmd && d instanceof TextBox) {
-			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 1));
+			new Thread(new RunnableTask(((TextBox) d).getString(), RunnableTask.ID)).start();
 			return;
 		}
 		if(c == textOkCmd && d instanceof TextBox) {

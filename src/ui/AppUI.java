@@ -36,6 +36,7 @@ import javax.microedition.rms.RecordStore;
 
 import App;
 import Util;
+import Loader;
 import Errors;
 import Locale;
 import Settings;
@@ -82,7 +83,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	private static JTubeCanvas canv;
 	private static int scrollBarWidth;
-	private UIScreen current;
+	protected UIScreen current;
 
 	private Object repaintLock = new Object();
 	private Object repaintResLock = new Object();
@@ -104,9 +105,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private List optionsList;
 	
 	public void run() {
-		if(!Settings.renderPriority) {
-			repaintThread.setPriority(5);
-		}
 		boolean wasScrolling = false;
 		while(App.midlet.running) {
 			try {
@@ -276,6 +274,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		inst = this;
 		canv = new JTubeCanvas(this);
 		resetFullScreenMode();
+		if(Settings.renderPriority != 0)
+			repaintThread.setPriority(5 + Settings.renderPriority);
+		//if(!Settings.renderPriority) {
+		//	repaintThread.setPriority(5);
+		//}
 		repaintThread.start();
 		try {
 			DirectFontUtil.init();
@@ -331,7 +334,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (Exception e) {
 			App.error(this, Errors.AppUI_load, e);
 		}
-		app.startLoadTasks();
+		Loader.start();
 		Util.gc();
 		loadingState = false;
 		repaint(false);
@@ -348,7 +351,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void search(String q) {
-		app.stopLoadTasks();
+		Loader.stop();
 		loadingState = true;
 		searchScr = new SearchScreen(q, mainScr);
 		display(null);
@@ -373,7 +376,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (Exception e) {
 			App.error(this, Errors.AppUI_search, e);
 		}
-		app.startLoadTasks();
+		Loader.start();
 		Util.gc();
 		loadingState = false;
 		repaint(false);
@@ -386,20 +389,20 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(Settings.videoPreviews) app.addLoadTask(v);
+			if(Settings.videoPreviews) Loader.add(v);
 			return v.makeListItem();
 		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
 			if(search) v.setFromSearch();
-			if(Settings.videoPreviews) app.addLoadTask(v);
+			if(Settings.videoPreviews) Loader.add(v);
 			return v.makeListItem();
 		}
 		if(Settings.searchChannels && type.equals("channel")) {
 			ChannelModel c = new ChannelModel(j);
 			if(search) c.setFromSearch();
-			if(Settings.videoPreviews) app.addLoadTask(c);
+			if(Settings.videoPreviews) Loader.add(c);
 			return c.makeListItem();
 		}
 		if(Settings.searchPlaylists && type.equals("playlist")) {
@@ -440,7 +443,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void refresh() {
 		try {
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			display(null);
 			mainScr.clear();
 			if(Settings.startScreen == 0) {
@@ -461,7 +464,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void switchMain() {
 		try {
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			mainScr.scroll = 0;
 			mainScr.clear();
 			display(null);
@@ -487,7 +490,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				case 0:
 				{
 					// Search
-					App.inst.stopLoadTasks();
+					Loader.stop();
 					if(searchScr != null) {
 						disposeSearchPage();
 					}
@@ -502,19 +505,21 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				case 1:
 				{
 					// Refresh
-					app.schedule(new RunnableTask(3));
+					Loader.stop();
+					new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
 					break;
 				}
 				case 2:
 				{
 					// Switch
-					app.schedule(new RunnableTask(4));
+					Loader.stop();
+					new Thread(new RunnableTask(RunnableTask.SWITCH)).start();
 					break;
 				}
 				case 3:
 				{
 					// Open by ID
-					app.stopLoadTasks();
+					Loader.stop();
 					TextBox t = new TextBox("", "", 256, TextField.ANY);
 					t.setCommandListener(this);
 					t.setTitle("Video URL or ID");
@@ -548,11 +553,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return;
 		}
 		if(c == searchOkCmd && d instanceof TextBox) {
-			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 2));
+			Loader.stop();
+			new Thread(new RunnableTask(((TextBox) d).getString(), RunnableTask.SEARCH)).start();
 			return;
 		}
 		if(c == goCmd && d instanceof TextBox) {
-			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 1));
+			Loader.stop();
+			new Thread(new RunnableTask(((TextBox) d).getString(), RunnableTask.ID)).start();
 			return;
 		}
 		if(this.current != null && current instanceof CommandListener) {
@@ -604,7 +611,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void open(AbstractModel model, UIScreen formContainer) {
-		App app = App.inst;
 		AppUI ui = inst;
 		if(current instanceof ChannelScreen && model instanceof ChannelModel
 			&& ((ChannelModel)model).getAuthorId().equals(((ChannelScreen)current).getChannel().getAuthorId())) {
@@ -629,7 +635,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(ui.videoScr != null) {
 			disposeVideoPage();
 		}
-		app.stopLoadTasks();
+		Loader.stop();
 		IModelScreen scr = model.makeScreen();
 		scr.setContainerScreen(formContainer);
 		display(null);

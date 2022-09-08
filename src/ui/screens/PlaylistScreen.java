@@ -23,6 +23,7 @@ package ui.screens;
 
 import App;
 import Util;
+import Loader;
 import Errors;
 import Settings;
 import Constants;
@@ -56,7 +57,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		super.show();
 		if(!shown) {
 			shown = true;
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			new Thread(this).start();
 		}
 	}
@@ -81,7 +82,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		} catch (Throwable e) {
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
-		App.inst.startLoadTasks();
+		Loader.start();
 	}
 
 	private UIItem item(JSONObject j, int i) {
@@ -89,7 +90,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		v.setIndex(i);
 		v.setContainerScreen(this);
 		if(Settings.videoPreviews && i < 20) {
-			App.inst.addLoadTask(v);
+			Loader.add(v);
 		}
 		videos[i] = v;
 		return v.makeListItem();

@@ -27,6 +27,7 @@ import javax.microedition.lcdui.Image;
 
 import App;
 import Util;
+import Loader;
 import Records;
 import Settings;
 import Constants;
@@ -215,7 +216,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		} catch (Exception e) {
 		} catch (OutOfMemoryError e) {
 			Util.gc();
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			App.warn(this, "Not enough memory to load video previews!");
 		}
 	}

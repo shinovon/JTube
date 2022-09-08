@@ -27,6 +27,7 @@ import javax.microedition.lcdui.TextField;
 
 import App;
 import Util;
+import Loader;
 import Errors;
 import Locale;
 import Settings;
@@ -79,7 +80,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 		try {
-			App.inst.stopLoadTasks();
+			Loader.stop();
 			JSONArray j = (JSONArray) App.invApi("channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
@@ -95,12 +96,12 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_latestVideos, e);
 		}
-		App.inst.startLoadTasks();
+		Loader.start();
 	}
 
 	protected void search() {
 		disposeSearchForm();
-		App.inst.stopLoadTasks();
+		Loader.stop();
 		TextBox t = new TextBox("", "", 256, TextField.ANY);
 		t.setCommandListener(this);
 		t.setTitle(Locale.s(CMD_Search));
@@ -113,7 +114,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		clear();
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
-		App.inst.stopLoadTasks();
+		Loader.stop();
 		try {
 			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
 			int l = j.size();
@@ -126,7 +127,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		App.inst.startLoadTasks();
+		Loader.start();
 	}
 
 	protected void show() {
@@ -157,7 +158,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		clear();
 		add(channelItem);
 		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
-		App.inst.stopLoadTasks();
+		Loader.stop();
 		try {
 			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
@@ -172,12 +173,12 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		App.inst.startLoadTasks();
+		Loader.start();
 	}
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
 		VideoModel v = new VideoModel(j, this);
-		if(Settings.videoPreviews) App.inst.addLoadTask(v);
+		if(Settings.videoPreviews) Loader.add(v);
 		return v.makeListItem();
 	}
 

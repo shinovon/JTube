@@ -37,7 +37,6 @@ import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
 
 import ui.AppUI;
-import models.ILoader;
 import cc.nnproject.json.JSON;
 import cc.nnproject.ytapp.App2;
 import midletintegration.MIDletIntegration;
@@ -52,15 +51,6 @@ public class App implements Constants {
 	public static App inst;
 	public static App2 midlet;
 	private AppUI ui;
-	
-	private LoaderThread t0;
-	private LoaderThread t1;
-	private LoaderThread t2;
-	Object loadLock1 = new Object();
-	Object loadLock2 = new Object();
-	ILoader[] loadTasks = new ILoader[32];
-	int loadTasksIdx;
-	
 	
 	private Runnable[] queuedTasks = new Runnable[30];
 	private int queuedTasksIdx;
@@ -177,7 +167,7 @@ public class App implements Constants {
 		setLoadingState("Testing screen size");
 		Util.testCanvas();
 		setLoadingState("Initializing tasks thread");
-		tasksThread.setPriority(4);
+		tasksThread.setPriority(3);
 		tasksThread.start();
 		setLoadingState("Loading config");
 		Settings.loadConfig();
@@ -189,18 +179,7 @@ public class App implements Constants {
 		if(Settings.region.toLowerCase().equals("en")) {
 			Settings.region = "US";
 		}
-		int loadPriority = Settings.renderPriority ? 5 : 6;
-		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
-			t0 = new LoaderThread(loadPriority, 0, this);
-			t1 = new LoaderThread(loadPriority, 1, this);
-			t2 = new LoaderThread(loadPriority, 2, this);
-			t0.start();
-			t1.start();
-			t2.start();
-		} else {
-			t0 = new LoaderThread(loadPriority, 0, this);
-			t0.start();
-		}
+		Loader.init();
 		if(!checkStartArguments()) {
 			ui.loadMain();
 		}
@@ -497,7 +476,7 @@ public class App implements Constants {
 	}
 	
 	public static void watch(final String id) {
-		inst.stopLoadTasks();
+		Loader.stop();
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
@@ -554,38 +533,6 @@ public class App implements Constants {
 		} catch (Exception e) {
 			e.printStackTrace();
 			error(null, Errors.App_watch, e);
-		}
-	}
-	
-	public void addLoadTask(ILoader v) {
-		try {
-			if(v == null) throw new NullPointerException("l");
-			loadTasks[loadTasksIdx++] = v;
-			if(loadTasksIdx >= loadTasks.length - 1) {
-				ILoader[] tmp = loadTasks;
-				loadTasks = new ILoader[tmp.length + 16];
-				System.arraycopy(tmp, 0, loadTasks, 0, tmp.length);
-			}
-		} catch (Exception e) {
-			 e.printStackTrace();
-		}
-	}
-
-	public void stopLoadTasks() {
-		if(t0 != null) t0.doInterrupt();
-		if(t1 != null) t1.doInterrupt();
-		if(t2 != null) t2.doInterrupt();
-		synchronized(loadTasks) {
-			for(int i = 0; i < loadTasks.length; i++) {
-				loadTasks[i] = null;
-			}
-			loadTasksIdx = 0;
-		}
-	}
-	
-	public void startLoadTasks() {
-		synchronized(loadLock1) {
-			loadLock1.notifyAll();
 		}
 	}
 	
