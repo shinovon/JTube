@@ -50,7 +50,7 @@ public class Util implements Constants {
 		} catch (Throwable t) {
 			buffer_size = 1024;
 		}
-		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
+		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
 			charset = "UTF8";
 		}
 		String s = System.getProperty("microedition.encoding");

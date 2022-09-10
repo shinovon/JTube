@@ -253,4 +253,8 @@ public class PlatformUtils {
 		return platform != null && (platform.startsWith("wtk") || platform.endsWith("wtk"));
 	}
 
+	public static boolean isJ2ME() {
+		return "j2me".equals(platform);
+	}
+
 }

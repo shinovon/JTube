@@ -71,8 +71,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		UIScreen.ui = this;
 		UIItem.ui = this;
 	}
-
-	private App app = App.inst;
 	
 	public MainScreen mainScr;
 	public SearchScreen searchScr;
