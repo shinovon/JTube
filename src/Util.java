@@ -50,14 +50,20 @@ public class Util implements Constants {
 		} catch (Throwable t) {
 			buffer_size = 1024;
 		}
-		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
-			charset = "UTF8";
-		}
 		String s = System.getProperty("microedition.encoding");
 		if(s != null) {
 			alt_charset = s;
 		}
 		// Test UTF-8 support
+		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
+			try {
+				String tmp = new String("выф".getBytes("UTF8"), "UTF8");
+				if(tmp.charAt(0) == 'в') {
+					charset = "UTF8";
+				}
+			} catch (Throwable e) {
+			}
+		}
 		boolean test = false;
 		try {
 			String tmp = new String("выф".getBytes("UTF-8"), "UTF-8");
