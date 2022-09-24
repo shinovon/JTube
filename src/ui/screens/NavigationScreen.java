@@ -208,7 +208,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 	
 	public void paint(Graphics g, int w, int h) {
-		if(lastW != w) {
+		if(lastW != w || lastH != h) {
 			lastW = w;
 			lastH = h;
 			if(menuOptions != null) {
@@ -357,6 +357,29 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 		} else {
 			_paint(g, w, h);
+			if(menu && !AppUI.loadingState) {
+				int xx = (w-menuW)/2;
+				int yy = Math.max(0, (h-softBarHeight-menuH)/2);
+				g.setFont(mediumfont);
+				g.setColor(AppUI.getColor(COLOR_MAINBG));
+				int ih = 8 + mediumfontheight;
+				if(yy+ih*(menuSelectedIndex+1) > h-softBarHeight) {
+					for(int i = 0; i < menuSelectedIndex+1; i++) {
+						if(yy+ih*(i+1) > h-softBarHeight) {
+							yy-=ih;
+						}
+					}
+				}
+				g.fillRect(xx, yy, menuW, menuH);
+				for(int i = 0; i < menuOptions.length; i++) {
+					g.setColor(AppUI.getColor(COLOR_MAINFG));
+					if(menuSelectedIndex == i) {
+						g.fillRect(xx, yy, 2, ih);
+					}
+					g.drawString(menuOptions[i], xx + 4, yy+4, 0);
+					yy += ih;
+				}
+			}
 		}
 	}
 	
@@ -641,6 +664,11 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(c == backCmd) {
+			if(menu) {
+				menu = false;
+				repaint();
+				return;
+			}
 			back();
 		}
 	}
