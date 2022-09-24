@@ -21,8 +21,6 @@ SOFTWARE.
 */
 package ui.screens;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
@@ -53,13 +51,17 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	public VideoScreen(VideoModel v) {
 		super(v.getTitle(), null);
 		this.video = v;
-		menuOptions = new String[] {
+		menuOptions = video.isFromPlaylist() ? new String[] {
 				Locale.s(CMD_Download),
 				Locale.s(CMD_ShowLink),
 				Locale.s(CMD_Settings),
 				Locale.s(CMD_OpenPlaylist),
 				Locale.s(CMD_Next),
 				Locale.s(CMD_Prev)
+		} : new String[] {
+				Locale.s(CMD_Download),
+				Locale.s(CMD_ShowLink),
+				Locale.s(CMD_Settings)
 		};
 	}
 
@@ -76,7 +78,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		title.setMaxLines(2);
 		title.setSkipScrolling(true);
 		add(title);
-		f = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;
+		f = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 20, Font.SIZE_SMALL) : smallfont;
 		LabelItem views = new LabelItem(Locale.views(video.getViewCount()).concat(" • ").concat(Locale.date(video.getPublishedText())), f, AppUI.getColor(COLOR_GRAYTEXT));
 		views.setMarginTop(3);
 		views.setMarginWidth(9);
@@ -100,6 +102,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			Loader.stop();
 			new Thread(this).start();
 		}
+		/*
 		addCommand(backCmd);
 		addCommand(watchCmd);
 		addCommand(showLinkCmd);
@@ -109,6 +112,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			addCommand(prevCmd);
 			addCommand(nextCmd);
 		}
+		*/
 	}
 
 	public void load() {
@@ -129,14 +133,18 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		}
 		AppUI.loadingState = false;
 	}
-
+/*
 	public void commandAction(Command c, Displayable d) {
 		if(d instanceof TextBox && c == backCmd) {
 			ui.display(null);
 			return;
 		}
+		if(c == watchCmd) {
+			App.watch(video.getVideoId());
+			return;
+		}
 		if(c == downloadCmd) {
-			App.download(video.getVideoId(), video.getTitle());
+			download();
 			return;
 		}
 		if(parent != null && video != null && video.isFromPlaylist()) {
@@ -179,10 +187,9 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			back();
 			return;
 		}
-		
 		super.commandAction(c, d);
 	}
-
+*/
 	protected void menuAction(int action) {
 		switch(action) {
 		case 0:

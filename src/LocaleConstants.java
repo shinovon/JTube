@@ -121,5 +121,6 @@ public interface LocaleConstants {
 	public static final int BTN_Share = 110;
 	public static final int SET_ChooseLanguage = 111;
 	public static final int SET_FullScreenMode = 112;
+	public static final int CMD_FuncMenu = 113;
 
 }

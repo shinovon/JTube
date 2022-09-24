@@ -55,9 +55,10 @@ public class Util implements Constants {
 			alt_charset = s;
 		}
 		// Test UTF-8 support
+		String testWord = "выф";
 		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
 			try {
-				String tmp = new String("выф".getBytes("UTF8"), "UTF8");
+				String tmp = new String(testWord.getBytes("UTF8"), "UTF8");
 				if(tmp.charAt(0) == 'в') {
 					charset = "UTF8";
 				}
@@ -66,7 +67,7 @@ public class Util implements Constants {
 		}
 		boolean test = false;
 		try {
-			String tmp = new String("выф".getBytes("UTF-8"), "UTF-8");
+			String tmp = new String(testWord.getBytes(charset), charset);
 			if(tmp.charAt(0) == 'в') test = true;
 		} catch (Throwable e) {
 		}

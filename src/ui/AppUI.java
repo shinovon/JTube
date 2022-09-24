@@ -787,12 +787,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		return Settings.fastScrolling;
 	}
 
-	public void addOptionCommands() {
-		if(!Settings.fullScreen) {
-			addCommand(optsCmd);
-		}
-	}
-
 	public void openVideo(String id) {
 		try {
 			open(new VideoModel(id));

@@ -244,7 +244,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		lastY = y;
 	}
 	
-	public void keyPressed(int i) {
+	public void keyPressed(int i) { 
 		UIScreen s = ui.getCurrentScreen();
 		if(s != null) {
 			s.keyPress(i);

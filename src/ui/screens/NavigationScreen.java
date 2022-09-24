@@ -112,6 +112,11 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					Locale.s(CMD_About),
 					Locale.s(CMD_Exit)
 			};
+		} else {
+			menuOptions = new String[] {
+					Locale.s(CMD_Settings),
+					Locale.s(CMD_FuncMenu)
+			};
 		}
 	}
 	
@@ -143,7 +148,11 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 		} catch (Exception e) {
 		}
-		addOk = !topBar && ((PlatformUtils.isS603rd() && App.height > App.width) || (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && !PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator && !PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
+		addOk = !topBar &&
+				((PlatformUtils.isS603rd() && App.height > App.width) ||
+						(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() &&
+								!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
+								!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
 	}
 
 	protected void hide() {
@@ -175,8 +184,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		ui.removeCommands();
 		if(!Settings.fullScreen) {
-			ui.addOptionCommands();
-			ui.addCommand(this instanceof MainScreen ? exitCmd : backCmd);
+			if(menuOptions == null) {
+				ui.addCommand(menuCmd);
+				ui.addCommand(backCmd);
+			} else if(this instanceof MainScreen) {
+				ui.addCommand(exitCmd);
+				ui.addCommand(menuCmd);
+			} else {
+				ui.addCommand(backCmd);
+				ui.addCommand(optsCmd);
+			}
 			if(addOk) {
 				ui.addCommand(okCmd);
 			}
@@ -542,37 +559,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 
 	protected void menuAction(int action) {
-		if(!topBar) action--;
 		switch(action) {
-		case -1:
-			openSearchTextBox();
-			break;
 		case 0:
-			new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
-			break;
-		case 1:
-			menuOptions[1] = Locale.s(Settings.startScreen == 0 ? CMD_SwitchToTrends : CMD_SwitchToPopular);
-			new Thread(new RunnableTask(RunnableTask.SWITCH)).start();
-			break;
-		case 2:
-			Loader.stop();
-			TextBox t = new TextBox("", "", 256, TextField.ANY);
-			t.setCommandListener(this);
-			t.setTitle("Video URL or ID");
-			t.addCommand(goCmd);
-			t.addCommand(cancelCmd);
-			ui.display(t);
-			break;
-		case 3:
 			ui.showSettings();
 			break;
-		case 4:
-			ui.showAbout(this);
-			break;
-		case 5:
-			if(this instanceof MainScreen) {
-				ui.exit();
-			}
+		case 1:
+			ui.showOptions();
 			break;
 		}
 	}
@@ -633,6 +625,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(c == optsCmd) {
+			leftSoft();
+			return;
+		}
+		if(c == menuCmd) {
 			ui.showOptions();
 			return;
 		}

@@ -282,7 +282,7 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Use iteroni proxy for playback";
 			case CMD_Func:
-				return "Menu";
+				return "Options";
 			case CMD_Refresh:
 				return "Refresh";
 			case SET_Amoled:
@@ -305,6 +305,8 @@ public class Locale implements LocaleConstants {
 				return "Choose language";
 			case SET_FullScreenMode:
 				return "Full-Screen mode";
+			case CMD_FuncMenu:
+				return "Menu";
 			}
 		}
 		case 1: {
@@ -470,7 +472,7 @@ public class Locale implements LocaleConstants {
 			case SET_IteroniProxy:
 				return "Прокси iteroni для проигрывания";
 			case CMD_Func:
-				return "Меню";
+				return "Функции";
 			case CMD_Refresh:
 				return "Обновить";
 			case SET_Amoled:
@@ -493,6 +495,8 @@ public class Locale implements LocaleConstants {
 				return "Выбрать язык";
 			case SET_FullScreenMode:
 				return "Полноэкранный режим";
+			case CMD_FuncMenu:
+				return "Меню";
 			}
 		}
 		}

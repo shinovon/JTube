@@ -21,7 +21,12 @@ SOFTWARE.
 */
 package ui.screens;
 
+import javax.microedition.lcdui.TextBox;
+import javax.microedition.lcdui.TextField;
+
 import Loader;
+import Locale;
+import RunnableTask;
 import Settings;
 import ui.items.VideoItem;
 
@@ -44,6 +49,7 @@ public class MainScreen extends NavigationScreen {
 						Loader.add(((VideoItem)o).getVideo());
 					}
 				}
+				Loader.start();
 			}
 		}
 	}
@@ -58,6 +64,42 @@ public class MainScreen extends NavigationScreen {
 					((VideoItem)o).onHide();
 				}
 			}
+		}
+	}
+	
+	protected void menuAction(int action) {
+		if(!topBar) action--;
+		switch(action) {
+		case -1:
+			openSearchTextBox();
+			break;
+		case 0:
+			new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
+			break;
+		case 1:
+			menuOptions[1] = Locale.s(Settings.startScreen == 0 ? CMD_SwitchToTrends : CMD_SwitchToPopular);
+			new Thread(new RunnableTask(RunnableTask.SWITCH)).start();
+			break;
+		case 2:
+			Loader.stop();
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle("Video URL or ID");
+			t.addCommand(goCmd);
+			t.addCommand(cancelCmd);
+			ui.display(t);
+			break;
+		case 3:
+			ui.showSettings();
+			break;
+		case 4:
+			ui.showAbout(this);
+			break;
+		case 5:
+			if(this instanceof MainScreen) {
+				ui.exit();
+			}
+			break;
 		}
 	}
 /*
