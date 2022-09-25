@@ -640,7 +640,7 @@ public class App implements Constants {
 				return false;
 			}
 		} else if((s = (String) args.get("videoId")) != null && s.length() > 0) {
-			inst.ui.openChannel(s);
+			inst.ui.openVideo(s);
 			return true;
 		} else if((s = (String) args.get("channelId")) != null && s.length() > 0) {
 			inst.ui.openChannel(s);
