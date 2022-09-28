@@ -156,6 +156,7 @@ public class PlatformUtils {
 			boolean b = false;
 			if(platform.startsWith("SAMSUNG-GT-")) {
 				s2 = platform.substring("SAMSUNG-GT-".length());
+				if(s2.startsWith("S")) s2 = s2.substring(1);
 				b = s2.startsWith("538")
 								|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
 								|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
