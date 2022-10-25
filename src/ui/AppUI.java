@@ -104,11 +104,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void run() {
 		boolean wasScrolling = false;
-		while(App.midlet.running) {
-			try {
-				if(display.getCurrent() != canv) {
-					Thread.sleep(1);
-					continue;
+		try {
+			while(App.midlet.running) {
+				while(display.getCurrent() != canv) {
+					Thread.sleep(100);
 				}
 				if(!scrolling) { 
 					if(wasScrolling) {
@@ -128,9 +127,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 					}
 				}
 				waitRepaint();
-			} catch (InterruptedException e) {
-				return;
 			}
+		} catch (InterruptedException e) {
 		}
 	}
 
@@ -148,8 +146,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void repaint(boolean wait) {
-		if(display.getCurrent() != canv) return;
-		if(scrolling) return;
+		if(display.getCurrent() != canv || scrolling) return;
 		synchronized (repaintLock) {
 			repaintLock.notify();
 		}

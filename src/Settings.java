@@ -213,7 +213,7 @@ public class Settings implements Constants {
 						downloadDir = downloadDir.substring("file:///".length());
 					Settings.downloadDir = downloadDir;
 				}
-				watchMethod = PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()/*|| PlatformUtils.isS603rd()*/ ? 1 : 0;
+				watchMethod = PlatformUtils.isSymbian3Based()/* || PlatformUtils.isBada() || PlatformUtils.isS603rd()*/ ? 1 : 0;
 				searchBar = false;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {

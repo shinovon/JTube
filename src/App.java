@@ -297,7 +297,8 @@ public class App implements Constants {
 	public static byte[] getImageBytes(String s) throws IOException {
 		if(s.startsWith("//")) s = "http:" + s;
 		if(s.indexOf("ggpht.com") != -1) {
-			s = "/ggpht" + s.substring(s.indexOf("/ytc"));
+			if(s.indexOf("//") != -1) s = s.substring(s.indexOf("//") + 2);
+			s = "/ggpht" + s.substring(s.indexOf("/"));
 		}
 		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
 		return Util.get(s);

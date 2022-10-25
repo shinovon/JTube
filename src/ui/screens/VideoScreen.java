@@ -35,9 +35,11 @@ import ui.Commands;
 import ui.UIScreen;
 import ui.IModelScreen;
 import models.VideoModel;
+import ui.items.ChannelItem;
 import ui.items.DescriptionItem;
 import ui.items.LabelItem;
 import models.AbstractModel;
+import models.ChannelModel;
 import ui.items.LineSplitItem;
 import ui.items.VideoExtrasItem;
 import ui.nokia_extensions.DirectFontUtil;
@@ -45,6 +47,7 @@ import ui.nokia_extensions.DirectFontUtil;
 public class VideoScreen extends NavigationScreen implements IModelScreen, Runnable, Commands {
 
 	private VideoModel video;
+	private ChannelModel channel;
 	
 	private boolean shown;
 
@@ -52,15 +55,19 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		super(v.getTitle(), null);
 		this.video = v;
 		menuOptions = video.isFromPlaylist() ? new String[] {
+				Locale.s(CMD_Watch),
 				Locale.s(CMD_Download),
 				Locale.s(CMD_ShowLink),
+				Locale.s(CMD_ViewChannel),
 				Locale.s(CMD_Settings),
 				Locale.s(CMD_OpenPlaylist),
 				Locale.s(CMD_Next),
 				Locale.s(CMD_Prev)
 		} : new String[] {
+				Locale.s(CMD_Watch),
 				Locale.s(CMD_Download),
 				Locale.s(CMD_ShowLink),
+				Locale.s(CMD_ViewChannel),
 				Locale.s(CMD_Settings)
 		};
 	}
@@ -87,7 +94,9 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		views.setSkipScrolling(true);
 		add(views);
 		add(new LineSplitItem());
-		add(video.makeChannelItem());
+		ChannelItem c = video.makeChannelItem();
+		add(c);
+		channel = c.getChannel();
 		add(new VideoExtrasItem(this, video.getLikeCount()));
 		DescriptionItem d = new DescriptionItem(video.getDescription(), f);
 		add(d);
@@ -126,8 +135,6 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			}
 		} catch (NullPointerException e) {
 			// ignore
-		} catch (RuntimeException e) {
-			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.VideoForm_load, e);
 		}
@@ -193,20 +200,26 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	protected void menuAction(int action) {
 		switch(action) {
 		case 0:
-			download();
+			App.watch(video.getVideoId());
 			break;
 		case 1:
-			showLink();
+			download();
 			break;
 		case 2:
-			ui.showSettings();
+			showLink();
 			break;
 		case 3:
+			ui.open(channel);
+			break;
+		case 4:
+			ui.showSettings();
+			break;
+		case 5:
 			if(parent != null && video.isFromPlaylist()) {
 				ui.setScreen(parent);
 			}
 			break;
-		case 4:
+		case 6:
 			if(parent != null && video.isFromPlaylist()) {
 				PlaylistScreen p = (PlaylistScreen) parent;
 				int cur = video.getIndex();
@@ -223,7 +236,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 				dispose();
 			}
 			break;
-		case 5:
+		case 7:
 			if(parent != null && video.isFromPlaylist()) {
 				PlaylistScreen p = (PlaylistScreen) parent;
 				int cur = video.getIndex();

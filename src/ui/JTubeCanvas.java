@@ -46,7 +46,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private float scrollSlideSpeed;
 	private boolean scrollSlide;
 	private boolean controlBlock;
-	private boolean draggedScrollbar;
+	//private boolean draggedScrollbar;
 	private int flushTime;
 	
 	JTubeCanvas(AppUI ui) {
@@ -68,7 +68,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		UIScreen s = ui.current;
 		if(s != null) {
 			int h = height;
-			if(!ui.keyInput && ui.scrolling && !draggedScrollbar) {
+			if(!ui.keyInput && ui.scrolling/* && !draggedScrollbar*/) {
 				if(!scrollPreSlide && (releaseTime - pressTime) > 0) {
 					if (scrollSlide && Math.abs(scrollSlideSpeed) > 0.8F && (System.currentTimeMillis() - releaseTime) < scrollSlideMaxTime && s.scroll((int) scrollSlideSpeed)) {
 						float f = 0.967f;
@@ -109,7 +109,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	private void tap(int x, int y, int time) {
-		UIScreen s = ui.getCurrentScreen();
+		UIScreen s = ui.current;
 		if(s != null) s.tap(x, y, time);
 	}
 	
@@ -122,9 +122,10 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		draggedMuch = false;
 		scrollSlide = false;
 		scrollPreSlide = false;
-		draggedScrollbar = false;
-		UIScreen s = ui.getCurrentScreen();
+		//draggedScrollbar = false;
+		UIScreen s = ui.current;
 		if(s != null) {
+			/*
 			if(s.hasScrollBar()) {
 				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
 					s.setScrollBarY(y);
@@ -134,6 +135,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			if(!draggedScrollbar) {
 				s.press(x, y);
 			}
+			*/
 		}
 		needRepaint();
 	}
@@ -150,7 +152,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		int dy = y - pressY;
 		int ady = Math.abs(dy);
 		if(pressed) {
-			UIScreen s = ui.getCurrentScreen();
+			UIScreen s = ui.current;
 			/*
 			if(s != null && s.hasScrollBar()) {
 				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
@@ -159,27 +161,27 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 				}
 			}
 			*/
-			if(!draggedScrollbar) {
-				if(s != null) s.release(x, y);
-				if(draggedMuch) {
-					if(time < 200) {
-						scrollSlide = scrollPreSlide;
-						ui.scrolling = true;
-					} else {
-						scrollSlide = false;
-					}
+			//if(!draggedScrollbar) {
+			if(s != null) s.release(x, y);
+			if(draggedMuch) {
+				if(time < 200) {
+					scrollSlide = scrollPreSlide;
+					ui.scrolling = true;
 				} else {
-					if(dx <= 6 && ady <= 6) {
-						tap(x, y, time);
-					} else if(time < 200 && dx < 12) {
-						if(s != null) {
-							s.scroll(-dy);
-						}
-					}
+					scrollSlide = false;
 				}
 			} else {
-				ui.scrolling = false;
+				if(dx <= 6 && ady <= 6) {
+					tap(x, y, time);
+				} else if(time < 200 && dx < 12) {
+					if(s != null) {
+						s.scroll(-dy);
+					}
+				}
 			}
+			/*} else {
+				ui.scrolling = false;
+			}*/
 			scrollPreSlide = false;
 			pressed = false;
 		}
@@ -191,7 +193,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			needRepaint();
 			return;
 		}
-		UIScreen s = ui.getCurrentScreen();
+		UIScreen s = ui.current;
 		if(s != null && !s.blockScrolling()) {
 			/*
 			if(s.hasScrollBar()) {
@@ -214,7 +216,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			final int adX = Math.abs(dX);
 			final int adY = Math.abs(dY);
 			// if(draggedMuch) {
-			if(adY > 0 && adX < 16 && !draggedScrollbar) {
+			if(adY > 0 && adX < 16/* && !draggedScrollbar*/) {
 				float f1 = 8F;
 				float f2 = 2.5F;
 				scrollPreSlide = true;
@@ -245,7 +247,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void keyPressed(int i) { 
-		UIScreen s = ui.getCurrentScreen();
+		UIScreen s = ui.current;
 		if(s != null) {
 			s.keyPress(i);
 		}
@@ -253,7 +255,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void keyReleased(int i) {
-		UIScreen s = ui.getCurrentScreen();
+		UIScreen s = ui.current;
 		if(s != null) {
 			s.keyRelease(i);
 		}
@@ -261,7 +263,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void keyRepeated(int i) {
-		UIScreen s = ui.getCurrentScreen();
+		UIScreen s = ui.current;
 		if(s != null) {
 			s.keyRepeat(i);
 		}
@@ -272,7 +274,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		width = w;
 		height = h;
 		Util.testCanvas();
-		needRepaint();
+		if(ui != null) needRepaint();
 	}
 
 	private void needRepaint() {

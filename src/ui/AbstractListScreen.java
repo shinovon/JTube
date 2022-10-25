@@ -120,6 +120,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			g.fillRect(w-sw, sby, sw-2, sbh);
 		}
 		if(scrollTarget <= 0) {
+			scrollTimer = 0;
 			ui.scrolling = true;
 			if (Math.abs(scroll - scrollTarget) < 1) {
 				scroll = scrollTarget;
