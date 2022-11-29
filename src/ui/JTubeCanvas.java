@@ -25,6 +25,7 @@ import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
 
 import Util;
+import cc.nnproject.keyboard.Keyboard;
 import Settings;
 
 public class JTubeCanvas extends GameCanvas implements UIConstants {
@@ -48,6 +49,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private boolean controlBlock;
 	//private boolean draggedScrollbar;
 	private int flushTime;
+	private Keyboard keyboard;
 	
 	JTubeCanvas(AppUI ui) {
 		super(false);
@@ -91,7 +93,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			g.setFont(smallfont);
 			String ds = ui.repaintTime + " " + flushTime + " " + (ui.oddFrame ? "1" : "0") + " " + scrollSlideSpeed;
 			int fh = smallfontheight;
-			int ty = height - fh - 1;
+			int ty = height - fh - 1- 360;
 			g.setColor(0x0);
 			g.drawString(ds, 2, ty, 0);
 			g.drawString(ds, 0, ty, 0);
@@ -114,6 +116,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void pointerPressed(int x, int y) {
+		if(keyboard != null && keyboard.pointerPressed(x, y)) return;
 		ui.setTouchInputMode();
 		pressed = true;
 		lastX = pressX = x;
@@ -123,9 +126,9 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		scrollSlide = false;
 		scrollPreSlide = false;
 		//draggedScrollbar = false;
+		/*
 		UIScreen s = ui.current;
 		if(s != null) {
-			/*
 			if(s.hasScrollBar()) {
 				if(x > width - (AppUI.getScrollBarWidth() + 5)) {
 					s.setScrollBarY(y);
@@ -135,12 +138,13 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			if(!draggedScrollbar) {
 				s.press(x, y);
 			}
-			*/
 		}
+		*/
 		needRepaint();
 	}
 	
 	public void pointerReleased(int x, int y) {
+		if(keyboard != null && keyboard.pointerReleased(x, y)) return;
 		lastX = x;
 		lastY = y;
 		if(controlBlock) {
@@ -189,6 +193,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 
 	public void pointerDragged(int x, int y) {
+		if(keyboard != null && keyboard.pointerDragged(x, y)) return;
 		if(controlBlock) {
 			needRepaint();
 			return;
@@ -291,6 +296,14 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		if(ui.current != null) {
 			ui.current.show();
 		}
+	}
+
+	public void setKeyboard(Keyboard keyboard) {
+		this.keyboard = keyboard;
+	}
+
+	public Keyboard getKeyboard() {
+		return this.keyboard;
 	}
 
 }
