@@ -197,6 +197,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(debugChoice);
 		append(inputLabel);
 		append(keyboardChoice);
+		StringItem s = new StringItem(null, Locale.s(SET_j2mekeyboardSettings)+"\n");
+		s.setFont(Font.getFont(0, 0, 8));
+		append(s);
 		StringItem inputLangsBtn = new StringItem(null, Locale.s(SET_InputLanguages), StringItem.BUTTON);
 		inputLangsBtn.addCommand(inputLangsCmd);
 		inputLangsBtn.setDefaultCommand(inputLangsCmd);
@@ -404,12 +407,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				return;
 			}
 			if(d == inputLangsList) {
-				if(c != List.SELECT_COMMAND) {
+				if(c == backCmd) {
 					Vector v = new Vector();
 					for(int i = 0; i < Settings.supportedInputLanguages.length; i++) {
 						String s = Settings.supportedInputLanguages[i];
 						String l = s.substring(s.lastIndexOf('[')+1,s.lastIndexOf(']'));
-						if(langsList.isSelected(i)) {
+						if(inputLangsList.isSelected(i)) {
 							v.addElement(l);
 						}
 					}
@@ -488,10 +491,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				for(int i = 0; i < Settings.supportedInputLanguages.length; i++) {
 					String s = Settings.supportedInputLanguages[i];
 					String l = s.substring(s.lastIndexOf('[')+1,s.lastIndexOf(']'));
-					int x = langsList.append(s, null);
-					for(int j = 0; j < Settings.inputLanguages.length; i++) {
-						if(Settings.inputLanguages[i].equals(l)) {
-							langsList.setSelectedIndex(x, true);
+					int x = inputLangsList.append(s, null);
+					for(int j = 0; j < Settings.inputLanguages.length; j++) {
+						if(Settings.inputLanguages[j].equals(l)) {
+							inputLangsList.setSelectedIndex(x, true);
 							break;
 						}
 					}

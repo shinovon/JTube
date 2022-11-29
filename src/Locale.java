@@ -316,7 +316,9 @@ public class Locale implements LocaleConstants {
 			case SET_FullScreenInput:
 				return "Fullscreen input";
 			case SET_InputLanguages:
-				return "Input languages for j2mekeyboard";
+				return "Input languages";
+			case SET_j2mekeyboardSettings:
+				return "j2mekeyboard settings";
 			}
 		}
 		case 1: {
@@ -516,7 +518,9 @@ public class Locale implements LocaleConstants {
 			case SET_FullScreenInput:
 				return "Полноэкранный ввод";
 			case SET_InputLanguages:
-				return "Языки ввода j2mekeyboard";
+				return "Языки ввода";
+			case SET_j2mekeyboardSettings:
+				return "Настройки j2mekeyboard";
 			}
 		}
 		}
