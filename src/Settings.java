@@ -239,6 +239,9 @@ public class Settings implements Constants {
 						downloadBuffer = 4096;
 						rmsPreviews = true;
 					}
+					if(PlatformUtils.isS603rd()) {
+						httpStream = true;
+					}
 					rememberSearch = true;
 					searchChannels = true;
 					searchPlaylists = true;
