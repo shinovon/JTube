@@ -149,10 +149,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		} catch (Exception e) {
 		}
 		addOk = !topBar &&
-				((PlatformUtils.isS603rd() && App.height > App.width) ||
-						(PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() &&
-								!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
-								!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
+				((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() &&
+					!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
+					!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
 	}
 
 	protected void hide() {

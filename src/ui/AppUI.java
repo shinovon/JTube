@@ -288,11 +288,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void resetFullScreenMode() {
 		try {
 			if(Settings.fullScreen) {
-				canv.setCommandListener(null);
 				canv.setFullScreenMode(true);
+				canv.setCommandListener(null);
 			} else {
-				canv.setCommandListener(this);
 				canv.setFullScreenMode(false);
+				canv.setCommandListener(this);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
