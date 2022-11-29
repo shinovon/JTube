@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="json"/>
 	<classpathentry kind="src" path="res"/>
-	<classpathentry kind="src" path="MIDletIntegrationLibrary/src"/>
+	<classpathentry kind="src" path="lib/midletintegration/src"/>
+	<classpathentry kind="src" path="lib/json/src/main"/>
 	<classpathentry kind="con" path="org.elipse.mtj.JavaMEContainer/Nokia Symbian3 SDK v1.0 /SymbianDevice"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
