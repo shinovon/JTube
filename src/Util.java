@@ -122,7 +122,7 @@ public class Util implements Constants {
 					throw new IOException("Too many redirects!");
 				}
 			}
-			if(r >= 400 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
+			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
 			Thread.sleep(200);
 			int read;
