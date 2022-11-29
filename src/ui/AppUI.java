@@ -460,8 +460,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void switchMain() {
 		try {
 			Loader.stop();
-			mainScr.scroll = 0;
-			mainScr.clear();
+			if(mainScr != null) {
+				mainScr.scroll = 0;
+				mainScr.clear();
+			} else {
+				mainScr = new MainScreen();
+			}
 			display(null);
 			setScreen(mainScr);
 			if(Settings.startScreen == 0) {
