@@ -22,6 +22,7 @@ SOFTWARE.
 package ui;
 
 import java.util.Enumeration;
+import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -53,7 +54,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"360p", 
 			"720p", 
 			Locale.s(SET_VQ_AudioOnly),
-			"240p (" + Locale.s(SET_VQ_NoAudio) + ")" };
+			"240p (" + Locale.s(SET_VQ_NoAudio) + ")"
+			};
 	static final String[] NET_CHECKS = new String[] { 
 			Locale.s(SET_HTTPProxy),
 			Locale.s(SET_IteroniProxy)
@@ -85,11 +87,17 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_On),
 			Locale.s(SET_Off)
 			};
+	static final String[] VIRTUAL_KEYBOARDS = new String[] { 
+			Locale.s(SET_NokiaUI),
+			"j2mekeyboard",
+			Locale.s(SET_FullScreenInput)
+			};
 	
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
 	static final Command resetCmd = new Command(Locale.s(SET_Reset), Command.ITEM, 3);
 	static final Command langCmd = new Command(Locale.s(SET_ChooseLanguage), Command.ITEM, 1);
+	static final Command inputLangsCmd = new Command(Locale.s(SET_InputLanguages), Command.ITEM, 1);
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -105,12 +113,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup checkUpdatesChoice;
 	private ChoiceGroup miscChoice;
 	private ChoiceGroup autoStartChoice;
+	private ChoiceGroup keyboardChoice;
 
 	private List dirList;
 	private String curDir;
 	private int proxyTextIdx;
 	
 	private List langsList;
+	private List inputLangsList;
 
 	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 
@@ -132,11 +142,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		netLabel.setFont(titleFont);
 		StringItem miscLabel = new StringItem(null, " " + Locale.s(SET_OtherSettings) + EOL);
 		miscLabel.setFont(titleFont);
+		StringItem inputLabel = new StringItem(null, " " + Locale.s(SET_Input) + EOL);
+		inputLabel.setFont(titleFont);
 		try {
 			videoLabel.setLayout(titleLayout);
 			uiLabel.setLayout(titleLayout);
 			netLabel.setLayout(titleLayout);
 			miscLabel.setLayout(titleLayout);
+			inputLabel.setLayout(titleLayout);
 		} catch (Exception e) {
 		}
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
@@ -157,6 +170,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
+		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
@@ -181,6 +195,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(checkUpdatesChoice);
 		append(autoStartChoice);
 		append(debugChoice);
+		append(inputLabel);
+		append(keyboardChoice);
+		StringItem inputLangsBtn = new StringItem(null, Locale.s(SET_InputLanguages), StringItem.BUTTON);
+		inputLangsBtn.addCommand(inputLangsCmd);
+		inputLangsBtn.setDefaultCommand(inputLangsCmd);
+		inputLangsBtn.setItemCommandListener(this);
+		inputLangsBtn.setLayout(Item.LAYOUT_EXPAND);
+		append(inputLangsBtn);
 		StringItem resetBtn = new StringItem(null, Locale.s(SET_Reset), StringItem.BUTTON);
 		resetBtn.addCommand(resetCmd);
 		resetBtn.setDefaultCommand(resetCmd);
@@ -381,6 +403,25 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				}
 				return;
 			}
+			if(d == inputLangsList) {
+				if(c != List.SELECT_COMMAND) {
+					Vector v = new Vector();
+					for(int i = 0; i < Settings.supportedInputLanguages.length; i++) {
+						String s = Settings.supportedInputLanguages[i];
+						String l = s.substring(s.lastIndexOf('[')+1,s.lastIndexOf(']'));
+						if(langsList.isSelected(i)) {
+							v.addElement(l);
+						}
+					}
+					String[] res = new String[v.size()];
+					for(int i = 0; i < v.size(); i++) {
+						res[i] = (String) v.elementAt(i);
+					}
+					Settings.inputLanguages = res;
+					AppUI.inst.display(this);
+				}
+				return;
+			}
 			applySettings();
 			AppUI.inst.display(null);
 			UIScreen screen = AppUI.inst.getCurrentScreen();
@@ -435,6 +476,28 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			dirList.addCommand(backCmd);
 			dirList.setCommandListener(this);
 			AppUI.inst.display(dirList);
+			return;
+		}
+		if(c == inputLangsCmd) {
+			if(inputLangsList == null) {
+				inputLangsList = new List("", List.MULTIPLE);
+				inputLangsList.addCommand(backCmd);
+				inputLangsList.addCommand(List.SELECT_COMMAND);
+				inputLangsList.setSelectCommand(List.SELECT_COMMAND);
+				inputLangsList.setCommandListener(this);
+				for(int i = 0; i < Settings.supportedInputLanguages.length; i++) {
+					String s = Settings.supportedInputLanguages[i];
+					String l = s.substring(s.lastIndexOf('[')+1,s.lastIndexOf(']'));
+					int x = langsList.append(s, null);
+					for(int j = 0; j < Settings.inputLanguages.length; i++) {
+						if(Settings.inputLanguages[i].equals(l)) {
+							langsList.setSelectedIndex(x, true);
+							break;
+						}
+					}
+				}
+			}
+			AppUI.inst.display(inputLangsList);
 		}
 	}
 
@@ -450,6 +513,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		}
 		if(item == playMethodChoice) {
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
+		}
+		if(item == keyboardChoice) {
+			Settings.keyboard = keyboardChoice.getSelectedIndex();
 		}
 	}
 

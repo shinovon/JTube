@@ -139,21 +139,22 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					menuImg = Util.invert(menuImg);
 				}
 			}
-			/*if(TextEditorUtil.isSupported()) {
-				editor = TextEditorUtil.createTextEditor("", 100, TextField.ANY, 24, 24);
-				editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
-				editor.setBackgroundColor(AppUI.getColor(COLOR_MAINBG) | 0xFF000000);
-				Font f = Font.getDefaultFont();
-				if(DirectFontUtil.isSupported() && App.width >= 360) {
-					f = DirectFontUtil.getFont(0, 0, 23, 0);
+			if(Settings.keyboard != 2 && topBar) {
+				if(Settings.keyboard == 0 && TextEditorUtil.isSupported()) {
+					editor = TextEditorUtil.createTextEditor("", 100, TextField.ANY, 24, 24);
+					editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
+					editor.setBackgroundColor(AppUI.getColor(COLOR_MAINBG) | 0xFF000000);
+					Font f = Font.getDefaultFont();
+					if(DirectFontUtil.isSupported() && App.width >= 360) {
+						f = DirectFontUtil.getFont(0, 0, 23, 0);
+					}
+					editor.setFont(f);
+				} else {
+					keyboard = Keyboard.getKeyboard();
+					keyboard.setLanguages(Settings.inputLanguages);
+					ui.getCanvas().setKeyboard(keyboard);
 				}
-				editor.setFont(f);
-			} else {*/
-			if(ui.getCanvas().hasPointerEvents()) {
-				keyboard = Keyboard.getKeyboard();
-				ui.getCanvas().setKeyboard(keyboard);
 			}
-			//}
 		} catch (Exception e) {
 		}
 		addOk = !topBar &&
@@ -234,7 +235,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(topBar) {
 			g.translate(0, topBarHeight);
 			if(!search) _paint(g, w, h-topBarHeight);
-			if(search && false) {
+			/*
+			if(search) {
 				int l = w * 30 + 1;
 				int c = AppUI.getColor(COLOR_SCREEN_DARK_ALPHA);
 				int[] rgb = new int[l];
@@ -245,6 +247,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawRGB(rgb, 0, w, 0, i, w, 30, true);
 				}
 			}
+			*/
 			g.translate(0, -topBarHeight);
 			g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
 			g.fillRect(0, 0, w, topBarHeight);
@@ -552,8 +555,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 							showEditor();
 							editor.setFocus(true);
 						} else if(keyboard != null) {
-							keyboard.show();
-							keyboard.setListener(this);
+							showKeyboard();
 						}
 						search = true;
 					} else if(search) {
@@ -564,8 +566,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 							}
 							editor.setFocus(true);
 						} else if(keyboard != null) {
-							keyboard.show();
-							keyboard.setListener(this);
+							showKeyboard();
 						} else {
 							openSearchTextBox();
 						}
@@ -593,6 +594,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		if(search) return;
 		super.tap(x, y - topBarHeight, time);
+	}
+
+	private void showKeyboard() {
+		if(keyboard.getLength() == 0) {
+			keyboard.setShifted(true);
+		}
+		keyboard.setLanguages(Settings.inputLanguages);
+		keyboard.setListener(this);
+		keyboard.show();
 	}
 
 	protected void back() {
@@ -718,6 +728,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	public void done() {
 		keyboard.hide();
+		search(searchText = keyboard.getText());
 	}
 	
 	public void requestRepaint() {

@@ -32,6 +32,7 @@ import javax.microedition.rms.RecordStore;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
+import cc.nnproject.keyboard.Keyboard;
 import cc.nnproject.utils.PlatformUtils;
 import midletintegration.MIDletIntegration;
 
@@ -65,7 +66,10 @@ public class Settings implements Constants {
 	public static boolean autoStart;
 	public static boolean fullScreen = true;
 	public static int renderPriority = 0;
-
+	public static String[] inputLanguages = new String[] {"en", "ru"};
+	public static String[] supportedInputLanguages = new String[0];
+	public static int keyboard = 0;
+	
 	public static Vector rootsList;
 	public static Vector langsList;
 	
@@ -141,6 +145,11 @@ public class Settings implements Constants {
 					tmp.append(c);
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			supportedInputLanguages = Keyboard.getSupportedLanguages();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
