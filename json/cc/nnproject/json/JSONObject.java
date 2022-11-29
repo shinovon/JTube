@@ -21,7 +21,7 @@ SOFTWARE.
 */
 package cc.nnproject.json;
 
-//import java.util.Enumeration;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class JSONObject extends AbstractJSON {
@@ -47,8 +47,8 @@ public class JSONObject extends AbstractJSON {
 					return table.get(name);
 				} else {
 					Object o = table.get(name);
-					if (o instanceof String)
-						table.put(name, o = JSON.parseJSON((String) o));
+					if (o instanceof JSONString)
+						table.put(name, o = JSON.parseJSON(o.toString()));
 					return o;
 				}
 			}
@@ -191,7 +191,7 @@ public class JSONObject extends AbstractJSON {
 	public boolean isNull(String name) throws JSONException {
 		return JSON.isNull(get(name));
 	}
-	
+
 	public void put(String name, String s) {
 		table.put(name, "\"".concat(s).concat("\""));
 	}
@@ -232,7 +232,7 @@ public class JSONObject extends AbstractJSON {
 			if (v instanceof JSONObject) {
 				s += ((JSONObject) v).build();
 			} else if (v instanceof JSONArray) {
-				s += "[]"; // edited
+				s += ((JSONArray) v).build();
 			} else if (v instanceof String) {
 				s += "\"" + JSON.escape_utf8((String) v) + "\"";
 			} else s += v.toString();
@@ -242,7 +242,7 @@ public class JSONObject extends AbstractJSON {
 			s += ",";
 		}
 	}
-/*
+
 	protected String format(int l) {
 		if (size() == 0)
 			return "{}";
@@ -282,5 +282,5 @@ public class JSONObject extends AbstractJSON {
 	public Enumeration keys() {
 		return table.keys();
 	}
-*/
+
 }

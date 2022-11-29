@@ -21,15 +21,20 @@ SOFTWARE.
 */
 package cc.nnproject.json;
 
-public abstract class AbstractJSON {
+class JSONString {
 	
-	public abstract void clear();
-	public abstract int size();
-	public abstract String toString();
-	public abstract String build();
-	public final String format() {
-		return format(0);
+	private String str;
+
+	JSONString(String s) {
+		this.str = s;
 	}
-	protected abstract String format(int l);
+	
+	String getString() {
+		return str;
+	}
+	
+	public String toString() {
+		return str;
+	}
 
 }
