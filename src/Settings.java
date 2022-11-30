@@ -32,6 +32,7 @@ import javax.microedition.rms.RecordStore;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
+import cc.nnproject.keyboard.Keyboard;
 import cc.nnproject.utils.PlatformUtils;
 import midletintegration.MIDletIntegration;
 
@@ -65,7 +66,10 @@ public class Settings implements Constants {
 	public static boolean autoStart;
 	public static boolean fullScreen = true;
 	public static int renderPriority = 0;
-
+	public static String[] inputLanguages = new String[] {"en", "ru"};
+	public static String[] supportedInputLanguages = new String[0];
+	public static int keyboard = 0;
+	
 	public static Vector rootsList;
 	public static Vector langsList;
 	
@@ -141,6 +145,11 @@ public class Settings implements Constants {
 					tmp.append(c);
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			supportedInputLanguages = Keyboard.getSupportedLanguages();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -337,6 +346,15 @@ public class Settings implements Constants {
 					fullScreen = j.getBoolean("fullScreen");
 				if(j.has("renderPriority"))
 					renderPriority = j.getInt("renderPriority", 0);
+				if(j.has("keyboard"))
+					keyboard = j.getInt("keyboard");
+				if(j.has("inputLanguages")) {
+					JSONArray a = j.getArray("inputLanguages");
+					inputLanguages = new String[a.size()];
+					for(int i = 0; i < a.size(); i++) {
+						inputLanguages[i] = a.getString(i);
+					}
+				}
 				return;
 			} catch (Exception e) {
 			}
@@ -377,6 +395,12 @@ public class Settings implements Constants {
 			j.put("autoStart", new Boolean(autoStart));
 			j.put("fullScreen", new Boolean(fullScreen));
 			j.put("renderPriority", new Integer(renderPriority));
+			j.put("keyboard", new Integer(keyboard));
+			JSONArray inputLanguagesJson = new JSONArray();
+			for(int i = 0; i < inputLanguages.length; i++) {
+				inputLanguagesJson.put(inputLanguages[i]);
+			}
+			j.put("inputLanguages", inputLanguagesJson);
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();

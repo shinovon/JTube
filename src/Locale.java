@@ -307,6 +307,18 @@ public class Locale implements LocaleConstants {
 				return "Full-Screen mode";
 			case CMD_FuncMenu:
 				return "Menu";
+			case SET_Input:
+				return "Input";
+			case SET_VirtualKeyboard:
+				return "Keyboard";
+			case SET_NokiaUI:
+				return "NokiaUI (if available)";
+			case SET_FullScreenInput:
+				return "Fullscreen input";
+			case SET_InputLanguages:
+				return "Input languages";
+			case SET_j2mekeyboardSettings:
+				return "j2mekeyboard settings";
 			}
 		}
 		case 1: {
@@ -497,6 +509,18 @@ public class Locale implements LocaleConstants {
 				return "Полноэкранный режим";
 			case CMD_FuncMenu:
 				return "Меню";
+			case SET_Input:
+				return "Ввод";
+			case SET_VirtualKeyboard:
+				return "Клавиатура";
+			case SET_NokiaUI:
+				return "NokiaUI (если имеется)";
+			case SET_FullScreenInput:
+				return "Полноэкранный ввод";
+			case SET_InputLanguages:
+				return "Языки ввода";
+			case SET_j2mekeyboardSettings:
+				return "Настройки j2mekeyboard";
 			}
 		}
 		}

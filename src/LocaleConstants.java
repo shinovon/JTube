@@ -122,5 +122,11 @@ public interface LocaleConstants {
 	public static final int SET_ChooseLanguage = 111;
 	public static final int SET_FullScreenMode = 112;
 	public static final int CMD_FuncMenu = 113;
+	public static final int SET_Input = 114;
+	public static final int SET_VirtualKeyboard = 115;
+	public static final int SET_NokiaUI = 116;
+	public static final int SET_FullScreenInput = 117;
+	public static final int SET_InputLanguages = 118;
+	public static final int SET_j2mekeyboardSettings = 119;
 
 }

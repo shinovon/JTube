@@ -4,6 +4,8 @@
 	<classpathentry kind="src" path="res"/>
 	<classpathentry kind="src" path="lib/midletintegration/src"/>
 	<classpathentry kind="src" path="lib/json/src/main"/>
+	<classpathentry kind="src" path="lib/j2mekeyboard/src"/>
+	<classpathentry kind="src" path="lib/j2mekeyboard/res"/>
 	<classpathentry kind="con" path="org.elipse.mtj.JavaMEContainer/Nokia Symbian3 SDK v1.0 /SymbianDevice"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
