@@ -236,6 +236,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		}
 		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
 		autoStartChoice.setSelectedIndex(Settings.autoStart ? 0 : 1, true);
+		keyboardChoice.setSelectedIndex(Settings.keyboard, true);
 		setResolution();
 	}
 	
