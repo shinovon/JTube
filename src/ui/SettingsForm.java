@@ -196,7 +196,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(autoStartChoice);
 		append(inputLabel);
 		append(keyboardChoice);
-		append(debugChoice);
 		StringItem s = new StringItem(null, Locale.s(SET_j2mekeyboardSettings)+"\n");
 		s.setFont(Font.getFont(0, 0, 8));
 		append(s);
@@ -206,6 +205,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		inputLangsBtn.setItemCommandListener(this);
 		inputLangsBtn.setLayout(Item.LAYOUT_EXPAND);
 		append(inputLangsBtn);
+		append(debugChoice);
 		StringItem resetBtn = new StringItem(null, Locale.s(SET_Reset), StringItem.BUTTON);
 		resetBtn.addCommand(resetCmd);
 		resetBtn.setDefaultCommand(resetCmd);
