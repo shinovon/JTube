@@ -194,9 +194,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(miscChoice);
 		append(checkUpdatesChoice);
 		append(autoStartChoice);
-		append(debugChoice);
 		append(inputLabel);
 		append(keyboardChoice);
+		append(debugChoice);
 		StringItem s = new StringItem(null, Locale.s(SET_j2mekeyboardSettings)+"\n");
 		s.setFont(Font.getFont(0, 0, 8));
 		append(s);
