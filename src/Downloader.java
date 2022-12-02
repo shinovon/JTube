@@ -95,7 +95,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			if(Settings.httpStream) {
 				if(Settings.iteroniPlaybackProxy) {
 					int i = url.indexOf("/videoplayback");
-					url = Settings.inv + url.substring(i+1);
+					url = iteroni + url.substring(i+1);
 				} else {
 					url = Settings.serverstream + Util.url(url);
 				}

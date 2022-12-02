@@ -296,11 +296,11 @@ public class App implements Constants {
 
 	public static byte[] getImageBytes(String s) throws IOException {
 		if(s.startsWith("//")) s = "http:" + s;
-		if(s.indexOf("ggpht.com") != -1) {
+		if(s.indexOf("ggpht.com") != -1 || s.indexOf("googleusercontent.com") != -1) {
 			if(s.indexOf("//") != -1) s = s.substring(s.indexOf("//") + 2);
 			s = "/ggpht" + s.substring(s.indexOf("/"));
 		}
-		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
+		if(s.startsWith("/")) return Util.get(iteroni + s.substring(1));
 		return Util.get(s);
 	}
 	
@@ -459,7 +459,7 @@ public class App implements Constants {
 		if(Settings.httpStream || forceProxy) {
 			if(Settings.iteroniPlaybackProxy) {
 				int i = s.indexOf("/videoplayback");
-				s = Settings.inv + s.substring(i+1);
+				s = iteroni + s.substring(i+1);
 			} else {
 				s = Settings.serverstream + Util.url(s);
 			}

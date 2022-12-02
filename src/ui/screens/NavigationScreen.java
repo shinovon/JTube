@@ -55,7 +55,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	private static final Command textOkCmd = new Command(Locale.s(CMD_Search), Command.OK, 1);
 
-	private static final Font searchFont = Font.getFont(0, 0, 0);
+	private static final Font searchFont = Font.getFont(0, 0, Font.SIZE_SMALL);
 
 	private static final Font softFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
 	
