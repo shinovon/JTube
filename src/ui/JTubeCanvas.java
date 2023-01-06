@@ -68,6 +68,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.current;
+		long l = System.currentTimeMillis();
 		if(s != null) {
 			int h = height;
 			if(!ui.keyInput && ui.scrolling/* && !draggedScrollbar*/) {
@@ -91,9 +92,9 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		}
 		if(Settings.renderDebug) {
 			g.setFont(smallfont);
-			String ds = ui.repaintTime + " " + flushTime + " " + (ui.oddFrame ? "1" : "0") + " " + scrollSlideSpeed;
+			String ds = ui.repaintTime + " " + flushTime + " " + (int)(System.currentTimeMillis() - l) + " " + scrollSlideSpeed;
 			int fh = smallfontheight;
-			int ty = height - fh - 1- 360;
+			int ty = height - fh - 1;
 			g.setColor(0x0);
 			g.drawString(ds, 2, ty, 0);
 			g.drawString(ds, 0, ty, 0);
@@ -102,7 +103,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 			g.setColor(0x00aa00);
 			g.drawString(ds, 1, ty, 0);
 		}
-		long l = System.currentTimeMillis();
+		l = System.currentTimeMillis();
 		flushGraphics();
 		flushTime = (int)(System.currentTimeMillis() - l);
 	}

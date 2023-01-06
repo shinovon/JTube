@@ -90,8 +90,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public int repaintTime;
 	
-	public boolean oddFrame;
-	
 	private Vector commands = new Vector();
 	
 	protected boolean keyInput = false;
@@ -139,7 +137,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	private void _repaint() {
-		oddFrame = !oddFrame;
 		long time = System.currentTimeMillis();
 		canv.updateScreen();
 		repaintTime = (int) (System.currentTimeMillis() - time);

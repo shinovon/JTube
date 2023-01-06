@@ -51,7 +51,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	private Image img;
 	private int h;
 	
-	private int imgHeight;
+	private static int imgHeight;
 	private int textWidth;
 
 	private int lastW;
@@ -60,6 +60,9 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 
 	private static Font titleFont;
 	private static Font bottomFont;
+	
+	private static int titleFontHeight;
+	private static int bottomFontHeight;
 	
 	public VideoItem(VideoModel v) {
 		super();
@@ -71,7 +74,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		int ih = Settings.videoPreviews ? getImgHeight(w) : 0;
+		int ih = Settings.videoPreviews ? imgHeight > 0 ? imgHeight : getImgHeight(w) : 0;
 		/*
 		if(img == null && Settings.rmsPreviews) {
 			try {
@@ -112,23 +115,22 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			}
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			g.setFont(titleFont);
-			int tfh = titleFont.getHeight();
 			if(b4) yy += 4;
 			if(b2) xx += 2;
 			if(titleArr != null) {
 				if(titleArr[0] != null)
 					g.drawString(titleArr[0], xx, yy, 0);
 				if(titleArr[1] != null)
-					g.drawString(titleArr[1], xx, yy += tfh, 0);
+					g.drawString(titleArr[1], xx, yy += titleFontHeight, 0);
 			}
 			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 			g.setFont(bottomFont);
 			if(b3 || b5) yy += 4;
 			if(author != null) {
-				g.drawString(author, xx, yy += tfh, 0);
+				g.drawString(author, xx, yy += titleFontHeight, 0);
 			}
 			if(bottomFont != null && bottomText != null && (b || b2)) {
-				g.drawString(bottomText, xx, yy += bottomFont.getHeight(), 0);
+				g.drawString(bottomText, xx, yy += bottomFontHeight, 0);
 			}
 		} else {
 			if(Settings.videoPreviews) {
@@ -143,13 +145,12 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			ih += 4;
 			g.setFont(titleFont);
-			int tfh = titleFont.getHeight();
 			int t = ih+y;
 			if(titleArr != null) {
 				if(titleArr[0] != null)
 					g.drawString(titleArr[0], x + 4, t, 0);
 				if(titleArr.length > 1 && titleArr[1] != null)
-					g.drawString(titleArr[1], x + 4, t += tfh, 0);
+					g.drawString(titleArr[1], x + 4, t += titleFontHeight, 0);
 			}
 			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 			g.setFont(smallfont);
@@ -159,10 +160,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			}
 			g.setFont(bottomFont);
 			if(author != null) {
-				g.drawString(author, x + 4, t += tfh + 2, 0);
+				g.drawString(author, x + 4, t += titleFontHeight + 2, 0);
 			}
 			if(bottomFont != null && bottomText != null) {
-				g.drawString(bottomText, x + 4, t += bottomFont.getHeight() + 2, 0);
+				g.drawString(bottomText, x + 4, t += bottomFontHeight + 2, 0);
 			}
 		}
 		if(inFocus && ui.isKeyInputMode()) {
@@ -235,7 +236,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	}
 	
 	private int getTextHeight() {
-		return (titleFont.getHeight()) * 2 + 8 + (2 + bottomFont.getHeight()) * 2;
+		return (titleFontHeight) * 2 + 8 + (2 + bottomFontHeight) * 2;
 	}
 
 	public int getHeight() {
@@ -251,15 +252,17 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		if(Settings.smallPreviews) {
 			if(ui.getWidth() >= 360)
 				titleFont = DirectFontUtil.getFont(0, Font.STYLE_BOLD, 25, Font.SIZE_SMALL);
-			else titleFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
+			else titleFont = smallfont;
 		} else {
 			titleFont = mediumfont;
 			if(ui.getWidth() >= 360)
 				titleFont = DirectFontUtil.getFont(0, 0, 25, Font.SIZE_MEDIUM);
 		}
+		titleFontHeight = titleFont.getHeight();
 		bottomFont = smallfont;
 		if(ui.getWidth() >= 360)
 			bottomFont = DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL);
+		bottomFontHeight = bottomFont.getHeight();
 		if(w != lastW || Settings.smallPreviews != isSmall) {
 			makeTitleArr(w);
 			imgHeight = 0;
