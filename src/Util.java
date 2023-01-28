@@ -124,7 +124,13 @@ public class Util implements Constants {
 			}
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
-			Thread.sleep(200);
+			int delay = 200;
+			if(PlatformUtils.isSamsung()) {
+				delay = 300;
+			} else if(url.endsWith("jpg")) {
+				delay = 50;
+			}
+			Thread.sleep(delay);
 			int read;
 			o = new ByteArrayOutputStream();
 			byte[] b = new byte[buffer_size];
