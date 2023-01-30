@@ -304,8 +304,12 @@ public class Settings implements Constants {
 						serverstream = glype;
 					}
 				}
-				if(j.has("inv"))
+				if(j.has("inv")) {
 					inv = j.getString("inv");
+					if(inv != null && inv.indexOf("nnproject.cc") != -1) {
+						inv = altinv;
+					}
+				}
 				if(j.has("startScreen"))
 					startScreen = j.getInt("startScreen");
 				if(j.has("rmsPreviews"))
@@ -322,9 +326,8 @@ public class Settings implements Constants {
 					asyncLoading = j.getBoolean("asyncLoading");
 				if(j.has("downloadBuffer"))
 					downloadBuffer = j.getInt("downloadBuffer");
-				if((serverstream != null && serverstream.indexOf("nnproject.cc") != -1)) {
-					if(serverstream != null)
-						serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
+				if(serverstream != null && serverstream.indexOf("nnproject.cc") != -1) {
+					serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
 				}
 				if(j.has("checkUpdates"))
 					checkUpdates = j.getBoolean("checkUpdates");
@@ -398,7 +401,7 @@ public class Settings implements Constants {
 			j.put("keyboard", new Integer(keyboard));
 			JSONArray inputLanguagesJson = new JSONArray();
 			for(int i = 0; i < inputLanguages.length; i++) {
-				inputLanguagesJson.put(inputLanguages[i]);
+				inputLanguagesJson.add(inputLanguages[i]);
 			}
 			j.put("inputLanguages", inputLanguagesJson);
 			byte[] b = j.build().getBytes("UTF-8");

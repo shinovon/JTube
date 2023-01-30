@@ -125,10 +125,10 @@ public class Util implements Constants {
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
 			int delay = 200;
-			if(PlatformUtils.isSamsung()) {
+			if(url.endsWith("jpg")) {
+				delay = PlatformUtils.isNotS60() ? 100 : 50;
+			} else if(PlatformUtils.isSamsung()) {
 				delay = 300;
-			} else if(url.endsWith("jpg")) {
-				delay = 50;
 			}
 			Thread.sleep(delay);
 			int read;
