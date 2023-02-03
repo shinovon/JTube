@@ -306,7 +306,7 @@ public class Settings implements Constants {
 				}
 				if(j.has("inv")) {
 					inv = j.getString("inv");
-					if(inv != null && inv.indexOf("nnproject.cc") != -1) {
+					if(inv != null && inv.indexOf("iteroni.com") != -1) {
 						inv = altinv;
 					}
 				}
