@@ -49,7 +49,7 @@ public class Settings implements Constants {
 	public static boolean rememberSearch;
 	public static boolean httpStream;
 	public static int startScreen; // 0 - Trends 1 - Popular
-	public static String inv = iteroni;
+	public static String inv = altinv;
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists;
 	public static String customLocale;
