@@ -8,7 +8,7 @@ The device does not support the audio codec issued by YouTube
 
 <b>Where can I get the language editor for JTube?</b><br>
 You can find it in telegram chat: https://t.me/nnmidletschat<br>
-Latest (2.0.2-2.0.5): https://t.me/nnmidletschat/1043
+Or build it from here: https://github.com/shinovon/jtlngedit
 
 ## Errors
 ### Common
@@ -45,10 +45,13 @@ May be due to poor internet connection<br>
 
 <b>java.io.IOException: -5120</b><br>
 Reason: Site's DNS was not found<br>
-No internet connection<br>
+No internet connection or invidious instance was written incorrectly<br>
+
+<b>java.io.IOException: 503 Service Temprorary Unavailable</b><br>
+Reason: Choosen invidious instance is probably using cloudflare<br>
 
 ### Series 40
-<b>java.io.IOException: 81-Error in HTTP operation (Series 40)</b><br>
+<b>java.io.IOException: 81-Error in HTTP operation</b><br>
 Reason: App can't access the internet<br>
 Solution:
 1. Set up APN settings for apps in device settings
