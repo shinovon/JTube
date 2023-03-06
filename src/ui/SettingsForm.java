@@ -295,7 +295,18 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.rememberSearch = misc[0];
 			Settings.rmsPreviews = misc[1];
 			Settings.serverstream = httpProxyText.getString();
-			Settings.inv = invidiousText.getString();
+			String inv = invidiousText.getString();
+			if(inv.length() <= 2) {
+				inv = iteroni;
+			} else {
+				if(inv.indexOf(':') == -1) {
+					inv = "http://" + inv;
+				}
+				if(!inv.endsWith("/")) {
+					inv += "/";
+				}
+			}
+			Settings.inv = inv;
 			Settings.debugMemory = debugChoice.isSelected(0);
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
@@ -304,6 +315,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.asyncLoading = debugChoice.isSelected(2);
 			Settings.fastScrolling = debugChoice.isSelected(3);
 			Settings.autoStart = autoStartChoice.isSelected(0);
+			Settings.keyboard = keyboardChoice.getSelectedIndex();
 			Settings.saveConfig();
 		} catch (Exception e) {
 			App.error(this, Errors.Settings_apply, e);
@@ -455,13 +467,15 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				langsList.setSelectCommand(List.SELECT_COMMAND);
 				langsList.setCommandListener(this);
 				int i = 0;
+				int s = 0;
 				while(i < Settings.langsList.size()) {
 					String[] a = (String[]) Settings.langsList.elementAt(i++);
 					int x = langsList.append((a[2].length() > 0 ? a[2] + (a[1].equalsIgnoreCase(a[2]) ? "" : " (" + a[1] + ")") : a[1]) + "\n" + a[3], null);
-					if(a[0].equals(Settings.customLocale)) {
-						langsList.setSelectedIndex(x, true);
+					if(a[0].equalsIgnoreCase(Settings.customLocale)) {
+						s = x;
 					}
 				}
+				langsList.setSelectedIndex(s, true);
 			}
 			AppUI.inst.display(langsList);
 			return;

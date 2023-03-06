@@ -49,7 +49,7 @@ public class Settings implements Constants {
 	public static boolean rememberSearch;
 	public static boolean httpStream;
 	public static int startScreen; // 0 - Trends 1 - Popular
-	public static String inv = altinv;
+	public static String inv = iteroni;
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists;
 	public static String customLocale;
@@ -130,11 +130,11 @@ public class Settings implements Constants {
 						String line = tmp.toString();
 						if(line.startsWith("jtlng_")) {
 							int idx = line.indexOf('=');
-							String[] arr = new String[4];
+							String[] arr = new String[5];
 							arr[0] = line.substring(6, idx);
 							line = line.substring(idx+1);
 							JSONArray j = JSON.getArray("[".concat(line).concat("]"));
-							j.copyInto(arr, 1, 3);
+							j.copyInto(arr, 1, 4);
 							langsList.addElement(arr);
 						}
 					}
@@ -306,9 +306,6 @@ public class Settings implements Constants {
 				}
 				if(j.has("inv")) {
 					inv = j.getString("inv");
-					if(inv != null && inv.indexOf("iteroni.com") != -1) {
-						inv = altinv;
-					}
 				}
 				if(j.has("startScreen"))
 					startScreen = j.getInt("startScreen");

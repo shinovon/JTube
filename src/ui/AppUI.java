@@ -661,8 +661,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void showAbout(CommandListener l) {
 		//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
 		TextBox t = new TextBox("", "", 200, TextField.ANY | TextField.UNEDITABLE);
-		t.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + EOL
-				+ "By Shinovon (nnp.nnchan.ru)" + EOL
+		t.setTitle("JTube v" + App.midlet.getAppProperty("MIDlet-Version"));
+		t.setString("By Shinovon (nnp.nnchan.ru)" + EOL
 				+ "t.me/nnmidlets" + EOL
 				+ "vk.com/nnprojectcc" + EOL + EOL
 				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
@@ -670,19 +670,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		t.setCommandListener(l == null ? this : l);
 		t.addCommand(new Command("OK", Command.OK, 1));
 		display(t);
-		/*
-		Alert a = new Alert("", "", null, null);
-		a.setTimeout(-2);
-		a.setString("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + EOL
-				+ "By Shinovon (nnp.nnchan.ru)" + EOL
-				+ "t.me/nnmidlets" + EOL
-				+ "vk.com/nnprojectcc" + EOL + EOL
-				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
-				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
-		a.setCommandListener(l == null ? this : l);
-		a.addCommand(new Command("OK", Command.OK, 1));
-		display(a);
-		*/
 	}
 
 	public int getItemWidth() {
