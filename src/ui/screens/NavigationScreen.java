@@ -150,12 +150,14 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}
 					editor.setFont(f);
 				} else {
-					keyboard = Keyboard.getKeyboard();
+					keyboard = Keyboard.getKeyboard(ui.getCanvas(), false, App.width, App.height);
+					keyboard.setTextFont(searchFont);
 					keyboard.setLanguages(Settings.inputLanguages);
 					ui.getCanvas().setKeyboard(keyboard);
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		addOk = !topBar &&
 				((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() &&
@@ -269,7 +271,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 						s = Locale.s(TXT_SearchHint);
 					}
-					g.drawString(s, 50, (topBarHeight - searchFont.getHeight()) / 2, 0);
+					g.drawString(s, 50, (topBarHeight - searchFont.getHeight()) >> 1, 0);
 				}
 			} else {
 				if(Settings.fullScreen) {
@@ -292,7 +294,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 								g.setFont(mediumfont);
 							}
 							g.setColor(AppUI.getColor(COLOR_MAINFG));
-							g.drawString(s, xx, (48-g.getFont().getHeight())/2, 0);
+							g.drawString(s, xx, (48-g.getFont().getHeight()) >> 1, 0);
 						}
 					}
 				}
@@ -304,8 +306,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 			}
 			if(menu) {
-				int xx = (w-menuW)/2;
-				int yy = (h-menuH)/2;
+				int xx = (w-menuW) >> 1;
+				int yy = (h-menuH) >> 1;
 				g.setFont(mediumfont);
 				g.setColor(AppUI.getColor(COLOR_MAINBG));
 				g.fillRect(xx, yy, menuW, menuH);
@@ -319,14 +321,18 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}*/
 				}
 			}
+			//XXX
+			if(keyboard != null && keyboard.isVisible()) {
+				keyboard.drawCaret(g, 50 + searchFont.stringWidth(searchText), (topBarHeight - searchFont.getHeight()) >> 1);
+			}
 			return;
 		}
 		if(Settings.fullScreen) {
 			_paint(g, w, h-softBarHeight);
 			if(!AppUI.loadingState) {
 				if(menu) {
-					int xx = (w-menuW)/2;
-					int yy = Math.max(0, (h-softBarHeight-menuH)/2);
+					int xx = (w-menuW) >> 1;
+					int yy = Math.max(0, (h-softBarHeight-menuH) >> 1);
 					g.setFont(mediumfont);
 					g.setColor(AppUI.getColor(COLOR_MAINBG));
 					int ih = 8 + mediumfontheight;
@@ -368,15 +374,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(getCurrentItem() != null) {
 					UIItem ci = getCurrentItem();
 					if(ci.getOKLabel() > 0) {
-						g.drawString(Locale.s(ci.getOKLabel()), w/2, h-2, Graphics.BOTTOM | Graphics.HCENTER);
+						g.drawString(Locale.s(ci.getOKLabel()), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
 					}
 				}
 			}
 		} else {
 			_paint(g, w, h);
 			if(menu && !AppUI.loadingState) {
-				int xx = (w-menuW)/2;
-				int yy = Math.max(0, (h-softBarHeight-menuH)/2);
+				int xx = (w-menuW) >> 1;
+				int yy = Math.max(0, (h-softBarHeight-menuH) >> 1);
 				g.setFont(mediumfont);
 				g.setColor(AppUI.getColor(COLOR_MAINBG));
 				int ih = 8 + mediumfontheight;
@@ -410,7 +416,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			String s = Locale.s(TITLE_Loading) + "...";
 			g.setFont(smallfont);
-			g.drawString(s, (w-smallfont.stringWidth(s))/2, smallfontheight*2, 0);
+			g.drawString(s, (w-smallfont.stringWidth(s)) >> 1, smallfontheight*2, 0);
 			return;
 		}
 		super.paint(g, w, h);
@@ -455,6 +461,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			repaint();
 			return;
 		}
+		if(keyboard.isVisible() && keyboard.keyPressed(i)) {
+			return;
+		}
 		if(i == -6) {
 			leftSoft();
 			return;
@@ -479,11 +488,17 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(menu) {
 			return;
 		}
+		if(keyboard.isVisible() && keyboard.keyReleased(i)) {
+			return;
+		}
 		super.keyRelease(i);
 	}
 	
 	protected void keyRepeat(int i) {
 		if(menu) {
+			return;
+		}
+		if(keyboard.isVisible() && keyboard.keyRepeated(i)) {
 			return;
 		}
 		super.keyRepeat(i);
@@ -501,8 +516,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void tap(int x, int y, int time) {
 		if(menu) {
-			int xx = (lastW-menuW)/2;
-			int yy = (lastH-menuH)/2;
+			int xx = (lastW-menuW) >> 1;
+			int yy = (lastH-menuH) >> 1;
 			if(x < xx || y < yy || x > xx+menuW || y > yy+menuH) {
 				menu = false;
 				return;
@@ -733,6 +748,14 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	public void requestRepaint() {
 		repaint();
+	}
+	
+	public void requestCaretRepaint() {
+		repaint();
+	}
+	
+	public void cancel() {
+		hide();
 	}
 	
 }
