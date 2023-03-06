@@ -1,8 +1,10 @@
 # JTube Customization
 # Locales
-jtlng_de="Deutsch","Deutsch","Jazmín Rocío"
-jtlng_es="Spanish","Español","Jazmín Rocío"
-jtlng_lta="American Spanish","","huhungahuru"
-jtlng_pl="Polish","Polski","Wunder Wungiel"
-jtlng_ua="Ukrainian","Український","Ales Alte"
-jtlng_cn="Chinese","中国人","Jazmín Rocío"
+jtlng_de="Deutsch","Deutsch","Jazmín Rocío","2.3.3"
+jtlng_es="Spanish","Español","Jazmín Rocío","2.3.3"
+jtlng_lta="American Spanish","","huhungahuru","2.2.1"
+jtlng_pl="Polish","Polski","Wunder Wungiel","2.2.1"
+jtlng_cn="Chinese","中国人","Jazmín Rocío","2.3.3"
+jtlng_el="Greek","ελληνικά","Mivas Greece","2.2.2"
+jtlng_ua="Ukrainian","Українська","Phantom Horror","2.3.3"
+jtlng_by="Belarusian","Беларуская","Phantom Horror","2.3.3"
