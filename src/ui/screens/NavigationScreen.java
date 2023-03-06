@@ -461,7 +461,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			repaint();
 			return;
 		}
-		if(keyboard.isVisible() && keyboard.keyPressed(i)) {
+		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
 			return;
 		}
 		if(i == -6) {
@@ -488,7 +488,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(menu) {
 			return;
 		}
-		if(keyboard.isVisible() && keyboard.keyReleased(i)) {
+		if(keyboard != null && keyboard.isVisible() && keyboard.keyReleased(i)) {
 			return;
 		}
 		super.keyRelease(i);
@@ -498,7 +498,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(menu) {
 			return;
 		}
-		if(keyboard.isVisible() && keyboard.keyRepeated(i)) {
+		if(keyboard != null && keyboard.isVisible() && keyboard.keyRepeated(i)) {
 			return;
 		}
 		super.keyRepeat(i);
