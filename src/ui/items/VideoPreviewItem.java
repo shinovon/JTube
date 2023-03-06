@@ -59,11 +59,11 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 		int iw = w;
 		if(img != null) {
 			iw = img.getWidth();
-			g.drawImage(img, x+(w-iw)/2, y, 0);
+			g.drawImage(img, x+(w-iw) >> 1, y, 0);
 		}
 		g.setFont(smallfont);
 		if(length != null) {
-			int xx = iw+(w-iw)/2+x-(smallfont.stringWidth(length))-4;
+			int xx = iw+((w-iw) >> 1)+x-(smallfont.stringWidth(length))-4;
 			int yy = y+h-smallfontheight-2;
 			g.setColor(0);
 			g.drawString(length, xx+2, yy, 0);

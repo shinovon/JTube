@@ -395,12 +395,15 @@ public class Util implements Constants {
 		img.getRGB(buffer, 0, w, 0, 0, w, h);
 		img = null;
 		for(int i = 0; i < buffer.length; i++) {
+			buffer[i] = (buffer[i] & 0xFF000000) | (~buffer[i] & 0xFFFFFF);
+			/*
 			int c = buffer[i];
 			int a = (c >> 24) & 0xFF;
 			int r = 0xFF - ((c >> 16) & 0xFF);
 			int g = 0xFF - ((c >> 8) & 0xFF);
 			int b = 0xFF - (c & 0xFF);
 			buffer[i] = (a<<24) | (r<<16) | (g<<8) | b;
+			*/
 		}
 		return Image.createRGBImage(buffer, w, h, true);
 	}

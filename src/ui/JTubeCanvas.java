@@ -92,7 +92,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		}
 		if(Settings.renderDebug) {
 			g.setFont(smallfont);
-			String ds = ui.repaintTime + " " + flushTime + " " + (int)(System.currentTimeMillis() - l) + " " + scrollSlideSpeed;
+			String ds = ui.repaintTime + " " + flushTime + " " + (int)(System.currentTimeMillis() - l);
 			int fh = smallfontheight;
 			int ty = height - fh - 1;
 			g.setColor(0x0);

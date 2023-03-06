@@ -183,7 +183,14 @@ public class App implements Constants {
 		if(!checkStartArguments()) {
 			ui.loadMain();
 		}
-		checkUpdate();
+		new Thread("Update checker thread") {
+			public void run() {
+				try {
+					checkUpdate();
+				} catch (Throwable e) {
+				}
+			}
+		}.start();
 		if(Settings.debugMemory) {
 			Thread t = new Thread() {
 				public void run() {
@@ -222,10 +229,10 @@ public class App implements Constants {
 	
 	private void checkUpdate() {
 		boolean b = false;
+		/*
 		try {
-			// temporary solution
-			JSONObject video = (JSONObject) App.invApi("videos/iTwHY7v9M8c?", "description,title");
 			if(Settings.checkUpdates) {
+				JSONObject video = (JSONObject) App.invApi("videos/iTwHY7v9M8c?", "description,title");
 				String title = video.getNullableString("title");
 				if(title != null && !title.equalsIgnoreCase("jtube") && !title.trim().equalsIgnoreCase(App.midlet.getAppProperty("MIDlet-Version"))) {
 					b = true;
@@ -245,6 +252,7 @@ public class App implements Constants {
 			}
 		} catch (Exception e) {
 		}
+		*/
 		try {
 			String s = Util.getUtf(updateurl+
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+

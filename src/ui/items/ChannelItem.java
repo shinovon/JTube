@@ -87,16 +87,16 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		boolean small = channel.hasSmallImage() && getScreen() instanceof IModelScreen;
 		int iw = small ? 36 : 48;
-		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x+4, y + (h - iw)/2, 0);
+		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x + 4, y + ((h - iw) >> 1), 0);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		Font f = small ? titleSmallFont : titleFont;
 		g.setFont(f);
 		int fh = f.getHeight();
 		f = small ? subsCountSmallFont : subsCountFont;
 		int sfh = f.getHeight();
-		int ty = y + ((52 - fh) / 2);
+		int ty = y + ((52 - fh) >> 1);
 		if(subsStr != null) {
-			ty -= (sfh + 4) / 2;
+			ty -= (sfh + 4) >> 1;
 		}
 		int xx = x + 8 + iw;
 		g.drawString(author, xx, ty, 0);

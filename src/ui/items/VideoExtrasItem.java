@@ -88,11 +88,11 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 		g.setFont(font);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		String s = "" + likes;
-		g.drawString(s, ((int)f - font.stringWidth(s))/2, y+32, 0);
+		g.drawString(s, ((int)f - font.stringWidth(s)) >> 1, y+32, 0);
 		s = Locale.s(LocaleConstants.BTN_Share);
-		g.drawString(s, ((int)f - font.stringWidth(s))/2+(int)f, y+32, 0);
+		g.drawString(s, (((int)f - font.stringWidth(s)) >> 1) + (int)f, y+32, 0);
 		s = Locale.s(LocaleConstants.CMD_Download);
-		g.drawString(s, ((int)f - font.stringWidth(s))/2+(int)f*2, y+32, 0);
+		g.drawString(s, (((int)f - font.stringWidth(s)) >> 1) + (int)f*2, y+32, 0);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y, w-x, y);
 		g.drawLine(x, y+h, w-x, y+h);

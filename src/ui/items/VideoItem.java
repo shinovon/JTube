@@ -99,7 +99,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				g.setColor(0);
 				g.fillRect(xx, yy, iw, ih);
 				if(img != null) {
-					g.drawImage(img, xx + (iw - img.getWidth()) / 2, yy + (ih - img.getHeight()) / 2, 0);
+					g.drawImage(img, xx + ((iw - img.getWidth()) >> 1), yy + ((ih - img.getHeight()) >> 1), 0);
 					//if(Settings.rmsPreviews)
 					//	img = null;
 				}
