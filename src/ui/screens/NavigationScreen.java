@@ -360,6 +360,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
 				g.fillRect(0, h-softBarHeight, w, softBarHeight);
+				g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
+				g.drawLine(0, h-softBarHeight, w, h-softBarHeight);
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
 				g.setFont(softFont);
 				if(!menu) {
