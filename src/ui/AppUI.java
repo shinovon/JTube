@@ -634,7 +634,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		Loader.stop();
 		IModelScreen scr = model.makeScreen();
 		scr.setContainerScreen(formContainer);
-		display(null);
 		setScreen((UIScreen) scr);
 		if(scr instanceof VideoScreen) {
 			ui.videoScr = (VideoScreen) scr;

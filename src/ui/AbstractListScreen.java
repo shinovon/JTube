@@ -76,6 +76,9 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		if(sizeChanged) {
 			scrollToFocusedItem();
 		}
+		if(cItem == null && size() > 0 && ui.keyInput) {
+			selectItem();
+		}
 		if(Math.abs(scroll) > 65535) return;
 		if(scroll < -height + screenHeight && scroll != 0 && !ui.scrolling) {
 			scroll = -height + screenHeight;
@@ -318,29 +321,34 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			cItem = null;
 			return false;
 		}
-		if(cItem == null) {
-			for (int i = 0; i < items.size(); i++) {
-				UIItem it = (UIItem) items.elementAt(i);
-				if (it != null) {
-					if(isItemSeenOnScreen(cItem)) {
-						cItem = it;
-						cItem.focus();
-						return true;
+		try {
+			if(cItem == null) {
+				for (int i = 0; i < items.size(); i++) {
+					UIItem it = (UIItem) items.elementAt(i);
+					if (it != null) {
+						if(isItemSeenOnScreen(cItem)) {
+							cItem = it;
+							cItem.focus();
+							return true;
+						}
 					}
 				}
+				if(cItem == null) {
+					cItem = (UIItem) items.elementAt(0);
+					scroll = 0;
+					cItem.focus();
+					return true;
+				}
 			}
-			if(cItem == null) {
-				cItem = (UIItem) items.elementAt(0);
-				scroll = 0;
-				cItem.focus();
-				return true;
+			if(!isItemSeenOnScreen(cItem)) {
+				smoothlyScrollTo(-cItem.getY());
 			}
+			cItem.focus();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		if(!isItemSeenOnScreen(cItem)) {
-			smoothlyScrollTo(-cItem.getY());
-		}
-		cItem.focus();
-		return true;
 	}
 	
 	private void scrollToFocusedItem() {
@@ -436,8 +444,18 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		cItem = it;
 		it.focus();
 	}
+	
+	public int size() {
+		return items.size();
+	}
 
 	public UIItem getCurrentItem() {
 		return cItem;
+	}
+	
+	protected void show() {
+		if(ui.isKeyInputMode()) {
+			selectItem();
+		}
 	}
 }
