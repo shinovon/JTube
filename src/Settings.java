@@ -90,7 +90,7 @@ public class Settings implements Constants {
 
 	public static void loadConfig() {
 		customLocale = Locale.l;
-		fullScreen = Util.testCanvas().hasPointerEvents();
+		fullScreen = true;
 		/*
 		String s = System.getProperty("kemulator.libvlc.supported");
 		if(s != null && s.equals("true")) {
@@ -342,7 +342,9 @@ public class Settings implements Constants {
 					searchBar = j.getBoolean("searchBar");
 				if(j.has("autoStart"))
 					autoStart = j.getBoolean("autoStart");
-				if(j.has("fullScreen"))
+				if(PlatformUtils.isSymbian93())
+					fullScreen = true;
+				else if(j.has("fullScreen"))
 					fullScreen = j.getBoolean("fullScreen");
 				if(j.has("renderPriority"))
 					renderPriority = j.getInt("renderPriority", 0);
