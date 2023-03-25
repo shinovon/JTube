@@ -143,7 +143,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(Settings.keyboard == 0 && TextEditorUtil.isSupported()) {
 					editor = TextEditorUtil.createTextEditor("", 100, TextField.ANY, 24, 24);
 					editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
-					editor.setBackgroundColor(AppUI.getColor(COLOR_MAINBG) | 0xFF000000);
+					editor.setBackgroundColor(AppUI.getColor(COLOR_TOPBAR_BG) | 0xFF000000);
 					Font f = Font.getDefaultFont();
 					if(DirectFontUtil.isSupported() && App.width >= 360) {
 						f = DirectFontUtil.getFont(0, 0, 23, 0);
@@ -181,6 +181,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 	
 	protected void show() {
+		super.show();
 		if(Settings.amoled != amoledImgs) {
 			try {
 				searchImg = Image.createImage("/search24.png");
