@@ -452,10 +452,4 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	public UIItem getCurrentItem() {
 		return cItem;
 	}
-	
-	protected void show() {
-		if(ui.isKeyInputMode()) {
-			selectItem();
-		}
-	}
 }

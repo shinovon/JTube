@@ -319,6 +319,10 @@ public class Locale implements LocaleConstants {
 				return "Input languages";
 			case SET_j2mekeyboardSettings:
 				return "j2mekeyboard settings";
+			case CMD_Clean:
+				return "Clean";
+			case CMD_FullEdit:
+				return "System input";
 			}
 		}
 		case 1: {
@@ -521,6 +525,10 @@ public class Locale implements LocaleConstants {
 				return "Языки ввода";
 			case SET_j2mekeyboardSettings:
 				return "Настройки j2mekeyboard";
+			case CMD_Clean:
+				return "Очистить";
+			case CMD_FullEdit:
+				return "Системный ввод";
 			}
 		}
 		}

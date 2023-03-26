@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Arman Jussupgaliyev
+ Copyright (c) 2022 Arman Jussupgaliyev
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -77,7 +77,7 @@ public class MainScreen extends NavigationScreen {
 			new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
 			break;
 		case 1:
-			menuOptions[1] = Locale.s(Settings.startScreen == 0 ? CMD_SwitchToTrends : CMD_SwitchToPopular);
+			menuOptions[topBar ? 1 : 2] = Locale.s(Settings.startScreen == 0 ? CMD_SwitchToTrends : CMD_SwitchToPopular);
 			new Thread(new RunnableTask(RunnableTask.SWITCH)).start();
 			break;
 		case 2:

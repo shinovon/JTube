@@ -93,6 +93,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	protected String[] menuOptions;
 
 	private int menuSelectedIndex;
+
+	private int searchRemovedTextWidth;
 	
 	protected NavigationScreen(String label, UIScreen parent) {
 		super(label, parent);
@@ -140,35 +142,41 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 			}
 			if(Settings.keyboard != 2 && topBar) {
-				if(Settings.keyboard == 0 && TextEditorUtil.isSupported()) {
-					editor = TextEditorUtil.createTextEditor("", 100, TextField.ANY, 24, 24);
-					editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
-					editor.setBackgroundColor(AppUI.getColor(COLOR_TOPBAR_BG) | 0xFF000000);
-					Font f = Font.getDefaultFont();
-					if(DirectFontUtil.isSupported() && App.width >= 360) {
-						f = DirectFontUtil.getFont(0, 0, 23, 0);
-					}
-					editor.setFont(f);
-				} else {
-					keyboard = Keyboard.getKeyboard(ui.getCanvas(), false, App.width, App.height);
-					keyboard.setTextFont(searchFont);
-					keyboard.setLanguages(Settings.inputLanguages);
-					ui.getCanvas().setKeyboard(keyboard);
-				}
+				initKeyboard();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		addOk = !topBar &&
 				((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() &&
 					!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
 					!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
 	}
+	
+	private static void initKeyboard() {
+		if(Settings.keyboard == 0 && TextEditorUtil.isSupported()) {
+			if(editor != null) return;
+			editor = TextEditorUtil.createTextEditor("", 100, TextField.ANY, 24, 24);
+			editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
+			editor.setBackgroundColor(AppUI.getColor(COLOR_TOPBAR_BG) | 0xFF000000);
+			Font f = Font.getDefaultFont();
+			if(DirectFontUtil.isSupported() && App.width >= 360) {
+				f = DirectFontUtil.getFont(0, 0, 23, 0);
+			}
+			editor.setFont(f);
+		} else {
+			if(keyboard != null) return;
+			keyboard = Keyboard.getKeyboard(ui.getCanvas(), false, App.width, App.height);
+			keyboard.setTextFont(searchFont);
+			keyboard.setCaretColor(AppUI.getColor(COLOR_MAINFG));
+			keyboard.setLanguages(Settings.inputLanguages);
+			ui.getCanvas().setKeyboard(keyboard);
+		}
+	}
 
 	protected void hide() {
 		wasHidden = true;
 		search = false;
-		if(editor != null && !editorHidden && editor.isVisible()) {
+		if(editor != null && !editorHidden && editor.isVisible() && topBar) {
 			editorHidden = true;
 			searchText = "";
 			editor.setFocus(false);
@@ -182,7 +190,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void show() {
 		super.show();
-		if(Settings.amoled != amoledImgs) {
+		if(Settings.amoled != amoledImgs && topBar) {
 			try {
 				searchImg = Image.createImage("/search24.png");
 				backImg = Image.createImage("/back24.png");
@@ -233,9 +241,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		if(keyboard != null && keyboard.isVisible()) {
 			h -= keyboard.paint(g, w, h);
-			g.clipRect(0, 0, w, h);
+			g.setClip(0, 0, w, h);
 		}
-		if(topBar) {
+		if(search || topBar) {
 			g.translate(0, topBarHeight);
 			if(!search) _paint(g, w, h-topBarHeight);
 			/*
@@ -257,22 +265,40 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
 			g.drawLine(0, topBarHeight, w, topBarHeight);
 			if(search) {
-				g.drawImage(searchImg, w - 36, 12, 0);
-				g.drawImage(backImg, 12, 12, 0);
+				if(topBar) {
+					g.drawImage(searchImg, w - 36, 12, 0);
+					g.drawImage(backImg, 12, 12, 0);
+				}
 				if(editor == null || editorHidden) {
 					g.setFont(searchFont);
 					String s;
 					if(searchText.length() > 0) {
 						s = searchText;
+						int ww = 0;
 						g.setColor(AppUI.getColor(COLOR_MAINFG));
-						while(searchFont.stringWidth(s) >= w-100) {
+						while(searchFont.stringWidth(s) >= w-(topBar ? 100 : 0)) {
+							ww += searchFont.charWidth(s.charAt(0));
 							s = s.substring(1);
 						}
+						searchRemovedTextWidth = ww;
 					} else {
 						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 						s = Locale.s(TXT_SearchHint);
 					}
-					g.drawString(s, 50, (topBarHeight - searchFont.getHeight()) >> 1, 0);
+					g.drawString(s, topBar ? 50 : 0, (topBarHeight - searchFont.getHeight()) >> 1, 0);
+				}
+				if(!topBar) {
+					g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
+					g.fillRect(0, h-softBarHeight, w, softBarHeight);
+					g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
+					g.drawLine(0, h-softBarHeight, w, h-softBarHeight);
+					g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
+					g.setFont(softFont);
+					String s1 = Locale.s(CMD_FullEdit);
+					String s2 = Locale.s(searchText.length() > 0 ? CMD_Clean : CMD_Cancel);
+					g.drawString(s1, 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
+					g.drawString(s2, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
+					g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
 				}
 			} else {
 				if(Settings.fullScreen) {
@@ -322,9 +348,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}*/
 				}
 			}
-			//XXX
 			if(keyboard != null && keyboard.isVisible()) {
-				keyboard.drawCaret(g, 50 + searchFont.stringWidth(searchText), (topBarHeight - searchFont.getHeight()) >> 1);
+				String s = searchText;
+				if(s.length() > 0 && keyboard.getCaretPosition() != s.length()) {
+					s = s.substring(0, keyboard.getCaretPosition());
+				}
+				keyboard.drawCaret(g, (topBar ? 50 : 0) + searchFont.stringWidth(s) - searchRemovedTextWidth, (topBarHeight - searchFont.getHeight()) >> 1);
 			}
 			return;
 		}
@@ -431,6 +460,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		editor.setMultiline(true);
 		editor.setTouchEnabled(true);
 		editor.setTextEditorListener(this);
+		editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
+		editor.setBackgroundColor(AppUI.getColor(COLOR_TOPBAR_BG) | 0xFF000000);
 		setEditorPositions();
 	}
 	
@@ -464,6 +495,36 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			repaint();
 			return;
 		}
+		if(search) {
+			if(i == -7) {
+				if(searchText.length() == 0) search = false;
+				repaint();
+				return;
+			}
+			if(i == -6) {
+				TextBox t = new TextBox("", "", 256, TextField.ANY);
+				t.setCommandListener(this);
+				t.setTitle(Locale.s(CMD_Search));
+				t.addCommand(textOkCmd);
+				t.addCommand(cancelCmd);
+				ui.display(t);
+				return;
+			}
+			if(i == -5) {
+				if(searchText.length() == 0) return;
+				search = false;
+				editorHidden = true;
+				if(editor != null && editor.isVisible()) {
+					editor.setFocus(false);
+					editor.setVisible(false);
+					editor.setParent(null);
+				} else if(keyboard != null && keyboard.isVisible()) {
+					keyboard.hide();
+				}
+				search(searchText);
+				return;
+			}
+		}
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
 			return;
 		}
@@ -494,6 +555,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyReleased(i)) {
 			return;
 		}
+		if(search) {
+			return;
+		}
 		super.keyRelease(i);
 	}
 	
@@ -502,6 +566,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyRepeated(i)) {
+			return;
+		}
+		if(search) {
 			return;
 		}
 		super.keyRepeat(i);
@@ -584,7 +651,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 							}
 							editor.setFocus(true);
 						} else if(keyboard != null) {
-							showKeyboard();
+							int xx = x - (topBar ? 50 : 0) + searchRemovedTextWidth;
+							int i = 0;
+							for(i = searchText.length(); i > 0; i--) {
+								if(searchFont.stringWidth(searchText.substring(0, i)) < xx) {
+									break;
+								}
+							}
+							keyboard.setCaretPostion(i);
+							
 						} else {
 							openSearchTextBox();
 						}
@@ -618,6 +693,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(keyboard.getLength() == 0) {
 			keyboard.setShifted(true);
 		}
+		keyboard.setCaretColor(AppUI.getColor(COLOR_MAINFG));
 		keyboard.setLanguages(Settings.inputLanguages);
 		keyboard.setListener(this);
 		keyboard.show();
@@ -646,15 +722,28 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	protected void search(String s) {
 		new Thread(new RunnableTask(s, RunnableTask.SEARCH)).start();
+		searchText = "";
 	}
 
 	protected void openSearchTextBox() {
-		TextBox t = new TextBox("", "", 256, TextField.ANY);
-		t.setCommandListener(this);
-		t.setTitle(Locale.s(CMD_Search));
-		t.addCommand(textOkCmd);
-		t.addCommand(cancelCmd);
-		ui.display(t);
+		if(Settings.keyboard == 2 || !Settings.fullScreen) {
+			TextBox t = new TextBox("", "", 256, TextField.ANY);
+			t.setCommandListener(this);
+			t.setTitle(Locale.s(CMD_Search));
+			t.addCommand(textOkCmd);
+			t.addCommand(cancelCmd);
+			ui.display(t);
+			return;
+		}
+		initKeyboard();
+		if(editor != null) {
+			editorHidden = false;
+			showEditor();
+			editor.setFocus(true);
+		} else if(keyboard != null) {
+			showKeyboard();
+		}
+		search = true;
 	}
 	
 	protected void setSearchText(String s) {
@@ -688,10 +777,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(c == textOkCmd && d instanceof TextBox) {
+			search = false;
 			search(searchText = ((TextBox) d).getString());
 			return;
 		}
 		if(c == cancelCmd && d instanceof TextBox) {
+			searchText = ((TextBox) d).getString();
 			ui.display(null);
 			return;
 		}

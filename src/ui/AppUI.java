@@ -664,7 +664,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		t.setString("By Shinovon (nnp.nnchan.ru)" + EOL
 				+ "t.me/nnmidlets" + EOL
 				+ "vk.com/nnprojectcc" + EOL + EOL
-				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77"
+				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77, curoviyxru"
 				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
 		t.setCommandListener(l == null ? this : l);
 		t.addCommand(new Command("OK", Command.OK, 1));
