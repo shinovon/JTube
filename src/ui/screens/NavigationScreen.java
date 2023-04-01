@@ -93,8 +93,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	protected String[] menuOptions;
 
 	private int menuSelectedIndex;
-
-	private int searchRemovedTextWidth;
 	
 	protected NavigationScreen(String label, UIScreen parent) {
 		super(label, parent);
@@ -167,7 +165,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			if(keyboard != null) return;
 			keyboard = Keyboard.getKeyboard(ui.getCanvas(), false, App.width, App.height);
 			keyboard.setTextFont(searchFont);
+			keyboard.setTextColor(AppUI.getColor(COLOR_MAINFG));
+			keyboard.setTextHintColor(AppUI.getColor(COLOR_GRAYTEXT));
 			keyboard.setCaretColor(AppUI.getColor(COLOR_MAINFG));
+			keyboard.setTextHint(Locale.s(TXT_SearchHint));
 			keyboard.setLanguages(Settings.inputLanguages);
 			ui.getCanvas().setKeyboard(keyboard);
 		}
@@ -270,22 +271,24 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawImage(backImg, 12, 12, 0);
 				}
 				if(editor == null || editorHidden) {
-					g.setFont(searchFont);
-					String s;
-					if(searchText.length() > 0) {
-						s = searchText;
-						int ww = 0;
-						g.setColor(AppUI.getColor(COLOR_MAINFG));
-						while(searchFont.stringWidth(s) >= w-(topBar ? 100 : 0)) {
-							ww += searchFont.charWidth(s.charAt(0));
-							s = s.substring(1);
-						}
-						searchRemovedTextWidth = ww;
+					if(keyboard != null && keyboard.isVisible()) {
+						keyboard.drawTextBox(g, topBar ? 50 : 0, 0, w - (topBar ? 100 : 0), topBarHeight);
+						keyboard.drawOverlay(g);
 					} else {
-						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
-						s = Locale.s(TXT_SearchHint);
+						g.setFont(searchFont);
+						String s;
+						if(searchText.length() > 0) {
+							s = searchText;
+							g.setColor(AppUI.getColor(COLOR_MAINFG));
+							while(searchFont.stringWidth(s) >= w-(topBar ? 100 : 0)) {
+								s = s.substring(1);
+							}
+						} else {
+							g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
+							s = Locale.s(TXT_SearchHint);
+						}
+						g.drawString(s, topBar ? 50 : 0, (topBarHeight - searchFont.getHeight()) >> 1, 0);
 					}
-					g.drawString(s, topBar ? 50 : 0, (topBarHeight - searchFont.getHeight()) >> 1, 0);
 				}
 				if(!topBar) {
 					g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
@@ -347,13 +350,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.drawLine(xx, yy, xx+menuW, yy);
 					}*/
 				}
-			}
-			if(keyboard != null && keyboard.isVisible()) {
-				String s = searchText;
-				if(s.length() > 0 && keyboard.getCaretPosition() != s.length()) {
-					s = s.substring(0, keyboard.getCaretPosition());
-				}
-				keyboard.drawCaret(g, (topBar ? 50 : 0) + searchFont.stringWidth(s) - searchRemovedTextWidth, (topBarHeight - searchFont.getHeight()) >> 1);
 			}
 			return;
 		}
@@ -496,11 +492,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(search) {
+			/*
 			if(i == -7) {
-				if(searchText.length() == 0) search = false;
-				repaint();
-				return;
+				if(searchText.length() == 0) {
+					search = false;
+					repaint();
+					return;
+				}
 			}
+			*/
 			if(i == -6) {
 				TextBox t = new TextBox("", "", 256, TextField.ANY);
 				t.setCommandListener(this);
@@ -651,15 +651,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 							}
 							editor.setFocus(true);
 						} else if(keyboard != null) {
-							int xx = x - (topBar ? 50 : 0) + searchRemovedTextWidth;
-							int i = 0;
-							for(i = searchText.length(); i > 0; i--) {
-								if(searchFont.stringWidth(searchText.substring(0, i)) < xx) {
-									break;
-								}
-							}
-							keyboard.setCaretPostion(i);
-							
 						} else {
 							openSearchTextBox();
 						}
@@ -693,6 +684,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(keyboard.getLength() == 0) {
 			keyboard.setShifted(true);
 		}
+		keyboard.setTextColor(AppUI.getColor(COLOR_MAINFG));
+		keyboard.setTextHintColor(AppUI.getColor(COLOR_GRAYTEXT));
 		keyboard.setCaretColor(AppUI.getColor(COLOR_MAINFG));
 		keyboard.setLanguages(Settings.inputLanguages);
 		keyboard.setListener(this);
@@ -844,7 +837,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		repaint();
 	}
 	
-	public void requestCaretRepaint() {
+	public void requestTextBoxRepaint() {
 		repaint();
 	}
 	
