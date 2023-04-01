@@ -46,7 +46,6 @@ import LocaleConstants;
 import InvidiousException;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
-import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.json.AbstractJSON;
 import models.VideoModel;
 import ui.nokia_extensions.DirectFontUtil;
@@ -80,7 +79,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private SettingsForm settingsForm;
 
 	private static JTubeCanvas canv;
-	private static int scrollBarWidth;
 	protected UIScreen current;
 
 	private Object repaintLock = new Object();
@@ -673,14 +671,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public int getItemWidth() {
 		return getWidth();
-	}
-
-	public static int getScrollBarWidth() {
-		if(scrollBarWidth == 0) {
-			scrollBarWidth = PlatformUtils.isS603rd() || !canv.hasPointerEvents() ? 4 : 6;
-			if(PlatformUtils.isSymbian94()) scrollBarWidth = 10;
-		}
-		return scrollBarWidth;
 	}
 
 	public void addCommand(Command c) {
