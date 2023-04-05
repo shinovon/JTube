@@ -32,6 +32,7 @@ import Errors;
 import Locale;
 import Settings;
 import Constants;
+import InvidiousException;
 import ui.UIScreen;
 import ui.IModelScreen;
 import ui.UIItem;
@@ -193,7 +194,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			}
 			if(Settings.videoPreviews) channel.load();
 			latestVideos();
-		} catch (RuntimeException e) {
+		} catch (InvidiousException e) {
+			App.error(this, Errors.ChannelForm_load, e);
+		}catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_load, e);

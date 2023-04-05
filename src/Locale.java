@@ -323,6 +323,8 @@ public class Locale implements LocaleConstants {
 				return "Clean";
 			case CMD_FullEdit:
 				return "System input";
+			case TXT_DownloadDirWarning:
+				return "No download folder selected!";
 			}
 		}
 		case 1: {
@@ -529,6 +531,8 @@ public class Locale implements LocaleConstants {
 				return "Очистить";
 			case CMD_FullEdit:
 				return "Системный ввод";
+			case TXT_DownloadDirWarning:
+				return "Папка для загрузки не выбрана!";
 			}
 		}
 		}

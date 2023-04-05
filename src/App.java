@@ -263,11 +263,11 @@ public class App implements Constants {
 			JSONObject j = JSON.getObject(s);
 			if(j.getBoolean("update_available", false) && Settings.checkUpdates && !b) {
 				final String url = j.getString("download_url");
-				String msg = j.getString("message", Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
+				String msg = j.getString("message", Locale.s(Locale.TXT_NewUpdateAvailable));
 				Alert a = new Alert("", "", null, AlertType.INFO);
 				a.setString(msg);
-				final Command ignoreCmd = new Command(Locale.s(LocaleConstants.CMD_Ignore), Command.EXIT, 1);
-				final Command okCmd = new Command(Locale.s(LocaleConstants.CMD_Download), Command.OK, 1);
+				final Command ignoreCmd = new Command(Locale.s(Locale.CMD_Ignore), Command.EXIT, 1);
+				final Command okCmd = new Command(Locale.s(Locale.CMD_Download), Command.OK, 1);
 				a.addCommand(ignoreCmd);
 				a.addCommand(okCmd);
 				a.setCommandListener(new CommandListener() {
@@ -499,6 +499,22 @@ public class App implements Constants {
 				break;
 			}
 			case 1: {
+				if(Settings.downloadDir == null || Settings.downloadDir.length() < 2) {
+					Alert a = new Alert("");
+					a.setString(Locale.s(Locale.TXT_DownloadDirWarning));
+					Command c = new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2);
+					a.addCommand(c);
+					a.setCommandListener(new CommandListener() {
+
+						public void commandAction(Command c, Displayable arg1) {
+							if(c.getPriority() == 2) {
+								AppUI.inst.showSettings();
+							}
+						}
+						
+					});
+					return;
+				}
 				String url = getVideoLink(id, Settings.videoRes, true);
 				String file = "file:///" + Settings.downloadDir;
 				if (!file.endsWith("/") && !file.endsWith("\\"))
@@ -707,6 +723,14 @@ public class App implements Constants {
 					url = url.substring(0, i);
 				}
 				inst.ui.openVideo(url);
+			} else if(url.startsWith("@")) {
+				url = url.substring(url.indexOf('@'));
+				if((i = url.indexOf('/')) != -1) {
+					url = url.substring(0, i);
+				} else if((i = url.indexOf('?')) != -1) {
+					url = url.substring(0, i);
+				}
+				inst.ui.openChannel(url);
 			} else if(url.startsWith("c")) {
 				i = url.indexOf('/');
 				if(i == -1)
