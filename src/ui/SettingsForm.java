@@ -114,10 +114,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup miscChoice;
 	private ChoiceGroup autoStartChoice;
 	private ChoiceGroup keyboardChoice;
+	private TextField playbackInvText;
 
 	private List dirList;
 	private String curDir;
 	private int proxyTextIdx;
+	private int playbackTextIdx;
 	
 	private List langsList;
 	private List inputLangsList;
@@ -171,6 +173,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
 		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
+		playbackInvText = new TextField(Locale.s(SET_PlaybackInv), Settings.playbackInv, 256,
+				Settings.iteroniPlaybackProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
@@ -188,6 +192,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(netLabel);
 		append(netChoice);
 		append(invidiousText);
+		playbackTextIdx = append(playbackInvText);
 		proxyTextIdx = append(httpProxyText);
 		append(downloadBufferText);
 		append(miscLabel);
@@ -316,6 +321,18 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.fastScrolling = debugChoice.isSelected(3);
 			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.keyboard = keyboardChoice.getSelectedIndex();
+			String playbackInv = playbackInvText.getString();
+			if(playbackInv.length() <= 2) {
+				playbackInv = iteroni;
+			} else {
+				if(playbackInv.indexOf(':') == -1) {
+					playbackInv = "http://" + inv;
+				}
+				if(!playbackInv.endsWith("/")) {
+					playbackInv += "/";
+				}
+			}
+			Settings.playbackInv = playbackInv;
 			Settings.saveConfig();
 		} catch (Exception e) {
 			App.error(this, Errors.Settings_apply, e);
@@ -524,6 +541,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			boolean b = Settings.iteroniPlaybackProxy;
 			Settings.iteroniPlaybackProxy = netChoice.isSelected(1);
 			if(Settings.iteroniPlaybackProxy != b) {
+				playbackInvText = new TextField(Locale.s(SET_PlaybackInv), Settings.playbackInv, 256,
+						Settings.iteroniPlaybackProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
+				set(playbackTextIdx, playbackInvText);
 				httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 						Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
 				set(proxyTextIdx, httpProxyText);

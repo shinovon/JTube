@@ -280,7 +280,7 @@ public class Locale implements LocaleConstants {
 			case SET_Off:
 				return "Off";
 			case SET_IteroniProxy:
-				return "Use iteroni proxy for playback";
+				return "Use Invidious proxy for playback";
 			case CMD_Func:
 				return "Options";
 			case CMD_Refresh:
@@ -325,6 +325,8 @@ public class Locale implements LocaleConstants {
 				return "System input";
 			case TXT_DownloadDirWarning:
 				return "No download folder selected!";
+			case SET_PlaybackInv:
+				return "Invidious proxy instance";
 			}
 		}
 		case 1: {
@@ -374,7 +376,7 @@ public class Locale implements LocaleConstants {
 			case SET_DownloadDir:
 				return "Папка для скачивания";
 			case SET_InvAPI:
-				return "Invidious API Instance";
+				return "Invidious API инстанс";
 			case SET_StreamProxy:
 				return "Stream proxy server";
 			case SET_ImagesProxy:
@@ -488,7 +490,7 @@ public class Locale implements LocaleConstants {
 			case SET_Off:
 				return "Выкл.";
 			case SET_IteroniProxy:
-				return "Прокси iteroni для проигрывания";
+				return "Проигрывание через прокси Invidious";
 			case CMD_Func:
 				return "Функции";
 			case CMD_Refresh:
@@ -533,6 +535,8 @@ public class Locale implements LocaleConstants {
 				return "Системный ввод";
 			case TXT_DownloadDirWarning:
 				return "Папка для загрузки не выбрана!";
+			case SET_PlaybackInv:
+				return "Invidious прокси инстанс";
 			}
 		}
 		}

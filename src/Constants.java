@@ -28,7 +28,8 @@ public interface Constants {
 	static final String stream = "http://nnp.nnchan.ru/stream.php?url=";
 	static final String glype = "http://nnp.nnchan.ru/glype/browse.php?u=";
 	static final String updateurl = "http://nnp.nnchan.ru/jtubeupd.php";
-	static final String altinv = "http://invidious.garudalinux.org/";
+	static final String altinv1 = "http://invidious.garudalinux.org/";
+	static final String altinv2 = "http://iv.melmac.space/";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	

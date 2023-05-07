@@ -69,6 +69,7 @@ public class Settings implements Constants {
 	public static String[] inputLanguages = new String[] {"en", "ru"};
 	public static String[] supportedInputLanguages = new String[0];
 	public static int keyboard = 0;
+	public static String playbackInv = iteroni;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -161,6 +162,10 @@ public class Settings implements Constants {
 		
 		if(r == null) {
 			// Defaults
+			if(region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru")) {
+				inv = altinv2;
+				playbackInv = altinv1;
+			}
 			if(PlatformUtils.isJ2ML()) {
 				videoPreviews = true;
 				httpStream = false;
@@ -304,9 +309,6 @@ public class Settings implements Constants {
 						serverstream = glype;
 					}
 				}
-				if(j.has("inv")) {
-					inv = j.getString("inv");
-				}
 				if(j.has("startScreen"))
 					startScreen = j.getInt("startScreen");
 				if(j.has("rmsPreviews"))
@@ -357,6 +359,18 @@ public class Settings implements Constants {
 						inputLanguages[i] = a.getString(i);
 					}
 				}
+				if(j.has("inv")) {
+					inv = j.getString("inv");
+					if(inv.indexOf("iteroni.com") != -1 && (region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru"))) {
+						inv = altinv2;
+					}
+				}
+				if(j.has("playbackInv")) {
+					playbackInv = j.getString("playbackInv");
+					if(playbackInv.indexOf("iteroni.com") != -1 && (region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru"))) {
+						playbackInv = altinv1;
+					}
+				}
 				return;
 			} catch (Exception e) {
 			}
@@ -398,6 +412,7 @@ public class Settings implements Constants {
 			j.put("fullScreen", new Boolean(fullScreen));
 			j.put("renderPriority", new Integer(renderPriority));
 			j.put("keyboard", new Integer(keyboard));
+			j.put("playbackInv", playbackInv);
 			JSONArray inputLanguagesJson = new JSONArray();
 			for(int i = 0; i < inputLanguages.length; i++) {
 				inputLanguagesJson.add(inputLanguages[i]);

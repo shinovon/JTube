@@ -408,4 +408,14 @@ public class Util implements Constants {
 		return Image.createRGBImage(buffer, w, h, true);
 	}
 
+	public static String getOneLine(String text, Font font, int maxWidth) {
+		if(font.stringWidth(text) < maxWidth) {
+			return text;
+		}
+		while(font.stringWidth(text + "..") >= maxWidth) {
+			text = text.substring(0, text.length() - 1);
+		}
+		return text + "..";
+	}
+
 }

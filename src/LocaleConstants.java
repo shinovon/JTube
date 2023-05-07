@@ -131,5 +131,6 @@ public interface LocaleConstants {
 	public static final int CMD_Clean = 120;
 	public static final int CMD_FullEdit = 121;
 	public static final int TXT_DownloadDirWarning = 122;
+	public static final int SET_PlaybackInv = 123;
 
 }

@@ -467,7 +467,7 @@ public class App implements Constants {
 		if(Settings.httpStream || forceProxy) {
 			if(Settings.iteroniPlaybackProxy) {
 				int i = s.indexOf("/videoplayback");
-				s = Settings.inv + s.substring(i+1);
+				s = Settings.playbackInv + s.substring(i+1);
 			} else {
 				s = Settings.serverstream + Util.url(s);
 			}
