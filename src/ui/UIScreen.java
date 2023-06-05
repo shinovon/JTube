@@ -66,11 +66,11 @@ public abstract class UIScreen {
 	}
 	
 	public void repaint() {
-		ui.repaint(false);
+		ui.repaint();
 	}
 	
 	public void repaint(UIItem item) {
-		ui.repaint(false);
+		ui.repaint();
 	}
 
 	public int getHeight() {

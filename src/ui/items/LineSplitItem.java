@@ -42,4 +42,8 @@ public class LineSplitItem extends UIItem implements UIConstants {
 
 	}
 
+	public boolean canBeFocused() {
+		return false;
+	}
+
 }

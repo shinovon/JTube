@@ -138,4 +138,8 @@ public class LabelItem extends UIItem implements UIConstants {
 		relayout();
 	}
 
+	public boolean canBeFocused() {
+		return false;
+	}
+
 }

@@ -82,7 +82,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	protected UIScreen current;
 
 	private Object repaintLock = new Object();
-	private Object repaintResLock = new Object();
 
 	public boolean scrolling;
 	
@@ -105,18 +104,15 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			while(App.midlet.running) {
 				while(display.getCurrent() != canv) {
 					synchronized (repaintLock) {
-						repaintLock.wait(100);
+						repaintLock.wait(5000);
 					}
 				}
 				if(!scrolling) {
 					repaint = false;
 					_repaint();
-					synchronized (repaintResLock) {
-						repaintResLock.notify();
-					}
 					if(repaint) continue;
 					synchronized (repaintLock) {
-						repaintLock.wait(1000);
+						repaintLock.wait(2000);
 					}
 					continue;
 				}
@@ -139,19 +135,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		repaintTime = (int) (System.currentTimeMillis() - time);
 	}
 
-	public void repaint(boolean wait) {
+	public void repaint() {
 		if(display.getCurrent() != canv) return;
 		repaint = true;
 		synchronized (repaintLock) {
 			repaintLock.notify();
-		}
-		if(wait) {
-			try {
-				synchronized (repaintResLock) {
-					repaintResLock.wait(1000);
-				}
-			} catch (Exception e) {
-			}
 		}
 	}
 	
@@ -203,7 +191,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		current = s;
 		canv.resetScreen();
-		repaint(true);
+		repaint();
 		s.show();
 		String t = s.getTitle();
 		if(t != null && t.length() > 0) {
@@ -327,7 +315,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		Loader.start();
 		Util.gc();
 		loadingState = false;
-		repaint(false);
+		repaint();
 	}
 
 	public void loadTrends() throws IOException {
@@ -369,7 +357,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		Loader.start();
 		Util.gc();
 		loadingState = false;
-		repaint(false);
+		repaint();
 	}
 	
 	private UIItem parseAndMakeItem(JSONObject j, boolean search, int i) {
@@ -582,7 +570,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(d == null) {
 			if(display.getCurrent() == canv) return;
 			display.setCurrent(canv);
-			repaint(false);
+			repaint();
 			if(current != null) {
 				current.show();
 			}

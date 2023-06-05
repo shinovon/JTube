@@ -73,9 +73,13 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 			int h = height;
 			if(!ui.keyInput && ui.scrolling) {
 				if(!scrollPreSlide && (releaseTime - pressTime) > 0) {
-					if (scrollSlide && Math.abs(scrollSlideSpeed) > 0.8F && (System.currentTimeMillis() - releaseTime) < scrollSlideMaxTime && s.scroll((int) scrollSlideSpeed)) {
-						final float f = 0.967f;
-						scrollSlideSpeed *= f;
+					float f = ui.repaintTime > 33 ? ui.repaintTime / 33f : 1f;
+					if (scrollSlide && Math.abs(scrollSlideSpeed) > 0.8F && (System.currentTimeMillis() - releaseTime) < scrollSlideMaxTime && s.scroll((int) (scrollSlideSpeed * f))) {
+						scrollSlideSpeed *= 0.967f;
+						if(f >= 2) {
+							int j = (int)f-1;
+							for(int i = 0; i < j; scrollSlideSpeed *= 0.967f, i++);
+						}
 					} else {
 						scrollSlideSpeed = 0;
 						ui.scrolling = false;
@@ -199,14 +203,12 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 			// }
 			if(sdY > 1 || sdX > 1) {
 				draggedMuch = true;
-				if(!ui.scrolling) {
-					needRepaint();
-					ui.scrolling = true;
-				}
+				ui.scrolling = true;
 			}
 		}
 		lastX = x;
 		lastY = y;
+		needRepaint();
 	}
 	
 	public void keyPressed(int i) { 
@@ -245,7 +247,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 	}
 
 	private void needRepaint() {
-		ui.repaint(false);
+		ui.repaint();
 	}
 	
 	public void hideNotify() {

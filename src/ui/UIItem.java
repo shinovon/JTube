@@ -34,8 +34,6 @@ public abstract class UIItem {
 	protected int index;
 
 	boolean hidden = true;
-	
-	boolean skipScrolling = false;
 
 	public UIItem(UIScreen screen) {
 		this.screen = screen;
@@ -93,7 +91,7 @@ public abstract class UIItem {
 		index = i;
 	}
 	
-	public int getIndex() {
+	public int getListPosition() {
 		return index;
 	}
 	
@@ -118,13 +116,13 @@ public abstract class UIItem {
 	protected void onShow() {
 		hidden = false;
 	}
-
-	public void setSkipScrolling(boolean b) {
-		skipScrolling = b;
-	}
 	
 	public int getOKLabel() {
 		return -1;
+	}
+
+	public boolean canBeFocused() {
+		return true;
 	}
 
 }
