@@ -56,7 +56,7 @@ public class Util implements Constants {
 		}
 		// Test UTF-8 support
 		String testWord = "выф";
-		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian9()) {
+		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isPlatformJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian()) {
 			try {
 				String tmp = new String(testWord.getBytes("UTF8"), "UTF8");
 				if(tmp.charAt(0) == 'в') {
@@ -126,7 +126,7 @@ public class Util implements Constants {
 			in = hc.openInputStream();
 			int delay = 200;
 			if(url.endsWith("jpg")) {
-				delay = PlatformUtils.isNotS60() ? 100 : 50;
+				delay = !PlatformUtils.isSymbianJ9() ? 100 : 50;
 			} else if(PlatformUtils.isSamsung()) {
 				delay = 300;
 			}

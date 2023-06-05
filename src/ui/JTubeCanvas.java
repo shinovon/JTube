@@ -25,10 +25,11 @@ import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
 
 import Util;
+import App;
 import cc.nnproject.keyboard.Keyboard;
 import Settings;
 
-public class JTubeCanvas extends GameCanvas implements UIConstants {
+public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 	
 	private AppUI ui;
 	int width;
@@ -235,8 +236,12 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	protected void sizeChanged(int w, int h) {
 		width = w;
 		height = h;
-		Util.testCanvas();
 		if(ui != null) needRepaint();
+		App.inst.schedule(this);
+	}
+	
+	public void run() {
+		Util.testCanvas();
 	}
 
 	private void needRepaint() {
@@ -250,6 +255,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void showNotify() {
+		if(ui == null) return;
+		needRepaint();
 		if(ui.current != null) {
 			ui.current.show();
 		}

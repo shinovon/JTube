@@ -516,7 +516,8 @@ public class App implements Constants {
 					return;
 				}
 				String url = getVideoLink(id, Settings.videoRes, true);
-				String file = "file:///" + Settings.downloadDir;
+				boolean bada = PlatformUtils.isBada();
+				String file = bada ? System.getProperty("fileconn.dir.videos") : ("file:///" + Settings.downloadDir);
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
 				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
@@ -531,7 +532,7 @@ public class App implements Constants {
 				FileConnection fc = null;
 				OutputStream o = null;
 				try {
-					fc = (FileConnection) Connector.open(file);
+					fc = (FileConnection) Connector.open(file, 3);
 					if (fc.exists())
 						fc.delete();
 					fc.create();
@@ -544,6 +545,13 @@ public class App implements Constants {
 							o.close();
 						if (fc != null)
 							fc.close();
+					} catch (Exception e) {
+					}
+				}
+				if(bada) {
+					try {
+						Util.platReq("file:///Media/Videos/watch.ram");
+						return;
 					} catch (Exception e) {
 					}
 				}

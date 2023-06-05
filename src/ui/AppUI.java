@@ -97,38 +97,37 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private Thread repaintThread = new Thread(this);
 
 	private List optionsList;
+
+	private boolean repaint;
 	
 	public void run() {
-		boolean wasScrolling = false;
 		try {
 			while(App.midlet.running) {
 				while(display.getCurrent() != canv) {
-					Thread.sleep(100);
-				}
-				if(!scrolling) { 
-					if(wasScrolling) {
-						_repaint();
-						wasScrolling = false;
-					}
 					synchronized (repaintLock) {
-						repaintLock.wait(1000);
+						repaintLock.wait(100);
 					}
 				}
-				_repaint();
-				if(scrolling) {
-					wasScrolling = true;
-				} else {
+				if(!scrolling) {
+					repaint = false;
+					_repaint();
 					synchronized (repaintResLock) {
 						repaintResLock.notify();
 					}
+					if(repaint) continue;
+					synchronized (repaintLock) {
+						repaintLock.wait(1000);
+					}
+					continue;
 				}
-				waitRepaint();
+				_repaint();
+				limitFramerate();
 			}
 		} catch (InterruptedException e) {
 		}
 	}
 
-	private void waitRepaint() throws InterruptedException {
+	private void limitFramerate() throws InterruptedException {
 		int i = 30;
 		i -= repaintTime;
 		if(i > 0) Thread.sleep(i);
@@ -141,7 +140,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void repaint(boolean wait) {
-		if(display.getCurrent() != canv || scrolling) return;
+		if(display.getCurrent() != canv) return;
+		repaint = true;
 		synchronized (repaintLock) {
 			repaintLock.notify();
 		}
@@ -582,6 +582,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		if(d == null) {
 			if(display.getCurrent() == canv) return;
 			display.setCurrent(canv);
+			repaint(false);
 			if(current != null) {
 				current.show();
 			}

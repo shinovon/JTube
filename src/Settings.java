@@ -98,6 +98,13 @@ public class Settings implements Constants {
 			watchMethod = 1;
 		}
 		*/
+		boolean ru = region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru");
+		if(ru) {
+			inv = altinv2;
+			playbackInv = iteroni;
+			httpStream = true;
+			iteroniPlaybackProxy = false;
+		}
 		try {
 			langsList = new Vector();
 			langsList.addElement(new String[] { "en", "English", "", "Built-in"});
@@ -162,18 +169,16 @@ public class Settings implements Constants {
 		
 		if(r == null) {
 			// Defaults
-			if(region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru")) {
-				inv = altinv2;
-				playbackInv = altinv1;
-			}
 			if(PlatformUtils.isJ2ML()) {
 				videoPreviews = true;
 				httpStream = false;
 				videoRes = "360p";
 				downloadDir = "C:/";
 			} else {
-				boolean s40 = PlatformUtils.isS40();
-				if(!s40) {
+				String downloadDir = System.getProperty("fileconn.dir.videos");
+				if(downloadDir == null)
+					downloadDir = System.getProperty("fileconn.dir.photos");
+				if(downloadDir == null) {
 					getRoots();
 					if(rootsList.size() > 0) {
 						String root = "";
@@ -217,16 +222,10 @@ public class Settings implements Constants {
 						} catch (Exception e) {
 						}
 					}
-				} else {
-					String downloadDir = System.getProperty("fileconn.dir.videos");
-					if(downloadDir == null)
-						downloadDir = System.getProperty("fileconn.dir.photos");
-					if(downloadDir == null)
-						downloadDir = "C:/";
-					else if(downloadDir.startsWith("file:///"))
-						downloadDir = downloadDir.substring("file:///".length());
-					Settings.downloadDir = downloadDir;
+				} else if(downloadDir.startsWith("file:///")) {
+					downloadDir = downloadDir.substring("file:///".length());
 				}
+				Settings.downloadDir = downloadDir;
 				watchMethod = PlatformUtils.isSymbian3Based()/* || PlatformUtils.isBada() || PlatformUtils.isS603rd()*/ ? 1 : 0;
 				searchBar = false;
 				boolean lowEnd = isLowEndDevice();
@@ -239,7 +238,7 @@ public class Settings implements Constants {
 					serverstream = stream;
 					fastScrolling = true;
 				} else {
-					if((PlatformUtils.isNotS60() && !PlatformUtils.isS603rd()) || PlatformUtils.isBada()) {
+					if((!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3orLower()) || PlatformUtils.isBada()) {
 						httpStream = true;
 						asyncLoading = false;
 					}
@@ -253,7 +252,7 @@ public class Settings implements Constants {
 						downloadBuffer = 4096;
 						rmsPreviews = true;
 					}
-					if(PlatformUtils.isS603rd()) {
+					if(PlatformUtils.isS60v3orLower()) {
 						httpStream = true;
 					}
 					rememberSearch = true;
@@ -269,7 +268,7 @@ public class Settings implements Constants {
 					}
 					//char c = PlatformUtils.platform.charAt(5);
 					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
-				} else if(s40 /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
+				} else if(PlatformUtils.isS40() /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					serverstream = stream;
 					videoPreviews = true;
 					rmsPreviews = true;
@@ -284,74 +283,41 @@ public class Settings implements Constants {
 					videoRes = "360p";
 				}
 			}
+			saveConfig();
 		} else {
 			try {
 				JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
 				r.closeRecordStore();
-				if(j.has("videoRes"))
-					videoRes = j.getString("videoRes");
-				if(j.has("region"))
-					region = j.getString("region");
-				if(j.has("downloadDir"))
-					downloadDir = j.getString("downloadDir");
-				if(j.has("videoPreviews"))
-					videoPreviews = j.getBoolean("videoPreviews");
-				if(j.has("searchChannels"))
-					searchChannels = j.getBoolean("searchChannels");
-				if(j.has("rememberSearch"))
-					rememberSearch = j.getBoolean("rememberSearch");
-				if(j.has("httpStream"))
-					httpStream = j.getBoolean("httpStream");
-				if(j.has("serverstream")) {
-					serverstream = j.getString("serverstream");
-					// replace old proxy
-					if(serverstream.endsWith("/stream.php")) {
-						serverstream = glype;
-					}
-				}
-				if(j.has("startScreen"))
-					startScreen = j.getInt("startScreen");
-				if(j.has("rmsPreviews"))
-					rmsPreviews = j.getBoolean("rmsPreviews");
-				if(j.has("customLocale"))
-					customLocale = j.getString("customLocale");
-				if(j.has("searchPlaylists"))
-					searchPlaylists = j.getBoolean("searchPlaylists");
-				if(j.has("debugMemory"))
-					debugMemory = j.getBoolean("debugMemory");
-				if(j.has("watchMethod"))
-					watchMethod = j.getInt("watchMethod");
-				if(j.has("asyncLoading"))
-					asyncLoading = j.getBoolean("asyncLoading");
-				if(j.has("downloadBuffer"))
-					downloadBuffer = j.getInt("downloadBuffer");
-				if(serverstream != null && serverstream.indexOf("nnproject.cc") != -1) {
-					serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
-				}
-				if(j.has("checkUpdates"))
-					checkUpdates = j.getBoolean("checkUpdates");
-				if(j.has("iteroniPlaybackProxy"))
-					iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy");
-				if(j.has("renderDebug"))
-					renderDebug = j.getBoolean("renderDebug");
-				if(j.has("amoled"))
-					amoled = j.getBoolean("amoled");
-				if(j.has("smallPreviews"))
-					smallPreviews = j.getBoolean("smallPreviews");
-				if(j.has("fastScrolling"))
-					fastScrolling = j.getBoolean("fastScrolling");
-				if(j.has("searchBar"))
-					searchBar = j.getBoolean("searchBar");
-				if(j.has("autoStart"))
-					autoStart = j.getBoolean("autoStart");
+				videoRes = j.getString("videoRes", videoRes);
+				region = j.getString("region", region);
+				downloadDir = j.getString("downloadDir", downloadDir);
+				videoPreviews = j.getBoolean("videoPreviews", videoPreviews);
+				searchChannels = j.getBoolean("searchChannels", searchChannels);
+				rememberSearch = j.getBoolean("rememberSearch", rememberSearch);
+				httpStream = j.getBoolean("httpStream", httpStream);
+				serverstream = j.getString("serverstream", serverstream);
+				startScreen = j.getInt("startScreen", startScreen);
+				rmsPreviews = j.getBoolean("rmsPreviews", rmsPreviews);
+				customLocale = j.getString("customLocale", customLocale);
+				searchPlaylists = j.getBoolean("searchPlaylists", searchPlaylists);
+				debugMemory = j.getBoolean("debugMemory", debugMemory);
+				watchMethod = j.getInt("watchMethod", watchMethod);
+				asyncLoading = j.getBoolean("asyncLoading", asyncLoading);
+				downloadBuffer = j.getInt("downloadBuffer", downloadBuffer);
+				checkUpdates = j.getBoolean("checkUpdates", true);
+				iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy", iteroniPlaybackProxy);
+				renderDebug = j.getBoolean("renderDebug", renderDebug);
+				amoled = j.getBoolean("amoled", amoled);
+				smallPreviews = j.getBoolean("smallPreviews", smallPreviews);
+				fastScrolling = j.getBoolean("fastScrolling", fastScrolling);
+				searchBar = j.getBoolean("searchBar", searchBar);
+				autoStart = j.getBoolean("autoStart", autoStart);
 				if(PlatformUtils.isSymbian93())
 					fullScreen = true;
-				else if(j.has("fullScreen"))
-					fullScreen = j.getBoolean("fullScreen");
-				if(j.has("renderPriority"))
-					renderPriority = j.getInt("renderPriority", 0);
-				if(j.has("keyboard"))
-					keyboard = j.getInt("keyboard");
+				else
+					fullScreen = j.getBoolean("fullScreen", fullScreen);
+				renderPriority = j.getInt("renderPriority", 0);
+				keyboard = j.getInt("keyboard", keyboard);
 				if(j.has("inputLanguages")) {
 					JSONArray a = j.getArray("inputLanguages");
 					inputLanguages = new String[a.size()];
@@ -359,18 +325,26 @@ public class Settings implements Constants {
 						inputLanguages[i] = a.getString(i);
 					}
 				}
-				if(j.has("inv")) {
-					inv = j.getString("inv");
-					if(inv.indexOf("iteroni.com") != -1 && (region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru"))) {
+				inv = j.getString("inv", inv);
+				playbackInv = j.getString("playbackInv", playbackInv);
+				String v = j.getString("v", "v1");
+				int i = Integer.parseInt(v=v.substring(1));
+				if(i < 2) {
+					if(serverstream != null) {
+						if(serverstream.endsWith("/stream.php")) {
+							serverstream = glype;
+						} else if(serverstream.indexOf("nnproject.cc") != -1) {
+							serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
+						}
+					}
+					if(ru) {
 						inv = altinv2;
+						playbackInv = iteroni;
+						httpStream = true;
+						iteroniPlaybackProxy = false;
 					}
 				}
-				if(j.has("playbackInv")) {
-					playbackInv = j.getString("playbackInv");
-					if(playbackInv.indexOf("iteroni.com") != -1 && (region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru"))) {
-						playbackInv = altinv1;
-					}
-				}
+				saveConfig();
 				return;
 			} catch (Exception e) {
 			}
@@ -383,7 +357,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v1");
+			j.put("v", "v2");
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
@@ -433,8 +407,8 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return PlatformUtils.isNotS60() &&
-				!PlatformUtils.isS603rd() && 
+		return !PlatformUtils.isSymbianJ9() &&
+				!PlatformUtils.getS60().startsWith("3") && 
 				(PlatformUtils.isS30() || 
 						App.width < 176 || 
 						PlatformUtils.startMemory < 1024 * 1024 ||
