@@ -147,7 +147,7 @@ public class App implements Constants {
 			}
 		} catch (Exception e) {
 		}
-		setLoadingState("Obtaining device Settings.region");
+		setLoadingState("Obtaining device region");
 		Settings.region = System.getProperty("user.country");
 		if(Settings.region == null) {
 			Settings.region = System.getProperty("microedition.locale");
@@ -324,8 +324,12 @@ public class App implements Constants {
 			s = s.concat("&fields=".concat(fields).concat(",error,errorBacktrace,code"));
 		}
 		String dbg = "Region=".concat(Settings.region).concat(" Fields=").concat(fields);
+		s = Settings.inv.concat("api/v1/").concat(s);
+		if(Settings.useApiProxy) {
+			s = Settings.apiProxy.concat("?u=").concat(Util.url(s));
+		}
 		try {
-			s = Util.getUtf(Settings.inv.concat("api/v1/").concat(s));
+			s = Util.getUtf(s);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new NetRequestException(e, s);
@@ -467,8 +471,9 @@ public class App implements Constants {
 		if(Settings.httpStream || forceProxy) {
 			if(Settings.iteroniPlaybackProxy) {
 				int i = s.indexOf("/videoplayback");
-				s = Settings.playbackInv + s.substring(i+1);
-			} else {
+				s = Settings.inv + s.substring(i+1);
+			}
+			if(!Settings.iteroniPlaybackProxy || Settings.useApiProxy) {
 				s = Settings.serverstream + Util.url(s);
 			}
 		}

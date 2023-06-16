@@ -132,5 +132,7 @@ public interface LocaleConstants {
 	public static final int CMD_FullEdit = 121;
 	public static final int TXT_DownloadDirWarning = 122;
 	public static final int SET_PlaybackInv = 123;
+	public static final int SET_ApiProxy = 124;
+	public static final int SET_UseApiProxy = 125;
 
 }

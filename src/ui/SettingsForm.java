@@ -58,7 +58,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			};
 	static final String[] NET_CHECKS = new String[] { 
 			Locale.s(SET_HTTPProxy),
-			Locale.s(SET_IteroniProxy)
+			Locale.s(SET_IteroniProxy),
+			Locale.s(SET_UseApiProxy)
 			};
 	static final String[] APPEARANCE_CHECKS = new String[] { 
 			Locale.s(SET_VideoPreviews), 
@@ -114,12 +115,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup miscChoice;
 	private ChoiceGroup autoStartChoice;
 	private ChoiceGroup keyboardChoice;
-	private TextField playbackInvText;
+	private TextField apiProxyText;
 
 	private List dirList;
 	private String curDir;
 	private int proxyTextIdx;
-	private int playbackTextIdx;
+	private int apiProxyIdx;
 	
 	private List langsList;
 	private List inputLangsList;
@@ -173,8 +174,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
 		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
-		playbackInvText = new TextField(Locale.s(SET_PlaybackInv), Settings.playbackInv, 256,
-				Settings.iteroniPlaybackProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
+		apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
+				Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
@@ -192,7 +193,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(netLabel);
 		append(netChoice);
 		append(invidiousText);
-		playbackTextIdx = append(playbackInvText);
+		apiProxyIdx = append(apiProxyText);
 		proxyTextIdx = append(httpProxyText);
 		append(downloadBufferText);
 		append(miscLabel);
@@ -297,6 +298,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.fullScreen = ui[5];
 			Settings.httpStream = net[0];
 			Settings.iteroniPlaybackProxy = net[1];
+			Settings.useApiProxy = net[2];
 			Settings.rememberSearch = misc[0];
 			Settings.rmsPreviews = misc[1];
 			Settings.serverstream = httpProxyText.getString();
@@ -321,18 +323,13 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.fastScrolling = debugChoice.isSelected(3);
 			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.keyboard = keyboardChoice.getSelectedIndex();
-			String playbackInv = playbackInvText.getString();
-			if(playbackInv.length() <= 2) {
-				playbackInv = iteroni;
-			} else {
-				if(playbackInv.indexOf(':') == -1) {
-					playbackInv = "http://" + inv;
-				}
-				if(!playbackInv.endsWith("/")) {
-					playbackInv += "/";
-				}
+			String apiProxy = apiProxyText.getString();
+			if(apiProxy.length() <= 2) {
+				apiProxy = invproxy;
+			} else if(apiProxy.indexOf(':') == -1) {
+				apiProxy = "http://" + inv;
 			}
-			Settings.playbackInv = playbackInv;
+			Settings.apiProxy = apiProxy;
 			Settings.saveConfig();
 		} catch (Exception e) {
 			App.error(this, Errors.Settings_apply, e);
@@ -538,12 +535,16 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 
 	public void itemStateChanged(Item item) {
 		if(item == netChoice) {
-			boolean b = Settings.iteroniPlaybackProxy;
+			boolean b1 = Settings.iteroniPlaybackProxy;
+			boolean b2 = Settings.useApiProxy;
 			Settings.iteroniPlaybackProxy = netChoice.isSelected(1);
-			if(Settings.iteroniPlaybackProxy != b) {
-				playbackInvText = new TextField(Locale.s(SET_PlaybackInv), Settings.playbackInv, 256,
-						Settings.iteroniPlaybackProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
-				set(playbackTextIdx, playbackInvText);
+			Settings.useApiProxy = netChoice.isSelected(2);
+			if(Settings.useApiProxy != b2) {
+				apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
+						Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
+				set(apiProxyIdx, apiProxyText);
+			}
+			if(Settings.iteroniPlaybackProxy != b1) {
 				httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
 						Settings.iteroniPlaybackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
 				set(proxyTextIdx, httpProxyText);

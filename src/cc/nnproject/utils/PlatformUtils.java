@@ -38,8 +38,7 @@ public class PlatformUtils {
 	private static final String[] ashaTypeModels = new String[] { "200", "201", "205", "210", "302" };
 	
 	public static boolean isKemulator;
-	public static boolean isS60v3;
-	public static boolean isS40;
+	public static boolean isS60;
 	public static boolean isAsha;
 	public static boolean isBada;
 	public static boolean isJ2MELoader;
@@ -50,79 +49,18 @@ public class PlatformUtils {
 	static {
 		isKemulator = checkClass("emulator.custom.CustomMethod");
 		isJ2MELoader = checkClass("javax.microedition.shell.MicroActivity");
-		if(platform != null) {
-			// s60v3 & v2 check
-			//String s;
-			try {
-				isS60v3 = (isSymbian() && !isSymbianTouch()) || isS60PlatformVersion("3") /*|| 
-					(platform.startsWith("Nokia") &&
-					(s = platform.substring(5)).length() > 0 &&
-					//9.1 & 9.2 nokia models
-					(s.startsWith("N73")|| s.startsWith("N95") || s.startsWith("E90") || 
-					s.startsWith("N93") || s.startsWith("N82") || s.startsWith("E71") || 
-					s.startsWith("E70") || s.startsWith("N80") || s.startsWith("E63") || 
-					s.startsWith("E66") || s.startsWith("E51") || s.startsWith("E50") || 
-					s.startsWith("E65") || s.startsWith("E61") || s.startsWith("E60") ||
-					s.startsWith("N91") || s.startsWith("E62") || s.startsWith("N78") ||
-					s.startsWith("3250")|| s.startsWith("N71") || s.startsWith("N75") ||
-					s.startsWith("N77") || s.startsWith("N92") || s.startsWith("5500")||
-					s.startsWith("5700")|| s.startsWith("6110")|| s.startsWith("612") ||
-					s.startsWith("6290")|| s.startsWith("N76") || s.startsWith("N81")
-					))*/;
-			} catch (Exception e) {
-			}
-			// s40 check
-			if(!isSymbian() && (isNokia() || platform.startsWith("Vertu"))) {
-				int i;
-				if((i = platform.indexOf('.')) != -1 && i != platform.length() - 1 && platform.indexOf('.', i+1) == -1) {
-					String p = System.getProperty("fileconn.dir.private");
-					if(p != null) {
-						if(p.indexOf("/private/") != -1) {
-							isS40 = true;
-						}
-					} else {
-						isS40 = true;
-					}
-				}
-			}
-			// asha check
-			asha: {
-			if(isSymbianJ9() || !isNokia()) {
-				break asha;
-			}
-			String s = platform.substring(5);
-			if(s.length() < 3 || !(s.length() == 3 || s.charAt(3) == '/' || s.charAt(3) == '(' || s.charAt(3) == ' ')) {
-				break asha;
-			}
-			for(int i = 0; i < ashaTypeModels.length; i++) {
-				if(s.startsWith(ashaTypeModels[i])) {
-					isAsha = true;
-					break asha;
-				}
-			}
-			for(int i = 0; i < ashaFullTouchModels.length; i++) {
-				if(s.startsWith(ashaFullTouchModels[i])) {
-					isAsha = true;
-					break asha;
-				}
-			}
-			for(int i = 0; i < ashaTouchAndTypeModels.length; i++) {
-				if(s.startsWith(ashaTouchAndTypeModels[i])) {
-					isAsha = true;
-					break asha;
-				}
-			
-			}
-			}
-			// bada check
-			String s2;
-			if(platform.startsWith("SAMSUNG-GT-")) {
-				s2 = platform.substring("SAMSUNG-GT-".length());
-				if(s2.startsWith("S")) s2 = s2.substring(1);
-				isBada = s2.startsWith("538")
-								|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
-								|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
-			}
+		isS60 = isSymbian();
+		// asha check
+		String s40v = getS40_version();
+		isAsha = isNokia() && s40v != null && (s40v.startsWith("7") || s40v.startsWith("8") || s40v.startsWith("9"));
+		// bada check
+		String s2;
+		if(platform.startsWith("SAMSUNG-GT-")) {
+			s2 = platform.substring("SAMSUNG-GT-".length());
+			if(s2.startsWith("S")) s2 = s2.substring(1);
+			isBada = s2.startsWith("538")
+							|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
+							|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
 		}
 	}
 	
@@ -162,20 +100,20 @@ public class PlatformUtils {
 	}
 
 	public static boolean isS60v3() {
-		return isS60v3 && getS60().startsWith("3");
+		return isS60 && getS60().startsWith("3");
 	}
 
 	public static boolean isS60v2() {
-		return isS60v3 && getS60().startsWith("2");
+		return isS60 && getS60().startsWith("2");
 	}
 
 	public static boolean isS60v1() {
-		return isS60v3 && getS60().startsWith("1");
+		return isS60 && getS60().startsWith("1");
 	}
 	
 	// returns true for s60 verions lower than 5.0
 	public static boolean isS60v3orLower() {
-		return isS60v3;
+		return isS60 && !getS60().startsWith("5");
 	}
 
 	// Symbian check
@@ -285,7 +223,158 @@ public class PlatformUtils {
 	}
 
 	public static boolean isS40() {
-		return isS40;
+		//return isS40;
+		return checkClass("javax.microedition.midlet.MIDletProxy") || checkClass("com.nokia.mid.impl.isa.jam.Jam");
+	}
+	
+	public static String getS40_name() {
+		if(!isS40()) {
+			return null;
+		}
+		if(platform.startsWith("Nokia300/") || platform.startsWith("NokiaC3-01") || platform.startsWith("NokiaX3-02")) {
+			return "6th Edition FP1"; // 6th Edition FP1
+		}
+		if(isAshaFullTouch()) {
+			if(platform.startsWith("Nokia230") || platform.startsWith("Nokia5")) {
+				return "Asha Platform"; // Asha Platform
+			}
+		}
+		if(checkClass("javax.microedition.sensor.SensorManager")) { // has jsr 256
+			return "Java Runtime 2.0"; // Java Runtime 2.0
+		}
+		if(isAshaTouchAndType() || isAshaNoTouch()) {
+			if(checkClass("com.nokia.mid.payment.IAPClientPaymentManager")) {
+				return "Java Runtime 1.1"; // Java Runtime 1.1
+			}
+			return "Java Runtime 1.0"; // Java Runtime 1.0
+		}
+		if(checkClass("com.arm.cldc.mas.GlobalLock")) {
+			return "6th Edition"; // 6th Edition SDK
+		}
+		if(checkClass("javax.microedition.location.LocationProvider")) { // has jsr 179
+			return "6th Edition"; // 6th Edition SDK
+		}
+		if(checkClass("javax.microedition.content.ContentHandler")) { // has chapi
+			if(System.getProperty("microedition.jtwi.version") != null) { // has jtwi
+				return "6th Edition Lite"; // 6th Edition Lite
+			}
+			return "5th Edition FP1"; // 5th Edition FP1 SDK
+		}
+		if(System.getProperty("microedition.jtwi.version") != null) {
+			return "5th Edition FP1 Lite"; // 6th Edition FP1 Lite
+		}
+		if(checkClass("javax.microedition.amms.GlobalManager")) { // has amms
+			return "5th Edition"; // 5th Edition SDK
+		}
+		if(checkClass("javax.crypto.Cipher")) { // has crypto api
+			return "3rd Edition FP2"; // 3rd Edition FP2
+		}
+		if(checkClass("javax.xml.parsers")) { // has jsr 172 xml
+			return "3rd Edition FP1"; // 3rd Edition FP1
+		}
+		if(checkClass("javax.microedition.xml.rpc.Element")) { // has jsr 172 rpc
+			return "3rd Edition FP1"; // 3rd Edition FP1
+		}
+		if(checkClass("javax.microedition.m2g.ScalableGraphics")) { // has m2g
+			return "3rd Edition (M2G)"; // 3rd Edition
+		}
+		if(checkClass("com.nokia.mid.pri.PriAccess")) {
+			return "3rd Edition"; // 3rd Edition SDK
+		}
+		if(checkClass("javax.microedition.io.file.FileConnection")) { // has jsr 75
+			return "2nd Edition (JSR 75)"; // DP 2.0 SDK 6230i
+		}
+		if(checkClass("com.nokia.mid.impl.isa.io.GeneralSharedIO")) {
+			return "2nd Edition (2004)"; // DP 2.0 SDK 1.1
+		}
+		if(checkClass("javax.microedition.lcdui.game.GameCanvas")) { // has midp 2.0
+			return "2nd Edition"; // DP 2.0 SDK 1.0
+		}
+		if(checkClass("com.sun.midp.Main")) {
+			return null; // 3410 / not s40
+		}
+		if(checkClass("javax.microedition.media.Manager")) { // has jsr 135
+			return "1st Edition (MMA)"; // 3300
+		}
+		if(checkClass("javax.wireless.messaging.MessageConnection")) { // has wma
+			return "1st Edition (WMA)";
+		}
+		return "1st Edition";
+	}
+	
+	public static String getS40_version() { // not real version
+		if(!isS40()) {
+			return null;
+		}
+		if(platform.startsWith("Nokia300/") || platform.startsWith("NokiaC3-01") || platform.startsWith("NokiaX3-02")) {
+			return "6.1"; // 6th Edition FP1
+		}
+		if(isAshaFullTouch()) {
+			if(platform.startsWith("Nokia230") || platform.startsWith("Nokia5")) {
+				return "9.0"; // Asha Platform
+			}
+		}
+		if(checkClass("javax.microedition.sensor.SensorManager")) { // has jsr 256
+			return "8.0"; // Java Runtime 2.0
+		}
+		if(isAshaTouchAndType() || isAshaNoTouch()) {
+			if(checkClass("com.nokia.mid.payment.IAPClientPaymentManager")) {
+				return "7.1"; // Java Runtime 1.1
+			}
+			return "7.0"; // Java Runtime 1.0
+		}
+		if(checkClass("com.arm.cldc.mas.GlobalLock")) {
+			return "6.0"; // 6th Edition SDK
+		}
+		if(checkClass("javax.microedition.location.LocationProvider")) { // has jsr 179
+			return "6.0"; // 6th Edition SDK
+		}
+		if(checkClass("javax.microedition.content.ContentHandler")) { // has chapi
+			if(System.getProperty("microedition.jtwi.version") != null) { // has jtwi
+				return "6.0 Lite"; // 6th Edition Lite
+			}
+			return "5.1"; // 5th Edition FP1 SDK
+		}
+		if(System.getProperty("microedition.jtwi.version") != null) {
+			return "5.1 Lite"; // 6th Edition FP1 Lite
+		}
+		if(checkClass("javax.microedition.amms.GlobalManager")) { // has amms
+			return "5.0"; // 5th Edition SDK
+		}
+		if(checkClass("javax.crypto.Cipher")) { // has crypto api
+			return "3.2"; // 3rd Edition FP2
+		}
+		if(checkClass("javax.xml.parsers")) { // has jsr 172 xml
+			return "3.1"; // 3rd Edition FP1
+		}
+		if(checkClass("javax.microedition.xml.rpc.Element")) { // has jsr 172 rpc
+			return "3.1"; // 3rd Edition FP1
+		}
+		if(checkClass("javax.microedition.m2g.ScalableGraphics")) { // has m2g
+			return "3.0.1"; // 3rd Edition
+		}
+		if(checkClass("com.nokia.mid.pri.PriAccess")) {
+			return "3.0"; // 3rd Edition SDK
+		}
+		if(checkClass("javax.microedition.io.file.FileConnection")) { // has jsr 75
+			return "2.2"; // DP 2.0 SDK 6230i
+		}
+		if(checkClass("com.nokia.mid.impl.isa.io.GeneralSharedIO")) {
+			return "2.1"; // DP 2.0 SDK 1.1
+		}
+		if(checkClass("javax.microedition.lcdui.game.GameCanvas")) { // has midp 2.0
+			return "2.0"; // DP 2.0 SDK 1.0
+		}
+		if(checkClass("com.sun.midp.Main")) {
+			return null; // 3410 / not s40
+		}
+		if(checkClass("javax.microedition.media.Manager")) { // has jsr 135
+			return "1.2"; // 3300
+		}
+		if(checkClass("javax.wireless.messaging.MessageConnection")) { // has wma
+			return "1.1";
+		}
+		return "1.0";
 	}
 	
 	public static boolean isBada() {
@@ -336,7 +425,7 @@ public class PlatformUtils {
 		return version != null && version.indexOf("phoneme") != -1;
 	}
 
-	public static boolean isS30() {
+	public static boolean isS30Plus() {
 		return platform != null && platform.indexOf("Series30") != -1;
 	}
 

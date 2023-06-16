@@ -69,7 +69,8 @@ public class Settings implements Constants {
 	public static String[] inputLanguages = new String[] {"en", "ru"};
 	public static String[] supportedInputLanguages = new String[0];
 	public static int keyboard = 0;
-	public static String playbackInv = iteroni;
+	public static String apiProxy = invproxy;
+	public static boolean useApiProxy;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -100,10 +101,10 @@ public class Settings implements Constants {
 		*/
 		boolean ru = region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru");
 		if(ru) {
-			inv = altinv2;
-			playbackInv = iteroni;
+			inv = iteroni;
 			httpStream = true;
 			iteroniPlaybackProxy = false;
+			useApiProxy = true;
 		}
 		try {
 			langsList = new Vector();
@@ -266,8 +267,6 @@ public class Settings implements Constants {
 					if(PlatformUtils.isAshaFullTouch()) {
 						searchBar = true;
 					}
-					//char c = PlatformUtils.platform.charAt(5);
-					//customItems = c != '5' && c != '2' && !PlatformUtils.isAshaTouchAndType() && !PlatformUtils.isAshaNoTouch();
 				} else if(PlatformUtils.isS40() /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					serverstream = stream;
 					videoPreviews = true;
@@ -312,10 +311,7 @@ public class Settings implements Constants {
 				fastScrolling = j.getBoolean("fastScrolling", fastScrolling);
 				searchBar = j.getBoolean("searchBar", searchBar);
 				autoStart = j.getBoolean("autoStart", autoStart);
-				if(PlatformUtils.isSymbian93())
-					fullScreen = true;
-				else
-					fullScreen = j.getBoolean("fullScreen", fullScreen);
+				fullScreen = j.getBoolean("fullScreen", fullScreen);
 				renderPriority = j.getInt("renderPriority", 0);
 				keyboard = j.getInt("keyboard", keyboard);
 				if(j.has("inputLanguages")) {
@@ -326,22 +322,18 @@ public class Settings implements Constants {
 					}
 				}
 				inv = j.getString("inv", inv);
-				playbackInv = j.getString("playbackInv", playbackInv);
+				apiProxy = j.getString("apiProxy", apiProxy);
+				useApiProxy = j.getBoolean("useApiProxy", useApiProxy);
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
 				if(i < 2) {
-					if(serverstream != null) {
-						if(serverstream.endsWith("/stream.php")) {
-							serverstream = glype;
-						} else if(serverstream.indexOf("nnproject.cc") != -1) {
-							serverstream = Util.replace(serverstream, "nnproject.cc", "nnp.nnchan.ru");
-						}
-					}
+					serverstream = glype;
+					inv = iteroni;
+					apiProxy = invproxy;
 					if(ru) {
-						inv = altinv2;
-						playbackInv = iteroni;
 						httpStream = true;
 						iteroniPlaybackProxy = false;
+						useApiProxy = true;
 					}
 				}
 				saveConfig();
@@ -361,32 +353,33 @@ public class Settings implements Constants {
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
-			j.put("videoPreviews", new Boolean(videoPreviews));
-			j.put("searchChannels", new Boolean(searchChannels));
-			j.put("rememberSearch", new Boolean(rememberSearch));
-			j.put("httpStream", new Boolean(httpStream));
+			j.put("videoPreviews", videoPreviews);
+			j.put("searchChannels", searchChannels);
+			j.put("rememberSearch", rememberSearch);
+			j.put("httpStream", httpStream);
 			j.put("serverstream", serverstream);
 			j.put("inv", inv);
-			j.put("startScreen", new Integer(startScreen));
-			j.put("rmsPreviews", new Boolean(rmsPreviews));
+			j.put("startScreen", startScreen);
+			j.put("rmsPreviews", rmsPreviews);
 			j.put("customLocale", customLocale);
-			j.put("searchPlaylists", new Boolean(searchPlaylists));
-			j.put("debugMemory", new Boolean(debugMemory));
-			j.put("watchMethod", new Integer(watchMethod));
-			j.put("asyncLoading", new Boolean(asyncLoading));
-			j.put("downloadBuffer", new Integer(downloadBuffer));
-			j.put("checkUpdates", new Boolean(checkUpdates));
-			j.put("iteroniPlaybackProxy", new Boolean(iteroniPlaybackProxy));
-			j.put("renderDebug", new Boolean(renderDebug));
-			j.put("amoled", new Boolean(amoled));
-			j.put("smallPreviews", new Boolean(smallPreviews));
-			j.put("fastScrolling", new Boolean(fastScrolling));
-			j.put("searchBar", new Boolean(searchBar));
-			j.put("autoStart", new Boolean(autoStart));
-			j.put("fullScreen", new Boolean(fullScreen));
-			j.put("renderPriority", new Integer(renderPriority));
-			j.put("keyboard", new Integer(keyboard));
-			j.put("playbackInv", playbackInv);
+			j.put("searchPlaylists", searchPlaylists);
+			j.put("debugMemory", debugMemory);
+			j.put("watchMethod", watchMethod);
+			j.put("asyncLoading", asyncLoading);
+			j.put("downloadBuffer", downloadBuffer);
+			j.put("checkUpdates", checkUpdates);
+			j.put("iteroniPlaybackProxy", iteroniPlaybackProxy);
+			j.put("renderDebug", renderDebug);
+			j.put("amoled", amoled);
+			j.put("smallPreviews", smallPreviews);
+			j.put("fastScrolling", fastScrolling);
+			j.put("searchBar", searchBar);
+			j.put("autoStart", autoStart);
+			j.put("fullScreen", fullScreen);
+			j.put("renderPriority", renderPriority);
+			j.put("keyboard", keyboard);
+			j.put("apiProxy", apiProxy);
+			j.put("useApiProxy", useApiProxy);
 			JSONArray inputLanguagesJson = new JSONArray();
 			for(int i = 0; i < inputLanguages.length; i++) {
 				inputLanguagesJson.add(inputLanguages[i]);
@@ -409,7 +402,7 @@ public class Settings implements Constants {
 	public static boolean isLowEndDevice() {
 		return !PlatformUtils.isSymbianJ9() &&
 				!PlatformUtils.getS60().startsWith("3") && 
-				(PlatformUtils.isS30() || 
+				(PlatformUtils.isS30Plus() || 
 						App.width < 176 || 
 						PlatformUtils.startMemory < 1024 * 1024 ||
 						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));

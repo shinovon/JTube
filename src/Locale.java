@@ -325,8 +325,10 @@ public class Locale implements LocaleConstants {
 				return "System input";
 			case TXT_DownloadDirWarning:
 				return "No download folder selected!";
-			case SET_PlaybackInv:
-				return "Invidious proxy instance";
+			case SET_ApiProxy:
+				return "Proxy for API";
+			case SET_UseApiProxy:
+				return "API through proxy";
 			}
 		}
 		case 1: {
@@ -535,8 +537,10 @@ public class Locale implements LocaleConstants {
 				return "Системный ввод";
 			case TXT_DownloadDirWarning:
 				return "Папка для загрузки не выбрана!";
-			case SET_PlaybackInv:
-				return "Invidious прокси инстанс";
+			case SET_ApiProxy:
+				return "Прокси для API";
+			case SET_UseApiProxy:
+				return "API через прокси";
 			}
 		}
 		}

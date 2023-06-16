@@ -23,12 +23,11 @@ SOFTWARE.
 public interface Constants {
 	
 	// default urls
-	static final String hproxy = "http://nnp.nnchan.ru/proxy.php?";
+	static final String invproxy = "http://nnp.nnchan.ru/invproxy.php";
 	static final String iteroni = "http://iteroni.com/";
 	static final String stream = "http://nnp.nnchan.ru/stream.php?url=";
 	static final String glype = "http://nnp.nnchan.ru/glype/browse.php?u=";
 	static final String updateurl = "http://nnp.nnchan.ru/jtubeupd.php";
-	static final String altinv2 = "http://iv.melmac.space/";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
@@ -50,9 +49,8 @@ public interface Constants {
 	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	
 	/** @deprecated */
-	static final String SYSTEM_LINE_SEPARATOR = System.getProperty("line.separator");
 	static final String PATH_SEPARATOR = "/";
-	static final String EOL = SYSTEM_LINE_SEPARATOR != null ? SYSTEM_LINE_SEPARATOR : "\n";
+	static final String EOL = "\n";
 	
 	static final String CONTANT_DEVELOPER_STRING = "Contact developer: t.me/nnmidletschat";
 	
