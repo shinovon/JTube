@@ -229,6 +229,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		uiChoice.setSelectedIndex(5, Settings.fullScreen);
 		netChoice.setSelectedIndex(0, Settings.httpStream);
 		netChoice.setSelectedIndex(1, Settings.iteroniPlaybackProxy);
+		netChoice.setSelectedIndex(2, Settings.useApiProxy);
 		debugChoice.setSelectedIndex(0, Settings.debugMemory);
 		debugChoice.setSelectedIndex(1, Settings.renderDebug);
 		debugChoice.setSelectedIndex(2, Settings.asyncLoading);

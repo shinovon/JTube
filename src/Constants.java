@@ -48,7 +48,6 @@ public interface Constants {
 	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";
 	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	
-	/** @deprecated */
 	static final String PATH_SEPARATOR = "/";
 	static final String EOL = "\n";
 	
