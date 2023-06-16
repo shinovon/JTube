@@ -55,7 +55,7 @@ public class PlatformUtils {
 		isAsha = isNokia() && s40v != null && (s40v.startsWith("7") || s40v.startsWith("8") || s40v.startsWith("9"));
 		// bada check
 		String s2;
-		if(platform.startsWith("SAMSUNG-GT-")) {
+		if(platform != null && platform.startsWith("SAMSUNG-GT-")) {
 			s2 = platform.substring("SAMSUNG-GT-".length());
 			if(s2.startsWith("S")) s2 = s2.substring(1);
 			isBada = s2.startsWith("538")

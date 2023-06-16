@@ -401,7 +401,7 @@ public class Settings implements Constants {
 	
 	public static boolean isLowEndDevice() {
 		return !PlatformUtils.isSymbianJ9() &&
-				!PlatformUtils.getS60().startsWith("3") && 
+				!(PlatformUtils.isSymbian() && PlatformUtils.getS60().startsWith("3")) && 
 				(PlatformUtils.isS30Plus() || 
 						App.width < 176 || 
 						PlatformUtils.startMemory < 1024 * 1024 ||
