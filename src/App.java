@@ -72,7 +72,7 @@ public class App implements Constants {
 							r.run();
 						} catch (Exception e) {
 						}
-						Thread.yield();
+						Thread.sleep(1);
 					}
 				} catch (InterruptedException e) {
 					return;

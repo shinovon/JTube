@@ -139,8 +139,6 @@ public class Locale implements LocaleConstants {
 				return "Apply";
 			case CMD_Go:
 				return "Go";
-			case CMD_View:
-				return "View";
 			case CMD_Watch:
 				return "Watch";
 			case CMD_Download:
@@ -158,7 +156,7 @@ public class Locale implements LocaleConstants {
 			case CMD_SwitchToTrends:
 				return "Switch to trends";
 			case SET_VideoRes:
-				return "Preferred video quality";
+				return "Video quality";
 			case SET_Appearance:
 				return "Appearance";
 			case SET_OtherSettings:
@@ -169,8 +167,6 @@ public class Locale implements LocaleConstants {
 				return "Invidious API Instance";
 			case SET_StreamProxy:
 				return "Stream proxy server";
-			case SET_ImagesProxy:
-				return "Images proxy prefix";
 			case SET_CountryCode:
 				return "Country code (ISO 3166)";
 			case TITLE_Trends:
@@ -187,16 +183,6 @@ public class Locale implements LocaleConstants {
 				return "Search videos";
 			case TITLE_Loading:
 				return "Loading";
-			case TXT_Views:
-				return "Views";
-			case TXT_LikesDislikes:
-				return "Likes / Dislikes";
-			case TXT_Published:
-				return "Published";
-			case TXT_Description:
-				return "Description";
-			case BTN_ChannelInformation:
-				return "Information";
 			case TXT_Connecting:
 				return "Connecting";
 			case TXT_Waiting:
@@ -229,8 +215,6 @@ public class Locale implements LocaleConstants {
 				return "Next video";
 			case CMD_Prev:
 				return "Prev. video";
-			case SET_CustomLocaleId:
-				return "Custom locale identificator";
 			case SET_HTTPProxy:
 				return "HTTP Proxy Streaming";
 			case SET_PreLoadRMS:
@@ -247,16 +231,10 @@ public class Locale implements LocaleConstants {
 				return "Audio only";
 			case SET_VQ_NoAudio:
 				return "no audio";
-			case SET_Tip1:
-				return "(Used only if http streaming is on)";
-			case SET_Tip2:
-				return "(Leave images proxy empty if HTTPS is supported)";
 			case BTN_Playlists:
 				return "Playlists";
 			case CMD_ShowLink:
 				return "Show link";
-			case SET_Tip3:
-				return "(Always used for online playback, and for downloading if HTTP streaming is enabled)";
 			case SET_PlaybackMethod:
 				return "Playback method";
 			case SET_SymbianOnline:
@@ -351,8 +329,6 @@ public class Locale implements LocaleConstants {
 				return "Применить";
 			case CMD_Go:
 				return "Открыть";
-			case CMD_View:
-				return "Открыть";
 			case CMD_Watch:
 				return "Смотреть";
 			case CMD_Download:
@@ -370,7 +346,7 @@ public class Locale implements LocaleConstants {
 			case CMD_SwitchToTrends:
 				return "Сменить на тренды";
 			case SET_VideoRes:
-				return "Предпочитаемое качество видео";
+				return "Качество видео";
 			case SET_Appearance:
 				return "Внешность";
 			case SET_OtherSettings:
@@ -380,9 +356,7 @@ public class Locale implements LocaleConstants {
 			case SET_InvAPI:
 				return "Invidious API инстанс";
 			case SET_StreamProxy:
-				return "Stream proxy server";
-			case SET_ImagesProxy:
-				return "Прокси для картинок";
+				return "Прокси для стриминга";
 			case SET_CountryCode:
 				return "Код страны (ISO 3166)";
 			case TITLE_Trends:
@@ -399,16 +373,6 @@ public class Locale implements LocaleConstants {
 				return "Поиск видео";
 			case TITLE_Loading:
 				return "Загрузка";
-			case TXT_Views:
-				return "Просмотры";
-			case TXT_LikesDislikes:
-				return "Понравилось / Не понравилось";
-			case TXT_Published:
-				return "Выпущено";
-			case TXT_Description:
-				return "Описание";
-			case BTN_ChannelInformation:
-				return "Информация";
 			case TXT_Connecting:
 				return "Соединение";
 			case TXT_Waiting:
@@ -441,8 +405,6 @@ public class Locale implements LocaleConstants {
 				return "След. видео";
 			case CMD_Prev:
 				return "Пред. видео";
-			case SET_CustomLocaleId:
-				return "Идентификатор польз. локализации";
 			case SET_HTTPProxy:
 				return "HTTP прокси стриминг";
 			case SET_PreLoadRMS:
@@ -459,16 +421,10 @@ public class Locale implements LocaleConstants {
 				return "Только аудио";
 			case SET_VQ_NoAudio:
 				return "без звука";
-			case SET_Tip1:
-				return "(Использован только если включен HTTP стриминг через прокси)";
-			case SET_Tip2:
-				return "(Оставьте пустым если ваше устройство поддерживает HTTPS)";
 			case BTN_Playlists:
 				return "Плейлисты";
 			case CMD_ShowLink:
 				return "Показать ссылку";
-			case SET_Tip3:
-				return "(Используется всегда при онлайн проигрывании, и для скачивания если включен HTTP стриминг)";
 			case SET_PlaybackMethod:
 				return "Способ проигрывания";
 			case SET_SymbianOnline:
@@ -492,7 +448,7 @@ public class Locale implements LocaleConstants {
 			case SET_Off:
 				return "Выкл.";
 			case SET_IteroniProxy:
-				return "Проигрывание через прокси Invidious";
+				return "Стриминг через прокси Invidious";
 			case CMD_Func:
 				return "Функции";
 			case CMD_Refresh:
