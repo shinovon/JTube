@@ -212,6 +212,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 	}
 	
 	public void keyPressed(int i) { 
+		if(i == -21) i = -6;
+		else if(i == -22) i = -7;
 		UIScreen s = ui.current;
 		if(s != null) {
 			s.keyPress(i);
@@ -220,6 +222,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 	}
 	
 	public void keyReleased(int i) {
+		if(i == -21) i = -6;
+		else if(i == -22) i = -7;
 		UIScreen s = ui.current;
 		if(s != null) {
 			s.keyRelease(i);
@@ -228,6 +232,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 	}
 	
 	public void keyRepeated(int i) {
+		if(i == -21) i = -6;
+		else if(i == -22) i = -7;
 		UIScreen s = ui.current;
 		if(s != null) {
 			s.keyRepeat(i);
