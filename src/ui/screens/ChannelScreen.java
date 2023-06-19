@@ -84,9 +84,10 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
 		try {
 			Loader.stop();
-			JSONArray j = (JSONArray) App.invApi("channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
-					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+			JSONObject r = (JSONObject) App.invApi("channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
+					(getWidth() >= 320 ? ",publishedText,viewCount" : "") + ",videos"
 					);
+			JSONArray j = r.getArray("videos");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), false);
