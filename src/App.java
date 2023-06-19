@@ -112,7 +112,9 @@ public class App implements Constants {
 				}
 			}
 			if(idx != -1) {
-				System.arraycopy(queuedTasks, idx+1, queuedTasks, idx, queuedTasks.length - idx);
+				if(idx < queuedTasks.length - 1) {
+					System.arraycopy(queuedTasks, idx+1, queuedTasks, idx, queuedTasks.length - idx);
+				}
 				queuedTasks[queuedTasks.length - 1] = null;
 			}
 		}
@@ -442,8 +444,7 @@ public class App implements Constants {
 				k = Integer.MAX_VALUE;
 			for(int i = 0; i < l; i++) {
 				JSONObject o = arr.getObject(i);
-				String t = o.getNullableString("type");
-				if(t != null && t.startsWith("audio")) {
+				if(o.getString("type", "").startsWith("audio/mp4")) {
 					if(res.equals("_audiolow")) {
 						int n = o.getInt("bitrate", 0);
 						if(n < k) r = o;
@@ -454,9 +455,7 @@ public class App implements Constants {
 					}
 				}
 				if(res.equals("_240p")) {
-					String q = o.getNullableString("qualityLabel");
-					String c = o.getNullableString("container");
-					if(q != null && q.startsWith("240p") && c != null && c.startsWith("mp4")) {
+					if(o.getString("qualityLabel", "").startsWith("240p") && o.getString("type", "").startsWith("video/mp4")) {
 						r = o;
 					}
 				}
@@ -467,6 +466,7 @@ public class App implements Constants {
 
 	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
 		JSONObject o = getVideoInfo(id, res);
+		if(o == null) throw new RuntimeException("not found");
 		String s = o.getString("url");
 		if(Settings.httpStream || forceProxy) {
 			if(Settings.iteroniPlaybackProxy) {
@@ -570,6 +570,10 @@ public class App implements Constants {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			if(e instanceof RuntimeException && "not found".equals(e.getMessage())) {
+				inst.ui.msg("Selected quality is not available");
+				return;
+			}
 			error(null, Errors.App_watch, e);
 		}
 	}
