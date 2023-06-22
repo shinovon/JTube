@@ -439,7 +439,7 @@ public class App implements Constants {
 			return o;
 		} else {
 			JSONObject r = null;
-			int k = 0;
+			int k = -1;
 			if(res.equals("_audiolow"))
 				k = Integer.MAX_VALUE;
 			for(int i = 0; i < l; i++) {
@@ -447,11 +447,11 @@ public class App implements Constants {
 				if(o.getString("type", "").startsWith("audio/mp4")) {
 					if(res.equals("_audiolow")) {
 						int n = o.getInt("bitrate", 0);
-						if(n < k) r = o;
+						if(n < k || n < 0) r = o;
 					}
 					if(res.equals("_audiohigh")) {
 						int n = o.getInt("bitrate", 0);
-						if(n > k) r = o;
+						if(n > k || n < 0) r = o;
 					}
 				}
 				if(res.equals("_240p")) {
@@ -527,8 +527,8 @@ public class App implements Constants {
 					file += "/";
 				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
 					file += "watch.ram";
-				} else /*if (PlatformUtils.isS603rd()) {
-					file += "watch.m3u";
+				} else /*if (PlatformUtils.isSymbian93()) {
+					file += "watch.ram";
 				} else */{
 					Settings.watchMethod = 0;
 					Util.platReq(url);
