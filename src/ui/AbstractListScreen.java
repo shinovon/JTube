@@ -127,7 +127,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				scrollTarget = 1;
 				ui.scrolling = false;
 			} else {
-				scroll = Util.lerp(scroll, scrollTarget, 4, 20);
+				scroll = Util.lerp(scroll, scrollTarget, ui.repaintTime > 33 ? 4 * ui.repaintTime / 33f : 4, 20);
 			}
 			if(scroll > 0) {
 				scroll = 0;
@@ -287,7 +287,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	protected void keyRepeat(int i) {
 		if(AppUI.loadingState) return;
-		if(System.currentTimeMillis()-lastRepeat < 200) return;
+		if(System.currentTimeMillis()-lastRepeat < 100) return;
 		if(cItem != null && (i == -1 || i == -2)) {
 			if(i == -1) {
 				if(cItem.getListPosition() == 0 || cItem == getFirstFocusableItem()) {
