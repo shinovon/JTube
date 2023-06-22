@@ -1,6 +1,7 @@
 Nokia-MIDlet-Background-Event: pause
 MIDlet-Version: 2.4.0
 MIDlet-Info-URL: http://nnp.nnchan.ru/jtube
+Nokia-MIDlet-S60-Selection-Key-Compatibility: true
 MicroEdition-Configuration: CLDC-1.0
 Nokia-MIDlet-UID-1: 0xAFCE0816
 Nokia-MIDlet-Launch-Params: url,videoId,playlistId,channelId

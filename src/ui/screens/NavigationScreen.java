@@ -145,7 +145,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		} catch (Exception e) {
 		}
 		addOk = !topBar &&
-				((PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3orLower() &&
+				((PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3() &&
 					!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
 					!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
 	}
@@ -551,6 +551,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void leftSoft() {
 		if(menuOptions != null) menu = true;
+		repaint();
 	}
 
 	protected void keyRelease(int i) {
@@ -805,12 +806,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(c == backCmd) {
-			if(menu) {
-				menu = false;
-				repaint();
-				return;
-			}
-			back();
+			keyPress(-7);
+			return;
 		}
 	}
 	
