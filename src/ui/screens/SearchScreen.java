@@ -73,25 +73,7 @@ public class SearchScreen extends NavigationScreen {
 			}
 		}
 	}
-/*
-	public void commandAction(Command c, Displayable d) {
-		if(c == backCmd) {
-			AppUI.loadingState = false;
-			ui.showMain();
-			ui.disposeSearchPage();
-			return;
-		}
-		if(c == searchOkCmd && d instanceof TextBox) {
-			App.inst.schedule(new RunnableTask(((TextBox) d).getString(), 2));
-			return;
-		}
-		if(c == optsCmd) {
-			ui.showOptions();
-			return;
-		}
-		super.commandAction(c, d);
-	}
-*/
+	
 	public String getQuery() {
 		return query;
 	}

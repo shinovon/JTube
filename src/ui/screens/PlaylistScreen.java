@@ -40,14 +40,12 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 
 	private PlaylistModel playlist;
 
-	private JSONArray json;
-
-	private VideoModel[] videos;
+	public VideoModel[] videos;
 
 	private boolean shown;
 
 	public PlaylistScreen(PlaylistModel p) {
-		super(p.getTitle(), p.getContainerScreen());
+		super(p.title, p.getContainerScreen());
 		this.playlist = p;
 		menuOptions = null;
 		hasSearch = false;
@@ -61,33 +59,10 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 			new Thread(this).start();
 		}
 	}
-	
-	private void init() {
-		scroll = 0;
-		if(playlist == null) return;
-		try {
-			int l = json.size();
-			Util.gc();
-			videos = new VideoModel[l];
-			for(int i = 0; i < l; i++) {
-				UIItem item = item(json.getObject(i), i);
-				if(item == null) continue;
-				add(item);
-				Util.gc();
-			}
-			json = null;
-			Util.gc();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Throwable e) {
-			App.error(this, Errors.PlaylistForm_init, e);
-		}
-		Loader.start();
-	}
 
 	private UIItem item(JSONObject j, int i) {
 		VideoModel v = new VideoModel(j);
-		v.setIndex(i);
+		v.index = i;
 		v.setContainerScreen(this);
 		if(Settings.videoPreviews && i < 20) {
 			Loader.add(v);
@@ -98,11 +73,30 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 
 	public void load() {
 		try {
-			json = ((JSONObject) App.invApi("playlists/" + playlist.getPlaylistId() + "?",
+			JSONArray json = ((JSONObject) App.invApi("playlists/" + playlist.playlistId + "?",
 					PLAYLIST_EXTENDED_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					)).getArray("videos");
-			init();
+			scroll = 0;
+			if(playlist == null) return;
+			try {
+				int l = json.size();
+				Util.gc();
+				videos = new VideoModel[l];
+				for(int i = 0; i < l; i++) {
+					UIItem item = item(json.getObject(i), i);
+					if(item == null) continue;
+					add(item);
+					Util.gc();
+				}
+				json = null;
+				Util.gc();
+			} catch (RuntimeException e) {
+				throw e;
+			} catch (Throwable e) {
+				App.error(this, Errors.PlaylistForm_init, e);
+			}
+			Loader.start();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Throwable e) {
@@ -121,7 +115,6 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 
 	private void dispose() {
 		clear();
-		playlist.disposeExtendedVars();
 		playlist = null;
 		videos = null;
 		Util.gc();
@@ -135,15 +128,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		parent = s;
 	}
 
-	public int getLength() {
-		return videos.length;
-	}
-
 	protected void menuAction(int action) {
-	}
-	
-	public VideoModel getVideo(int i) {
-		return videos[i];
 	}
 
 }

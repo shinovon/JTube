@@ -74,7 +74,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_PreLoadRMS)
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
-			"Debug memory",
 			"Debug render",
 			"Async loading",
 			"Fast scrolling"
@@ -230,10 +229,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		netChoice.setSelectedIndex(0, Settings.httpStream);
 		netChoice.setSelectedIndex(1, Settings.iteroniPlaybackProxy);
 		netChoice.setSelectedIndex(2, Settings.useApiProxy);
-		debugChoice.setSelectedIndex(0, Settings.debugMemory);
-		debugChoice.setSelectedIndex(1, Settings.renderDebug);
-		debugChoice.setSelectedIndex(2, Settings.asyncLoading);
-		debugChoice.setSelectedIndex(3, Settings.fastScrolling);
+		debugChoice.setSelectedIndex(0, Settings.renderDebug);
+		debugChoice.setSelectedIndex(1, Settings.asyncLoading);
+		debugChoice.setSelectedIndex(2, Settings.fastScrolling);
 		miscChoice.setSelectedIndex(0, Settings.rememberSearch);
 		miscChoice.setSelectedIndex(1, Settings.rmsPreviews);
 		try {
@@ -315,13 +313,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				}
 			}
 			Settings.inv = inv;
-			Settings.debugMemory = debugChoice.isSelected(0);
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
 			Settings.checkUpdates = checkUpdatesChoice.isSelected(0);
-			Settings.renderDebug = debugChoice.isSelected(1);
-			Settings.asyncLoading = debugChoice.isSelected(2);
-			Settings.fastScrolling = debugChoice.isSelected(3);
+			Settings.renderDebug = debugChoice.isSelected(0);
+			Settings.asyncLoading = debugChoice.isSelected(1);
+			Settings.fastScrolling = debugChoice.isSelected(2);
 			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.keyboard = keyboardChoice.getSelectedIndex();
 			String apiProxy = apiProxyText.getString();

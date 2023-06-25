@@ -44,6 +44,7 @@ import RunnableTask;
 import ui.AbstractListScreen;
 import ui.AppUI;
 import ui.Commands;
+import ui.JTubeCanvas;
 import ui.UIItem;
 import ui.UIScreen;
 import ui.nokia_extensions.DirectFontUtil;
@@ -157,13 +158,14 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			editor.setForegroundColor(AppUI.getColor(COLOR_MAINFG) | 0xFF000000);
 			editor.setBackgroundColor(AppUI.getColor(COLOR_TOPBAR_BG) | 0xFF000000);
 			Font f = Font.getDefaultFont();
-			if(DirectFontUtil.isSupported() && App.width >= 360) {
+			if(DirectFontUtil.isSupported() && App.startWidth >= 360) {
 				f = DirectFontUtil.getFont(0, 0, 23, 0);
 			}
 			editor.setFont(f);
 		} else {
 			if(keyboard != null) return;
-			keyboard = Keyboard.getKeyboard(ui.getCanvas(), false, App.width, App.height);
+			JTubeCanvas c = ui.getCanvas();
+			keyboard = Keyboard.getKeyboard(c, false, c.width, c.height);
 			keyboard.setTextFont(searchFont);
 			keyboard.setTextColor(AppUI.getColor(COLOR_MAINFG));
 			keyboard.setTextHintColor(AppUI.getColor(COLOR_GRAYTEXT));

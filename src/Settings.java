@@ -53,7 +53,6 @@ public class Settings implements Constants {
 	public static boolean rmsPreviews;
 	public static boolean searchPlaylists;
 	public static String customLocale;
-	public static boolean debugMemory;
 	public static int downloadBuffer = 1024;
 	public static boolean asyncLoading;
 	public static boolean checkUpdates = true;
@@ -65,7 +64,6 @@ public class Settings implements Constants {
 	public static boolean searchBar = true;
 	public static boolean autoStart;
 	public static boolean fullScreen = true;
-	public static int renderPriority = 0;
 	public static String[] inputLanguages = new String[] {"en", "ru"};
 	public static String[] supportedInputLanguages = new String[0];
 	public static int keyboard = 0;
@@ -274,7 +272,7 @@ public class Settings implements Constants {
 				} else {
 					serverstream = glype;
 				}
-				int min = Math.min(App.width, App.height);
+				int min = Math.min(App.startWidth, App.startHeight);
 				// Symbian 9.4 can't handle H.264/AVC
 				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
 					videoRes = "144p";
@@ -299,7 +297,6 @@ public class Settings implements Constants {
 				rmsPreviews = j.getBoolean("rmsPreviews", rmsPreviews);
 				customLocale = j.getString("customLocale", customLocale);
 				searchPlaylists = j.getBoolean("searchPlaylists", searchPlaylists);
-				debugMemory = j.getBoolean("debugMemory", debugMemory);
 				watchMethod = j.getInt("watchMethod", watchMethod);
 				asyncLoading = j.getBoolean("asyncLoading", asyncLoading);
 				downloadBuffer = j.getInt("downloadBuffer", downloadBuffer);
@@ -312,7 +309,6 @@ public class Settings implements Constants {
 				searchBar = j.getBoolean("searchBar", searchBar);
 				autoStart = j.getBoolean("autoStart", autoStart);
 				fullScreen = j.getBoolean("fullScreen", fullScreen);
-				renderPriority = j.getInt("renderPriority", 0);
 				keyboard = j.getInt("keyboard", keyboard);
 				if(j.has("inputLanguages")) {
 					JSONArray a = j.getArray("inputLanguages");
@@ -363,7 +359,6 @@ public class Settings implements Constants {
 			j.put("rmsPreviews", rmsPreviews);
 			j.put("customLocale", customLocale);
 			j.put("searchPlaylists", searchPlaylists);
-			j.put("debugMemory", debugMemory);
 			j.put("watchMethod", watchMethod);
 			j.put("asyncLoading", asyncLoading);
 			j.put("downloadBuffer", downloadBuffer);
@@ -376,7 +371,6 @@ public class Settings implements Constants {
 			j.put("searchBar", searchBar);
 			j.put("autoStart", autoStart);
 			j.put("fullScreen", fullScreen);
-			j.put("renderPriority", renderPriority);
 			j.put("keyboard", keyboard);
 			j.put("apiProxy", apiProxy);
 			j.put("useApiProxy", useApiProxy);
@@ -403,7 +397,7 @@ public class Settings implements Constants {
 		return !PlatformUtils.isSymbianJ9() &&
 				!(PlatformUtils.isSymbian() && PlatformUtils.getS60().startsWith("3")) && 
 				(PlatformUtils.isS30Plus() || 
-						App.width < 176 || 
+						App.startWidth < 176 || 
 						PlatformUtils.startMemory < 1024 * 1024 ||
 						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
 	}

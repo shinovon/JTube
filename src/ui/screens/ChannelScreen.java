@@ -51,21 +51,12 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	private boolean shown;
 
-	private Runnable playlistsRun = new Runnable() {
-		public void run() {
-			playlists();
-		}
-	};
-	private Runnable latestRun = new Runnable() {
-		public void run() {
-			latestVideos();
-		}
-	};
-
 	private UIItem channelItem;
 
+	private int state;
+
 	public ChannelScreen(ChannelModel c) {
-		super(c.getAuthor(), null);
+		super(c.author, null);
 		this.channel = c;
 		setSearchText("");
 		menuOptions = !topBar ? new String[] {
@@ -79,12 +70,13 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 	
 	protected void latestVideos() {
+		state = 1;
 		clear();
 		add(channelItem);
-		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
+		add(new ButtonItem(Locale.s(BTN_Playlists), this));
 		try {
 			Loader.stop();
-			JSONObject r = (JSONObject) App.invApi("channels/" + channel.getAuthorId() + "/latest?", VIDEO_FIELDS +
+			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "") + ",videos"
 					);
 			JSONArray j = r.getArray("videos");
@@ -115,12 +107,13 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	protected void playlists() {
+		state = 2;
 		clear();
 		add(channelItem);
-		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
+		add(new ButtonItem(Locale.s(BTN_LatestVideos), this));
 		Loader.stop();
 		try {
-			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.getAuthorId() + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
+			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = playlist(j.getObject(i));
@@ -146,11 +139,12 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 	
 	private void init() {
+		state = 1;
 		scroll = 0;
 		AppUI.loadingState = false;
 		if(channel == null) return;
 		add(channelItem = channel.makePageItem());
-		add(new ButtonItem(Locale.s(BTN_Playlists), playlistsRun));
+		add(new ButtonItem(Locale.s(BTN_Playlists), this));
 	}
 
 	protected UIItem playlist(JSONObject j) {
@@ -159,12 +153,13 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	protected void search(String q) {
+		state = 3;
 		clear();
 		add(channelItem);
-		add(new ButtonItem(Locale.s(BTN_LatestVideos), latestRun));
+		add(new ButtonItem(Locale.s(BTN_LatestVideos), this));
 		Loader.stop();
 		try {
-			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.getAuthorId() + "?q=" + Util.url(q), VIDEO_FIELDS +
+			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.authorId + "?q=" + Util.url(q), VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
@@ -189,7 +184,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	public void load() {
 		AppUI.loadingState = true;
 		try {
-			if(!channel.isExtended()) {
+			if(!channel.extended) {
 				channel.extend();
 				init();
 			}
@@ -197,7 +192,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			latestVideos();
 		} catch (InvidiousException e) {
 			App.error(this, Errors.ChannelForm_load, e);
-		}catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_load, e);
@@ -206,6 +201,14 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	public void run() {
+		if(state > 1) {
+			latestVideos();
+			return;
+		}
+		if(state == 1) {
+			playlists();
+			return;
+		}
 		try {
 			load();
 		} catch (Exception e) {

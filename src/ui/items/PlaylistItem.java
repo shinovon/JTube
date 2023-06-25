@@ -46,9 +46,9 @@ public class PlaylistItem extends AbstractButtonItem implements UIConstants {
 	public PlaylistItem(PlaylistModel p) {
 		super();
 		this.playlist = p;
-		this.title = p.getTitle();
-		this.author = p.getAuthor();
-		this.videosStr = Locale.videos(p.getVideoCount());
+		this.title = p.title;
+		this.author = p.author;
+		this.videosStr = Locale.videos(p.videoCount);
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {

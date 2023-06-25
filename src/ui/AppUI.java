@@ -93,8 +93,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public static boolean loadingState;
 
-	private Thread repaintThread = new Thread(this);
-
 	private List optionsList;
 
 	private boolean repaint;
@@ -103,9 +101,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		try {
 			while(App.midlet.running) {
 				while(display.getCurrent() != canv) {
-					synchronized (repaintLock) {
-						repaintLock.wait(5000);
-					}
+					Thread.sleep(500);
 				}
 				if(!scrolling) {
 					repaint = false;
@@ -230,13 +226,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			if(mainScr == null) {
 				mainScr = new MainScreen();
 			}
-			setScreen(mainScr);
 			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
 				loadPopular();
 			}
-			loadingState = false;
 			Util.gc();
 		} catch (InvidiousException e) {
 			App.error(this, Errors.AppUI_loadForm, e);
@@ -246,18 +240,14 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (Throwable e) {
 			App.error(this, Errors.AppUI_loadForm, e);
 		}
+		loadingState = false;
+		setScreen(mainScr);
 	}
 
 	public void init() {
 		inst = this;
 		canv = new JTubeCanvas(this);
 		resetFullScreenMode();
-		if(Settings.renderPriority != 0)
-			repaintThread.setPriority(5 + Settings.renderPriority);
-		//if(!Settings.renderPriority) {
-		//	repaintThread.setPriority(5);
-		//}
-		repaintThread.start();
 		try {
 			DirectFontUtil.init();
 		} catch (Throwable e) {
@@ -366,26 +356,26 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			// video
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
-			if(search) v.setFromSearch();
+			v.fromSearch = search;
 			if(Settings.videoPreviews) Loader.add(v);
 			return v.makeListItem();
 		}
 		if(type.equals("video")) {
 			VideoModel v = new VideoModel(j);
 			v.setIndex(i);
-			if(search) v.setFromSearch();
+			v.fromSearch = search;
 			if(Settings.videoPreviews) Loader.add(v);
 			return v.makeListItem();
 		}
 		if(Settings.searchChannels && type.equals("channel")) {
 			ChannelModel c = new ChannelModel(j);
-			if(search) c.setFromSearch();
+			c.fromSearch = search;
 			if(Settings.videoPreviews) Loader.add(c);
 			return c.makeListItem();
 		}
 		if(Settings.searchPlaylists && type.equals("playlist")) {
 			PlaylistModel p = new PlaylistModel(j);
-			if(search) p.setFromSearch();
+			p.fromSearch = search;
 			return p.makeListItem();
 		}
 		return null;
@@ -596,22 +586,22 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void open(AbstractModel model, UIScreen formContainer) {
 		AppUI ui = inst;
 		if(current instanceof ChannelScreen && model instanceof ChannelModel
-			&& ((ChannelModel)model).getAuthorId().equals(((ChannelScreen)current).getChannel().getAuthorId())) {
+			&& ((ChannelModel)model).authorId.equals(((ChannelScreen)current).getChannel().authorId)) {
 			return;
 		}
 		// check if already loading
 		if(model instanceof VideoModel && current instanceof VideoScreen && ui.videoScr != null
-			&& ((VideoModel)model).getVideoId().equals(((VideoModel)((VideoScreen)current).getModel()).getVideoId())) {
+			&& ((VideoModel)model).videoId.equals(((VideoModel)((VideoScreen)current).getModel()).videoId)) {
 			return;
 		}
 		if(model instanceof PlaylistModel) {
-			if(((PlaylistModel) model).getVideoCount() > PLAYLIST_VIDEOS_LIMIT) {
+			if(((PlaylistModel) model).videoCount > PLAYLIST_VIDEOS_LIMIT) {
 				msg(">" + PLAYLIST_VIDEOS_LIMIT + " videos!!!");
 				return;
 			}
 		}
 		if(!Settings.rememberSearch) {
-			if(model.isFromSearch()) {
+			if(model.fromSearch) {
 				ui.disposeSearchPage();
 			}
 		}
@@ -628,7 +618,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			ui.channelScr = (ChannelScreen) scr;
 		}
 		Util.gc();
-		
 	}
 
 	public void showSettings() {
@@ -739,7 +728,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void back(UIScreen s) {
-		if(s instanceof IModelScreen && ((IModelScreen)s).getModel().isFromSearch() && searchScr != null) {
+		if(s instanceof IModelScreen && ((IModelScreen)s).getModel().fromSearch && searchScr != null) {
 			setScreen(searchScr);
 		} else {
 			showMain();

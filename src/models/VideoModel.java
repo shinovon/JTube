@@ -46,26 +46,25 @@ import tube42.lib.imagelib.ImageUtils;
 
 public class VideoModel extends AbstractModel implements ILoader, Constants, Runnable {
 
-	private String title;
-	private String videoId;
-	private String author;
-	private String authorId;
-	private String description;
-	private int viewCount;
-	private String publishedText;
-	private int lengthSeconds;
-	private int likeCount;
-	private int dislikeCount;
-	private String playlistId;
+	public String title;
+	public String videoId;
+	public String author;
+	public String authorId;
+	public String description;
+	public int viewCount;
+	public String publishedText;
+	public int lengthSeconds;
+	public int likeCount;
+	public String playlistId;
 	private int subCount;
 
 	private String thumbnailUrl;
-	private int imageWidth;
+	public int imageWidth;
 	private String authorThumbnailUrl;
 
-	private boolean extended;
-	private boolean fromSearch;
-	private boolean fromPlaylist;
+	public boolean extended;
+	public boolean fromSearch;
+	public boolean fromPlaylist;
 	
 	private VideoItem item;
 	private VideoPreviewItem prevItem;
@@ -73,7 +72,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	
 	private UIScreen containerScreen;
 	
-	private int index = -1;
+	public int index = -1;
 	private boolean imgLoaded;
 	
 	private byte[] tempImgBytes;
@@ -111,7 +110,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			subCount = j.getInt("subCount", 0);
 			description = j.getNullableString("description");
 			likeCount = j.getInt("likeCount", -1);
-			dislikeCount = j.getInt("dislikeCount", -1);
 			if(Settings.videoPreviews && j.has("authorThumbnails")) {
 				authorThumbnailUrl = App.getThumbUrl(j.getArray("authorThumbnails"), 36);
 			}
@@ -243,37 +241,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		authorThumbnailUrl = null;
 		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), 36, 36));
 	}
-	public String getTitle() {
-		return title;
-	}
-
-	public String getVideoId() {
-		return videoId;
-	}
-
-	public String getAuthor() {
-		return author;
-	}
-
-	public String getAuthorId() {
-		return authorId;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public int getViewCount() {
-		return viewCount;
-	}
-
-	public String getPublishedText() {
-		return publishedText;
-	}
-
-	public int getLengthSeconds() {
-		return lengthSeconds;
-	}
 	
 	public void setIndex(int i) {
 		this.index = i;
@@ -293,18 +260,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		loadDone = true;
 	}
 
-	public void setFromSearch() {
-		fromSearch = true;
-	}
-	
-	public boolean isFromSearch() {
-		return fromSearch;
-	}
-	
-	public boolean isFromPlaylist() {
-		return fromPlaylist;
-	}
-
 	public void dispose() {
 		thumbnailUrl = null;
 	}
@@ -317,26 +272,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		authorThumbnailUrl = null;
 		channelItem = null;
 		prevItem = null;
-	}
-
-	public int getLikeCount() {
-		return likeCount;
-	}
-
-	public int getDislikeCount() {
-		return dislikeCount;
-	}
-
-	public boolean isExtended() {
-		return extended;
-	}
-
-	public int getIndex() {
-		return index;
-	}
-
-	public String getPlaylistId() {
-		return playlistId;
 	}
 
 	// Cache image to RMS
@@ -372,23 +307,19 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 	
 	public ChannelItem makeChannelItem() {
-		return channelItem = (ChannelItem) new ChannelModel(getAuthorId(), getAuthor(), null, subCount).makePageItem();
+		return channelItem = (ChannelItem) new ChannelModel(authorId, author, null, subCount).makePageItem();
 	}
 
 	public void setContainerScreen(UIScreen s) {
 		this.containerScreen = s;
 		this.fromPlaylist = s instanceof PlaylistScreen;
 		if(fromPlaylist) {
-			this.playlistId = ((PlaylistModel)((PlaylistScreen)s).getModel()).getPlaylistId();
+			this.playlistId = ((PlaylistModel)((PlaylistScreen)s).getModel()).playlistId;
 		}
 	}
 
 	public UIScreen getContainerScreen() {
 		return containerScreen;
-	}
-
-	public void setImageWidth(int i) {
-		imageWidth = i;
 	}
 
 }

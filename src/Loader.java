@@ -11,7 +11,7 @@ public class Loader {
 	protected static int tasksIdx;
 	
 	protected static void init() {
-		int loadPriority = 5 - Settings.renderPriority;
+		int loadPriority = 5;
 		if(!Settings.isLowEndDevice() && Settings.asyncLoading) {
 			t0 = new LoaderThread(loadPriority, 0);
 			t1 = new LoaderThread(loadPriority, 1);

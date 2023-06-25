@@ -24,16 +24,10 @@ package models;
 import ui.IModelScreen;
 
 public abstract class AbstractModel {
-
-	public abstract void setFromSearch();
 	
-	public abstract boolean isFromSearch();
-	
-	public abstract boolean isExtended();
+	public boolean fromSearch;
 	
 	public abstract void dispose();
-	
-	public abstract void disposeExtendedVars();
 
 	public abstract IModelScreen makeScreen();
 	

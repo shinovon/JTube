@@ -67,10 +67,10 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	public VideoItem(VideoModel v) {
 		super();
 		this.video = v;
-		this.lengthStr = Util.timeStr(v.getLengthSeconds());
-		this.title = v.getTitle();
-		this.author = v.getAuthor();
-		this.views = v.getViewCount();
+		this.lengthStr = Util.timeStr(v.lengthSeconds);
+		this.title = v.title;
+		this.author = v.author;
+		this.views = v.viewCount;
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
@@ -89,7 +89,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 		if(Settings.smallPreviews) {
 			boolean b = w == 320;
 			boolean b2 = w >= 480;
-			boolean b3 = App.width <= 240;
+			boolean b3 = App.startWidth <= 240;
 			boolean b4 = w >= 320;
 			boolean b5 = w > 320;
 			int xx = x + 4;
@@ -267,11 +267,11 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 			makeTitleArr(w);
 			imgHeight = 0;
 			if(Settings.videoPreviews) {
-				video.setImageWidth(getImgWidth(w));
+				video.imageWidth = getImgWidth(w);
 				if(img != null) {
 					if(Settings.rmsPreviews) {
 						try {
-							Image i = Records.saveOrGetImage(video.getVideoId(), null);
+							Image i = Records.saveOrGetImage(video.videoId, null);
 							if(i != null) img = video.customResize(i);
 						} catch (Exception e) {
 						}
@@ -319,7 +319,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	public void run() {
 		if(img == null && Settings.videoPreviews && Settings.rmsPreviews) {
 			try {
-				Image i = Records.saveOrGetImage(video.getVideoId(), null);
+				Image i = Records.saveOrGetImage(video.videoId, null);
 				if(i != null)
 					img = video.customResize(i);
 				repaint();

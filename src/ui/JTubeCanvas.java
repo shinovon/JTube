@@ -24,16 +24,14 @@ package ui;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.Graphics;
 
-import Util;
-import App;
 import cc.nnproject.keyboard.Keyboard;
 import Settings;
 
-public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
+public class JTubeCanvas extends GameCanvas implements UIConstants {
 	
 	private AppUI ui;
-	int width;
-	int height;
+	public int width;
+	public int height;
 	
 	private boolean pressed;
 	private int pressX;
@@ -65,6 +63,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 
 	public void updateScreen() {
 		Graphics g = getGraphics();
+		width = super.getWidth();
+		height = super.getHeight();
 		g.setColor(AppUI.getColor(COLOR_MAINBG));
 		g.fillRect(0, 0, width, height);
 		UIScreen s = ui.current;
@@ -245,11 +245,6 @@ public class JTubeCanvas extends GameCanvas implements UIConstants, Runnable {
 		width = w;
 		height = h;
 		if(ui != null) needRepaint();
-		App.inst.schedule(this);
-	}
-	
-	public void run() {
-		Util.testCanvas();
 	}
 
 	private void needRepaint() {

@@ -33,6 +33,7 @@ import Settings;
 import ui.AppUI;
 import ui.Commands;
 import ui.UIScreen;
+import RunnableTask;
 import ui.IModelScreen;
 import models.VideoModel;
 import ui.items.ChannelItem;
@@ -52,9 +53,9 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	private boolean shown;
 
 	public VideoScreen(VideoModel v) {
-		super(v.getTitle(), null);
+		super(v.title, null);
 		this.video = v;
-		menuOptions = video.isFromPlaylist() ? new String[] {
+		menuOptions = video.fromPlaylist ? new String[] {
 				Locale.s(CMD_Watch),
 				Locale.s(CMD_Download),
 				Locale.s(CMD_ShowLink),
@@ -78,14 +79,14 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		VideoModel video = this.video;
 		if(Settings.videoPreviews)
 			add(video.makePreviewItem());
-		Font f = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_MEDIUM) : mediumfont;
-		LabelItem title = new LabelItem(video.getTitle(), f);
+		Font f = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_MEDIUM) : mediumfont;
+		LabelItem title = new LabelItem(video.title, f);
 		title.setMarginWidth(9);
 		title.setMarginTop(12);
 		title.setMaxLines(2);
 		add(title);
-		f = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 20, Font.SIZE_SMALL) : smallfont;
-		LabelItem views = new LabelItem(Locale.views(video.getViewCount()).concat(" • ").concat(Locale.date(video.getPublishedText())), f, AppUI.getColor(COLOR_GRAYTEXT));
+		f = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 20, Font.SIZE_SMALL) : smallfont;
+		LabelItem views = new LabelItem(Locale.views(video.viewCount).concat(" • ").concat(Locale.date(video.publishedText)), f, AppUI.getColor(COLOR_GRAYTEXT));
 		views.setMarginTop(3);
 		views.setMarginWidth(9);
 		views.setMaxLines(2);
@@ -95,8 +96,8 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		ChannelItem c = video.makeChannelItem();
 		add(c);
 		channel = c.getChannel();
-		add(new VideoExtrasItem(this, video.getLikeCount()));
-		DescriptionItem d = new DescriptionItem(video.getDescription(), f);
+		add(new VideoExtrasItem(this, video.likeCount));
+		DescriptionItem d = new DescriptionItem(video.description, f);
 		add(d);
 		relayout();
 		repaint();
@@ -125,7 +126,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	public void load() {
 		AppUI.loadingState = true;
 		try {
-			if(!video.isExtended()) {
+			if(!video.extended) {
 				video.extend();
 				init();
 				AppUI.loadingState = false;
@@ -198,7 +199,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	protected void menuAction(int action) {
 		switch(action) {
 		case 0:
-			App.watch(video.getVideoId());
+			new Thread(new RunnableTask(video.videoId, RunnableTask.WATCH)).start();
 			break;
 		case 1:
 			download();
@@ -213,15 +214,15 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			ui.showSettings();
 			break;
 		case 5:
-			if(parent != null && video.isFromPlaylist()) {
+			if(parent != null && video.fromPlaylist) {
 				ui.setScreen(parent);
 			}
 			break;
 		case 6:
-			if(parent != null && video.isFromPlaylist()) {
+			if(parent != null && video.fromPlaylist) {
 				PlaylistScreen p = (PlaylistScreen) parent;
-				int cur = video.getIndex();
-				int l = p.getLength();
+				int cur = video.index;
+				int l = p.videos.length;
 				int i = 0;
 				if(cur + 1 < l) {
 					i = cur + 1;
@@ -229,16 +230,16 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 					i = 0;
 					return;
 				}
-				VideoModel nv = p.getVideo(i);
+				VideoModel nv = p.videos[i];
 				ui.open(nv, parent);
 				dispose();
 			}
 			break;
 		case 7:
-			if(parent != null && video.isFromPlaylist()) {
+			if(parent != null && video.fromPlaylist) {
 				PlaylistScreen p = (PlaylistScreen) parent;
-				int cur = video.getIndex();
-				int l = p.getLength();
+				int cur = video.index;
+				int l = p.videos.length;
 				int i = 0;
 				if(cur - 1 > 0) {
 					i = cur - 1;
@@ -246,7 +247,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 					i = l - 1;
 					return;
 				}
-				VideoModel nv = p.getVideo(i);
+				VideoModel nv = p.videos[i];
 				ui.open(nv, parent);
 				dispose();
 			}
@@ -277,14 +278,14 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	
 	public void showLink() {
 		TextBox t = new TextBox("", "", 64, TextField.URL);
-		t.setString("https://www.youtube.com/watch?v=" + video.getVideoId() + (video.isFromPlaylist() ? "&list=" + video.getPlaylistId() : ""));
+		t.setString("https://www.youtube.com/watch?v=" + video.videoId + (video.fromPlaylist ? "&list=" + video.playlistId : ""));
 		t.addCommand(backCmd);
 		t.setCommandListener(this);
 		ui.display(t);
 	}
 	
 	public void download() {
-		App.download(video.getVideoId(), video.getTitle());
+		App.download(video.videoId, video.title);
 	}
 
 }

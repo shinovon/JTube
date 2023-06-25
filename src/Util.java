@@ -28,12 +28,10 @@ import java.util.Vector;
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Image;
 
 import cc.nnproject.utils.PlatformUtils;
-import ui.TestCanvas;
 
 public class Util implements Constants {
 	
@@ -41,8 +39,6 @@ public class Util implements Constants {
 	
 	private static String charset = "UTF-8";
 	private static String alt_charset = "ISO-8859-1";
-	
-	private static Canvas testCanvas;
 	
 	static {
 		try {
@@ -108,7 +104,10 @@ public class Util implements Constants {
 			}
 			int r = hc.getResponseCode();
 			int redirects = 0;
-			while (r == 301 || r == 302 && hc.getHeaderField("Location") != null) {
+			while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
+				if(redirects++ > 5) {
+					throw new IOException("Too many redirects!");
+				}
 				String redir = hc.getHeaderField("Location");
 				if (redir.startsWith("/")) {
 					String tmp = url.substring(url.indexOf("//") + 2);
@@ -118,19 +117,18 @@ public class Util implements Constants {
 				hc.close();
 				hc = (HttpConnection) Connector.open(redir);
 				hc.setRequestMethod("GET");
-				if(redirects++ > 8) {
-					throw new IOException("Too many redirects!");
-				}
 			}
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
-			int delay = 200;
-			if(url.endsWith("jpg")) {
-				delay = !PlatformUtils.isSymbianJ9() ? 100 : 50;
-			} else if(PlatformUtils.isSamsung()) {
-				delay = 300;
+			if(!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS40()) {
+				int delay = 200;
+				if(url.endsWith("jpg")) {
+					delay = 100;
+				} else if(PlatformUtils.isSamsung()) {
+					delay = 300;
+				}
+				Thread.sleep(delay);
 			}
-			Thread.sleep(delay);
 			int read;
 			o = new ByteArrayOutputStream();
 			byte[] b = new byte[buffer_size];
@@ -299,14 +297,6 @@ public class Util implements Constants {
 		if(App.midlet.platformRequest(s)) {
 			App.midlet.notifyDestroyed();
 		}
-	}
-
-	public static Canvas testCanvas() {
-		if(testCanvas == null)
-			testCanvas = new TestCanvas();
-		App.width = testCanvas.getWidth();
-		App.height = testCanvas.getHeight();
-		return testCanvas;
 	}
 
 	public static String getFileName(String s) {

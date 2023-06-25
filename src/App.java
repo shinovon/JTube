@@ -31,12 +31,9 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.StringItem;
-import javax.microedition.lcdui.TextBox;
 
 import ui.AppUI;
+import ui.screens.SplashScreen;
 import cc.nnproject.json.JSON;
 import cc.nnproject.ytapp.App2;
 import midletintegration.MIDletIntegration;
@@ -46,11 +43,14 @@ import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSONException;
 import cc.nnproject.utils.PlatformUtils;
 
-public class App implements Constants {
+public class App implements Constants, Runnable {
 	
 	public static App inst;
 	public static App2 midlet;
 	private AppUI ui;
+	
+	public static int startWidth;
+	public static int startHeight;
 	
 	private Runnable[] queuedTasks = new Runnable[30];
 	private int queuedTasksIdx;
@@ -83,12 +83,7 @@ public class App implements Constants {
 		}
 	};
 
-	private int startSys;
-
-	public static Form loadingForm;
-	private StringItem loadingItem;
-	private Command loadingExitCmd;
-	private Command loadingSetsCmd;
+	private Thread uiThread;
 
 	public void schedule(Runnable r) {
 		queuedTasks[queuedTasksIdx++] = r;
@@ -119,37 +114,12 @@ public class App implements Constants {
 			}
 		}
 	}
-	
-	public static int width;
-	public static int height;
 
 	public void startApp() {
-		loadingForm = new Form("Loading");
-		loadingItem = new StringItem("", "");
-		loadingItem.setLayout(Item.LAYOUT_CENTER | Item.LAYOUT_VCENTER);
-		loadingForm.append(loadingItem);
-		loadingForm.addCommand(loadingExitCmd = new Command("Exit", Command.EXIT, 1));
-		loadingForm.setCommandListener(new CommandListener() {
-
-			public void commandAction(Command c, Displayable d) {
-				if(c == loadingExitCmd) {
-					midlet.notifyDestroyed();
-				}
-				if(c == loadingSetsCmd) {
-					ui.showSettings();
-				}
-			}
-			
-		});
-		Display.getDisplay(midlet).setCurrent(loadingForm);
-		try {
-			String p = System.getProperty("com.nokia.memoryramfree");
-			if(p != null) {
-				startSys = Integer.parseInt(p)/1024;
-			}
-		} catch (Exception e) {
-		}
-		setLoadingState("Obtaining device region");
+		SplashScreen splash = new SplashScreen();
+		Display.getDisplay(midlet).setCurrent(splash);
+		App.startWidth = splash.getWidth();
+		App.startHeight = splash.getHeight();
 		Settings.region = System.getProperty("user.country");
 		if(Settings.region == null) {
 			Settings.region = System.getProperty("microedition.locale");
@@ -165,68 +135,36 @@ public class App implements Constants {
 		} else if(Settings.region.length() > 2) {
 			Settings.region = Settings.region.substring(0, 2);
 		}
-		Settings.region = Settings.region.toUpperCase();
-		setLoadingState("Testing screen size");
-		Util.testCanvas();
-		setLoadingState("Initializing tasks thread");
-		tasksThread.setPriority(3);
-		tasksThread.start();
-		setLoadingState("Loading config");
-		Settings.loadConfig();
-		setLoadingState("Initializing locales");
-		Locale.init();
-		setLoadingState("Initializing UI");
-		initUI();
-		loadingForm.addCommand(loadingSetsCmd = new Command("Settings", Command.SCREEN, 1));
 		if(Settings.region.toLowerCase().equals("en")) {
 			Settings.region = "US";
 		}
+		Settings.region = Settings.region.toUpperCase();
+		tasksThread.start();
+		Settings.loadConfig();
+		Locale.init();
+		startUIThread();
+	}
+	
+	private void startUIThread() {
+		uiThread = new Thread(this);
+		uiThread.start();
+	}
+	
+	public void run() {
+		initUI();
 		Loader.init();
-		if(!checkStartArguments()) {
-			ui.loadMain();
-		}
-		new Thread("Update checker thread") {
+		new Thread() {
 			public void run() {
+				if(!checkStartArguments()) {
+					ui.loadMain();
+				}
 				try {
 					checkUpdate();
 				} catch (Throwable e) {
 				}
 			}
 		}.start();
-		if(Settings.debugMemory) {
-			Thread t = new Thread() {
-				public void run() {
-					try {
-						while(true) {
-							Displayable d = AppUI.display.getCurrent();
-							if(d != null && !(d instanceof Alert || d instanceof TextBox)) {
-								Runtime r = Runtime.getRuntime();
-								int t = (int) (r.totalMemory() / 1024);
-								int f = (int) (r.freeMemory() / 1024);
-								int m = t - f;
-								String p = System.getProperty("com.nokia.memoryramfree");
-								String sys = "";
-								if(p != null) {
-									int sy = Integer.parseInt(p)/1024;
-									String sysfree = "" + (int)((sy/1024D)*10)/10D;
-									String syst = "" + (startSys/1024);
-									String sysalloc = "" + (startSys - sy)/1024;
-									sys = sysalloc + "/" + syst+ "-" + sysfree;
-								}
-								//long gt = System.currentTimeMillis();
-								Util.gc();
-								//gt = System.currentTimeMillis() - gt;
-								String s = ((int)((m/1024D)*10)/10D) + "/" + ((int)((t/1024D)*10)/10D) + "-" + ((int)((f/1024D)*10)/10D) + " s:" + sys/* + " gc:" + gt*/;
-								d.setTitle(s);
-							}
-							Thread.sleep(1000);
-						}
-					} catch (Exception e) {
-					}
-				}
-			};
-			t.start();
-		}
+		ui.run();
 	}
 	
 	private void checkUpdate() {
@@ -290,12 +228,6 @@ public class App implements Constants {
 				ui.display(a);
 			}
 		} catch (Exception e) {
-		}
-	}
-
-	public void setLoadingState(String s) {
-		if(loadingItem != null) {
-			loadingItem.setText(s);
 		}
 	}
 	

@@ -39,21 +39,20 @@ import tube42.lib.imagelib.ImageUtils;
 
 public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
-	private String author;
-	private String authorId;
-	private int subCount;
-	private long totalViews;
-	private String description;
+	public String author;
+	public String authorId;
+	public int subCount;
+	public long totalViews;
 
 	private ChannelItem item;
-	private Image img;
+	public Image img;
 
-	private boolean extended;
-	private boolean fromSearch;
+	public boolean extended;
+	public boolean fromSearch;
 
 	private String imageUrl;
-	private boolean rounded;
-	private boolean page;
+	public boolean rounded;
+	public boolean hasSmallImage;
 	
 	public ChannelModel(String id) {
 		this.authorId = id;
@@ -87,14 +86,11 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		if(Settings.videoPreviews) {
 			JSONArray authorThumbnails = o.getNullableArray("authorThumbnails");
 			if(authorThumbnails != null) {
-				imageUrl = App.getThumbUrl(authorThumbnails, page ? 36 : 48);
+				imageUrl = App.getThumbUrl(authorThumbnails, hasSmallImage ? 36 : 48);
 			}
 		}
 		subCount = o.getInt("subCount", -1);
-		if(extended) {
-			totalViews = o.getLong("totalViews", 0);
-			description = o.getNullableString("description");
-		}
+		totalViews = o.getLong("totalViews", 0);
 	}
 	
 	public ChannelModel extend() throws InvidiousException, IOException {
@@ -113,7 +109,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		if(imageUrl == null) return;
 		try {
 			byte[] b = App.getImageBytes(imageUrl);
-			int i = page ? 36 : 48;
+			int i = hasSmallImage ? 36 : 48;
 			img = ImageUtils.resize(Image.createImage(b, 0, b.length), i, i);
 			item.setImage(img);
 			imageUrl = null;
@@ -131,52 +127,16 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
 	public void disposeExtendedVars() {
 		extended = false;
-		page = false;
-	}
-
-	public String getAuthor() {
-		return author;
-	}
-
-	public String getAuthorId() {
-		return authorId;
-	}
-
-	public int getSubCount() {
-		return subCount;
-	}
-
-	public long getTotalViews() {
-		return totalViews;
-	}
-
-	public Image getImg() {
-		return img;
-	}
-
-	public void setFromSearch() {
-		fromSearch = true;
-	}
-	
-	public boolean isFromSearch() {
-		return fromSearch;
-	}
-
-	public boolean isExtended() {
-		return extended;
-	}
-	
-	public String getDescription() {
-		return description;
+		hasSmallImage = false;
 	}
 
 	public UIItem makeListItem() {
-		page = false;
+		hasSmallImage = false;
 		return item = new ChannelItem(this);
 	}
 
 	public UIItem makePageItem() {
-		page = true;
+		hasSmallImage = true;
 		return item = new ChannelItem(this);
 	}
 
@@ -191,14 +151,6 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	public void setImage(Image img) {
 		this.img = img;
-	}
-
-	public boolean isImageRounded() {
-		return rounded;
-	}
-
-	public boolean hasSmallImage() {
-		return page;
 	}
 
 }

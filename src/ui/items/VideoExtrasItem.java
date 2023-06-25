@@ -48,7 +48,7 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 	private static void init() {
 		try {
 			if(font == null) {
-				font = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 18, 8) : smallfont;
+				font = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 18, 8) : smallfont;
 			}
 			likeImg = Image.createImage("/like24.png");
 			shareImg = Image.createImage("/share24.png");

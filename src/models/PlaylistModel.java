@@ -29,15 +29,12 @@ import ui.screens.PlaylistScreen;
 import cc.nnproject.json.JSONObject;
 
 public class PlaylistModel extends AbstractModel implements ILoader {
-
-	private boolean extended;
-	private boolean fromSearch;
 	
-	private String title;
-	private String playlistId;
-	private String author;
-	private String authorId;
-	private int videoCount;
+	public String title;
+	public String playlistId;
+	public String author;
+	public String authorId;
+	public int videoCount;
 	
 	private UIScreen containerScreen;
 
@@ -56,11 +53,10 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 	public PlaylistModel(JSONObject j, UIScreen s, ChannelModel channel) {
 		this(j, false);
 		this.containerScreen = s;
-		authorId = channel.getAuthorId();
+		authorId = channel.authorId;
 	}
 
 	private void parse(JSONObject o, boolean extended) {
-		this.extended = extended;
 		title = o.getString("title");
 		playlistId = o.getString("playlistId");
 		author = o.getNullableString("author");
@@ -70,48 +66,12 @@ public class PlaylistModel extends AbstractModel implements ILoader {
 
 	public void load() {
 	}
-	
-	public void setFromSearch() {
-		fromSearch = true;
-	}
-
-	public boolean isFromSearch() {
-		return fromSearch;
-	}
-
-	public boolean isExtended() {
-		return extended;
-	}
 
 	public void dispose() {
 		playlistId = null;
 		title = null;
 		author = null;
 		authorId = null;
-	}
-
-	public void disposeExtendedVars() {
-		extended = false;
-	}
-	
-	public String getPlaylistId() {
-		return playlistId;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-	
-	public String getAuthor() {
-		return author;
-	}
-	
-	public String getAuthorId() {
-		return authorId;
-	}
-
-	public int getVideoCount() {
-		return videoCount;
 	}
 
 	public UIItem makeListItem() {

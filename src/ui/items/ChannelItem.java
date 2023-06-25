@@ -70,22 +70,22 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	public ChannelItem(ChannelModel c) {
 		super();
 		this.channel = c;
-		if(c.getImg() != null) {
-			if(!c.isImageRounded()) {
-				this.img = roundImage(c.getImg());
+		if(c.img != null) {
+			if(!c.rounded) {
+				this.img = roundImage(c.img);
 				c.setImage(img, true);
 			} else {
-				int s = c.hasSmallImage() ? 36 : 48;
-				this.img = ImageUtils.resize(c.getImg(), s, s);
+				int s = c.hasSmallImage ? 36 : 48;
+				this.img = ImageUtils.resize(c.img, s, s);
 				c.setImage(img, true);
 			}
 		}
-		this.author = c.getAuthor();
-		subsStr = Locale.subscribers(c.getSubCount());
+		this.author = c.author;
+		subsStr = Locale.subscribers(c.subCount);
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		boolean small = channel.hasSmallImage() && getScreen() instanceof IModelScreen;
+		boolean small = channel.hasSmallImage && getScreen() instanceof IModelScreen;
 		int iw = small ? 36 : 48;
 		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x + 4, y + ((h - iw) >> 1), 0);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
@@ -119,10 +119,10 @@ public class ChannelItem extends AbstractButtonItem implements UIConstants {
 	protected void layout(int w) {
 		h = 52;
 		if(titleFont == null) {
-			titleFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_SMALL) : smallfont;
-			titleSmallFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;
-			subsCountFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL) : smallfont;
-			subsCountSmallFont = App.width >= 360 ? DirectFontUtil.getFont(0, 0, 18, Font.SIZE_SMALL) : smallfont;
+			titleFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_SMALL) : smallfont;
+			titleSmallFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;
+			subsCountFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 21, Font.SIZE_SMALL) : smallfont;
+			subsCountSmallFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 18, Font.SIZE_SMALL) : smallfont;
 		}
 	}
 

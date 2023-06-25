@@ -24,8 +24,8 @@ package ui.items;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
-import App;
 import Util;
+import RunnableTask;
 import LocaleConstants;
 import models.VideoModel;
 import ui.UIConstants;
@@ -33,8 +33,6 @@ import ui.UIConstants;
 public class VideoPreviewItem extends AbstractButtonItem implements UIConstants {
 
 	private VideoModel video;
-	
-	private String videoId;
 
 	private String length;
 	private Image img;
@@ -44,13 +42,12 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 	
 	public VideoPreviewItem(VideoModel v, Image img) {
 		this.video = v;
-		this.videoId = v.getVideoId();
 		this.img = img;
-		this.length = Util.timeStr(v.getLengthSeconds());
+		this.length = Util.timeStr(v.lengthSeconds);
 	}
 
 	protected void action() {
-		App.watch(videoId);
+		new Thread(new RunnableTask(video.videoId, RunnableTask.WATCH)).start();
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
