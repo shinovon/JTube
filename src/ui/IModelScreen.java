@@ -21,10 +21,9 @@ SOFTWARE.
 */
 package ui;
 
-import models.ILoader;
 import models.AbstractModel;
 
-public interface IModelScreen extends ILoader {
+public interface IModelScreen {
 
 	public abstract AbstractModel getModel();
 

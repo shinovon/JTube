@@ -28,6 +28,7 @@ import Errors;
 import Settings;
 import Constants;
 import ui.UIScreen;
+import ui.AppUI;
 import ui.IModelScreen;
 import ui.UIItem;
 import models.VideoModel;
@@ -55,7 +56,6 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		super.show();
 		if(!shown) {
 			shown = true;
-			Loader.stop();
 			new Thread(this).start();
 		}
 	}
@@ -70,42 +70,31 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		videos[i] = v;
 		return v.makeListItem();
 	}
-
-	public void load() {
+	
+	public void run() {
+		AppUI.loadingState = true;
+		Loader.stop();
 		try {
 			JSONArray json = ((JSONObject) App.invApi("playlists/" + playlist.playlistId + "?",
 					PLAYLIST_EXTENDED_FIELDS +
-					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+					(App.startWidth >= 320 ? ",publishedText,viewCount" : "")
 					)).getArray("videos");
 			scroll = 0;
 			if(playlist == null) return;
-			try {
-				int l = json.size();
-				Util.gc();
-				videos = new VideoModel[l];
-				for(int i = 0; i < l; i++) {
-					UIItem item = item(json.getObject(i), i);
-					if(item == null) continue;
-					add(item);
-					Util.gc();
-				}
-				json = null;
-				Util.gc();
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Throwable e) {
-				App.error(this, Errors.PlaylistForm_init, e);
+			int l = json.size();
+			videos = new VideoModel[l];
+			for(int i = 0; i < l; i++) {
+				UIItem item = item(json.getObject(i), i);
+				if(item == null) continue;
+				add(item);
 			}
-			Loader.start();
-		} catch (RuntimeException e) {
-			throw e;
+			json = null;
+			Util.gc();
 		} catch (Throwable e) {
-			App.error(this, Errors.PlaylistForm_load, e);
+			App.error(this, Errors.PlaylistForm_init, e);
 		}
-	}
-	
-	public void run() {
-		load();
+		Loader.start();
+		AppUI.loadingState = false;
 	}
 	
 	protected void back() {

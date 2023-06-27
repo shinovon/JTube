@@ -181,7 +181,15 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		return v.makeListItem();
 	}
 
-	public void load() {
+	public void run() {
+		if(state > 1) {
+			latestVideos();
+			return;
+		}
+		if(state == 1) {
+			playlists();
+			return;
+		}
 		AppUI.loadingState = true;
 		try {
 			if(!channel.extended) {
@@ -192,27 +200,10 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			latestVideos();
 		} catch (InvidiousException e) {
 			App.error(this, Errors.ChannelForm_load, e);
-		} catch (RuntimeException e) {
-			throw e;
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_load, e);
 		}
 		AppUI.loadingState = false;
-	}
-
-	public void run() {
-		if(state > 1) {
-			latestVideos();
-			return;
-		}
-		if(state == 1) {
-			playlists();
-			return;
-		}
-		try {
-			load();
-		} catch (Exception e) {
-		}
 	}
 
 	/*public void commandAction(Command c, Displayable d) {

@@ -122,23 +122,6 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		}
 		*/
 	}
-
-	public void load() {
-		AppUI.loadingState = true;
-		try {
-			if(!video.extended) {
-				video.extend();
-				init();
-				AppUI.loadingState = false;
-				if(Settings.videoPreviews) video.load();
-			}
-		} catch (NullPointerException e) {
-			// ignore
-		} catch (Exception e) {
-			App.error(this, Errors.VideoForm_load, e);
-		}
-		AppUI.loadingState = false;
-	}
 /*
 	public void commandAction(Command c, Displayable d) {
 		if(d instanceof TextBox && c == backCmd) {
@@ -273,7 +256,20 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void run() {
-		load();
+		AppUI.loadingState = true;
+		try {
+			if(!video.extended) {
+				video.extend();
+				init();
+				AppUI.loadingState = false;
+				if(Settings.videoPreviews) video.load();
+			}
+		} catch (NullPointerException e) {
+			// ignore
+		} catch (Exception e) {
+			App.error(this, Errors.VideoForm_load, e);
+		}
+		AppUI.loadingState = false;
 	}
 	
 	public void showLink() {
