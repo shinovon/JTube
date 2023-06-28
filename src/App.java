@@ -242,7 +242,10 @@ public class App implements Constants, Runnable {
 			if(s.indexOf("//") != -1) s = s.substring(s.indexOf("//") + 2);
 			s = "/ggpht" + s.substring(s.indexOf("/"));
 		}
-		if(s.startsWith("/")) return Util.get(Settings.inv + s.substring(1));
+		if(s.startsWith("/")) s = Settings.inv + s.substring(1);
+		if(Settings.useApiProxy) {
+			s = Settings.apiProxy.concat("?u=").concat(Util.url(s));
+		}
 		return Util.get(s);
 	}
 	
