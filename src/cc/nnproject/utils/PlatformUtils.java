@@ -42,6 +42,7 @@ public class PlatformUtils {
 	public static boolean isAsha;
 	public static boolean isBada;
 	public static boolean isJ2MELoader;
+	public static boolean isS40;
 	
 	public static int width;
 	public static int height;
@@ -50,6 +51,8 @@ public class PlatformUtils {
 		isKemulator = checkClass("emulator.custom.CustomMethod");
 		isJ2MELoader = checkClass("javax.microedition.shell.MicroActivity");
 		isS60 = isSymbian();
+		// s40 check
+		isS40 = checkClass("javax.microedition.midlet.MIDletProxy") || checkClass("com.nokia.mid.impl.isa.jam.Jam");
 		// asha check
 		String s40v = getS40_version();
 		isAsha = isNokia() && s40v != null && (s40v.startsWith("7") || s40v.startsWith("8") || s40v.startsWith("9"));
@@ -62,7 +65,7 @@ public class PlatformUtils {
 							|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
 							|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
 		}
-	}
+		}
 	
 	// works with symbians that use j9 vm
 	private static boolean isS60PlatformVersion(String v) {
@@ -223,8 +226,7 @@ public class PlatformUtils {
 	}
 
 	public static boolean isS40() {
-		//return isS40;
-		return checkClass("javax.microedition.midlet.MIDletProxy") || checkClass("com.nokia.mid.impl.isa.jam.Jam");
+		return isS40;
 	}
 	
 	public static String getS40_name() {

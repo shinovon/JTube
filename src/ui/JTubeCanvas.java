@@ -216,7 +216,10 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		else if(i == -22) i = -7;
 		UIScreen s = ui.current;
 		if(s != null) {
-			s.keyPress(i);
+			try {
+				s.keyPress(i);
+			} catch (Exception e) {
+			}
 		}
 		needRepaint();
 	}
@@ -226,7 +229,10 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		else if(i == -22) i = -7;
 		UIScreen s = ui.current;
 		if(s != null) {
-			s.keyRelease(i);
+			try {
+				s.keyRelease(i);
+			} catch (Exception e) {
+			}
 		}
 		needRepaint();
 	}
@@ -236,7 +242,10 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		else if(i == -22) i = -7;
 		UIScreen s = ui.current;
 		if(s != null) {
-			s.keyRepeat(i);
+			try {
+				s.keyRepeat(i);
+			} catch (Exception e) {
+			}
 		}
 		needRepaint();
 	}
