@@ -233,6 +233,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			}
 			Util.gc();
 		} catch (InvidiousException e) {
+			if(e.toString().indexOf("key: \"content\"") != -1) {
+				Settings.region = "US";
+				loadMain();
+				return;
+			}
 			App.error(this, Errors.AppUI_loadForm, e);
 		} catch (OutOfMemoryError e) {
 			Util.gc();
