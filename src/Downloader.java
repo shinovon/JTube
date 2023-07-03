@@ -26,12 +26,13 @@ import java.io.OutputStream;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Gauge;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.StringItem;
 
 import cc.nnproject.json.JSONObject;
 import ui.AppUI;
@@ -42,7 +43,8 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	private String res;
 	private String name;
 	
-	private Alert alert;
+	private Form form;
+	private StringItem label;
 	private Gauge indicator;
 	
 	private String file;
@@ -65,6 +67,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	
 	public void run() {
 		if(cancel) return;
+		indicator.setValue(Gauge.CONTINUOUS_RUNNING);
 		FileConnection fc = null;
 		OutputStream out = null;
 		HttpConnection hc = null;
@@ -132,7 +135,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
-			if(cancel) return;
+			if(cancel) throw new InterruptedException();
 			int redirectCount = 0;
 			while (r == 301 || r == 302) {
 				info(Locale.s(TXT_Redirected) + " (" + redirectCount++ + ")");
@@ -148,7 +151,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
-			if(cancel) return;
+			if(cancel) throw new InterruptedException();
 			out = fc.openOutputStream();
 			in = hc.openInputStream();
 			info(Locale.s(TXT_Connected));
@@ -165,11 +168,11 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			
 				}
 			}
-			boolean ind = true;
-			if(l <= 0) {
-				// indicator unavailable
-				alert.setIndicator(null);
-				ind = false;
+			boolean ind = false;
+			if(l > 0) {
+				indicator.setValue(0);
+				indicator.setMaxValue(100);
+				ind = true;
 			}
 			int a = 10;
 			if(bufSize <= 1024) {
@@ -178,10 +181,11 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				a = 50;
 			} else if(bufSize >= 10240) {
 				a = 10;
-			} else if(bufSize >= 32768) {
+			}
+			if(bufSize >= 32768) {
 				a = 2;
 			}
-			if(cancel) return;
+			if(cancel) throw new InterruptedException();
 			String sizeStr = "" + ((int) (((double)l / 1024 / 1024) * 10)) / 10D;
 			long t = System.currentTimeMillis();
 			int s = 0;
@@ -190,7 +194,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				out.write(buf, 0, read);
 				downloaded += read;
 				if(i++ % a == 0) {
-					if(cancel) return;
+					if(cancel) throw new InterruptedException();
 					long t2 = System.currentTimeMillis();
 					int j = 0;
 					String spd = null;
@@ -230,7 +234,15 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			} catch (Exception e) {
 			} 
 			try {
-				if(fc != null) fc.close();
+				if(fc != null) {
+					if(cancel) {
+						try {
+							fc.delete();
+						} catch (Exception e) {
+						} 
+					}
+					fc.close();
+				}
 			} catch (Exception e) {
 			} 
 			try {
@@ -242,16 +254,19 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			} catch (Exception e) {
 			} 
 		}
+		
 	}
 	
 	public void start() {
-		alert = new Alert("", Locale.s(TXT_Initializing), null, null);
-		alert.addCommand(dlCancelCmd);
-		alert.setTimeout(Alert.FOREVER);
-		AppUI.inst.display(alert);
-		alert.setCommandListener(this);
-		this.indicator = new Gauge(null, false, 100, 0); 
-		alert.setIndicator(indicator);
+		form = new Form("");
+		form.addCommand(dlCancelCmd);
+		AppUI.inst.display(form);
+		form.setCommandListener(this);
+		label = new StringItem("", Locale.s(TXT_Initializing));
+		label.setLayout(Item.LAYOUT_NEWLINE_AFTER);
+		form.append(label);
+		indicator = new Gauge("", false, Gauge.INDEFINITE, Gauge.CONTINUOUS_IDLE);
+		form.append(indicator);
 		t = new Thread(this);
 		t.start();
 	}
@@ -259,21 +274,21 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	private void done() {
 		hideIndicator();
 		info(Locale.s(TXT_Done) + "\n" + file);
-		alert.addCommand(dlOkCmd);
-		alert.addCommand(dlOpenCmd);
+		form.addCommand(dlOkCmd);
+		form.addCommand(dlOpenCmd);
 	}
 
 	private void hideIndicator() {
-		alert.removeCommand(dlCancelCmd);
-		alert.setIndicator(null);
+		form.removeCommand(dlCancelCmd);
+		indicator.setValue(Gauge.CONTINUOUS_IDLE);
+		indicator.setMaxValue(Gauge.INDEFINITE);
 	}
 
 	private void fail(String s, String title) {
 		hideIndicator();
-		alert.setType(AlertType.ERROR);
-		alert.setTitle(title);
-		alert.setString(s);
-		alert.addCommand(dlOkCmd);
+		form.setTitle(title);
+		label.setText(s);
+		form.addCommand(dlOkCmd);
 	}
 
 	private void info(String s, int percent) {
@@ -284,7 +299,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	}
 
 	private void info(String s) {
-		alert.setString(s);
+		label.setText(s);
 	}
 
 	public void commandAction(Command c, Displayable _d) {

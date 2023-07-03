@@ -214,7 +214,7 @@ public class Util implements Constants {
 	}
 
 	public static String timeStr(int i) {
-		if(i <= 0) return null;
+		if(i < 0) return null;
 		String s = "" + i % 60;
 		if(s.length() < 2) s = "0" + s;
 		String m = "" + (i % 3600) / 60;
