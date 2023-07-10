@@ -116,6 +116,12 @@ public class App implements Constants, Runnable {
 	}
 
 	public void startApp() {
+		if(!"JTube".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Name"))) {
+			throw new RuntimeException();
+		}
+		if(!"nnproject".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Vendor"))) {
+			throw new RuntimeException();
+		}
 		SplashScreen splash = new SplashScreen();
 		Display.getDisplay(midlet).setCurrent(splash);
 		App.startWidth = splash.getWidth();
