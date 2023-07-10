@@ -311,8 +311,8 @@ public class Locale implements LocaleConstants {
 				return "Subscribe";
 			case BTN_Subscribed:
 				return "Subscribed";
-			case Title_Subscribtions:
-				return "Subscribtions";
+			case Title_Subscriptions:
+				return "Subscriptions";
 			case Title_History:
 				return "History";
 			case Title_Liked:
@@ -511,7 +511,7 @@ public class Locale implements LocaleConstants {
 				return "Подписаться";
 			case BTN_Subscribed:
 				return "Вы подписаны";
-			case Title_Subscribtions:
+			case Title_Subscriptions:
 				return "Подписки";
 			case Title_History:
 				return "История";
