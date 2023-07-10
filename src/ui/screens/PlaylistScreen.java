@@ -28,7 +28,6 @@ import Errors;
 import Settings;
 import Constants;
 import ui.UIScreen;
-import ui.AppUI;
 import ui.IModelScreen;
 import ui.UIItem;
 import models.VideoModel;
@@ -72,7 +71,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 	}
 	
 	public void run() {
-		AppUI.loadingState = true;
+		busy = true;
 		Loader.stop();
 		try {
 			JSONArray json = ((JSONObject) App.invApi("playlists/" + playlist.playlistId + "?",
@@ -94,7 +93,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 			App.error(this, Errors.PlaylistForm_init, e);
 		}
 		Loader.start();
-		AppUI.loadingState = false;
+		busy = false;
 	}
 	
 	protected void back() {

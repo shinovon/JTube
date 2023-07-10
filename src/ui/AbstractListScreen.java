@@ -150,7 +150,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected boolean scroll(int units) {
-		if(AppUI.loadingState) return false;
+		if(busy) return false;
 		if(height == 0 || height <= screenHeight) {
 			scroll = 0;
 			return false;
@@ -177,7 +177,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void press(int x, int y) {
-		if(AppUI.loadingState) return;
+		if(busy) return;
 		int yy = 0;
 		int sy = (int)scroll;
 		for (int i = 0; i < items.size(); i++) {
@@ -194,7 +194,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void release(int x, int y) {
-		if(AppUI.loadingState) return;
+		if(busy) return;
 		int yy = 0;
 		int sy = (int)scroll;
 		for (int i = 0; i < items.size(); i++) {
@@ -227,7 +227,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void keyPress(int i) {
-		if(AppUI.loadingState) return;
+		if(busy) return;
 		if(!ui.isKeyInputMode() && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
 			ui.setKeyInputMode();
 		}
@@ -279,14 +279,14 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	}
 	
 	protected void keyRelease(int i) {
-		if(AppUI.loadingState) return;
+		if(busy) return;
 		if(i <= -3 && i >= -7 && cItem != null) {
 			cItem.keyRelease(i);
 		}
 	}
 	
 	protected void keyRepeat(int i) {
-		if(AppUI.loadingState) return;
+		if(busy) return;
 		if(System.currentTimeMillis()-lastRepeat < 100) return;
 		if(cItem != null && (i == -1 || i == -2)) {
 			if(i == -1) {

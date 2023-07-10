@@ -41,7 +41,6 @@ import models.PlaylistModel;
 import models.VideoModel;
 import ui.items.ButtonItem;
 import models.AbstractModel;
-import ui.AppUI;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 
@@ -141,7 +140,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	private void init() {
 		state = 1;
 		scroll = 0;
-		AppUI.loadingState = false;
+		busy = false;
 		if(channel == null) return;
 		add(channelItem = channel.makePageItem());
 		add(new ButtonItem(Locale.s(BTN_Playlists), this));
@@ -190,7 +189,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			playlists();
 			return;
 		}
-		AppUI.loadingState = true;
+		busy = true;
 		try {
 			if(!channel.extended) {
 				channel.extend();
@@ -203,7 +202,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_load, e);
 		}
-		AppUI.loadingState = false;
+		busy = false;
 	}
 
 	/*public void commandAction(Command c, Displayable d) {

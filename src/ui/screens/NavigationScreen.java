@@ -362,7 +362,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		if(Settings.fullScreen) {
 			_paint(g, w, h-softBarHeight);
-			if(!AppUI.loadingState) {
+			if(!busy) {
 				if(menu) {
 					int xx = (w-menuW) >> 1;
 					int yy = Math.max(0, (h-softBarHeight-menuH) >> 1);
@@ -415,7 +415,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 		} else {
 			_paint(g, w, h);
-			if(menu && !AppUI.loadingState) {
+			if(menu && !busy) {
 				int xx = (w-menuW) >> 1;
 				int yy = Math.max(0, (h-softBarHeight-menuH) >> 1);
 				g.setFont(mediumfont);
@@ -442,7 +442,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 	
 	private void _paint(Graphics g, int w, int h) {
-		if(AppUI.loadingState) {
+		if(busy) {
 			if(editor != null && editor.isVisible()) {
 				editor.setVisible(false);
 			}
@@ -701,7 +701,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 
 	protected void back() {
-		AppUI.loadingState = false;
+		busy = false;
 		Loader.stop();
 		if(parent != null) {
 			ui.setScreen(parent);

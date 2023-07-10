@@ -259,12 +259,12 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void run() {
-		AppUI.loadingState = true;
+		busy = true;
 		try {
 			if(!video.extended) {
 				video.extend();
 				init();
-				AppUI.loadingState = false;
+				busy = false;
 				if(Settings.videoPreviews) video.load();
 			}
 		} catch (NullPointerException e) {
@@ -273,7 +273,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			App.error(this, Errors.VideoForm_load, e);
 		}
 		liked = LocalStorage.isLiked(video.videoId);
-		AppUI.loadingState = false;
+		busy = false;
 	}
 	
 	public void showLink() {
@@ -289,7 +289,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void like() {
-		if(AppUI.loadingState) return;
+		if(busy) return;
 		if(liked) {
 			LocalStorage.removeLiked(video.videoId);
 		} else {

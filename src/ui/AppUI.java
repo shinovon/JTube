@@ -90,8 +90,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private Vector commands = new Vector();
 	
 	protected boolean keyInput = false;
-	
-	public static boolean loadingState;
 
 	private List optionsList;
 
@@ -222,10 +220,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void loadMain() {
 		try {
-			loadingState = true;
 			if(mainScr == null) {
 				mainScr = new MainScreen();
 			}
+			mainScr.busy = true;
 			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
@@ -245,7 +243,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		} catch (Throwable e) {
 			App.error(this, Errors.AppUI_loadForm, e);
 		}
-		loadingState = false;
+		mainScr.busy = false;
 		setScreen(mainScr);
 	}
 
@@ -278,7 +276,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void load(String s) throws IOException {
-		loadingState = true;
+		mainScr.busy = true;
 		try {
 			AbstractJSON r = App.invApi(s+"?",
 					VIDEO_FIELDS +
@@ -309,7 +307,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		Loader.start();
 		Util.gc();
-		loadingState = false;
+		mainScr.busy = false;
 		repaint();
 	}
 
@@ -325,8 +323,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void search(String q) {
 		Loader.stop();
-		loadingState = true;
 		searchScr = new SearchScreen(q, mainScr);
+		searchScr.busy = true;
 		display(null);
 		setScreen(searchScr);
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
@@ -351,7 +349,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		Loader.start();
 		Util.gc();
-		loadingState = false;
+		searchScr.busy = false;
 		repaint();
 	}
 	

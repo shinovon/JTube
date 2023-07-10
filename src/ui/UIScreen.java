@@ -40,6 +40,11 @@ public abstract class UIScreen {
 	protected float scroll;
 	protected int width;
 	protected int height;
+	
+	/**
+	 * Locks any input
+	 */
+	public boolean busy;
 
 	protected UIScreen(String label, UIScreen parent) {
 		this.label = label;
