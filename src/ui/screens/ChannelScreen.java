@@ -40,9 +40,11 @@ import models.ChannelModel;
 import models.PlaylistModel;
 import models.VideoModel;
 import ui.items.ButtonItem;
+import ui.items.SubscribeButton;
 import models.AbstractModel;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
+import LocalStorage;
 
 public class ChannelScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
 
@@ -53,6 +55,10 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	private UIItem channelItem;
 
 	private int state;
+
+	public boolean subscribed;
+
+	private SubscribeButton subscribe;
 
 	public ChannelScreen(ChannelModel c) {
 		super(c.author, null);
@@ -72,6 +78,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		state = 1;
 		clear();
 		add(channelItem);
+		add(subscribe);
 		add(new ButtonItem(Locale.s(BTN_Playlists), this));
 		try {
 			Loader.stop();
@@ -142,7 +149,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		scroll = 0;
 		busy = false;
 		if(channel == null) return;
+		subscribed = LocalStorage.isSubscribed(channel.authorId);
 		add(channelItem = channel.makePageItem());
+		add(subscribe = new SubscribeButton(this));
 		add(new ButtonItem(Locale.s(BTN_Playlists), this));
 	}
 
@@ -273,5 +282,15 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	protected void back() {
 		super.back();
 		ui.disposeChannelPage();
+	}
+
+	public void subscribe() {
+		if(busy) return;
+		if(subscribed) {
+			LocalStorage.removeSubscription(channel.authorId);
+		} else {
+			LocalStorage.addSubscription(channel.authorId, channel.author);
+		}
+		subscribed = !subscribed;
 	}
 }

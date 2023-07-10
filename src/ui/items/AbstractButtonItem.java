@@ -47,14 +47,14 @@ public abstract class AbstractButtonItem extends UIItem {
 	}
 
 	protected void keyPress(int i) {
-		if(i == Canvas.FIRE || i == -5 || i == Canvas.KEY_NUM5) {
+		if(i == -5 || i == Canvas.KEY_NUM5) {
 			hover();
 			action();
 		}
 	}
 
 	protected void keyRelease(int i) {
-		if(i == Canvas.FIRE || i == -5 || i == Canvas.KEY_NUM5) {
+		if(i == -5 || i == Canvas.KEY_NUM5) {
 			unhover();
 		}
 	}
