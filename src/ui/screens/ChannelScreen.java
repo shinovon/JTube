@@ -39,7 +39,7 @@ import ui.UIItem;
 import models.ChannelModel;
 import models.PlaylistModel;
 import models.VideoModel;
-import ui.items.ButtonItem;
+import ui.items.Button;
 import ui.items.SubscribeButton;
 import models.AbstractModel;
 import cc.nnproject.json.JSONArray;
@@ -52,7 +52,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	private boolean shown;
 
-	private UIItem channelItem;
+	private UIItem item;
 
 	private int state;
 
@@ -77,9 +77,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	protected void latestVideos() {
 		state = 1;
 		clear();
-		add(channelItem);
+		add(item);
 		add(subscribe);
-		add(new ButtonItem(Locale.s(BTN_Playlists), this));
+		add(new Button(Locale.s(BTN_Playlists), this));
 		try {
 			Loader.stop();
 			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", VIDEO_FIELDS +
@@ -115,8 +115,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	protected void playlists() {
 		state = 2;
 		clear();
-		add(channelItem);
-		add(new ButtonItem(Locale.s(BTN_LatestVideos), this));
+		add(item);
+		add(new Button(Locale.s(BTN_LatestVideos), this));
 		Loader.stop();
 		try {
 			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
@@ -150,9 +150,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		busy = false;
 		if(channel == null) return;
 		subscribed = LocalStorage.isSubscribed(channel.authorId);
-		add(channelItem = channel.makePageItem());
+		add(item = channel.makePageItem());
 		add(subscribe = new SubscribeButton(this));
-		add(new ButtonItem(Locale.s(BTN_Playlists), this));
+		add(new Button(Locale.s(BTN_Playlists), this));
 	}
 
 	protected UIItem playlist(JSONObject j) {
@@ -163,8 +163,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	protected void search(String q) {
 		state = 3;
 		clear();
-		add(channelItem);
-		add(new ButtonItem(Locale.s(BTN_LatestVideos), this));
+		add(item);
+		add(new Button(Locale.s(BTN_LatestVideos), this));
 		Loader.stop();
 		try {
 			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.authorId + "?q=" + Util.url(q), VIDEO_FIELDS +

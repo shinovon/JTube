@@ -27,7 +27,7 @@ import ui.AppUI;
 import ui.UIConstants;
 import ui.UIItem;
 
-public class LineSplitItem extends UIItem implements UIConstants {
+public class LineSplit extends UIItem implements UIConstants {
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));

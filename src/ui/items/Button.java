@@ -28,7 +28,7 @@ import App;
 import ui.AppUI;
 import ui.UIConstants;
 
-public class ButtonItem extends AbstractButtonItem implements UIConstants {
+public class Button extends AbstractButton implements UIConstants {
 	
 	private String text;
 	private Runnable action;
@@ -36,7 +36,7 @@ public class ButtonItem extends AbstractButtonItem implements UIConstants {
 	
 	private long lastTime;
 
-	public ButtonItem(String s, Runnable r) {
+	public Button(String s, Runnable r) {
 		this.text = s;
 		this.action = r;
 	}

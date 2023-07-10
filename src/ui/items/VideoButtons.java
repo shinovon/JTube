@@ -37,7 +37,7 @@ import ui.UIItem;
 import ui.nokia_extensions.DirectFontUtil;
 import ui.screens.VideoScreen;
 
-public class VideoExtrasItem extends UIItem implements UIConstants {
+public class VideoButtons extends UIItem implements UIConstants {
 	
 	private static boolean amoledImgs;
 	private static Image likeImg;
@@ -75,7 +75,7 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 	
 	private int selectedIndex;
 
-	public VideoExtrasItem(VideoScreen scr, int likes) {
+	public VideoButtons(VideoScreen scr, int likes) {
 		this.scr = scr;
 		this.likes = likes;
 	}

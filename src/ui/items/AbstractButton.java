@@ -25,7 +25,7 @@ import javax.microedition.lcdui.Canvas;
 
 import ui.UIItem;
 
-public abstract class AbstractButtonItem extends UIItem {
+public abstract class AbstractButton extends UIItem {
 	
 	protected boolean hover;
 

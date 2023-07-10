@@ -38,7 +38,7 @@ import ui.UIItem;
 import ui.UIScreen;
 import ui.items.ChannelItem;
 import ui.items.VideoItem;
-import ui.items.VideoPreviewItem;
+import ui.items.VideoPreview;
 import ui.screens.PlaylistScreen;
 import ui.screens.VideoScreen;
 import cc.nnproject.json.JSONObject;
@@ -67,7 +67,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	public boolean fromPlaylist;
 	
 	private VideoItem item;
-	private VideoPreviewItem prevItem;
+	private VideoPreview prevItem;
 	private ChannelItem channelItem;
 	
 	private UIScreen containerScreen;
@@ -299,7 +299,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			} catch (IOException e) {
 			}
 		}
-		return prevItem = new VideoPreviewItem(this, img);
+		return prevItem = new VideoPreview(this, img);
 	}
 
 	public IModelScreen makeScreen() {

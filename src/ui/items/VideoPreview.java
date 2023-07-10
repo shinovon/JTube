@@ -30,7 +30,7 @@ import LocaleConstants;
 import models.VideoModel;
 import ui.UIConstants;
 
-public class VideoPreviewItem extends AbstractButtonItem implements UIConstants {
+public class VideoPreview extends AbstractButton implements UIConstants {
 
 	private VideoModel video;
 
@@ -40,7 +40,7 @@ public class VideoPreviewItem extends AbstractButtonItem implements UIConstants 
 
 	private int lastW;
 	
-	public VideoPreviewItem(VideoModel v, Image img) {
+	public VideoPreview(VideoModel v, Image img) {
 		this.video = v;
 		this.img = img;
 		this.length = Util.timeStr(v.lengthSeconds);

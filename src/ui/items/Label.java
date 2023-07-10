@@ -29,7 +29,7 @@ import ui.AppUI;
 import ui.UIConstants;
 import ui.UIItem;
 
-public class LabelItem extends UIItem implements UIConstants {
+public class Label extends UIItem implements UIConstants {
 
 	private String[] textArr;
 	private int maxLines;
@@ -45,16 +45,16 @@ public class LabelItem extends UIItem implements UIConstants {
 	private int marginBottom = 2;
 	private boolean colorSet;
 	
-	public LabelItem(String s) {
+	public Label(String s) {
 		this(s, mediumfont);
 	}
 	
-	public LabelItem(String s, Font f) {
+	public Label(String s, Font f) {
 		this.font = f;
 		this.text = s;
 	}
 
-	public LabelItem(String s, Font f, int c) {
+	public Label(String s, Font f, int c) {
 		this.font = f;
 		this.text = s;
 		this.color = c;

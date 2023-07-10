@@ -36,7 +36,7 @@ import ui.nokia_extensions.DirectFontUtil;
 import ui.screens.SearchScreen;
 import models.VideoModel;
 
-public class VideoItem extends AbstractButtonItem implements UIConstants, Runnable {
+public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 	
 	private VideoModel video;
 	

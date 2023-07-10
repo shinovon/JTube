@@ -9,7 +9,7 @@ import ui.screens.ChannelScreen;
 import Locale;
 import LocaleConstants;
 
-public class SubscribeButton extends AbstractButtonItem implements UIConstants {
+public class SubscribeButton extends AbstractButton implements UIConstants {
 	
 	private ChannelScreen scr;
 	private int h;

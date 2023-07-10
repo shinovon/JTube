@@ -29,7 +29,7 @@ import ui.AppUI;
 import ui.UIConstants;
 import models.PlaylistModel;
 
-public class PlaylistItem extends AbstractButtonItem implements UIConstants {
+public class PlaylistItem extends AbstractButton implements UIConstants {
 
 	private PlaylistModel playlist;
 	

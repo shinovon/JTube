@@ -39,7 +39,7 @@ import models.ChannelModel;
 import ui.screens.ChannelScreen;
 import ui.screens.VideoScreen;
 
-public class ChannelItem extends AbstractButtonItem implements UIConstants {
+public class ChannelItem extends AbstractButton implements UIConstants {
 
 	private static Image defaultImg;
 	private static Image defaultImg36;

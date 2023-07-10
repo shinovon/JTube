@@ -29,7 +29,7 @@ import ui.AppUI;
 import ui.UIConstants;
 import ui.UIItem;
 
-public class DescriptionItem extends UIItem implements UIConstants {
+public class Description extends UIItem implements UIConstants {
 	
 	private String[] textArr;
 	private String text;
@@ -38,7 +38,7 @@ public class DescriptionItem extends UIItem implements UIConstants {
 	private int h;
 	private int lastW;
 	
-	public DescriptionItem(String s, Font f) {
+	public Description(String s, Font f) {
 		this.font = f;
 		this.text = s;
 	}
