@@ -307,6 +307,16 @@ public class Locale implements LocaleConstants {
 				return "Proxy for API";
 			case SET_UseApiProxy:
 				return "API through proxy";
+			case BTN_Subscribe:
+				return "Subscribe";
+			case BTN_Subscribed:
+				return "Subscribed";
+			case Title_Subscribtions:
+				return "Subscribtions";
+			case Title_History:
+				return "History";
+			case Title_Liked:
+				return "Liked videos";
 			}
 		}
 		case 1: {
@@ -497,6 +507,16 @@ public class Locale implements LocaleConstants {
 				return "Прокси для API";
 			case SET_UseApiProxy:
 				return "API через прокси";
+			case BTN_Subscribe:
+				return "Подписаться";
+			case BTN_Subscribed:
+				return "Вы подписаны";
+			case Title_Subscribtions:
+				return "Подписки";
+			case Title_History:
+				return "История";
+			case Title_Liked:
+				return "Понравившиеся";
 			}
 		}
 		}
