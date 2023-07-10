@@ -44,6 +44,7 @@ import models.ChannelModel;
 import ui.items.LineSplitItem;
 import ui.items.VideoExtrasItem;
 import ui.nokia_extensions.DirectFontUtil;
+import LocalStorage;
 
 public class VideoScreen extends NavigationScreen implements IModelScreen, Runnable, Commands {
 
@@ -51,6 +52,8 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	private ChannelModel channel;
 	
 	private boolean shown;
+	
+	public boolean liked;
 
 	public VideoScreen(VideoModel v) {
 		super(v.title, null);
@@ -269,11 +272,12 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		} catch (Exception e) {
 			App.error(this, Errors.VideoForm_load, e);
 		}
+		liked = LocalStorage.isLiked(video.videoId);
 		AppUI.loadingState = false;
 	}
 	
 	public void showLink() {
-		TextBox t = new TextBox("", "", 64, TextField.URL);
+		TextBox t = new TextBox("", "", 200, TextField.URL);
 		t.setString("https://www.youtube.com/watch?v=" + video.videoId + (video.fromPlaylist ? "&list=" + video.playlistId : ""));
 		t.addCommand(backCmd);
 		t.setCommandListener(this);
@@ -282,6 +286,16 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	
 	public void download() {
 		App.download(video.videoId, video.title);
+	}
+
+	public void like() {
+		if(AppUI.loadingState) return;
+		if(liked) {
+			LocalStorage.removeLiked(video.videoId);
+		} else {
+			LocalStorage.addLiked(video.videoId, video.title);
+		}
+		liked = !liked;
 	}
 
 }

@@ -28,7 +28,7 @@ import javax.microedition.lcdui.Image;
 import App;
 import Util;
 import Locale;
-import Records;
+import LocalStorage;
 import Settings;
 import ui.AppUI;
 import ui.UIConstants;
@@ -271,7 +271,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 				if(img != null) {
 					if(Settings.rmsPreviews) {
 						try {
-							Image i = Records.saveOrGetImage(video.videoId, null);
+							Image i = LocalStorage.loadAndCacheThumnail(video.videoId, null);
 							if(i != null) img = video.customResize(i);
 						} catch (Exception e) {
 						}
@@ -319,7 +319,7 @@ public class VideoItem extends AbstractButtonItem implements UIConstants, Runnab
 	public void run() {
 		if(img == null && Settings.videoPreviews && Settings.rmsPreviews) {
 			try {
-				Image i = Records.saveOrGetImage(video.videoId, null);
+				Image i = LocalStorage.loadAndCacheThumnail(video.videoId, null);
 				if(i != null)
 					img = video.customResize(i);
 				repaint();

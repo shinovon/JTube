@@ -28,7 +28,7 @@ import javax.microedition.lcdui.Image;
 import App;
 import Util;
 import Loader;
-import Records;
+import LocalStorage;
 import Settings;
 import Constants;
 import InvidiousException;
@@ -180,7 +180,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				prevItem.setImage(img);
 			} else if(Settings.rmsPreviews) {
 				if(Settings.isLowEndDevice()) {
-					Records.save(videoId, b);
+					LocalStorage.cacheThumbnail(videoId, b);
 					if(item != null && index <= 1 && index != -1) {
 						Image img = Image.createImage(b, 0, b.length);
 						b = null;
@@ -277,7 +277,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	// Cache image to RMS
 	public void run() {
 		if(tempImgBytes != null) {
-			Records.save(videoId, tempImgBytes);
+			LocalStorage.cacheThumbnail(videoId, tempImgBytes);
 			tempImgBytes = null;
 		}
 	}
@@ -295,7 +295,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		}*/
 		if(Settings.rmsPreviews && Settings.videoPreviews) {
 			try {
-				img = Records.saveOrGetImage(videoId, thumbnailUrl);
+				img = LocalStorage.loadAndCacheThumnail(videoId, thumbnailUrl);
 			} catch (IOException e) {
 			}
 		}

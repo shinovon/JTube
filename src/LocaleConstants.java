@@ -135,9 +135,11 @@ public interface LocaleConstants {
 	public static final int SET_ApiProxy = 124;
 	public static final int SET_UseApiProxy = 125;
 	public static final int BTN_Subscribe = 126;
-	public static final int BTN_Subscribed = 127;
+	public static final int BTN_Unsubscribe = 127;
 	public static final int Title_Subscriptions = 128;
 	public static final int Title_History = 129;
 	public static final int Title_Liked = 130;
+	public static final int CMD_Like = 131;
+	public static final int CMD_Unlike = 132;
 
 }

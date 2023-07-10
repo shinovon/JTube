@@ -24,9 +24,9 @@ import java.io.IOException;
 import javax.microedition.lcdui.Image;
 import javax.microedition.rms.RecordStore;
 
-public class Records {
+public class LocalStorage {
 	
-	public static void save(String id, byte[] b) {
+	public static void cacheThumbnail(String id, byte[] b) {
 		try {
 			RecordStore.deleteRecordStore("jС"+id);
 		} catch (Exception e) {
@@ -39,7 +39,7 @@ public class Records {
 		}
 	}
 	
-	public static void save(String id, String url) {
+	public static void cacheThumbnail(String id, String url) {
 		try {
 			RecordStore.deleteRecordStore("jС"+id);
 		} catch (Exception e) {
@@ -54,7 +54,7 @@ public class Records {
 		}
 	}
 	
-	public static Image saveOrGetImage(String id, String url) throws IOException {
+	public static Image loadAndCacheThumnail(String id, String url) throws IOException {
 		try {
 			byte[] b = null;
 			RecordStore rs = null;
@@ -89,6 +89,54 @@ public class Records {
 		} catch (IOException e) {
 			throw e;
 		}
+	}
+	
+	// TODO
+	
+	public static void addSubscription(String id, String name) {
+	}
+	
+	public static boolean isSubscribed(String id) {
+		return false;
+	}
+	
+	public static String[] getSubsciptions(int tab) {
+		return new String[0];
+	}
+	
+	public static void removeSubscription(String id) {
+	}
+	
+	public static void addHistory(String id, String name) {
+	}
+	
+	public static boolean isWatched(String id) {
+		return false;
+	}
+	
+	public static String[] getHistory(int tab) {
+		return new String[0];
+	}
+	
+	public static void clearHistory() {
+	}
+	
+	public static void addLiked(String id, String name) {
+	}
+	
+	public static boolean isLiked(String id) {
+		return false;
+	}
+	
+	public static String[] getLiked(int tab) {
+		return new String[0];
+	}
+	
+	public static void removeLiked(String id) {
+	}
+	
+	public static void clearAllData() {
+		
 	}
 
 }

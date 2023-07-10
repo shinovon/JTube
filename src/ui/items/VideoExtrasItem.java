@@ -115,10 +115,16 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 	
 	protected void keyPress(int key) {
 		if(key == -5 || key == Canvas.KEY_NUM5) {
-			if(selectedIndex == 1) {
+			switch(selectedIndex) {
+			case 0:
+				scr.like();
+				break;
+			case 1:
 				scr.showLink();
-			} else if(selectedIndex == 2) {
+				break;
+			case 2:
 				scr.download();
+				break;
 			}
 			return;
 		}
@@ -148,6 +154,8 @@ public class VideoExtrasItem extends UIItem implements UIConstants {
 	
 	public int getOKLabel() {
 		switch(selectedIndex) {
+		case 0:
+			return scr.liked ? LocaleConstants.CMD_Unlike : LocaleConstants.CMD_Like;
 		case 1:
 			return LocaleConstants.BTN_Share;
 		case 2:

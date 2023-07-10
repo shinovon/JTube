@@ -309,14 +309,16 @@ public class Locale implements LocaleConstants {
 				return "API through proxy";
 			case BTN_Subscribe:
 				return "Subscribe";
-			case BTN_Subscribed:
-				return "Subscribed";
+			case BTN_Unsubscribe:
+				return "Unsibscribe";
 			case Title_Subscriptions:
 				return "Subscriptions";
 			case Title_History:
 				return "History";
 			case Title_Liked:
 				return "Liked videos";
+			case CMD_Unlike:
+				return "";
 			}
 		}
 		case 1: {
@@ -509,14 +511,18 @@ public class Locale implements LocaleConstants {
 				return "API через прокси";
 			case BTN_Subscribe:
 				return "Подписаться";
-			case BTN_Subscribed:
-				return "Вы подписаны";
+			case BTN_Unsubscribe:
+				return "Отписаться";
 			case Title_Subscriptions:
 				return "Подписки";
 			case Title_History:
 				return "История";
 			case Title_Liked:
 				return "Понравившиеся";
+			case CMD_Like:
+				return "Понравивилось";
+			case CMD_Unlike:
+				return "Разонравилось"; // ??
 			}
 		}
 		}
