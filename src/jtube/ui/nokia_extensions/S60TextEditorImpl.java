@@ -19,33 +19,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.nokia_extensions;
 
-import javax.microedition.midlet.MIDlet;
+import com.nokia.mid.ui.S60TextEditor;
+import com.nokia.mid.ui.TextEditor;
 
-import jtube.App;
+public class S60TextEditorImpl extends TextEditorImpl {
 
-public class App2 extends MIDlet {
+	private S60TextEditor _S60editor;
 
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
+	public boolean setEditor(Object editor) {
+		if(editor instanceof S60TextEditor) {
+			_S60editor = (S60TextEditor) editor;
+			_editor = (TextEditor) editor;
+			return true;
+		}
+		return false;
 	}
 
-	protected void pauseApp() {}
+	public void setCaretXY(int x, int y) {
+		_S60editor.setCaretXY(x, y);
+	}
 
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
-		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	public void setTouchEnabled(boolean enabled) {
+		_S60editor.setTouchEnabled(enabled);
+	}
+
+	public void setIndicatorVisibility(boolean b) {
+		_S60editor.setIndicatorVisibility(b);
+	}
+
+	public void setPreferredTouchMode(int mode) {
+		_S60editor.setPreferredTouchMode(mode);
 	}
 
 }

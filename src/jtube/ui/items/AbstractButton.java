@@ -19,33 +19,57 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.items;
 
-import javax.microedition.midlet.MIDlet;
+import javax.microedition.lcdui.Canvas;
 
-import jtube.App;
+import jtube.ui.UIItem;
 
-public class App2 extends MIDlet {
+public abstract class AbstractButton extends UIItem {
+	
+	protected boolean hover;
 
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
+	protected abstract void action();
+	
+	protected void press(int x, int y) {
+		hover();
+	}
+	
+	protected void release(int x, int y) {
+		unhover();
+	}
+	
+	protected void tap(int x, int y, int time) {
+		unhover();
+		if(time <= 200 && time >= 5) {
+			action();
+		}
 	}
 
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+	protected void keyPress(int i) {
+		if(i == -5 || i == Canvas.KEY_NUM5) {
+			hover();
+			action();
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	}
+
+	protected void keyRelease(int i) {
+		if(i == -5 || i == Canvas.KEY_NUM5) {
+			unhover();
+		}
+	}
+	
+	public void defocus() {
+		super.defocus();
+		hover = false;
+	}
+
+	protected void hover() {
+		hover = true;
+	}
+
+	protected void unhover() {
+		hover = false;
 	}
 
 }

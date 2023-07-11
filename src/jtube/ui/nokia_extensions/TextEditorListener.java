@@ -19,33 +19,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.nokia_extensions;
 
-import javax.microedition.midlet.MIDlet;
+public interface TextEditorListener {
+	public static final int ACTION_CONTENT_CHANGE = 1;
+	public static final int ACTION_OPTIONS_CHANGE = 2;
+	public static final int ACTION_CARET_MOVE = 4;
+	public static final int ACTION_TRAVERSE_PREVIOUS = 8;
+	public static final int ACTION_TRAVERSE_NEXT = 16;
+	public static final int ACTION_PAINT_REQUEST = 32;
+	public static final int ACTION_DIRECTION_CHANGE = 64;
+	public static final int ACTION_INPUT_MODE_CHANGE = 128;
+	public static final int ACTION_LANGUAGE_CHANGE = 256;
+	public static final int ACTION_TRAVERSE_OUT_SCROLL_UP = 512;
+	public static final int ACTION_TRAVERSE_OUT_SCROLL_DOWN = 1024;
+	public static final int ACTION_SCROLLBAR_CHANGED = 2048;
+	public static final int ACTION_VIRTUAL_KEYBOARD_OPEN = 4096;
+	public static final int ACTION_VIRTUAL_KEYBOARD_CLOSE = 8192;
 
-import jtube.App;
-
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
-		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
-	}
-
+	public void inputAction(TextEditorInst editor, int event);
+	
 }

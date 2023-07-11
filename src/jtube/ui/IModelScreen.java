@@ -19,33 +19,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui;
 
-import javax.microedition.midlet.MIDlet;
+import jtube.models.AbstractModel;
 
-import jtube.App;
+public interface IModelScreen {
 
-public class App2 extends MIDlet {
+	public abstract AbstractModel getModel();
 
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
-		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
-	}
-
+	public abstract void setContainerScreen(UIScreen s);
 }
+	

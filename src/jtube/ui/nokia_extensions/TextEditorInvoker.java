@@ -19,33 +19,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.nokia_extensions;
 
-import javax.microedition.midlet.MIDlet;
+import com.nokia.mid.ui.TextEditor;
 
-import jtube.App;
-
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
+public class TextEditorInvoker {
+	
+	static TextEditor createTextEditor(String text, int maxSize, int constraints, int width, int height) {
+		return TextEditor.createTextEditor(text, maxSize, constraints, width, height);
 	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+	
+	static TextEditorInst createTextEditorInst(String text, int maxSize, int constraints, int width, int height) {
+		TextEditor editor = createTextEditor(text, maxSize, constraints, width, height);
+		TextEditorInst inst = null;
+		try {
+			Class.forName("com.nokia.mid.ui.S60TextEditor");
+			inst = new S60TextEditorImpl();
+			if(inst.setEditor(editor)) {
+				return inst;
+			}
+		} catch (Exception e) {
+		} catch (Error e) {
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+		inst = new TextEditorImpl();
+		if(inst.setEditor(editor)) {
+			return inst;
+		}
+		return null;
 	}
 
 }

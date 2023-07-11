@@ -19,33 +19,41 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.nokia_extensions;
 
-import javax.microedition.midlet.MIDlet;
+import javax.microedition.lcdui.Font;
 
-import jtube.App;
+import cc.nnproject.utils.PlatformUtils;
 
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+public class DirectFontUtil {
+	
+	private static boolean supported;
+	
+	public static void init() {
+		if(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch() || PlatformUtils.isKemulator || PlatformUtils.isJ2ML()) {
+			try {
+				DirectUtilsInvoker.init();
+				supported = true;
+			} catch (Exception e) {
+			} catch (Error e) {
+			}
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	}
+	
+	public static Font getFont(int face, int style, int height, int size) {
+		if(supported) {
+			try {
+				Font f = DirectUtilsInvoker.getFont(face, style, height);
+				if(f != null) return f;
+			} catch (Throwable e) {
+			}
+		}
+		return Font.getFont(face, style, size);
 	}
 
+	public static boolean isSupported() {
+		return supported;
+	}
+	
 }
+
