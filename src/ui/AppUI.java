@@ -182,7 +182,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		case COLOR_SUBSCRIBED_FG:
 			return Settings.amoled ? 0xF1F1F1 : 0x0F0F0F;
 		case COLOR_CHANNELPAGE_BG:
-			return Settings.amoled ? 0x212121 : 0xFFFFFF;
+			return Settings.amoled ? 0x0F0F0F : 0xFFFFFF;
 		case COLOR_CHANNELTAB_SELECT:
 			return Settings.amoled ? 0xAAAAAA : 0x606060;
 		default:

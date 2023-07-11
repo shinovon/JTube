@@ -723,7 +723,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	protected void search(String s) {
 		new Thread(new RunnableTask(s, RunnableTask.SEARCH)).start();
-		searchText = "";
+		//searchText = "";
 	}
 
 	protected void openSearchTextBox() {
