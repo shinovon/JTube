@@ -32,7 +32,7 @@ public class Locale implements LocaleConstants {
 
 	public static final String systemLocale;
 	public static boolean loaded;
-	protected static int localei;
+	public static int localei;
 	private static String[] values = new String[512];
 	public static String l;
 

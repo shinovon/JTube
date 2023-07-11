@@ -409,5 +409,112 @@ public class Util implements Constants {
 		}
 		return text + "..";
 	}
+	
+	public static String htmlText(String str) {
+		char[] chars = str.toCharArray();
+		str = null;
+		try {
+			int l = chars.length;
+			StringBuffer sb = new StringBuffer();
+			int i = 0;
+			loop: {
+				while (i < l) {
+					char c = chars[i];
+					switch (c) {
+					case '&': {
+						next: {
+							replaced: {
+								if(l < i + 1) {
+									sb.append(c);
+									break loop;
+								}
+								try {
+									switch (chars[i + 1]) {
+									case 'a':
+										if(chars[i + 2] == 'm' && chars[i + 3] == 'p' && chars[i + 4] == ';') {
+											i += 5;
+											sb.append('&');
+											break replaced;
+										}
+										break next;
+									case 'l':
+										if(chars[i + 2] == 't' && chars[i + 3] == ';') {
+											i += 4;
+											sb.append('<');
+											break replaced;
+										}
+										break next;
+									case 'g':
+										if(chars[i + 2] == 't' && chars[i + 3] == ';') {
+											i += 4;
+											sb.append('>');
+											break replaced;
+										}
+										break next;
+									case 'q':
+										if(chars[i + 2] == 'u' && chars[i + 3] == 'o' && chars[i + 4] == 't' && chars[i + 5] == ';') {
+											i += 6;
+											sb.append('\"');
+											break replaced;
+										}
+										break next;
+									case '#':
+										try {
+											if(chars[i + 4] == ';') {
+												String s = chars[i + 2] + "" + chars[i + 3];
+												sb.append((char)Integer.parseInt(s));
+												i += 5;
+												break replaced;
+											} else if(chars[i + 6] == ';') {
+												String s = chars[i + 2] + "" + chars[i + 3] + "" + chars[i + 4] + "" + chars[i + 5];
+												sb.append((char)Integer.parseInt(s));
+												i += 7;
+												break replaced;
+											}
+										} catch (Exception e) {
+										}
+										break next;
+									default:
+										break next;
+									}
+								} catch (Exception e) {
+									break next;
+								}
+							}
+							break;
+						}
+						sb.append(c);
+						i++;
+						break;
+					}
+					case '<' : {
+						if(l < i + 1) {
+							sb.append(c);
+							break loop;
+						}
+						try {
+							if(chars[i + 1] == 'b' && chars[i + 2] == 'r' && chars[i + 3] == '>') {
+								i += 4;
+								sb.append("\n");
+								break;
+							}
+						} catch (Exception e) {
+						}
+						sb.append(c);
+						i++;
+						break;
+					}
+					default:
+						sb.append(c);
+						i++;
+					}
+				}
+			}
+			str = sb.toString();
+			sb = null;
+		} catch (Exception e) {
+		}
+		return str;
+	}
 
 }
