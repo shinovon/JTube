@@ -43,6 +43,7 @@ public class VideoButtons extends UIItem implements UIConstants, LocaleConstants
 	private static Image likeImg;
 	private static Image shareImg;
 	private static Image saveImg;
+	private static Image likedImg;
 	private static Font font;
 	
 	private static void init() {
@@ -50,11 +51,13 @@ public class VideoButtons extends UIItem implements UIConstants, LocaleConstants
 			if(font == null) {
 				font = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 18, 8) : smallfont;
 			}
-			likeImg = Image.createImage("/like24.png");
-			shareImg = Image.createImage("/share24.png");
-			saveImg = Image.createImage("/save24.png");
+			likeImg = Image.createImage("/like.png");
+			likedImg = Image.createImage("/liked.png");
+			shareImg = Image.createImage("/share.png");
+			saveImg = Image.createImage("/save.png");
 			if(Settings.amoled) {
 				likeImg = Util.invert(likeImg);
+				likedImg = Util.invert(likedImg);
 				shareImg = Util.invert(shareImg);
 				saveImg = Util.invert(saveImg);
 			}
@@ -82,7 +85,7 @@ public class VideoButtons extends UIItem implements UIConstants, LocaleConstants
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		int f = w / 3;
-		g.drawImage(likeImg, (f-24) >> 1, y+6, 0);
+		g.drawImage(scr.liked ? likedImg : likeImg, (f-24) >> 1, y+6, 0);
 		g.drawImage(shareImg, ((f-24) >> 1) + f, y+6, 0);
 		g.drawImage(saveImg, ((f-24) >> 1) + f + f, y+6, 0);
 		g.setFont(font);

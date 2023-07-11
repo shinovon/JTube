@@ -130,9 +130,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		topBar = ui.getCanvas().hasPointerEvents();
 		try {
 			if(topBar) {
-				searchImg = Image.createImage("/search24.png");
-				backImg = Image.createImage("/back24.png");
-				menuImg = Image.createImage("/menu24.png");
+				searchImg = Image.createImage("/search.png");
+				backImg = Image.createImage("/back.png");
+				menuImg = Image.createImage("/menu.png");
 				if(Settings.amoled) {
 					amoledImgs = true;
 					searchImg = Util.invert(searchImg);
@@ -195,9 +195,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		super.show();
 		if(Settings.amoled != amoledImgs && topBar) {
 			try {
-				searchImg = Image.createImage("/search24.png");
-				backImg = Image.createImage("/back24.png");
-				menuImg = Image.createImage("/menu24.png");
+				searchImg = Image.createImage("/search.png");
+				backImg = Image.createImage("/back.png");
+				menuImg = Image.createImage("/menu.png");
 				if(Settings.amoled) {
 					searchImg = Util.invert(searchImg);
 					backImg = Util.invert(backImg);
