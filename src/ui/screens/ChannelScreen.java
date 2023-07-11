@@ -56,13 +56,15 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	private UIItem item;
 
-	private int state;
+	public int state;
 
 	public boolean subscribed;
 
 	private SubscribeButton subscribe;
 
 	private ChannelTabs tabs;
+
+	private String q;
 
 	public ChannelScreen(ChannelModel c) {
 		super(c.author, null);
@@ -166,6 +168,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	private void channelSearch(String q) {
+		q = null;
 		state = 3;
 		clear();
 		add(item);
@@ -195,6 +198,10 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	public void run() {
+		if(q != null) {
+			channelSearch(q);
+			return;
+		}
 		/*if(state > 1) {
 			latestVideos();
 			return;
@@ -221,7 +228,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	public void commandAction(Command c, Displayable d) {
 		if(c == searchOkCmd && d instanceof TextBox) {
-			channelSearch(((TextBox) d).getString());
+			q = ((TextBox) d).getString();
+			new Thread(this).start();
 			return;
 		}
 		if(c == backCmd && d instanceof TextBox) {

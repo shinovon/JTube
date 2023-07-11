@@ -30,14 +30,13 @@ import ui.screens.ChannelScreen;
 import Locale;
 import LocaleConstants;
 
-public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants {
+public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants, Runnable {
 
 	private int w;
 	private int h;
 
 	private ChannelScreen scr;
-
-	private int selected;
+	private int select;
 
 	public ChannelTabs(ChannelScreen scr) {
 		this.scr = scr;
@@ -60,46 +59,40 @@ public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants 
 		g.drawLine(x, y, w, y);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
-			g.drawRect(x+(int)(tw * selected), y, tw, h-1);
+			g.drawRect(x+(int)(tw * (scr.state - 1)), y, tw, h-1);
 		}
 		g.setColor(AppUI.getColor(COLOR_CHANNELTAB_SELECT));
-		g.fillRect(x + (tw * selected), y+h-2, tw, 2);
+		g.fillRect(x + (tw * (scr.state - 1)), y+h-2, tw, 2);
 	}
 	
 	protected void tap(int x, int y, int time) {
 		if(time > 5 && time < 250) {
-			select(selected = x / (w / 3));
+			select(x / (w / 3) + 1);
 		}
 	}
 	
 	protected void keyPress(int key) {
 		if(key == -3) {
-			if(selected == 0) return;
-			select(selected--);
+			if(scr.state <= 1) return;
+			select(scr.state--);
 			return;
 		}
 		if(key == -4) {
-			if(selected == 2) return;
-			select(selected++);
+			if(scr.state == 3) return;
+			select(scr.state++);
 			return;
 		}
-		if(key == -5 && selected == 2) {
-			select(2);
+		if(key == -5 && scr.state == 3) {
+			select(3);
 		}
 	}
 	
 	private void select(int i) {
-		switch(i) {
-		case 0:
-			scr.latestVideos();
-			break;
-		case 1:
-			scr.playlists();
-			break;
-		case 2:
+		if((select = i) == 3) {
 			scr.channelSearch();
-			break;
+			return;
 		}
+		new Thread(this).start();
 	}
 
 	public int getHeight() {
@@ -109,6 +102,17 @@ public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants 
 	protected void layout(int w) {
 		this.w = w;
 		h = Math.max(36, mediumfontheight + 8);
+	}
+
+	public void run() {
+		switch(select) {
+		case 1:
+			scr.latestVideos();
+			break;
+		case 2:
+			scr.playlists();
+			break;
+		}
 	}
 
 }

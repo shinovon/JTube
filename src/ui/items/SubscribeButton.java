@@ -8,8 +8,9 @@ import ui.UIConstants;
 import ui.screens.ChannelScreen;
 import Locale;
 import LocaleConstants;
+import App;
 
-public class SubscribeButton extends AbstractButton implements UIConstants {
+public class SubscribeButton extends AbstractButton implements UIConstants, Runnable {
 	
 	private ChannelScreen scr;
 	private int h;
@@ -22,7 +23,7 @@ public class SubscribeButton extends AbstractButton implements UIConstants {
 
 	protected void action() {
 		if(System.currentTimeMillis()-lastTime < 500) return;
-		scr.subscribe();
+		App.inst.schedule(this);
 		lastTime = System.currentTimeMillis();
 		//if(action != null) action.run();
 	}
@@ -53,6 +54,10 @@ public class SubscribeButton extends AbstractButton implements UIConstants {
 
 	protected void layout(int w) {
 		h = 36 + 16;
+	}
+
+	public void run() {
+		scr.subscribe();
 	}
 
 }

@@ -98,7 +98,6 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 					relayout();
 				}
 				if(bannerWidth != w && (bannerImg = channel.bannerImg).getWidth() != w) {
-					System.out.println("rescaling");
 					bannerImg = ImageUtils.resize(bannerImg, w, (int)(w*bannerImg.getHeight()/(float)bannerImg.getWidth()));
 				}
 				bannerWidth = w;
