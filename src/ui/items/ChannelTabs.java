@@ -24,40 +24,31 @@ package ui.items;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
-import App;
 import ui.AppUI;
 import ui.UIConstants;
+import ui.UIItem;
+import ui.screens.ChannelScreen;
 
-public class Button extends AbstractButton implements UIConstants {
+public class ChannelTabs extends UIItem implements UIConstants {
 	
-	private String text;
-	private Runnable action;
 	private int h;
-	
-	private long lastTime;
 
-	public Button(String s, Runnable r) {
-		this.text = s;
-		this.action = r;
-	}
+	private ChannelScreen scr;
 
-	protected void action() {
-		if(System.currentTimeMillis()-lastTime < 500) return;
-		if(action != null) App.inst.schedule(action);
-		lastTime = System.currentTimeMillis();
-		//if(action != null) action.run();
+	public ChannelTabs(ChannelScreen scr) {
+		this.scr = scr;
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setFont(mediumfont);
-		if(hover)
-			g.setColor(AppUI.getColor(COLOR_BUTTON_HOVER_BG));
-		else
-			g.setColor(AppUI.getColor(COLOR_MAINBG));
-		g.fillRect(x, y, w, h);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		Font f = g.getFont();
-		g.drawString(text, x + ((w - f.stringWidth(text)) >> 1), y + ((h - f.getHeight()) >> 1), 0);
+		int halfWidth = w >> 1;
+		String s = "Videos";
+		g.drawString(s, x + (halfWidth >> 1), y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
+
+		s = "Playlists";
+		g.drawString(s, x + (halfWidth >> 1) + halfWidth, y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y+h-1, w, y+h-1);
 		g.drawLine(x, y, w, y);

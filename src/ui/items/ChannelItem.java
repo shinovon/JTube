@@ -49,6 +49,8 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	private String author;
 
 	private Image img;
+	private Image bannerImg;
+	private int bannerWidth;
 
 	private String subsStr;
 	
@@ -85,9 +87,34 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
+		boolean page = getScreen() instanceof ChannelScreen;
+		if(page) {
+			if(channel.bannerImg != null) {
+				if(bannerImg == null) {
+					bannerWidth = (bannerImg = channel.bannerImg).getWidth();
+				}
+				if(bannerWidth != w && (bannerImg = channel.bannerImg).getWidth() != w) {
+					System.out.println("rescaling");
+					bannerImg = ImageUtils.resize(bannerImg, w, (int)(w*bannerImg.getHeight()/(float)bannerImg.getWidth()));
+				}
+				bannerWidth = w;
+				g.drawImage(bannerImg, w >> 1, y, Graphics.HCENTER | Graphics.TOP);
+				y += bannerImg.getHeight();
+			}
+			g.drawImage(img != null ? img : defaultImg, x + (w >> 1), y + (56 >> 1), Graphics.HCENTER | Graphics.VCENTER);
+			y += 56;
+			g.setFont(Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_LARGE));
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
+			g.drawString(author, x + (w >> 1), y + 8, Graphics.HCENTER | Graphics.TOP);
+			y += 16 + g.getFont().getHeight();
+			g.setFont(subsCountFont);
+			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
+			g.drawString(subsStr, x + (w >> 1), y, Graphics.HCENTER | Graphics.TOP);
+			return;
+		}
 		boolean small = channel.hasSmallImage && getScreen() instanceof IModelScreen;
 		int iw = small ? 36 : 48;
-		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x + 4, y + ((h - iw) >> 1), 0);
+		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x + 4, y + (h >> 1), Graphics.LEFT | Graphics.VCENTER);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		Font f = small ? titleSmallFont : titleFont;
 		g.setFont(f);
@@ -118,6 +145,15 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 
 	protected void layout(int w) {
 		h = 52;
+		if(getScreen() instanceof ChannelScreen) {
+			h = 0;
+			if(channel.bannerImg != null) {
+				h += (int)(w*channel.bannerImg.getHeight()/(float)channel.bannerImg.getWidth());
+			}
+			h += 56;
+			h += 8 + 16 + Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_LARGE).getHeight();
+			h += 8 + subsCountFont.getHeight();
+		}
 		if(titleFont == null) {
 			titleFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 24, Font.SIZE_SMALL) : smallfont;
 			titleSmallFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 19, Font.SIZE_SMALL) : smallfont;

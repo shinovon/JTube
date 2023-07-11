@@ -21,6 +21,8 @@ SOFTWARE.
 */
 package ui.screens;
 
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -39,7 +41,7 @@ import ui.UIItem;
 import models.ChannelModel;
 import models.PlaylistModel;
 import models.VideoModel;
-import ui.items.Button;
+import ui.items.ChannelTabs;
 import ui.items.SubscribeButton;
 import models.AbstractModel;
 import cc.nnproject.json.JSONArray;
@@ -60,10 +62,11 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	private SubscribeButton subscribe;
 
+	private ChannelTabs tabs;
+
 	public ChannelScreen(ChannelModel c) {
 		super(c.author, null);
 		this.channel = c;
-		setSearchText("");
 		menuOptions = !topBar ? new String[] {
 				Locale.s(CMD_Search),
 				Locale.s(CMD_Settings),
@@ -74,12 +77,12 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		};
 	}
 	
-	protected void latestVideos() {
+	public void latestVideos() {
 		state = 1;
 		clear();
 		add(item);
 		add(subscribe);
-		add(new Button(Locale.s(BTN_Playlists), this));
+		add(tabs);
 		try {
 			Loader.stop();
 			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", VIDEO_FIELDS +
@@ -101,22 +104,23 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		Loader.start();
 	}
 
-	protected void search() {
+	public void channelSearch() {
 		disposeSearchForm();
 		Loader.stop();
 		TextBox t = new TextBox("", "", 256, TextField.ANY);
 		t.setCommandListener(this);
 		t.setTitle(Locale.s(CMD_Search));
 		t.addCommand(searchOkCmd);
-		t.addCommand(cancelCmd);
+		t.addCommand(backCmd);
 		ui.display(t);
 	}
 
-	protected void playlists() {
+	public void playlists() {
 		state = 2;
 		clear();
 		add(item);
-		add(new Button(Locale.s(BTN_LatestVideos), this));
+		add(subscribe);
+		add(tabs);
 		Loader.stop();
 		try {
 			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
@@ -152,7 +156,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		subscribed = LocalStorage.isSubscribed(channel.authorId);
 		add(item = channel.makePageItem());
 		add(subscribe = new SubscribeButton(this));
-		add(new Button(Locale.s(BTN_Playlists), this));
+		add(tabs = new ChannelTabs(this));
 	}
 
 	protected UIItem playlist(JSONObject j) {
@@ -160,11 +164,11 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		return p.makeListItem();
 	}
 
-	protected void search(String q) {
+	private void channelSearch(String q) {
 		state = 3;
 		clear();
 		add(item);
-		add(new Button(Locale.s(BTN_LatestVideos), this));
+		add(tabs);
 		Loader.stop();
 		try {
 			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.authorId + "?q=" + Util.url(q), VIDEO_FIELDS +
@@ -190,14 +194,14 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	public void run() {
-		if(state > 1) {
+		/*if(state > 1) {
 			latestVideos();
 			return;
 		}
 		if(state == 1) {
 			playlists();
 			return;
-		}
+		}*/
 		busy = true;
 		try {
 			if(!channel.extended) {
@@ -214,36 +218,17 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		busy = false;
 	}
 
-	/*public void commandAction(Command c, Displayable d) {
-		if(c == okCmd) {
-			keyPress(-5);
-			return;
-		}
-		if(c == searchCmd) {
-			search();
-			return;
-		}
+	public void commandAction(Command c, Displayable d) {
 		if(c == searchOkCmd && d instanceof TextBox) {
-			search(((TextBox) d).getString());
+			channelSearch(((TextBox) d).getString());
 			return;
 		}
-		if(c == cancelCmd && d instanceof TextBox) {
+		if(c == backCmd && d instanceof TextBox) {
 			ui.display(null);
 			return;
 		}
-		if(c == backCmd) {
-			AppUI.loadingState = false;
-			App.inst.stopAsyncTasks();
-			if(parent != null) {
-				ui.setScreen(parent);
-			} else {
-				ui.back(this);
-			}
-			ui.disposeChannelPage();
-			return;
-		}
 		super.commandAction(c, d);
-	}*/
+	}
 
 	private void disposeSearchForm() {
 		Util.gc();

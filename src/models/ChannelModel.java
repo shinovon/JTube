@@ -46,6 +46,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	private ChannelItem item;
 	public Image img;
+	public Image bannerImg;
 
 	public boolean extended;
 	public boolean fromSearch;
@@ -53,6 +54,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	private String imageUrl;
 	public boolean rounded;
 	public boolean hasSmallImage;
+	private String bannerUrl;
 	
 	public ChannelModel(String id) {
 		this.authorId = id;
@@ -88,6 +90,10 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 			if(authorThumbnails != null) {
 				imageUrl = App.getThumbUrl(authorThumbnails, hasSmallImage ? 36 : 48);
 			}
+			JSONArray authorBanners = o.getNullableArray("authorBanners");
+			if(authorBanners != null) {
+				bannerUrl = App.getSmallestThumbUrl(authorBanners);
+			}
 		}
 		subCount = o.getInt("subCount", -1);
 		totalViews = o.getLong("totalViews", 0);
@@ -95,14 +101,14 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
 	public ChannelModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
+			parse((JSONObject) App.invApi("channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails,authorBanners" : "")), true);
 		}
 		return this;
 	}
 
 	public void load() {
 		if(item == null) return;
-		if(img != null) {
+		if(img != null && !extended) {
 			item.setImage(img);
 			return;
 		}
@@ -110,13 +116,23 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		try {
 			byte[] b = App.getImageBytes(imageUrl);
 			int i = hasSmallImage ? 36 : 48;
-			img = ImageUtils.resize(Image.createImage(b, 0, b.length), i, i);
+			img = Image.createImage(b, 0, b.length);
+			b = null;
+			img = ImageUtils.resize(img, i, i);
 			item.setImage(img);
 			imageUrl = null;
-		} catch (Exception e) {
-		} catch (OutOfMemoryError e) {
+		} catch (Throwable e) {
 		}
-		
+		if(bannerUrl == null) return;
+		try {
+			byte[] b = App.getImageBytes(bannerUrl);
+			bannerImg = Image.createImage(b, 0, b.length);
+			b = null;
+			int w = Math.max(App.startWidth, App.startHeight);
+			bannerImg = ImageUtils.resize(bannerImg, w, (int)(w*bannerImg.getHeight()/(float)bannerImg.getWidth()));
+			bannerUrl = null;
+		} catch (Throwable e) {
+		}
 	}
 
 	public void dispose() {
@@ -135,8 +151,13 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 		return item = new ChannelItem(this);
 	}
 
-	public UIItem makePageItem() {
+	public UIItem makeVideoItem() {
 		hasSmallImage = true;
+		return item = new ChannelItem(this);
+	}
+
+	public UIItem makePageItem() {
+		hasSmallImage = false;
 		return item = new ChannelItem(this);
 	}
 

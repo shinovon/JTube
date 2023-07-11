@@ -544,6 +544,21 @@ public class App implements Constants, Runnable {
 		return s.getString("url");
 	}
 
+	public static String getSmallestThumbUrl(JSONArray arr) {
+		JSONObject s = null;
+		int ld = 16384;
+		int l = arr.size();
+		for(int i = 0; i < l; i++) {
+			JSONObject j = arr.getObject(i);
+			int d = j.getInt("width");
+			if (d < ld) {
+				ld = d;
+				s = j;
+			}
+		}
+		return s.getString("url");
+	}
+
 	public static void warn(Object o, String str) {
 		String s = str + " \n\n" + getThreadInfo(o);
 		Alert a = new Alert("", s, null, AlertType.WARNING);

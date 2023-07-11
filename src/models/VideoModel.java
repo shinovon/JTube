@@ -307,7 +307,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 	
 	public ChannelItem makeChannelItem() {
-		return channelItem = (ChannelItem) new ChannelModel(authorId, author, null, subCount).makePageItem();
+		return channelItem = (ChannelItem) new ChannelModel(authorId, author, null, subCount).makeVideoItem();
 	}
 
 	public void setContainerScreen(UIScreen s) {
