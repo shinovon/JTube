@@ -259,14 +259,13 @@ public class App implements Constants, Runnable {
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
 		String url = s;
 		if(!s.endsWith("?")) s = s.concat("&");
-		s = s.concat("region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US"));
+		s += "region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US");
 		if(fields != null) {
-			s = s.concat("&fields=".concat(fields).concat(",error,errorBacktrace,code"));
+			s = s + "&fields=" + fields + ",error,errorBacktrace,code";
 		}
-		String dbg = "Region=".concat(Settings.region).concat(" Fields=").concat(fields);
-		s = Settings.inv.concat("api/v1/").concat(s);
+		s = Settings.inv + "api/v1/" + s;
 		if(Settings.useApiProxy) {
-			s = Settings.apiProxy.concat("?u=").concat(Util.url(s));
+			s = Settings.apiProxy + "?u=" + Util.url(s);
 		}
 		try {
 			s = Util.getUtf(s);
@@ -278,10 +277,10 @@ public class App implements Constants, Runnable {
 		if(s.charAt(0) == '{') {
 			res = JSON.getObject(s);
 			if(((JSONObject) res).has("code")) {
-				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, dbg);
+				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, "");
 			}
 			if(((JSONObject) res).has("error")) {
-				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getNullableString("error"), url, dbg);
+				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getNullableString("error"), url, "");
 			}
 		} else {
 			res = JSON.getArray(s);
@@ -436,7 +435,6 @@ public class App implements Constants, Runnable {
 				try {
 					Util.platReq(url);
 				} catch (Exception e) {
-					e.printStackTrace();
 					error(null, Errors.App_watch, e);
 				}
 				break;
@@ -507,7 +505,6 @@ public class App implements Constants, Runnable {
 			}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			if(e instanceof RuntimeException && "not found".equals(e.getMessage())) {
 				inst.ui.msg("Selected quality is not available");
 				return;
@@ -578,6 +575,7 @@ public class App implements Constants, Runnable {
 	}
 
 	public static void error(Object o, int i, Throwable e) {
+		e.printStackTrace();
 		if(e instanceof InvidiousException) {
 			error(o, i, e.toString(), ((InvidiousException)e).toErrMsg());
 			return;

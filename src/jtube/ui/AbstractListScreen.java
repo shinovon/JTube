@@ -345,7 +345,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			cItem.focus();
 			return true;
 		} catch(Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}

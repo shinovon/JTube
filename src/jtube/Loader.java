@@ -36,7 +36,6 @@ public class Loader {
 				System.arraycopy(tmp, 0, tasks, 0, tmp.length);
 			}
 		} catch (Exception e) {
-			 e.printStackTrace();
 		}
 	}
 	

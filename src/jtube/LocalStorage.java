@@ -106,25 +106,40 @@ public class LocalStorage {
 		try {
 			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
 			if(subsRS.getNumRecords() > 0) {
-				subscriptions = JSON.getArray(new String(subsRS.getRecord(1), "UTF-8")).getVector();
+				String s = new String(subsRS.getRecord(1), "UTF-8");
+				subscriptions = JSON.getArray(s).getVector();
+				// remove repeats
+				for(int i = subscriptions.size()-2; i > 0; i-=2) {
+					int idx = subscriptions.indexOf(subscriptions.elementAt(i));
+					if(idx != i) {
+						subscriptions.removeElementAt(i+1);
+						subscriptions.removeElementAt(i);
+					}
+				}
+				byte[] b = new JSONArray(subscriptions).build().getBytes("UTF-8");
+				subsRS.setRecord(1, b, 0, b.length);
 			} else {
 				subscriptions = new Vector();
 				subsRS.addRecord("[]".getBytes(), 0, 2);
 			}
 			subsRS.closeRecordStore();
 		} catch (Exception e) {
+			subscriptions = new Vector();
 			e.printStackTrace();
 		}
 	}
 	
 	public static void saveSubscriptions() {
+		long l = System.currentTimeMillis();
 		try {
 			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
-			subsRS.setRecord(1, new JSONArray(subscriptions).build().getBytes("UTF-8"), 0, 2);
+			byte[] b = new JSONArray(subscriptions).build().getBytes("UTF-8");
+			subsRS.setRecord(1, b, 0, b.length);
 			subsRS.closeRecordStore();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("save took " + (System.currentTimeMillis() - l));
 	}
 	
 	// TODO

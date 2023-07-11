@@ -29,7 +29,7 @@ public class SearchSuggestionsThread extends Thread {
 	
 	public void schedule() {
 		b = true;
-		i = 2;
+		i = 1;
 	}
 
 }

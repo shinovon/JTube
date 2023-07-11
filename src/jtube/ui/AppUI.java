@@ -281,7 +281,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				canv.setCommandListener(this);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -640,7 +639,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			settingsForm.show();
 		} catch (Exception e) {
 			App.error(this, "Could not open settings! \n" + e.toString());
-			e.printStackTrace();
 		}
 	}
 	
