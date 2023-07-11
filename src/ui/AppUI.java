@@ -54,6 +54,7 @@ import ui.screens.ChannelScreen;
 import ui.screens.MainScreen;
 import ui.screens.SearchScreen;
 import ui.screens.VideoScreen;
+import vyf.utils.StackTrace;
 import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;
@@ -172,6 +173,18 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			return Settings.amoled ? -1 : 0;
 		case COLOR_ICON:
 			return Settings.amoled ? -1 : 0;
+		case COLOR_SUBSCRIBE_BG:
+			return Settings.amoled ? 0xF1F1F1 : 0x0F0F0F;
+		case COLOR_SUBSCRIBE_FG:
+			return Settings.amoled ? 0x0F0F0F : 0xF1F1F1;
+		case COLOR_SUBSCRIBED_BG:
+			return Settings.amoled ? 0x383838 : 0xF2F2F2;
+		case COLOR_SUBSCRIBED_FG:
+			return Settings.amoled ? 0xF1F1F1 : 0x0F0F0F;
+		case COLOR_CHANNELPAGE_BG:
+			return Settings.amoled ? 0x212121 : 0xFFFFFF;
+		case COLOR_CHANNELTAB_SELECT:
+			return Settings.amoled ? 0xAAAAAA : 0x606060;
 		default:
 			return 0;
 		}
@@ -297,9 +310,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				mainScr.add(item);
 				if(i >= TRENDS_LIMIT) break;
 			}
-			Thread.sleep(150);
 			j = null;
-			Thread.sleep(150);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

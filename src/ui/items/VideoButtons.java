@@ -37,7 +37,7 @@ import ui.UIItem;
 import ui.nokia_extensions.DirectFontUtil;
 import ui.screens.VideoScreen;
 
-public class VideoButtons extends UIItem implements UIConstants {
+public class VideoButtons extends UIItem implements UIConstants, LocaleConstants {
 	
 	private static boolean amoledImgs;
 	private static Image likeImg;
@@ -81,18 +81,18 @@ public class VideoButtons extends UIItem implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		float f = w / 3F;
-		g.drawImage(likeImg, (int) ((f-24)/2), y+6, 0);
-		g.drawImage(shareImg, (int) ((f-24)/2+f), y+6, 0);
-		g.drawImage(saveImg, (int) ((f-24)/2+f*2), y+6, 0);
+		int f = w / 3;
+		g.drawImage(likeImg, (f-24) >> 1, y+6, 0);
+		g.drawImage(shareImg, ((f-24) >> 1) + f, y+6, 0);
+		g.drawImage(saveImg, ((f-24) >> 1) + f + f, y+6, 0);
 		g.setFont(font);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
 		String s = "" + likes;
-		g.drawString(s, ((int)f - font.stringWidth(s)) >> 1, y+32, 0);
-		s = Locale.s(LocaleConstants.BTN_Share);
-		g.drawString(s, (((int)f - font.stringWidth(s)) >> 1) + (int)f, y+32, 0);
-		s = Locale.s(LocaleConstants.CMD_Download);
-		g.drawString(s, (((int)f - font.stringWidth(s)) >> 1) + (int)f*2, y+32, 0);
+		g.drawString(s, f >> 1, y+32, Graphics.HCENTER | Graphics.TOP);
+		s = Locale.s(BTN_Share);
+		g.drawString(s, (f >> 1) + f, y+32, Graphics.HCENTER | Graphics.TOP);
+		s = Locale.s(CMD_Download);
+		g.drawString(s, (f >> 1) + f + f, y+32, Graphics.HCENTER | Graphics.TOP);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y, w-x, y);
 		g.drawLine(x, y+h, w-x, y+h);
@@ -105,7 +105,9 @@ public class VideoButtons extends UIItem implements UIConstants {
 	protected void tap(int x, int y, int time) {
 		if(time > 5 && time < 200) {
 			int f = (int) (w / 3F);
-			if(x > f && x < f*2) {
+			if(x > 0 && x < f) {
+				scr.like();
+			} else if(x > f && x < f*2) {
 				scr.showLink();
 			} else if(x > f*2 && x < w) {
 				scr.download();

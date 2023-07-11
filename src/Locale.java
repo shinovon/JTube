@@ -310,7 +310,7 @@ public class Locale implements LocaleConstants {
 			case BTN_Subscribe:
 				return "Subscribe";
 			case BTN_Unsubscribe:
-				return "Unsibscribe";
+				return "Unsubscribe";
 			case Title_Subscriptions:
 				return "Subscriptions";
 			case Title_History:
@@ -318,7 +318,9 @@ public class Locale implements LocaleConstants {
 			case Title_Liked:
 				return "Liked videos";
 			case CMD_Unlike:
-				return "";
+				return "Unlike";
+			case BTN_Videos:
+				return "Videos";
 			}
 		}
 		case 1: {
@@ -523,6 +525,8 @@ public class Locale implements LocaleConstants {
 				return "Понравивилось";
 			case CMD_Unlike:
 				return "Разонравилось"; // ??
+			case BTN_Videos:
+				return "Видео";
 			}
 		}
 		}

@@ -78,6 +78,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 	
 	public void latestVideos() {
+		if(state == 1) return;
 		state = 1;
 		clear();
 		add(item);
@@ -116,6 +117,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	public void playlists() {
+		if(state == 2) return;
 		state = 2;
 		clear();
 		add(item);
@@ -149,7 +151,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 	
 	private void init() {
-		state = 1;
 		scroll = 0;
 		busy = false;
 		if(channel == null) return;

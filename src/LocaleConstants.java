@@ -141,5 +141,6 @@ public interface LocaleConstants {
 	public static final int Title_Liked = 130;
 	public static final int CMD_Like = 131;
 	public static final int CMD_Unlike = 132;
+	public static final int BTN_Videos = 133;
 
 }

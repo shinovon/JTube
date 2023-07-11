@@ -1,6 +1,7 @@
 package ui.screens;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
@@ -24,6 +25,9 @@ public class SplashScreen extends Canvas {
 		if (splash == null)
 			return;
 		g.drawImage(splash, getWidth() >> 1, getHeight() >> 1, Graphics.VCENTER | Graphics.HCENTER);
+		g.setColor(0);
+		g.setFont(Font.getDefaultFont());
+		g.drawString("TEST", getWidth() >> 1, 10, Graphics.HCENTER | Graphics.TOP);
 	}
 	
 	public void keyPressed(int key) {

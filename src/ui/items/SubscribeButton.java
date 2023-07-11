@@ -29,12 +29,11 @@ public class SubscribeButton extends AbstractButton implements UIConstants {
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setFont(mediumfont);
-		if(hover)
-			g.setColor(AppUI.getColor(COLOR_BUTTON_HOVER_BG));
-		else
-			g.setColor(AppUI.getColor(COLOR_MAINBG));
+		g.setColor(AppUI.getColor(COLOR_CHANNELPAGE_BG));
 		g.fillRect(x, y, w, h);
-		g.setColor(AppUI.getColor(COLOR_MAINFG));
+		g.setColor(scr.subscribed ? AppUI.getColor(COLOR_SUBSCRIBED_BG) : AppUI.getColor(COLOR_SUBSCRIBE_BG));
+		g.fillRoundRect(x + 8, y + 8, w - 16, 36, 18, 18);
+		g.setColor(scr.subscribed ? AppUI.getColor(COLOR_SUBSCRIBED_FG) : AppUI.getColor(COLOR_SUBSCRIBE_FG));
 		Font f = g.getFont();
 		String s = scr.subscribed ? Locale.s(LocaleConstants.BTN_Unsubscribe) : Locale.s(LocaleConstants.BTN_Subscribe);
 		g.drawString(s, x + (w >> 1), y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
@@ -53,7 +52,7 @@ public class SubscribeButton extends AbstractButton implements UIConstants {
 	}
 
 	protected void layout(int w) {
-		h = Math.max(36, mediumfontheight + 8);
+		h = 36 + 16;
 	}
 
 }

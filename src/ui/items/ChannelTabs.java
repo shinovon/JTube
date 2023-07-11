@@ -21,41 +21,84 @@ SOFTWARE.
 */
 package ui.items;
 
-import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 import ui.AppUI;
 import ui.UIConstants;
 import ui.UIItem;
 import ui.screens.ChannelScreen;
+import Locale;
+import LocaleConstants;
 
-public class ChannelTabs extends UIItem implements UIConstants {
-	
+public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants {
+
+	private int w;
 	private int h;
 
 	private ChannelScreen scr;
+
+	private int selected;
 
 	public ChannelTabs(ChannelScreen scr) {
 		this.scr = scr;
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		g.setFont(mediumfont);
+		g.setFont(smallfont);
+		g.setColor(AppUI.getColor(COLOR_CHANNELPAGE_BG));
+		g.fillRect(x, y, w, h);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
-		Font f = g.getFont();
-		int halfWidth = w >> 1;
-		String s = "Videos";
-		g.drawString(s, x + (halfWidth >> 1), y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
-
-		s = "Playlists";
-		g.drawString(s, x + (halfWidth >> 1) + halfWidth, y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
+		int tw = w / 3;
+		String s = Locale.s(BTN_Videos);
+		g.drawString(s, x + (tw >> 1), y + ((h - smallfontheight) >> 1), Graphics.HCENTER | Graphics.TOP);
+		s = Locale.s(BTN_Playlists);
+		g.drawString(s, x + (tw >> 1) + tw, y + ((h - smallfontheight) >> 1), Graphics.HCENTER | Graphics.TOP);
+		s = Locale.s(CMD_Search);
+		g.drawString(s, x + (tw >> 1) + tw + tw, y + ((h - smallfontheight) >> 1), Graphics.HCENTER | Graphics.TOP);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y+h-1, w, y+h-1);
 		g.drawLine(x, y, w, y);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
-			g.drawRect(x, y, w-1, h-1);
-			//g.drawRect(x+1, y+1, w-3, h-3);
+			g.drawRect(x+(int)(tw * selected), y, tw, h-1);
+		}
+		g.setColor(AppUI.getColor(COLOR_CHANNELTAB_SELECT));
+		g.fillRect(x + (tw * selected), y+h-2, tw, 2);
+	}
+	
+	protected void tap(int x, int y, int time) {
+		if(time > 5 && time < 250) {
+			select(selected = x / (w / 3));
+		}
+	}
+	
+	protected void keyPress(int key) {
+		if(key == -3) {
+			if(selected == 0) return;
+			select(selected--);
+			return;
+		}
+		if(key == -4) {
+			if(selected == 2) return;
+			select(selected++);
+			return;
+		}
+		if(key == -5 && selected == 2) {
+			select(2);
+		}
+	}
+	
+	private void select(int i) {
+		switch(i) {
+		case 0:
+			scr.latestVideos();
+			break;
+		case 1:
+			scr.playlists();
+			break;
+		case 2:
+			scr.channelSearch();
+			break;
 		}
 	}
 
@@ -64,6 +107,7 @@ public class ChannelTabs extends UIItem implements UIConstants {
 	}
 
 	protected void layout(int w) {
+		this.w = w;
 		h = Math.max(36, mediumfontheight + 8);
 	}
 

@@ -48,5 +48,11 @@ public interface UIConstants {
 	public static final int COLOR_SOFTBAR_BG = 15;
 	public static final int COLOR_SOFTBAR_FG = 16;
 	public static final int COLOR_ICON = 17;
+	public static final int COLOR_SUBSCRIBE_BG = 18;
+	public static final int COLOR_SUBSCRIBE_FG = 19;
+	public static final int COLOR_SUBSCRIBED_BG = 20;
+	public static final int COLOR_SUBSCRIBED_FG = 21;
+	public static final int COLOR_CHANNELPAGE_BG = 22;
+	public static final int COLOR_CHANNELTAB_SELECT = 23;
 
 }

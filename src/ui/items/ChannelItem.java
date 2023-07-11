@@ -89,9 +89,13 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		boolean page = getScreen() instanceof ChannelScreen;
 		if(page) {
+			g.setColor(AppUI.getColor(COLOR_CHANNELPAGE_BG));
+			g.fillRect(x, y, w, h);
+			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			if(channel.bannerImg != null) {
 				if(bannerImg == null) {
 					bannerWidth = (bannerImg = channel.bannerImg).getWidth();
+					relayout();
 				}
 				if(bannerWidth != w && (bannerImg = channel.bannerImg).getWidth() != w) {
 					System.out.println("rescaling");
@@ -104,7 +108,6 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 			g.drawImage(img != null ? img : defaultImg, x + (w >> 1), y + (56 >> 1), Graphics.HCENTER | Graphics.VCENTER);
 			y += 56;
 			g.setFont(Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_LARGE));
-			g.setColor(AppUI.getColor(COLOR_MAINFG));
 			g.drawString(author, x + (w >> 1), y + 8, Graphics.HCENTER | Graphics.TOP);
 			y += 16 + g.getFont().getHeight();
 			g.setFont(subsCountFont);
