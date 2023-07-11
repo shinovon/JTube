@@ -281,7 +281,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawImage(searchImg, w - 36, 12, 0);
 					g.drawImage(backImg, 12, 12, 0);
 					if(searchSuggestions != null) {
-						int sy = 0;
+						int sy = 50;
 						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 						g.setFont(smallfont);
 						for(int i = 0; i < searchSuggestions.length; i++) {
@@ -703,7 +703,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			return;
 		}
-		if(search) return;
+		if(search) {
+			if(searchSuggestions != null) {
+				y -= 50;
+				int i = y / 48;
+				if(i < searchSuggestions.length) {
+					setSearchText(searchSuggestions[i]);
+				}
+			}
+			return;
+		}
 		super.tap(x, y - topBarHeight, time);
 	}
 
@@ -770,6 +779,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		searchText = s;
 		if(editor != null) {
 			editor.setContent(s);
+		}
+		if(keyboard != null) {
+			keyboard.setText(s);
 		}
 	}
 
