@@ -32,6 +32,8 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
+import cc.nnproject.json.JSONArray;
+import cc.nnproject.json.JSONObject;
 import cc.nnproject.keyboard.Keyboard;
 import cc.nnproject.keyboard.KeyboardListener;
 import cc.nnproject.utils.PlatformUtils;
@@ -45,6 +47,7 @@ import jtube.ui.AppUI;
 import jtube.ui.Commands;
 import jtube.ui.JTubeCanvas;
 import jtube.ui.Locale;
+import jtube.ui.SearchSuggestionsThread;
 import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
 import jtube.ui.nokia_extensions.DirectFontUtil;
@@ -72,6 +75,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	protected static Keyboard keyboard;
 	protected static TextEditorInst editor;
 
+	private static SearchSuggestionsThread suggestionsThread;
+
 	protected boolean wasHidden;
 
 	private int topBarHeight = 48;
@@ -94,6 +99,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	protected String[] menuOptions;
 
 	private int menuSelectedIndex;
+
+	private String[] searchSuggestions;
 	
 	protected NavigationScreen(String label, UIScreen parent) {
 		super(label, parent);
@@ -149,6 +156,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				((PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3() &&
 					!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
 					!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
+		suggestionsThread = new SearchSuggestionsThread();
+		suggestionsThread.start();
 	}
 	
 	private static void initKeyboard() {
@@ -271,6 +280,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(topBar) {
 					g.drawImage(searchImg, w - 36, 12, 0);
 					g.drawImage(backImg, 12, 12, 0);
+					if(searchSuggestions != null) {
+						int sy = 0;
+						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
+						g.setFont(smallfont);
+						for(int i = 0; i < searchSuggestions.length; i++) {
+							g.drawString(Util.getOneLine(searchSuggestions[i], smallfont, w-16), 8, sy+((48-smallfontheight) >> 1), 0);
+							sy += 48;
+							g.drawLine(0, sy, w, sy);
+						}
+					}
 				}
 				if(editor == null || editorHidden) {
 					if(keyboard != null && keyboard.isVisible()) {
@@ -757,6 +776,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	public void inputAction(TextEditorInst editor, int event) {
 		if((event & ACTION_CONTENT_CHANGE) > 0) {
 			searchText = editor.getContent();
+			suggestionsThread.schedule();
 			if(searchText.endsWith("\n")) {
 				searchText = searchText.trim();
 				editor.setContent(searchText);
@@ -830,6 +850,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	public void textUpdated() {
 		searchText = keyboard.getText();
+		suggestionsThread.schedule();
 	}
 
 	public void done() {
@@ -847,6 +868,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	public void cancel() {
 		hide();
+	}
+
+	public void loadSuggestions() {
+		try {
+			JSONArray suggestions = ((JSONObject) App.invApi("search/suggestions?q=" + Util.url(searchText))).getArray("suggestions");
+			searchSuggestions = new String[suggestions.size()];
+			suggestions.copyInto(searchSuggestions, 0, suggestions.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
