@@ -20,12 +20,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.microedition.lcdui.Image;
 import javax.microedition.rms.RecordStore;
 
+import cc.nnproject.json.JSON;
+import cc.nnproject.json.JSONArray;
+
 public class LocalStorage {
 	
+	private static Vector subscriptions;
+
 	public static void cacheThumbnail(String id, byte[] b) {
 		try {
 			RecordStore.deleteRecordStore("jС"+id);
@@ -91,20 +97,58 @@ public class LocalStorage {
 		}
 	}
 	
+	public static void init() {
+		initSubscriptions();
+	}
+	
+	private static void initSubscriptions() {
+		try {
+			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
+			if(subsRS.getNumRecords() > 0) {
+				subscriptions = JSON.getArray(new String(subsRS.getRecord(1), "UTF-8")).getVector();
+			} else {
+				subscriptions = new Vector();
+				subsRS.addRecord("[]".getBytes(), 0, 2);
+			}
+			subsRS.closeRecordStore();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void saveSubscriptions() {
+		try {
+			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
+			subsRS.setRecord(1, new JSONArray(subscriptions).build().getBytes("UTF-8"), 0, 2);
+			subsRS.closeRecordStore();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	// TODO
 	
 	public static void addSubscription(String id, String name) {
+		subscriptions.addElement(id);
+		subscriptions.addElement(name);
+		saveSubscriptions();
 	}
 	
 	public static boolean isSubscribed(String id) {
-		return false;
+		return subscriptions.contains(id);
 	}
 	
-	public static String[] getSubsciptions(int tab) {
-		return new String[0];
+	public static String[] getSubsciptions() {
+		String[] arr = new String[subscriptions.size()];
+		subscriptions.copyInto(arr);
+		return arr;
 	}
 	
 	public static void removeSubscription(String id) {
+		int idx = subscriptions.indexOf(id);
+		subscriptions.removeElementAt(idx+1);
+		subscriptions.removeElementAt(idx);
+		saveSubscriptions();
 	}
 	
 	public static void addHistory(String id, String name) {
@@ -136,7 +180,10 @@ public class LocalStorage {
 	}
 	
 	public static void clearAllData() {
-		
+		try {
+			RecordStore.deleteRecordStore("jtsubscriptions");
+		} catch (Exception e) {
+		}
 	}
 
 }

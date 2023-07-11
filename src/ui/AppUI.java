@@ -54,7 +54,6 @@ import ui.screens.ChannelScreen;
 import ui.screens.MainScreen;
 import ui.screens.SearchScreen;
 import ui.screens.VideoScreen;
-import vyf.utils.StackTrace;
 import models.AbstractModel;
 import models.ChannelModel;
 import models.PlaylistModel;

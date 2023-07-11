@@ -151,6 +151,7 @@ public class App implements Constants, Runnable {
 	}
 	
 	public void run() {
+		LocalStorage.init();
 		initUI();
 		Loader.init();
 		new Thread() {
