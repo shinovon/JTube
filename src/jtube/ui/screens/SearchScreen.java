@@ -24,15 +24,14 @@ package jtube.ui.screens;
 import jtube.Loader;
 import jtube.Settings;
 import jtube.ui.Locale;
-import jtube.ui.UIScreen;
 import jtube.ui.items.VideoItem;
 
 public class SearchScreen extends NavigationScreen {
 	
 	private String query = "";
 
-	public SearchScreen(String q, UIScreen parent) {
-		super(Locale.s(TITLE_SearchQuery), parent);
+	public SearchScreen(String q) {
+		super(Locale.s(TITLE_SearchQuery));
 		setSearchText(query = q);
 		menuOptions = !topBar ? new String[] {
 				Locale.s(CMD_Search),

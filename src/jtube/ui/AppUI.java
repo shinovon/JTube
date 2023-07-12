@@ -22,6 +22,7 @@ SOFTWARE.
 package jtube.ui;
 
 import java.io.IOException;
+import java.util.Stack;
 import java.util.Vector;
 
 import javax.microedition.lcdui.Alert;
@@ -52,7 +53,7 @@ import jtube.models.VideoModel;
 import jtube.ui.nokia_extensions.DirectFontUtil;
 import jtube.ui.nokia_extensions.TextEditorUtil;
 import jtube.ui.screens.ChannelScreen;
-import jtube.ui.screens.MainScreen;
+import jtube.ui.screens.HomeScreen;
 import jtube.ui.screens.SearchScreen;
 import jtube.ui.screens.VideoScreen;
 
@@ -69,10 +70,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		UIItem.ui = this;
 	}
 	
-	public MainScreen mainScr;
+	public HomeScreen mainScr;
 	public SearchScreen searchScr;
 	public VideoScreen videoScr;
-	public ChannelScreen channelScr;
 	
 	private SettingsForm settingsForm;
 
@@ -92,6 +92,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	private List optionsList;
 
 	private boolean repaint;
+	
+	public int currentTab;
+	public Stack screenStack = new Stack();
+	
 	
 	public void run() {
 		try {
@@ -231,7 +235,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void loadMain() {
 		try {
 			if(mainScr == null) {
-				mainScr = new MainScreen();
+				mainScr = new HomeScreen();
 			}
 			mainScr.busy = true;
 			if(Settings.startScreen == 0) {
@@ -330,7 +334,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void search(String q) {
 		Loader.stop();
-		searchScr = new SearchScreen(q, mainScr);
+		searchScr = new SearchScreen(q);
 		searchScr.busy = true;
 		display(null);
 		setScreen(searchScr);
@@ -405,13 +409,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		Util.gc();
 	}
 
-	public void disposeChannelPage() {
-		if(channelScr == null) return;
-		channelScr.dispose();
-		channelScr = null;
-		Util.gc();
-	}
-
 	public void disposeSearchPage() {
 		if(searchScr == null) return;
 		searchScr.clear();
@@ -447,7 +444,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				mainScr.scroll = 0;
 				mainScr.clear();
 			} else {
-				mainScr = new MainScreen();
+				mainScr = new HomeScreen();
 			}
 			display(null);
 			setScreen(mainScr);
@@ -624,8 +621,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		setScreen((UIScreen) scr);
 		if(scr instanceof VideoScreen) {
 			ui.videoScr = (VideoScreen) scr;
-		} else if(scr instanceof ChannelScreen) {
-			ui.channelScr = (ChannelScreen) scr;
 		}
 		Util.gc();
 	}
@@ -702,13 +697,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void showMain() {
 		if(mainScr == null) {
-			mainScr = new MainScreen();
+			mainScr = new HomeScreen();
 			loadMain();
 		} else {
 			setScreen(mainScr);
-		}
-		if(channelScr != null) {
-			disposeChannelPage();
 		}
 		if(videoScr != null) {
 			disposeVideoPage();

@@ -41,17 +41,17 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 	
 	private int scrollTimer;
 
-	protected AbstractListScreen(String label, UIScreen parent, Vector v) {
-		super(label, parent);
+	protected AbstractListScreen(String label, Vector v) {
+		super(label);
 		items = v;
 	}
 
-	protected AbstractListScreen(String label, UIScreen parent) {
-		this(label, parent, new Vector());
+	protected AbstractListScreen(String label) {
+		this(label, new Vector());
 	}
 
 	protected AbstractListScreen(Vector v) {
-		this(null, null, new Vector());
+		this(null, new Vector());
 	}
 
 	protected void paint(Graphics g, int w, int h) {

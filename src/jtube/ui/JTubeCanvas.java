@@ -45,7 +45,6 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private float scrollSlideMaxTime;
 	private float scrollSlideSpeed;
 	private boolean scrollSlide;
-	private boolean controlBlock;
 	private int flushTime;
 	private Keyboard keyboard;
 	
@@ -134,10 +133,6 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		if(keyboard != null && keyboard.pointerReleased(x, y)) return;
 		lastX = x;
 		lastY = y;
-		if(controlBlock) {
-			needRepaint();
-			return;
-		}
 		int time = (int) ((releaseTime = System.currentTimeMillis()) - pressTime);
 		int dx = Math.abs(x - pressX);
 		int dy = y - pressY;
@@ -169,12 +164,8 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 
 	public void pointerDragged(int x, int y) {
 		if(keyboard != null && keyboard.pointerDragged(x, y)) return;
-		if(controlBlock) {
-			needRepaint();
-			return;
-		}
 		UIScreen s = ui.current;
-		if(s != null && !s.blockScrolling()) {
+		if(s != null) {
 			//dragTime = System.currentTimeMillis();
 			final int sdX = Math.abs(pressX - x);
 			final int sdY = Math.abs(pressY - y);

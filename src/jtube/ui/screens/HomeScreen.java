@@ -30,10 +30,10 @@ import jtube.Settings;
 import jtube.ui.Locale;
 import jtube.ui.items.VideoItem;
 
-public class MainScreen extends NavigationScreen {
+public class HomeScreen extends NavigationScreen {
 
-	public MainScreen() {
-		super("", null);
+	public HomeScreen() {
+		super("");
 	}
 	
 	protected void show() {
@@ -96,7 +96,7 @@ public class MainScreen extends NavigationScreen {
 			ui.showAbout(this);
 			break;
 		case 5:
-			if(this instanceof MainScreen) {
+			if(this instanceof HomeScreen) {
 				ui.exit();
 			}
 			break;

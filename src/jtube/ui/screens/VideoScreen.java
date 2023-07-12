@@ -56,7 +56,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	public boolean liked;
 
 	public VideoScreen(VideoModel v) {
-		super(v.title, null);
+		super(v.title);
 		this.video = v;
 		menuOptions = video.fromPlaylist ? new String[] {
 				Locale.s(CMD_Watch),

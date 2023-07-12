@@ -45,8 +45,9 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 	private boolean shown;
 
 	public PlaylistScreen(PlaylistModel p) {
-		super(p.title, p.getContainerScreen());
-		this.playlist = p;
+		super(p.title);
+		parent = p.getContainerScreen();
+		playlist = p;
 		menuOptions = null;
 		hasSearch = false;
 	}

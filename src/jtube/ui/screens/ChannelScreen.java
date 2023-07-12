@@ -66,7 +66,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	private String q;
 
 	public ChannelScreen(ChannelModel c) {
-		super(c.author, null);
+		super(c.author);
 		this.channel = c;
 		menuOptions = !topBar ? new String[] {
 				Locale.s(CMD_Search),
@@ -274,7 +274,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	
 	protected void back() {
 		super.back();
-		ui.disposeChannelPage();
 	}
 
 	public void subscribe() {

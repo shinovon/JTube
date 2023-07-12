@@ -66,6 +66,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	private static Image searchImg;
 	private static Image backImg;
 	private static Image menuImg;
+	private static Image homeImg;
+	private static Image homeSelImg;
+	private static Image subsImg;
+	private static Image subsSelImg;
+	private static Image libImg;
+	private static Image libSelImg;
 
 	private static boolean init;
 	protected static boolean topBar;
@@ -102,11 +108,11 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	private String[] searchSuggestions;
 	
-	protected NavigationScreen(String label, UIScreen parent) {
-		super(label, parent);
+	protected NavigationScreen(String label) {
+		super(label);
 		init();
 		hasSearch = true;
-		if(this instanceof MainScreen) {
+		if(this instanceof HomeScreen) {
 			menuOptions = !topBar ? new String[] {
 					Locale.s(CMD_Search),
 					Locale.s(CMD_Refresh),
@@ -140,11 +146,23 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				searchImg = Image.createImage("/search.png");
 				backImg = Image.createImage("/back.png");
 				menuImg = Image.createImage("/menu.png");
+				homeImg = Image.createImage("/home.png");
+				homeSelImg = Image.createImage("/homesel.png");
+				subsImg = Image.createImage("subs.png");
+				//subsSelImg = Image.createImage("subssel.png");
+				libImg = Image.createImage("/lib.png");
+				//libSelImg = Image.createImage("/libsel.png");
 				if(Settings.amoled) {
 					amoledImgs = true;
 					searchImg = Util.invert(searchImg);
 					backImg = Util.invert(backImg);
 					menuImg = Util.invert(menuImg);
+					homeImg = Util.invert(homeImg);
+					homeSelImg = Util.invert(homeSelImg);
+					subsImg = Util.invert(subsImg);
+					subsSelImg = Util.invert(subsSelImg);
+					libImg = Util.invert(libImg);
+					libSelImg = Util.invert(libSelImg);
 				}
 			}
 			if(Settings.keyboard != 2 && topBar) {
@@ -221,7 +239,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			if(menuOptions == null) {
 				ui.addCommand(menuCmd);
 				ui.addCommand(backCmd);
-			} else if(this instanceof MainScreen) {
+			} else if(this instanceof HomeScreen) {
 				ui.addCommand(exitCmd);
 				ui.addCommand(menuCmd);
 			} else {
@@ -257,7 +275,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		if(search || topBar) {
 			g.translate(0, topBarHeight);
-			if(!search) _paint(g, w, h-topBarHeight);
+			if(!search) _paint(g, w, h-(topBarHeight*2));
 			/*
 			if(search) {
 				int l = w * 30 + 1;
@@ -272,10 +290,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			*/
 			g.translate(0, -topBarHeight);
+			// top bar
 			g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
 			g.fillRect(0, 0, w, topBarHeight);
 			g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
 			g.drawLine(0, topBarHeight, w, topBarHeight);
+			
 			if(search) {
 				if(topBar) {
 					g.drawImage(searchImg, w - 36, 12, 0);
@@ -327,7 +347,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			} else {
 				if(Settings.fullScreen) {
 					int xx = 4;
-					if(!(this instanceof MainScreen)) {
+					if(!(this instanceof HomeScreen)) {
 						g.drawImage(backImg, 12, 12, 0);
 						xx += 48;
 					}
@@ -355,6 +375,18 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(hasSearch) {
 					g.drawImage(searchImg, w - 84, 12, 0);
 				}
+			}
+			// bottom bar
+			if(!(this instanceof VideoScreen)) {
+				g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
+				g.fillRect(0, h-topBarHeight, w, topBarHeight);
+				g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
+				g.drawLine(0, h-topBarHeight, w, h-topBarHeight);
+	
+				int f = w / 3;
+				g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-36, 0);
+				g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-36, 0);
+				g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
 			}
 			if(menu) {
 				int xx = (w-menuW) >> 1;
@@ -410,7 +442,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
-				g.fillRect(0, h-softBarHeight, w, softBarHeight);
+				g.fillRect(0, h, w, softBarHeight);
 				g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
 				g.drawLine(0, h-softBarHeight, w, h-softBarHeight);
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
@@ -418,7 +450,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(!menu) {
 					g.drawString(Locale.s(CMD_Func), 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
 				}
-				if(menu || !(this instanceof MainScreen)) {
+				if(menu || !(this instanceof HomeScreen)) {
 					String s = Locale.s(CMD_Back);
 					g.drawString(s, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
 				} else {
@@ -559,7 +591,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(i == -7) {
-			if(this instanceof MainScreen) {
+			if(this instanceof HomeScreen) {
 				ui.exit();
 			} else {
 				back();
@@ -641,7 +673,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 							keyboard.hide();
 						}
 						search = false;
-					} else if(!(this instanceof MainScreen)) {
+					} else if(!(this instanceof HomeScreen)) {
 						back();
 					}
 				} else if(x > lastW - 48) {
@@ -711,6 +743,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					setSearchText(searchSuggestions[i]);
 				}
 			}
+			return;
+		}
+		if(y > lastH-topBarHeight) {
+			// TODO
 			return;
 		}
 		super.tap(x, y - topBarHeight, time);

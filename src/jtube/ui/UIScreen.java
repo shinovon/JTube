@@ -35,20 +35,20 @@ public abstract class UIScreen {
 	protected static AppUI ui = AppUI.inst;
 	
 	private String label;
-	protected UIScreen parent;
 	
 	protected float scroll;
 	protected int width;
 	protected int height;
+	
+	protected UIScreen parent;
 	
 	/**
 	 * Locks any input
 	 */
 	public boolean busy;
 
-	protected UIScreen(String label, UIScreen parent) {
+	protected UIScreen(String label) {
 		this.label = label;
-		this.parent = parent;
 	}
 	
 	protected abstract void paint(Graphics g, int w, int h);
@@ -60,14 +60,6 @@ public abstract class UIScreen {
 	public void setTitle(String s) {
 		this.label = s;
 		ui.updateScreenTitle(this);
-	}
-	
-	public UIScreen getParent() {
-		return parent;
-	}
-	
-	public boolean backCommand() {
-		return parent != null;
 	}
 	
 	public void repaint() {
@@ -125,9 +117,5 @@ public abstract class UIScreen {
 	protected void show() {}
 
 	protected void hide() {}
-	
-	public boolean blockScrolling() {
-		return false;
-	}
 
 }
