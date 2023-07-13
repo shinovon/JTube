@@ -21,6 +21,8 @@ SOFTWARE.
 */
 package jtube.ui.screens;
 
+import java.io.IOException;
+
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
@@ -143,27 +145,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		topBar = ui.getCanvas().hasPointerEvents();
 		try {
 			if(topBar) {
-				searchImg = Image.createImage("/search.png");
-				backImg = Image.createImage("/back.png");
-				menuImg = Image.createImage("/menu.png");
-				homeImg = Image.createImage("/home.png");
-				homeSelImg = Image.createImage("/homesel.png");
-				subsImg = Image.createImage("subs.png");
-				subsSelImg = Image.createImage("subssel.png");
-				libImg = Image.createImage("/lib.png");
-				libSelImg = Image.createImage("/libsel.png");
-				if(Settings.amoled) {
-					amoledImgs = true;
-					searchImg = Util.invert(searchImg);
-					backImg = Util.invert(backImg);
-					menuImg = Util.invert(menuImg);
-					homeImg = Util.invert(homeImg);
-					homeSelImg = Util.invert(homeSelImg);
-					subsImg = Util.invert(subsImg);
-					subsSelImg = Util.invert(subsSelImg);
-					libImg = Util.invert(libImg);
-					libSelImg = Util.invert(libSelImg);
-				}
+				loadImages();
 			}
 			if(Settings.keyboard != 2 && topBar) {
 				initKeyboard();
@@ -174,8 +156,34 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				((PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3() &&
 					!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
 					!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme()));
-		suggestionsThread = new SearchSuggestionsThread();
-		suggestionsThread.start();
+		if(topBar) {
+			suggestionsThread = new SearchSuggestionsThread();
+			suggestionsThread.start();
+		}
+	}
+	
+	private static void loadImages() throws IOException {
+		searchImg = Image.createImage("/search.png");
+		backImg = Image.createImage("/back.png");
+		menuImg = Image.createImage("/menu.png");
+		homeImg = Image.createImage("/home.png");
+		homeSelImg = Image.createImage("/homesel.png");
+		subsImg = Image.createImage("subs.png");
+		subsSelImg = Image.createImage("subssel.png");
+		libImg = Image.createImage("/lib.png");
+		libSelImg = Image.createImage("/libsel.png");
+		if(Settings.amoled) {
+			amoledImgs = true;
+			searchImg = Util.invert(searchImg);
+			backImg = Util.invert(backImg);
+			menuImg = Util.invert(menuImg);
+			homeImg = Util.invert(homeImg);
+			homeSelImg = Util.invert(homeSelImg);
+			subsImg = Util.invert(subsImg);
+			subsSelImg = Util.invert(subsSelImg);
+			libImg = Util.invert(libImg);
+			libSelImg = Util.invert(libSelImg);
+		}
 	}
 	
 	private static void initKeyboard() {
@@ -222,14 +230,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		super.show();
 		if(Settings.amoled != amoledImgs && topBar) {
 			try {
-				searchImg = Image.createImage("/search.png");
-				backImg = Image.createImage("/back.png");
-				menuImg = Image.createImage("/menu.png");
-				if(Settings.amoled) {
-					searchImg = Util.invert(searchImg);
-					backImg = Util.invert(backImg);
-					menuImg = Util.invert(menuImg);
-				}
+				loadImages();
 			} catch (Exception e) {
 			}
 			amoledImgs = Settings.amoled;
@@ -360,7 +361,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				if(Settings.fullScreen) {
 					int xx = 4;
-					if(!(this instanceof HomeScreen)) {
+					if(!(this instanceof HomeScreen || this instanceof SubscriptionFeedScreen)) {
 						g.drawImage(backImg, 12, 12, 0);
 						xx += 48;
 					}
@@ -858,7 +859,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	public void inputAction(TextEditorInst editor, int event) {
 		if((event & ACTION_CONTENT_CHANGE) > 0) {
 			searchText = editor.getContent();
-			suggestionsThread.schedule();
+			if(suggestionsThread != null) suggestionsThread.schedule();
 			if(searchText.endsWith("\n")) {
 				searchText = searchText.trim();
 				editor.setContent(searchText);
@@ -932,7 +933,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	public void textUpdated() {
 		searchText = keyboard.getText();
-		suggestionsThread.schedule();
+		if(suggestionsThread != null) suggestionsThread.schedule();
 	}
 
 	public void done() {
@@ -953,6 +954,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 
 	public void loadSuggestions() {
+		if(!Settings.searchSuggestions) return;
 		try {
 			JSONArray suggestions = ((JSONObject) App.invApi("search/suggestions?q=" + Util.url(searchText))).getArray("suggestions");
 			searchSuggestions = new String[suggestions.size()];
