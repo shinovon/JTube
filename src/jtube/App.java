@@ -148,7 +148,7 @@ public class App implements Constants, Runnable {
 	}
 	
 	private void startUIThread() {
-		uiThread = new Thread(this);
+		uiThread = new Thread(this, "UI Thread");
 		uiThread.start();
 	}
 	

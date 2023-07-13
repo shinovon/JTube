@@ -450,7 +450,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			applySettings();
 			AppUI.inst.display(null);
-			UIScreen screen = AppUI.inst.getCurrentScreen();
+			UIScreen screen = AppUI.inst.current;
 			if(screen != null) {
 				screen.relayout();
 			}

@@ -68,6 +68,7 @@ public class Settings implements Constants {
 	public static boolean fullScreen = true;
 	public static boolean channelBanner = true;
 	public static boolean searchSuggestions = true;
+	public static boolean powerSaving;
 	public static String[] inputLanguages = new String[] {"en", "ru"};
 	public static String[] supportedInputLanguages = new String[0];
 	public static int keyboard = 0;
@@ -324,6 +325,9 @@ public class Settings implements Constants {
 				inv = j.getString("inv", inv);
 				apiProxy = j.getString("apiProxy", apiProxy);
 				useApiProxy = j.getBoolean("useApiProxy", useApiProxy);
+				channelBanner = j.getBoolean("channelBanner", channelBanner);
+				searchSuggestions = j.getBoolean("searchSuggestions", searchSuggestions);
+				powerSaving = j.getBoolean("powerSaving", powerSaving);
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
 				if(i < 2) {
@@ -378,6 +382,9 @@ public class Settings implements Constants {
 			j.put("keyboard", keyboard);
 			j.put("apiProxy", apiProxy);
 			j.put("useApiProxy", useApiProxy);
+			j.put("channelBanner", channelBanner);
+			j.put("searchSuggestions", searchSuggestions);
+			j.put("powerSaving", powerSaving);
 			JSONArray inputLanguagesJson = new JSONArray();
 			for(int i = 0; i < inputLanguages.length; i++) {
 				inputLanguagesJson.add(inputLanguages[i]);

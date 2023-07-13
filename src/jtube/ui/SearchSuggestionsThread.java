@@ -13,7 +13,7 @@ public class SearchSuggestionsThread extends Thread {
 				if(b) {
 					if(i > 0) i--;
 					else {
-						UIScreen screen = AppUI.inst.getCurrentScreen();
+						UIScreen screen = AppUI.inst.current;
 						if(screen instanceof NavigationScreen) {
 							((NavigationScreen) screen).loadSuggestions();
 						}

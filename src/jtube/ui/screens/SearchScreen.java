@@ -23,6 +23,7 @@ package jtube.ui.screens;
 
 import jtube.Loader;
 import jtube.Settings;
+import jtube.models.VideoModel;
 import jtube.ui.Locale;
 import jtube.ui.items.VideoItem;
 
@@ -53,7 +54,9 @@ public class SearchScreen extends NavigationScreen {
 				for(int i = 0; i < items.size(); i++) {
 					Object o = items.elementAt(i);
 					if(o instanceof VideoItem) {
-						Loader.add(((VideoItem)o).getVideo());
+						VideoModel v = ((VideoItem)o).getVideo();
+						if(v.loaded) continue;
+						Loader.add(v);
 					}
 				}
 				Loader.start();

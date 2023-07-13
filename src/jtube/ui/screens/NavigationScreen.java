@@ -149,9 +149,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				homeImg = Image.createImage("/home.png");
 				homeSelImg = Image.createImage("/homesel.png");
 				subsImg = Image.createImage("subs.png");
-				//subsSelImg = Image.createImage("subssel.png");
+				subsSelImg = Image.createImage("subssel.png");
 				libImg = Image.createImage("/lib.png");
-				//libSelImg = Image.createImage("/libsel.png");
+				libSelImg = Image.createImage("/libsel.png");
 				if(Settings.amoled) {
 					amoledImgs = true;
 					searchImg = Util.invert(searchImg);
@@ -331,6 +331,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.drawString(s, topBar ? 50 : 0, (topBarHeight - searchFont.getHeight()) >> 1, 0);
 					}
 				}
+			} else {
 				if(!topBar) {
 					g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
 					g.fillRect(0, h-softBarHeight, w, softBarHeight);
@@ -343,8 +344,20 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawString(s1, 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
 					g.drawString(s2, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
 					g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
+				} else {
+					// bottom bar
+					if(!(this instanceof VideoScreen)) {
+						g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
+						g.fillRect(0, h-topBarHeight, w, topBarHeight);
+						g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
+						g.drawLine(0, h-topBarHeight, w, h-topBarHeight);
+			
+						int f = w / 3;
+						g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-36, 0);
+						g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-36, 0);
+						g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
+					}
 				}
-			} else {
 				if(Settings.fullScreen) {
 					int xx = 4;
 					if(!(this instanceof HomeScreen)) {
@@ -375,18 +388,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(hasSearch) {
 					g.drawImage(searchImg, w - 84, 12, 0);
 				}
-			}
-			// bottom bar
-			if(!(this instanceof VideoScreen)) {
-				g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
-				g.fillRect(0, h-topBarHeight, w, topBarHeight);
-				g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
-				g.drawLine(0, h-topBarHeight, w, h-topBarHeight);
-	
-				int f = w / 3;
-				g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-36, 0);
-				g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-36, 0);
-				g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
 			}
 			if(menu) {
 				int xx = (w-menuW) >> 1;
@@ -746,10 +747,47 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(y > lastH-topBarHeight) {
-			// TODO
+			int f = (int) (lastW / 3F);
+			if(x > 0 && x < f) {
+				selectTab(0);
+			} else if(x > f && x < f*2) {
+				selectTab(1);
+			} else if(x > f*2 && x < lastW) {
+				selectTab(2);
+			}
 			return;
 		}
 		super.tap(x, y - topBarHeight, time);
+	}
+	
+	public static void selectTab(int tab) {
+		if(ui.currentTab != tab && !ui.screenStacks[tab].empty()) {
+			ui.screenStacks[ui.currentTab].push(ui.current);
+			ui.currentTab = tab;
+			ui.setScreen((UIScreen) ui.screenStacks[tab].pop());
+		} else {
+			switch(tab) {
+			case 0:
+				if(ui.mainScr == null) {
+					ui.mainScr = new HomeScreen();
+					new Thread(new RunnableTask(RunnableTask.MAIN)).start();
+				}
+				ui.currentTab = 0;
+				ui.setScreen(ui.mainScr);
+				break;
+			case 1:
+				if(ui.subsScr == null) {
+					ui.subsScr = new SubscriptionFeedScreen();
+					new Thread(new RunnableTask(RunnableTask.SUBS)).start();
+				}
+				ui.currentTab = 1;
+				ui.setScreen(ui.subsScr);
+				break;
+			case 2:
+				
+				break;
+			}
+		}
 	}
 
 	private void showKeyboard() {
@@ -767,11 +805,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	protected void back() {
 		busy = false;
 		Loader.stop();
-		if(parent != null) {
-			ui.setScreen(parent);
-		} else {
-			ui.back(this);
-		}
+		ui.back(this);
 	}
 
 	protected void menuAction(int action) {

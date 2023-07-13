@@ -77,7 +77,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	
 	private byte[] tempImgBytes;
 	
-	private boolean loadDone;
+	public boolean loaded;
 
 	public VideoModel(String id) {
 		videoId = id;
@@ -247,7 +247,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	public void load() {
-		if(loadDone) return;
+		if(loaded) return;
 		try {
 			loadImage();
 			if(extended) {
@@ -257,7 +257,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			throw e;
 		} catch (Exception e) {
 		}
-		loadDone = true;
+		loaded = true;
 	}
 
 	public void dispose() {
@@ -288,7 +288,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 
 	public UIItem makePreviewItem() {
 		Image img = null;
-		loadDone = false;
+		loaded = false;
 		imgLoaded = false;
 		/*if(item != null) {
 			img = item.getImage();

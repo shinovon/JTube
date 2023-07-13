@@ -8,6 +8,9 @@ public class RunnableTask implements Runnable {
 	public static final int REFRESH = 3;
 	public static final int SWITCH = 4;
 	public static final int WATCH = 5;
+	public static final int MAIN = 6;
+	public static final int SUBS = 7;
+	public static final int LIB = 8;
 	
 	int type;
 	String arg;
@@ -23,24 +26,33 @@ public class RunnableTask implements Runnable {
 
 	public void run() {
 		switch(type) {
-		case 1:
+		case ID:
 			try {
 				App.openURL(arg);
 			} catch (IllegalArgumentException e) {
 				AppUI.inst.openVideo(arg);
 			}
 			break;
-		case 2:
+		case SEARCH:
 			AppUI.inst.search(arg);
 			break;
-		case 3:
+		case REFRESH:
 			AppUI.inst.refresh();
 			break;
-		case 4:
+		case SWITCH:
 			AppUI.inst.switchMain();
 			break;
-		case 5:
+		case WATCH:
 			App.watch(arg);
+			break;
+		case MAIN:
+			AppUI.inst.loadMain();
+			break;
+		case SUBS:
+			AppUI.inst.loadSubs();
+			break;
+		case LIB:
+			AppUI.inst.loadLib();
 			break;
 		}
 	}

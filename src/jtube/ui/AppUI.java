@@ -55,7 +55,9 @@ import jtube.ui.nokia_extensions.TextEditorUtil;
 import jtube.ui.screens.ChannelScreen;
 import jtube.ui.screens.HomeScreen;
 import jtube.ui.screens.SearchScreen;
+import jtube.ui.screens.SubscriptionFeedScreen;
 import jtube.ui.screens.VideoScreen;
+import jtube.ui.screens.NavigationScreen;
 
 public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants, Commands, Runnable {
 	
@@ -73,11 +75,15 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public HomeScreen mainScr;
 	public SearchScreen searchScr;
 	public VideoScreen videoScr;
+	public SubscriptionFeedScreen subsScr;
+	
+	public int currentTab;
+	public Stack[] screenStacks = new Stack[] { new Stack(), new Stack(), new Stack() };
 	
 	private SettingsForm settingsForm;
 
 	private static JTubeCanvas canv;
-	protected UIScreen current;
+	public UIScreen current;
 
 	private Object repaintLock = new Object();
 
@@ -93,15 +99,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	private boolean repaint;
 	
-	public int currentTab;
-	public Stack screenStack = new Stack();
-	
 	
 	public void run() {
 		try {
 			while(App.midlet.running) {
 				while(display.getCurrent() != canv) {
-					Thread.sleep(500);
+					Thread.sleep(1000);
 				}
 				if(!scrolling) {
 					repaint = false;
@@ -120,7 +123,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	private void limitFramerate() throws InterruptedException {
-		int i = 30;
+		int i = Settings.powerSaving ? 66 : 30;
 		i -= repaintTime;
 		if(i > 0) Thread.sleep(i);
 	}
@@ -218,10 +221,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				canv.setTitle(null);
 			}
 		}
-	}
-
-	public UIScreen getCurrentScreen() {
-		return current;
 	}
 	
 	public int getWidth() {
@@ -337,7 +336,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		searchScr = new SearchScreen(q);
 		searchScr.busy = true;
 		display(null);
-		setScreen(searchScr);
+		nextScreen(searchScr);
 		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
 			disposeMainPage();
 		}
@@ -618,7 +617,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		Loader.stop();
 		IModelScreen scr = model.makeScreen();
 		scr.setContainerScreen(formContainer);
-		setScreen((UIScreen) scr);
+		nextScreen((UIScreen) scr);
 		if(scr instanceof VideoScreen) {
 			ui.videoScr = (VideoScreen) scr;
 		}
@@ -728,11 +727,37 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		display(optionsList);
 	}
 
+	public void nextScreen(UIScreen s) {
+		System.out.println("nextScreen " + current + " -> " + s);
+		if(!(current instanceof HomeScreen || current instanceof SubscriptionFeedScreen)) {
+			if(screenStacks[currentTab].contains(s)) {
+				screenStacks[currentTab].removeElement(s);
+			}
+			if(!(current instanceof VideoScreen)) {
+				screenStacks[currentTab].push(current);
+			}
+		}
+		setScreen(s);
+	}
+
 	public void back(UIScreen s) {
-		if(s instanceof IModelScreen && ((IModelScreen)s).getModel().fromSearch && searchScr != null) {
+		/*if(s instanceof IModelScreen && ((IModelScreen)s).getModel().fromSearch && searchScr != null) {
 			setScreen(searchScr);
+		} else */
+		if(!screenStacks[currentTab].empty()) {
+			if(s instanceof VideoScreen) {
+				setScreen((UIScreen) screenStacks[currentTab].peek());
+				disposeVideoPage();
+				return;
+			}
+			setScreen((UIScreen) screenStacks[currentTab].pop());
 		} else {
-			showMain();
+			/*currentTab = 0;
+			screenStacks[0].removeAllElements();
+			screenStacks[1].removeAllElements();
+			screenStacks[2].removeAllElements();
+			showMain();*/
+			NavigationScreen.selectTab(currentTab);
 		}
 	}
 
@@ -775,6 +800,14 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public JTubeCanvas getCanvas() {
 		return canv;
+	}
+
+	public void loadSubs() {
+		subsScr = new SubscriptionFeedScreen();
+	}
+
+	public void loadLib() {
+		
 	}
 
 }

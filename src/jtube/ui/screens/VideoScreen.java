@@ -201,7 +201,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			break;
 		case 5:
 			if(parent != null && video.fromPlaylist) {
-				ui.setScreen(parent);
+				ui.nextScreen(parent);
 			}
 			break;
 		case 6:
@@ -259,20 +259,23 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void run() {
+		if(video == null) return;
+		if(video.extended) return;
 		busy = true;
 		try {
-			if(!video.extended) {
-				video.extend();
-				init();
-				busy = false;
-				if(Settings.videoPreviews) video.load();
-			}
+			video.extend();
+			init();
+			busy = false;
+			if(Settings.videoPreviews) video.load();
 		} catch (NullPointerException e) {
 			// ignore
 		} catch (Exception e) {
 			App.error(this, Errors.VideoForm_load, e);
 		}
-		liked = LocalStorage.isLiked(video.videoId);
+		try {
+			liked = LocalStorage.isLiked(video.videoId);
+		} catch (Exception e) {
+		}
 		busy = false;
 	}
 	

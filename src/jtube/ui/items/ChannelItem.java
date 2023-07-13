@@ -203,7 +203,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	protected void action() {
 		UIScreen s;
 		if(getScreen() instanceof VideoScreen && (s = ((VideoModel) ((VideoScreen)getScreen()).getModel()).getContainerScreen()) instanceof ChannelScreen) {
-			ui.setScreen(s);
+			ui.nextScreen(s);
 		} else {
 			ui.open(channel);
 		}
