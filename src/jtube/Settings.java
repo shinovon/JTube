@@ -69,6 +69,7 @@ public class Settings implements Constants {
 	public static boolean channelBanner = true;
 	public static boolean searchSuggestions = true;
 	public static boolean powerSaving;
+	public static boolean lazyLoad = true;
 	public static String[] inputLanguages = new String[] {"en", "ru"};
 	public static String[] supportedInputLanguages = new String[0];
 	public static int keyboard = 0;

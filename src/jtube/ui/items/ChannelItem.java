@@ -163,6 +163,12 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 			subsCountSmallFont = App.startWidth >= 360 ? DirectFontUtil.getFont(0, 0, 18, Font.SIZE_SMALL) : smallfont;
 		}
 	}
+	
+	public void onShow() {
+		if(!channel.loaded) {
+			channel.load();
+		}
+	}
 
 	public void setImage(Image img) {
 		if(img != null) {

@@ -58,7 +58,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	public String playlistId;
 	private int subCount;
 
-	private String thumbnailUrl;
 	public int imageWidth;
 	private String authorThumbnailUrl;
 
@@ -114,14 +113,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 				authorThumbnailUrl = App.getThumbUrl(j.getArray("authorThumbnails"), 36);
 			}
 		}
-		if(Settings.videoPreviews) {
-			int w = AppUI.inst.getItemWidth();
-			if(!extended && Settings.smallPreviews) {
-				w /= 3;
-			}
-			if(imageWidth == 0) imageWidth = w;
-			thumbnailUrl = App.getThumbUrl(videoId, w);
-		}
 		j = null;
 	}
 	
@@ -169,7 +160,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	public void loadImage() {
 		if(imgLoaded) return;
 		imgLoaded = true;
-		if(thumbnailUrl == null) return;
+		int w = AppUI.inst.getWidth();
+		if(!extended && Settings.smallPreviews) {
+			w /= 3;
+		}
+		if(imageWidth == 0) imageWidth = w;
+		String thumbnailUrl = App.getThumbUrl(videoId, w);
 		if(item == null && prevItem == null && !extended) return;
 		try {
 			byte[] b = App.getImageBytes(thumbnailUrl);
@@ -248,6 +244,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 
 	public void load() {
 		if(loaded) return;
+		loaded = true;
 		try {
 			loadImage();
 			if(extended) {
@@ -257,11 +254,17 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			throw e;
 		} catch (Exception e) {
 		}
-		loaded = true;
+	}
+	
+	public void unload() {
+		if(item != null) {
+			item.setImage(null);
+		}
+		imgLoaded = false;
+		loaded = false;
 	}
 
 	public void dispose() {
-		thumbnailUrl = null;
 	}
 
 	public void disposeExtendedVars() {
@@ -295,7 +298,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		}*/
 		if(Settings.rmsPreviews && Settings.videoPreviews) {
 			try {
-				img = LocalStorage.loadAndCacheThumnail(videoId, thumbnailUrl);
+				img = LocalStorage.loadAndCacheThumnail(videoId, App.getThumbUrl(videoId, AppUI.inst.getWidth()));
 			} catch (IOException e) {
 			}
 		}

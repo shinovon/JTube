@@ -64,7 +64,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		VideoModel v = new VideoModel(j);
 		v.index = i;
 		v.setContainerScreen(this);
-		if(Settings.videoPreviews && i < 20) {
+		if(Settings.videoPreviews && !Settings.lazyLoad && i < 20) {
 			Loader.add(v);
 		}
 		videos[i] = v;

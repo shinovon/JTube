@@ -26,6 +26,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import jtube.App;
+import jtube.Loader;
 import jtube.LocalStorage;
 import jtube.Settings;
 import jtube.Util;
@@ -96,12 +97,15 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 			int yy = y + 4;
 			if(Settings.videoPreviews) {
 				int iw = getImgWidth(w);
-				g.setColor(0);
-				g.fillRect(xx, yy, iw, ih);
 				if(img != null) {
+					g.setColor(0);
+					g.fillRect(xx, yy, iw, ih);
 					g.drawImage(img, xx + ((iw - img.getWidth()) >> 1), yy + ((ih - img.getHeight()) >> 1), 0);
 					//if(Settings.rmsPreviews)
 					//	img = null;
+				} else {
+					g.setColor(0xE5E5E5);
+					g.fillRect(xx, yy, iw, ih);
 				}
 				if(lengthStr != null) {
 					g.setColor(0);
@@ -303,6 +307,10 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 	
 	public void onShow() {
 		super.onShow();
+		if(!video.loaded) {
+			Loader.add(video);
+			Loader.start();
+		}
 		if(Settings.videoPreviews && Settings.rmsPreviews) {
 			App.inst.schedule(this);
 		}

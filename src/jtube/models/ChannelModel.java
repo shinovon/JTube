@@ -55,6 +55,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	public boolean rounded;
 	public boolean hasSmallImage;
 	private String bannerUrl;
+	public boolean loaded;
 	
 	public ChannelModel(String id) {
 		this.authorId = id;
@@ -108,6 +109,7 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	public void load() {
 		if(item == null) return;
+		loaded = true;
 		if(img != null && !extended) {
 			item.setImage(img);
 			return;

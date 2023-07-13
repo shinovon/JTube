@@ -9,18 +9,13 @@ import jtube.ui.items.VideoItem;
 
 public class SubscriptionFeedScreen extends NavigationScreen implements Runnable {
 
-	private boolean shown;
-
 	public SubscriptionFeedScreen() {
-		super("");
+		super("субскрибтионс");
 	}
 	
-	protected void show() {
+	protected void show() { 
 		super.show();
-		if(!shown) {
-			shown = true;
-			new Thread(this).start();
-		}
+		new Thread(this).start();
 		if(wasHidden) {
 			wasHidden = false;
 			if(Settings.videoPreviews) {
@@ -53,6 +48,7 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 	}
 
 	public void run() {
+		clear();
 		String[] subscriptions = LocalStorage.getSubsciptions();
 		for(int i = 0; i < subscriptions.length; i += 2) {
 			add(new ChannelModel(subscriptions[i], subscriptions[i + 1], null).makeListItem());

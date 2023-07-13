@@ -27,7 +27,6 @@ import javax.microedition.lcdui.TextField;
 import jtube.Loader;
 import jtube.RunnableTask;
 import jtube.Settings;
-import jtube.models.VideoModel;
 import jtube.ui.Locale;
 import jtube.ui.items.VideoItem;
 
@@ -35,26 +34,6 @@ public class HomeScreen extends NavigationScreen {
 
 	public HomeScreen() {
 		super("");
-	}
-	
-	protected void show() {
-		super.show();
-		if(wasHidden) {
-			wasHidden = false;
-			if(Settings.videoPreviews) {
-				// resume loading previews
-				Loader.stop();
-				for(int i = 0; i < items.size(); i++) {
-					Object o = items.elementAt(i);
-					if(o instanceof VideoItem) {
-						VideoModel v = ((VideoItem)o).getVideo();
-						if(v.loaded) continue;
-						Loader.add(v);
-					}
-				}
-				Loader.start();
-			}
-		}
 	}
 	
 	protected void hide() {

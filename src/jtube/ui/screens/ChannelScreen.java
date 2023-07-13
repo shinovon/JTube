@@ -192,7 +192,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
 		VideoModel v = new VideoModel(j, this);
-		if(Settings.videoPreviews) Loader.add(v);
+		if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
 		return v.makeListItem();
 	}
 
