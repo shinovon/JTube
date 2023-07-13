@@ -66,7 +66,7 @@ public class App implements Constants, Runnable {
 					}
 					while(true) {
 						Runnable r = queuedTasks[0];
-						if(r == null) continue;
+						if(r == null) break;
 						System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
 						queuedTasks[queuedTasks.length - 1] = null;
 						queuedTasksIdx--;
