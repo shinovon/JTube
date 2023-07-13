@@ -337,7 +337,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		searchScr.busy = true;
 		display(null);
 		nextScreen(searchScr);
-		if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+		if(Settings.isLowEndDevice()) {
 			disposeMainPage();
 		}
 		try {
@@ -606,11 +606,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				return;
 			}
 		}
-		if(!Settings.rememberSearch) {
-			if(model.fromSearch) {
-				ui.disposeSearchPage();
-			}
-		}
 		if(ui.videoScr != null) {
 			disposeVideoPage();
 		}
@@ -724,12 +719,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void nextScreen(UIScreen s) {
-		System.out.println("nextScreen " + current + " -> " + s);
 		if(!(current instanceof HomeScreen || current instanceof SubscriptionFeedScreen)) {
 			if(screenStacks[currentTab].contains(s)) {
 				screenStacks[currentTab].removeElement(s);
 			}
-			if(!(current instanceof VideoScreen)) {
+			if(!(current instanceof VideoScreen || (current instanceof SearchScreen && s instanceof SearchScreen))) {
 				screenStacks[currentTab].push(current);
 			}
 		}
@@ -748,11 +742,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			}
 			setScreen((UIScreen) screenStacks[currentTab].pop());
 		} else {
-			/*currentTab = 0;
-			screenStacks[0].removeAllElements();
-			screenStacks[1].removeAllElements();
-			screenStacks[2].removeAllElements();
-			showMain();*/
 			NavigationScreen.selectTab(currentTab);
 		}
 	}
@@ -764,7 +753,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void openVideo(String id) {
 		try {
 			open(new VideoModel(id));
-			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+			if(Settings.isLowEndDevice()) {
 				disposeMainPage();
 			}
 		} catch (Exception e) {
@@ -775,7 +764,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void openChannel(String id) {
 		try {
 			open(new ChannelModel(id));
-			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+			if(Settings.isLowEndDevice()) {
 				disposeMainPage();
 			}
 		} catch (Exception e) {
@@ -786,7 +775,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void openPlaylist(String id) {
 		try {
 			open(new PlaylistModel(id));
-			if(Settings.isLowEndDevice() || !Settings.rememberSearch) {
+			if(Settings.isLowEndDevice()) {
 				disposeMainPage();
 			}
 		} catch (Exception e) {
