@@ -10,6 +10,9 @@ public class Loader {
 	protected static Object lock2 = new Object();
 	protected static ILoader[] tasks = new ILoader[32];
 	protected static int tasksIdx;
+	public static final ILoader emptyTask = new ILoader() {
+		public void load() {}
+	};
 	
 	protected static void init() {
 		int loadPriority = 5;
@@ -34,6 +37,18 @@ public class Loader {
 				ILoader[] tmp = tasks;
 				tasks = new ILoader[tmp.length + 16];
 				System.arraycopy(tmp, 0, tasks, 0, tmp.length);
+			}
+		} catch (Exception e) {
+		}
+	}
+		
+	public static void cancel(ILoader v) {
+		try {
+			for(int i = 0; i < tasks.length; i++) {
+				if(tasks[i] == v) {
+					tasks[i] = emptyTask;
+					break;
+				}
 			}
 		} catch (Exception e) {
 		}

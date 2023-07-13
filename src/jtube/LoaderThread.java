@@ -54,6 +54,7 @@ public class LoaderThread extends Thread {
 						Loader.tasks[Loader.tasks.length - 1] = null;
 						Loader.tasksIdx--;
 					}
+					if(l == Loader.emptyTask) continue;
 					try {
 						l.load();
 					} catch (Exception e) {

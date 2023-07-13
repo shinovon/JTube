@@ -318,6 +318,9 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 	
 	public void onHide() {
 		super.onHide();
+		if(Settings.videoPreviews && !video.loaded) {
+			Loader.cancel(video);
+		}
 		if(Settings.videoPreviews && Settings.rmsPreviews) {
 			img = null;
 			App.inst.cancel(this);
