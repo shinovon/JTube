@@ -86,8 +86,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(subscribe);
 		add(tabs);
 		try {
-			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", VIDEO_FIELDS +
-					(getWidth() >= 320 ? ",publishedText,viewCount" : "") + ",videos"
+			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", "videos(" + VIDEO_FIELDS +
+					(getWidth() >= 320 ? ",viewCount" : "") + ")"
 					);
 			JSONArray j = r.getArray("videos");
 			int l = j.size();
@@ -124,7 +124,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(subscribe);
 		add(tabs);
 		try {
-			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
+			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists(title,playlistId,videoCount)")).getArray("playlists");
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = playlist(j.getObject(i));

@@ -76,8 +76,7 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		Loader.stop();
 		try {
 			JSONArray json = ((JSONObject) App.invApi("playlists/" + playlist.playlistId + "?",
-					PLAYLIST_EXTENDED_FIELDS +
-					(App.startWidth >= 320 ? ",publishedText,viewCount" : "")
+					PLAYLIST_EXTENDED_FIELDS
 					)).getArray("videos");
 			scroll = 0;
 			if(playlist == null) return;

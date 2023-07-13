@@ -37,7 +37,7 @@ public interface Constants {
 	static final int SEARCH_LIMIT = 25;
 	static final int LATESTVIDEOS_LIMIT = 20;
 	static final int PLAYLISTS_LIMIT = 30;
-	static final int PLAYLIST_VIDEOS_LIMIT = 100;
+	static final int PLAYLIST_VIDEOS_LIMIT = 200;
 	
 	static final String NAME = "JTube";
 	
@@ -45,7 +45,7 @@ public interface Constants {
 	
 	static final String VIDEO_EXTENDED_FIELDS = "title,videoId,author,authorId,description,videoCount,publishedText,lengthSeconds,likeCount,viewCount,subCount";
 	static final String CHANNEL_EXTENDED_FIELDS = "subCount,author,authorId,totalViews";
-	static final String PLAYLIST_EXTENDED_FIELDS = "author,authorId,videoCount,videos,title,videoId,playlistId,index,lengthSeconds";
+	static final String PLAYLIST_EXTENDED_FIELDS = "videos(author,title,videoId,lengthSeconds)";
 	static final String VIDEO_FIELDS = "title,videoId,author,lengthSeconds";
 	static final String SEARCH_FIELDS = "title,authorId,videoId,author,lengthSeconds";
 	
