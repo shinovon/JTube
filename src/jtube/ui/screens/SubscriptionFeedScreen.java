@@ -1,5 +1,7 @@
 package jtube.ui.screens;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
 
 import cc.nnproject.json.JSONArray;
@@ -11,6 +13,7 @@ import jtube.LocalStorage;
 import jtube.Settings;
 import jtube.models.ILoader;
 import jtube.models.VideoModel;
+import jtube.ui.items.Label;
 import jtube.ui.items.VideoItem;
 
 public class SubscriptionFeedScreen extends NavigationScreen implements Runnable, Constants, ILoader {
@@ -79,18 +82,25 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 			}
 			System.out.println("done " + allVideos.size());
 			// sorting
-			for (int i = 0; i < allVideos.size() - 1; i++) {
-				for (int j = 0; j < i; j++) {
-					if (((JSONObject) allVideos.elementAt(j)).getLong("published") < ((JSONObject) allVideos.elementAt(j + 1)).getLong("published")) {
-						Object t = allVideos.elementAt(j);
-						allVideos.setElementAt(allVideos.elementAt(j + 1), j);
-						allVideos.setElementAt(t, j + 1);
+			for (int i = 0; i < allVideos.size(); i++) {
+				for (int j = i + 1; j < allVideos.size(); j++) {
+					if (((JSONObject) allVideos.elementAt(i)).getLong("published") < ((JSONObject) allVideos.elementAt(j)).getLong("published")) {
+						Object t = allVideos.elementAt(i);
+						allVideos.setElementAt(allVideos.elementAt(j), i);
+						allVideos.setElementAt(t, j);
 					}
 				}
 			}
+			Date lastDate = null;
 			for(int i = 0; i < allVideos.size(); i++) {
 				if(i > 100) break;
-				VideoModel v = new VideoModel((JSONObject) allVideos.elementAt(i));
+				JSONObject j = (JSONObject) allVideos.elementAt(i);
+				VideoModel v = new VideoModel(j);
+				Date date = new Date(j.getLong("published") * 1000L);
+				if(lastDate == null || !dateEqual(date, lastDate)) {
+					lastDate = date;
+					add(new Label(dateStr(date)));
+				}
 				if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
 				add(v.makeListItem());
 			}
@@ -98,6 +108,28 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 			e.printStackTrace();
 		}
 		busy = false;
+	}
+	
+	private static boolean dateEqual(Date a, Date b) {
+		Calendar ca = Calendar.getInstance();
+		ca.setTime(a);
+		Calendar cb = Calendar.getInstance();
+		cb.setTime(b);
+		return ca.get(Calendar.YEAR) == cb.get(Calendar.YEAR) && 
+				ca.get(Calendar.MONTH) == cb.get(Calendar.MONTH) && 
+				ca.get(Calendar.DAY_OF_MONTH) == cb.get(Calendar.DAY_OF_MONTH);
+	}
+	
+	private static String dateStr(Date date) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		return c(c.get(Calendar.DAY_OF_MONTH)) + "." + c(c.get(Calendar.MONTH)+1) + "." + c.get(Calendar.YEAR);
+	}
+	
+	private static String c(int i) {
+    	String s = String.valueOf(i);
+    	if(s.length() < 2) s = "0" + s;
+		return s;
 	}
 
 	public void load() {
