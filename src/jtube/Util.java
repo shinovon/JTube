@@ -106,10 +106,8 @@ public class Util implements Constants {
 			} else {
 				Thread.sleep(1);
 			}
-			int r;
-			synchronized(connectionLock) {
-				r = hc.getResponseCode();
-			}
+			synchronized(connectionLock) {}
+			int r = hc.getResponseCode();
 			int redirects = 0;
 			while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
 				if(redirects++ > 5) {
