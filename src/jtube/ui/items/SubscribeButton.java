@@ -38,9 +38,6 @@ public class SubscribeButton extends AbstractButton implements UIConstants, Runn
 		Font f = g.getFont();
 		String s = scr.subscribed ? Locale.s(LocaleConstants.BTN_Unsubscribe) : Locale.s(LocaleConstants.BTN_Subscribe);
 		g.drawString(s, x + (w >> 1), y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
-		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-		g.drawLine(x, y+h-1, w, y+h-1);
-		g.drawLine(x, y, w, y);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1);

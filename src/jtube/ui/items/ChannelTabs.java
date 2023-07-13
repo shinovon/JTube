@@ -56,7 +56,6 @@ public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants,
 		g.drawString(s, x + (tw >> 1) + tw + tw, y + ((h - smallfontheight) >> 1), Graphics.HCENTER | Graphics.TOP);
 		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 		g.drawLine(x, y+h-1, w, y+h-1);
-		g.drawLine(x, y, w, y);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x+(int)(tw * (scr.state - 1)), y, tw, h-1);

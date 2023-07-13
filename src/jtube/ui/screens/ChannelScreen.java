@@ -86,7 +86,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(subscribe);
 		add(tabs);
 		try {
-			Loader.stop();
 			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "") + ",videos"
 					);
@@ -124,7 +123,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(item);
 		add(subscribe);
 		add(tabs);
-		Loader.stop();
 		try {
 			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists,title,playlistId,videoCount")).getArray("playlists");
 			int l = j.size();
@@ -137,7 +135,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
 		}
-		Loader.start();
 	}
 
 	protected void show() {

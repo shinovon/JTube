@@ -102,7 +102,9 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	
 	public ChannelModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("channels/" + authorId + "?", CHANNEL_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails,authorBanners" : "")), true);
+			parse((JSONObject) App.invApi("channels/" + authorId + "?",
+					CHANNEL_EXTENDED_FIELDS +
+					(Settings.videoPreviews ? ",authorThumbnails" + (Settings.channelBanner ? ",authorBanners" : "") : "")), true);
 		}
 		return this;
 	}
