@@ -41,6 +41,8 @@ public class Util implements Constants {
 	
 	private static String charset = "UTF-8";
 	private static String alt_charset = "ISO-8859-1";
+
+	private static Object connectionLock = new Object();
 	
 	static {
 		try {
@@ -104,7 +106,10 @@ public class Util implements Constants {
 			} else {
 				Thread.sleep(1);
 			}
-			int r = hc.getResponseCode();
+			int r;
+			synchronized(connectionLock) {
+				r = hc.getResponseCode();
+			}
 			int redirects = 0;
 			while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
 				if(redirects++ > 5) {
