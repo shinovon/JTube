@@ -51,7 +51,7 @@ public class VideoPreview extends AbstractButton implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		g.setColor(0);
+		g.setColor(0x5E5E5E);
 		g.fillRect(x, y, w, h);
 		int iw = w;
 		if(img != null) {
@@ -80,14 +80,16 @@ public class VideoPreview extends AbstractButton implements UIConstants {
 		int sh = ui.getHeight();
 		int sw = w;
 		if(w > sh) {
-			h = (int) (sh * 0.9f);
-			w = (int) (h * 16F / 9F);
+			w = (int) ((sh * 0.9f) * 16F / 9F);
 		}
+		w = Math.min(w, sw);
 		if(w != lastW) {
-			if(img != null) img = video.previewResize(Math.min(w, sw), img);
+			if(img != null) img = video.previewResize(w, img);
 		}
 		if(img != null) {
 			h = img.getHeight();
+		} else {
+			h = (int) (9 * w / 16F);
 		}
 	}
 
