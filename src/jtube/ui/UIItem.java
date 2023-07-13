@@ -51,8 +51,8 @@ public abstract class UIItem {
 	protected void press(int x, int y) {}
 	protected void release(int x, int y) {}
 	protected void tap(int x, int y, int time) {}
-	protected void keyPress(int i) {}
-	protected void keyRelease(int i) {}
+	protected boolean keyPress(int i) { return false; }
+	protected boolean keyRelease(int i) { return false; }
 	
 	public void focus() {
 		inFocus = true;

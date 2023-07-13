@@ -46,17 +46,21 @@ public abstract class AbstractButton extends UIItem {
 		}
 	}
 
-	protected void keyPress(int i) {
+	protected boolean keyPress(int i) {
 		if(i == -5 || i == Canvas.KEY_NUM5) {
 			hover();
 			action();
+			return true;
 		}
+		return false;
 	}
 
-	protected void keyRelease(int i) {
+	protected boolean keyRelease(int i) {
 		if(i == -5 || i == Canvas.KEY_NUM5) {
 			unhover();
+			return true;
 		}
+		return false;
 	}
 	
 	public void defocus() {

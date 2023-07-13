@@ -226,14 +226,14 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		}
 	}
 	
-	protected void keyPress(int i) {
-		if(busy) return;
+	protected boolean keyPress(int i) {
+		if(busy) return false;
 		if(!ui.isKeyInputMode() && ((i >= -7 && i <= -1) || (i >= 1 && i <= 57))) {
 			ui.setKeyInputMode();
 		}
 		if(cItem == null) selectItem();
 		if(i == -1) {
-			if(cItem == null) return;
+			if(cItem == null) return false;
 			if(cItem.getY() < -scroll) {
 				smoothlyScrollTo((int)scroll+(screenHeight/3));
 			} else {
@@ -241,7 +241,7 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					if(-scroll < screenHeight/4) {
 						smoothlyScrollTo(0);
 					}
-					return;
+					return true;
 				}
 				if(cItem != getFirstFocusableItem()) {
 					UIItem item = (UIItem) items.elementAt(cItem.getListPosition()-1);
@@ -253,13 +253,14 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				if(!isItemSeenOnScreen(cItem, 24)) {
 					smoothlyScrollTo(-cItem.getY());
 				}
+				return true;
 			}
 		} else if(i == -2) {
-			if(cItem == null) return;
+			if(cItem == null) return false;
 			if(cItem.getY()+cItem.getHeight() > -(scroll-screenHeight)) {
 				smoothlyScrollTo((int)scroll-(screenHeight/3));
 			} else {
-				if(cItem.getListPosition() == items.size()-1) return;
+				if(cItem.getListPosition() == items.size()-1) return false;
 				UIItem item = (UIItem) items.elementAt(cItem.getListPosition()+1);
 				while(!item.canBeFocused() && item.getListPosition() != items.size()-1) {
 					item = (UIItem) items.elementAt(item.getListPosition()+1);
@@ -272,17 +273,20 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 			if(scroll < -height + screenHeight) {
 				scroll = -height + screenHeight;
 			}
+			return true;
 		}
 		if(i <= -3 && i >= -7 && cItem != null) {
-			cItem.keyPress(i);
+			return cItem.keyPress(i);
 		}
+		return false;
 	}
 	
-	protected void keyRelease(int i) {
-		if(busy) return;
+	protected boolean keyRelease(int i) {
+		if(busy) return false;
 		if(i <= -3 && i >= -7 && cItem != null) {
-			cItem.keyRelease(i);
+			return cItem.keyRelease(i);
 		}
+		return false;
 	}
 	
 	protected void keyRepeat(int i) {

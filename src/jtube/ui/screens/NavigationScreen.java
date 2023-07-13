@@ -345,8 +345,18 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawString(s1, 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
 					g.drawString(s2, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
 					g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
+					if(!(this instanceof VideoScreen)) {
+						g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
+						g.fillRect(0, h-36-softBarHeight, w, 36);
+						g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
+						g.drawLine(0, h-36-softBarHeight, w, h-36-softBarHeight);
+			
+						int f = w / 3;
+						g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-32, 0);
+						g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-32, 0);
+						g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-32, 0);
+					}
 				} else {
-					// bottom bar
 					if(!(this instanceof VideoScreen)) {
 						g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
 						g.fillRect(0, h-topBarHeight, w, topBarHeight);
@@ -521,7 +531,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		setEditorPositions();
 	}
 	
-	protected void keyPress(int i) {
+	protected boolean keyPress(int i) {
 		if(menu) {
 			if(i == Canvas.KEY_NUM1) {
 				menuSelectedIndex = 0;
@@ -549,7 +559,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				menu = false;
 			}
 			repaint();
-			return;
+			return true;
 		}
 		if(search) {
 			/*
@@ -568,10 +578,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				t.addCommand(textOkCmd);
 				t.addCommand(cancelCmd);
 				ui.display(t);
-				return;
+				return true;
 			}
 			if(i == -5) {
-				if(searchText.length() == 0) return;
+				if(searchText.length() == 0) return false;
 				search = false;
 				editorHidden = true;
 				if(editor != null && editor.isVisible()) {
@@ -582,15 +592,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					keyboard.hide();
 				}
 				search(searchText);
-				return;
+				return true;
 			}
 		}
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
-			return;
+			return true;
 		}
+		
 		if(i == -6) {
 			leftSoft();
-			return;
+			return true;
 		}
 		if(i == -7) {
 			if(this instanceof HomeScreen) {
@@ -599,9 +610,22 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				back();
 			}
 			repaint();
-			return;
+			return true;
 		}
-		super.keyPress(i);
+		if(super.keyPress(i)) {
+			return true;
+		}
+		if(i == -3) {
+			if(ui.currentTab > 0)
+			selectTab(ui.currentTab-1);
+			return true;
+		}
+		if(i == -4) {
+			if(ui.currentTab < 2)
+			selectTab(ui.currentTab+1);
+			return true;
+		}
+		return false;
 	}
 	
 	protected void leftSoft() {
@@ -609,17 +633,17 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		repaint();
 	}
 
-	protected void keyRelease(int i) {
+	protected boolean keyRelease(int i) {
 		if(menu) {
-			return;
+			return true;
 		}
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyReleased(i)) {
-			return;
+			return true;
 		}
 		if(search) {
-			return;
+			return true;
 		}
-		super.keyRelease(i);
+		return super.keyRelease(i);
 	}
 	
 	protected void keyRepeat(int i) {

@@ -70,20 +70,22 @@ public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants,
 		}
 	}
 	
-	protected void keyPress(int key) {
+	protected boolean keyPress(int key) {
 		if(key == -3) {
-			if(scr.state <= 1) return;
+			if(scr.state <= 1) return false;
 			select(scr.state--);
-			return;
+			return true;
 		}
 		if(key == -4) {
-			if(scr.state == 3) return;
+			if(scr.state == 3) return false;
 			select(scr.state++);
-			return;
+			return true;
 		}
 		if(key == -5 && scr.state == 3) {
 			select(3);
+			return true;
 		}
+		return false;
 	}
 	
 	private void select(int i) {

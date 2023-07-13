@@ -118,7 +118,7 @@ public class VideoButtons extends UIItem implements UIConstants, LocaleConstants
 		}
 	}
 	
-	protected void keyPress(int key) {
+	protected boolean keyPress(int key) {
 		if(key == -5 || key == Canvas.KEY_NUM5) {
 			switch(selectedIndex) {
 			case 0:
@@ -131,18 +131,19 @@ public class VideoButtons extends UIItem implements UIConstants, LocaleConstants
 				scr.download();
 				break;
 			}
-			return;
+			return true;
 		}
 		if(key == -3) {
-			if(selectedIndex == 0) return;
+			if(selectedIndex == 0) return false;
 			selectedIndex--;
-			return;
+			return true;
 		}
 		if(key == -4) {
-			if(selectedIndex == 2) return;
+			if(selectedIndex == 2) return false;
 			selectedIndex++;
-			return;
+			return true;
 		}
+		return false;
 	}
 
 	public int getHeight() {
