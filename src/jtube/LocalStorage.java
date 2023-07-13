@@ -160,6 +160,22 @@ public class LocalStorage {
 		return arr;
 	}
 	
+	public static String[] getSubsciptionIds() {
+		String[] arr = new String[subscriptions.size() >> 1];
+		for(int i = 0; i < arr.length; i++) {
+			arr[i] = (String) subscriptions.elementAt(i * 2);
+		}
+		return arr;
+	}
+	
+	public static String[] getSubsciptionNames() {
+		String[] arr = new String[subscriptions.size() >> 1];
+		for(int i = 0; i < arr.length; i++) {
+			arr[i] = (String) subscriptions.elementAt((i * 2) + 1);
+		}
+		return arr;
+	}
+	
 	public static void removeSubscription(String id) {
 		int idx = subscriptions.indexOf(id);
 		subscriptions.removeElementAt(idx+1);
