@@ -61,15 +61,15 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			};
 	static final String[] APPEARANCE_CHECKS = new String[] { 
 			Locale.s(SET_VideoPreviews), 
-			Locale.s(SET_SearchChannels), 
-			Locale.s(SET_SearchPlaylists),
 			Locale.s(SET_Amoled),
 			Locale.s(SET_SmallPreviews),
-			Locale.s(SET_FullScreenMode)
+			Locale.s(SET_FullScreenMode),
+			"Channel banner",
+			"Search suggestions"
 			};
 	static final String[] MISC_CHECKS = new String[] { 
-			Locale.s(SET_RememberSearch),
-			Locale.s(SET_PreLoadRMS)
+			Locale.s(SET_PreLoadRMS),
+			"Power saving"
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug render",
@@ -219,19 +219,19 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	
 	public void show() {
 		uiChoice.setSelectedIndex(0, Settings.videoPreviews);
-		uiChoice.setSelectedIndex(1, Settings.searchChannels);
-		uiChoice.setSelectedIndex(2, Settings.searchPlaylists);
-		uiChoice.setSelectedIndex(3, Settings.amoled);
-		uiChoice.setSelectedIndex(4, Settings.smallPreviews);
-		uiChoice.setSelectedIndex(5, Settings.fullScreen);
+		uiChoice.setSelectedIndex(1, Settings.amoled);
+		uiChoice.setSelectedIndex(2, Settings.smallPreviews);
+		uiChoice.setSelectedIndex(3, Settings.fullScreen);
+		uiChoice.setSelectedIndex(4, Settings.channelBanner);
+		uiChoice.setSelectedIndex(5, Settings.searchSuggestions);
 		netChoice.setSelectedIndex(0, Settings.httpStream);
 		netChoice.setSelectedIndex(1, Settings.iteroniPlaybackProxy);
 		netChoice.setSelectedIndex(2, Settings.useApiProxy);
 		debugChoice.setSelectedIndex(0, Settings.renderDebug);
 		debugChoice.setSelectedIndex(1, Settings.asyncLoading);
 		debugChoice.setSelectedIndex(2, Settings.fastScrolling);
-		miscChoice.setSelectedIndex(0, Settings.rememberSearch);
-		miscChoice.setSelectedIndex(1, Settings.rmsPreviews);
+		miscChoice.setSelectedIndex(0, Settings.rmsPreviews);
+		miscChoice.setSelectedIndex(1, Settings.powerSaving);
 		try {
 			playMethodChoice.setSelectedIndex(Settings.watchMethod, true);
 		} catch (IndexOutOfBoundsException e) {
@@ -288,16 +288,16 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			boolean[] misc = new boolean[miscChoice.size()];
 			miscChoice.getSelectedFlags(misc);
 			Settings.videoPreviews = ui[0];
-			Settings.searchChannels = ui[1];
-			Settings.searchPlaylists = ui[2];
-			Settings.amoled = ui[3];
-			Settings.smallPreviews = ui[4];
-			Settings.fullScreen = ui[5];
+			Settings.amoled = ui[1];
+			Settings.smallPreviews = ui[2];
+			Settings.fullScreen = ui[3];
+			Settings.channelBanner = ui[4];
+			Settings.searchSuggestions = ui[5];
 			Settings.httpStream = net[0];
 			Settings.iteroniPlaybackProxy = net[1];
 			Settings.useApiProxy = net[2];
-			Settings.rememberSearch = misc[0];
-			Settings.rmsPreviews = misc[1];
+			Settings.rmsPreviews = misc[0];
+			Settings.powerSaving = misc[1];
 			Settings.serverstream = httpProxyText.getString();
 			String inv = invidiousText.getString();
 			if(inv.length() <= 2) {

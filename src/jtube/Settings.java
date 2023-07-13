@@ -47,13 +47,13 @@ public class Settings implements Constants {
 	public static String downloadDir;
 	public static String serverstream = glype;
 	public static boolean videoPreviews;
-	public static boolean searchChannels;
+	public static boolean searchChannels = true;
 	public static boolean rememberSearch;
 	public static boolean httpStream;
 	public static int startScreen; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
 	public static boolean rmsPreviews;
-	public static boolean searchPlaylists;
+	public static boolean searchPlaylists = true;
 	public static String customLocale;
 	public static int downloadBuffer = 1024;
 	public static boolean asyncLoading;
@@ -236,8 +236,6 @@ public class Settings implements Constants {
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					httpStream = true;
-					rememberSearch = false;
-					searchChannels = true;
 					asyncLoading = false;
 					videoPreviews = false;
 					serverstream = stream;
@@ -260,9 +258,6 @@ public class Settings implements Constants {
 					if(PlatformUtils.isS60v3orLower()) {
 						httpStream = true;
 					}
-					rememberSearch = true;
-					searchChannels = true;
-					searchPlaylists = true;
 					videoPreviews = true;
 				}
 				if(PlatformUtils.isAsha()) {
@@ -295,14 +290,13 @@ public class Settings implements Constants {
 				region = j.getString("region", region);
 				downloadDir = j.getString("downloadDir", downloadDir);
 				videoPreviews = j.getBoolean("videoPreviews", videoPreviews);
-				searchChannels = j.getBoolean("searchChannels", searchChannels);
-				rememberSearch = j.getBoolean("rememberSearch", rememberSearch);
+				//searchChannels = j.getBoolean("searchChannels", searchChannels);
 				httpStream = j.getBoolean("httpStream", httpStream);
 				serverstream = j.getString("serverstream", serverstream);
 				startScreen = j.getInt("startScreen", startScreen);
 				rmsPreviews = j.getBoolean("rmsPreviews", rmsPreviews);
 				customLocale = j.getString("customLocale", customLocale);
-				searchPlaylists = j.getBoolean("searchPlaylists", searchPlaylists);
+				//searchPlaylists = j.getBoolean("searchPlaylists", searchPlaylists);
 				watchMethod = j.getInt("watchMethod", watchMethod);
 				asyncLoading = j.getBoolean("asyncLoading", asyncLoading);
 				downloadBuffer = j.getInt("downloadBuffer", downloadBuffer);
@@ -360,7 +354,6 @@ public class Settings implements Constants {
 			j.put("downloadDir", downloadDir);
 			j.put("videoPreviews", videoPreviews);
 			j.put("searchChannels", searchChannels);
-			j.put("rememberSearch", rememberSearch);
 			j.put("httpStream", httpStream);
 			j.put("serverstream", serverstream);
 			j.put("inv", inv);
