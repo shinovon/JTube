@@ -201,14 +201,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			channelSearch(q);
 			return;
 		}
-		/*if(state > 1) {
-			latestVideos();
-			return;
-		}
-		if(state == 1) {
-			playlists();
-			return;
-		}*/
 		busy = true;
 		try {
 			if(!channel.extended) {
@@ -216,7 +208,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				init();
 			}
 			if(Settings.videoPreviews) {
-				//channel.load();
 				Loader.add(channel);
 				Loader.start();
 			}

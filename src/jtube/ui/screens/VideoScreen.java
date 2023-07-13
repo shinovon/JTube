@@ -113,75 +113,8 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 			Loader.stop();
 			new Thread(this).start();
 		}
-		/*
-		addCommand(backCmd);
-		addCommand(watchCmd);
-		addCommand(showLinkCmd);
-		addCommand(downloadCmd);
-		if(parent != null && video.isFromPlaylist()) {
-			addCommand(openPlaylistCmd);
-			addCommand(prevCmd);
-			addCommand(nextCmd);
-		}
-		*/
 	}
-/*
-	public void commandAction(Command c, Displayable d) {
-		if(d instanceof TextBox && c == backCmd) {
-			ui.display(null);
-			return;
-		}
-		if(c == watchCmd) {
-			App.watch(video.getVideoId());
-			return;
-		}
-		if(c == downloadCmd) {
-			download();
-			return;
-		}
-		if(parent != null && video != null && video.isFromPlaylist()) {
-			if(c == openPlaylistCmd) {
-				ui.setScreen(parent);
-				return;
-			}
-			if(c == nextCmd || c == prevCmd) {
-				boolean next = c == nextCmd;
-				PlaylistScreen p = (PlaylistScreen) parent;
-				int cur = video.getIndex();
-				int l = p.getLength();
-				int i = 0;
-				if(next) {
-					if(cur + 1 < l) {
-						i = cur + 1;
-					} else {
-						i = 0;
-						return;
-					}
-				} else {
-					if(cur - 1 > 0) {
-						i = cur - 1;
-					} else {
-						i = l - 1;
-						return;
-					}
-				}
-				VideoModel nv = p.getVideo(i);
-				ui.open(nv, parent);
-				dispose();
-				return;
-			}
-		}
-		if(c == showLinkCmd) {
-			showLink();
-			return;
-		}
-		if(c == backCmd) {
-			back();
-			return;
-		}
-		super.commandAction(c, d);
-	}
-*/
+	
 	protected void menuAction(int action) {
 		switch(action) {
 		case 0:
