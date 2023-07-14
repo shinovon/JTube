@@ -35,6 +35,7 @@ import jtube.models.VideoModel;
 import jtube.ui.IModelScreen;
 import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
+import jtube.ui.items.VideoItem;
 
 public class PlaylistScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
 
@@ -57,6 +58,17 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 		if(!shown) {
 			shown = true;
 			new Thread(this).start();
+		}
+	}
+	
+	public void hide() {
+		super.hide();
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).unload();
+			}
 		}
 	}
 

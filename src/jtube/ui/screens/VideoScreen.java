@@ -98,7 +98,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		add(new LineSplit());
 		ChannelItem c = video.makeChannelItem();
 		add(c);
-		channel = c.getChannel();
+		channel = c.channel;
 		add(new VideoButtons(this, video.likeCount));
 		Description d = new Description(video.description, f);
 		add(d);

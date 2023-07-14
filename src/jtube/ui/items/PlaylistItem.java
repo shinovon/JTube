@@ -109,10 +109,6 @@ public class PlaylistItem extends AbstractButton implements UIConstants {
 		if(textWidth > 0) return textWidth;
 		return textWidth = w-4;
 	}
-	
-	public PlaylistModel getPlaylist() {
-		return playlist;
-	}
 
 	protected void action() {
 		ui.open(playlist, playlist.getContainerScreen() != null ? playlist.getContainerScreen() : getScreen());

@@ -33,7 +33,7 @@ public abstract class UIItem {
 
 	protected int index;
 
-	boolean hidden = true;
+	protected boolean hidden = true;
 
 	public UIItem(UIScreen screen) {
 		this.screen = screen;

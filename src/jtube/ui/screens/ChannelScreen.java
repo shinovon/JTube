@@ -46,6 +46,7 @@ import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
 import jtube.ui.items.ChannelTabs;
 import jtube.ui.items.SubscribeButton;
+import jtube.ui.items.VideoItem;
 
 public class ChannelScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
 
@@ -135,12 +136,20 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 
 	protected void show() {
 		super.show();
-		if(wasHidden) {
-			wasHidden = false;
-		}
 		if(!shown) {
 			shown = true;
 			new Thread(this).start();
+		}
+	}
+	
+	protected void hide() {
+		super.hide();
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).unload();
+			}
 		}
 	}
 	

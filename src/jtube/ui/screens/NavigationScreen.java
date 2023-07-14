@@ -937,7 +937,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		try {
 			JSONArray suggestions = ((JSONObject) App.invApi("search/suggestions?q=" + Util.url(searchText))).getArray("suggestions");
 			searchSuggestions = new String[suggestions.size()];
-			//suggestions.copyInto(searchSuggestions, 0, suggestions.size());
 			for(int i = 0; i < suggestions.size(); i++) {
 				searchSuggestions[i] = Util.htmlText(suggestions.getString(i));
 			}

@@ -44,7 +44,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	private static Image defaultImg;
 	private static Image defaultImg36;
 
-	private ChannelModel channel;
+	public ChannelModel channel;
 
 	private String author;
 
@@ -176,10 +176,6 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 			channel.setImage(this.img, true);
 			repaint();
 		}
-	}
-	
-	public ChannelModel getChannel() {
-		return channel;
 	}
 
 	public static Image roundImage(Image img) {

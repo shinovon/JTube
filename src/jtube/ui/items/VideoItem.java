@@ -39,7 +39,7 @@ import jtube.ui.screens.SearchScreen;
 
 public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 	
-	private VideoModel video;
+	public VideoModel video;
 	
 	private String title;
 	private String author;
@@ -323,9 +323,13 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 			}
 		}
 	}
-	
-	public VideoModel getVideo() {
-		return video;
+
+	public void unload() {
+		hidden = true;
+		if(!video.loaded) Loader.cancel(video);
+		else video.unload();
+		if(Settings.rmsPreviews) App.inst.cancel(this);
+		img = null;
 	}
 
 }

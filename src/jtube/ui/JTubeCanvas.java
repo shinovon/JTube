@@ -252,9 +252,9 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void hideNotify() {
-		if(ui.current != null) {
-			ui.current.hide();
-		}
+//		if(ui.current != null) {
+//			ui.current.hide();
+//		}
 	}
 	
 	public void showNotify() {

@@ -243,7 +243,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	public void load() {
-		if(loaded) return;
 		loaded = true;
 		try {
 			loadImage();
@@ -257,9 +256,6 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 	
 	public void unload() {
-		if(item != null) {
-			item.setImage(null);
-		}
 		imgLoaded = false;
 		loaded = false;
 	}
@@ -268,6 +264,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	}
 
 	public void disposeExtendedVars() {
+		imgLoaded = false;
+		loaded = false;
 		extended = false;
 		authorId = null;
 		description = null;

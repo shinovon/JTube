@@ -35,33 +35,14 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 			new Thread(this).start();
 			lastCount = LocalStorage.getSubsciptions().length;
 		}
-		if(wasHidden) {
-			wasHidden = false;
-			if(Settings.videoPreviews) {
-				// resume loading previews
-				Loader.stop();
-				for(int i = 0; i < items.size(); i++) {
-					Object o = items.elementAt(i);
-					if(o instanceof VideoItem) {
-						VideoModel v = ((VideoItem)o).getVideo();
-						if(v.loaded) continue;
-						Loader.add(v);
-					}
-				}
-				Loader.start();
-			}
-		}
 	}
 	
 	protected void hide() {
 		super.hide();
-		Loader.stop();
-		if(Settings.rmsPreviews) {
-			for(int i = 0; i < items.size(); i++) {
-				Object o = items.elementAt(i);
-				if(o instanceof VideoItem) {
-					((VideoItem)o).onHide();
-				}
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).unload();
 			}
 		}
 	}
@@ -81,7 +62,6 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 			synchronized(lock) {
 				lock.wait();
 			}
-			System.out.println("done " + allVideos.size());
 			// sorting
 			for (int i = 0; i < allVideos.size(); i++) {
 				for (int j = i + 1; j < allVideos.size(); j++) {
@@ -100,7 +80,7 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 				Date date = new Date(j.getLong("published") * 1000L);
 				if(lastDate == null || !dateEqual(date, lastDate)) {
 					lastDate = date;
-					add(new Label(dateStr(date)));
+					add(new Label(dateStr(date), smallfont));
 				}
 				if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
 				add(v.makeListItem());

@@ -44,12 +44,11 @@ public class SearchScreen extends NavigationScreen {
 	
 	protected void hide() {
 		super.hide();
-		if(Settings.rmsPreviews) {
-			for(int i = 0; i < items.size(); i++) {
-				Object o = items.elementAt(i);
-				if(o instanceof VideoItem) {
-					((VideoItem)o).onHide();
-				}
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).unload();
 			}
 		}
 	}
