@@ -68,11 +68,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	public ChannelScreen(ChannelModel c) {
 		super(c.author);
 		this.channel = c;
-		menuOptions = !topBar ? new String[] {
-				Locale.s(CMD_Search),
-				Locale.s(CMD_Settings),
-				Locale.s(CMD_FuncMenu)
-		} : new String[] {
+		menuOptions = new String[] {
 				Locale.s(CMD_Settings),
 				Locale.s(CMD_FuncMenu)
 		};
@@ -254,14 +250,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 	
 	protected void menuAction(int action) {
-		if(!topBar) action--;
-		switch(action) {
-		case -1:
-			openSearchTextBox();
-			break;
-		default:
-			super.menuAction(action);
-		}
+		super.menuAction(action);
 	}
 	
 	protected void back() {

@@ -25,7 +25,6 @@ public class SubscribeButton extends AbstractButton implements UIConstants, Runn
 		if(System.currentTimeMillis()-lastTime < 500) return;
 		App.inst.schedule(this);
 		lastTime = System.currentTimeMillis();
-		//if(action != null) action.run();
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
@@ -50,11 +49,15 @@ public class SubscribeButton extends AbstractButton implements UIConstants, Runn
 	}
 
 	protected void layout(int w) {
-		h = 36 + 16;
+		h = 52;
 	}
 
 	public void run() {
 		scr.subscribe();
+	}
+	
+	public int getOKLabel() {
+		return scr.subscribed ? LocaleConstants.BTN_Unsubscribe : LocaleConstants.BTN_Subscribe;
 	}
 
 }

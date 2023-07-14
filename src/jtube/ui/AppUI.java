@@ -103,15 +103,17 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void run() {
 		try {
 			while(App.midlet.running) {
-				while(display.getCurrent() != canv) {
-					Thread.sleep(1000);
+				if(display.getCurrent() != canv) {
+					synchronized (repaintLock) {
+						repaintLock.wait();
+					}
 				}
 				if(!scrolling) {
 					repaint = false;
 					_repaint();
 					if(repaint) continue;
 					synchronized (repaintLock) {
-						repaintLock.wait(2000);
+						repaintLock.wait(Settings.powerSaving ? 5000 : 2000);
 					}
 					continue;
 				}
@@ -123,7 +125,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	private void limitFramerate() throws InterruptedException {
-		int i = Settings.powerSaving ? 66 : 30;
+		int i = Settings.powerSaving ? 67 : 33;
 		i -= repaintTime;
 		if(i > 0) Thread.sleep(i);
 	}
@@ -135,7 +137,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void repaint() {
-		if(display.getCurrent() != canv) return;
 		repaint = true;
 		synchronized (repaintLock) {
 			repaintLock.notify();
@@ -719,13 +720,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void nextScreen(UIScreen s) {
-		if(!(current instanceof HomeScreen || current instanceof SubscriptionFeedScreen)) {
-			if(screenStacks[currentTab].contains(s)) {
-				screenStacks[currentTab].removeElement(s);
-			}
-			if(!(current instanceof VideoScreen || (current instanceof SearchScreen && s instanceof SearchScreen))) {
-				screenStacks[currentTab].push(current);
-			}
+		if(screenStacks[currentTab].contains(s)) {
+			screenStacks[currentTab].removeElement(s);
+		}
+		if(!(current instanceof VideoScreen || (current instanceof SearchScreen && s instanceof SearchScreen))) {
+			screenStacks[currentTab].push(current);
 		}
 		setScreen(s);
 	}
@@ -733,9 +732,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void back(UIScreen s) {
 		if(!screenStacks[currentTab].empty()) {
 			if(s instanceof VideoScreen) {
-				setScreen((UIScreen) screenStacks[currentTab].peek());
 				disposeVideoPage();
-				return;
 			}
 			setScreen((UIScreen) screenStacks[currentTab].pop());
 		} else {
@@ -785,6 +782,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void loadSubs() {
+		if(subsScr != null) return;
 		subsScr = new SubscriptionFeedScreen();
 	}
 

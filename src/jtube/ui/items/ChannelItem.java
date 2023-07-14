@@ -219,7 +219,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 		if(getScreen() instanceof VideoScreen) {
 			return LocaleConstants.CMD_ViewChannel;
 		}
-		 return -1;
+		return -1;
 	}
 
 }

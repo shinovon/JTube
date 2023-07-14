@@ -73,12 +73,12 @@ public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants,
 	protected boolean keyPress(int key) {
 		if(key == -3) {
 			if(scr.state <= 1) return false;
-			select(scr.state--);
+			select(scr.state - 1);
 			return true;
 		}
 		if(key == -4) {
 			if(scr.state == 3) return false;
-			select(scr.state++);
+			select(scr.state + 1);
 			return true;
 		}
 		if(key == -5 && scr.state == 3) {
@@ -86,6 +86,13 @@ public class ChannelTabs extends UIItem implements UIConstants, LocaleConstants,
 			return true;
 		}
 		return false;
+	}
+	
+	public int getOKLabel() {
+		if(scr.state == 3) {
+			return LocaleConstants.CMD_Search;
+		}
+		return -1;
 	}
 	
 	private void select(int i) {

@@ -50,10 +50,14 @@ public class HomeScreen extends NavigationScreen {
 	}
 	
 	protected void menuAction(int action) {
-		if(!topBar) action--;
+		if(!topBar) action-=2;
 		switch(action) {
-		case -1:
+		case -2:
 			openSearchTextBox();
+			break;
+		case -1:
+			ui.loadSubs();
+			ui.nextScreen(ui.subsScr);
 			break;
 		case 0:
 			new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
