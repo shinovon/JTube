@@ -132,7 +132,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 
 	private final static Command dirOpenCmd = new Command(Locale.s(CMD_Open), Command.ITEM, 1);
-	private final static Command dirSelectCmd = new Command(Locale.s(CMD_Apply), Command.OK, 2);
+	private final static Command dirSelectCmd = new Command(Locale.s(CMD_Apply), Command.SCREEN, 2);
 
 	public SettingsForm() {
 		super(Locale.s(TITLE_Settings));
@@ -359,8 +359,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		dirList.addCommand(List.SELECT_COMMAND);
 		dirList.setSelectCommand(List.SELECT_COMMAND);
 		dirList.setCommandListener(this);
-		dirList.addCommand(dirSelectCmd);
-		if(dir != 1) dirList.append("- " + Locale.s(CMD_Select), null);
+		if(dir != 1) {
+			dirList.addCommand(dirSelectCmd);
+			dirList.append("- " + Locale.s(CMD_Select), null);
+		}
 		try {
 			FileConnection fc = (FileConnection) Connector.open("file:///" + f);
 			Enumeration list = fc.list();
@@ -368,7 +370,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				String s = (String) list.nextElement();
 				if(s.endsWith("/")) {
 					dirList.append(s.substring(0, s.length() - 1), null);
-				} else if(s.equalsIgnoreCase("jtsubscriptions.json") && dir == 1) {
+				} else if(s.equalsIgnoreCase("jtsubscriptions.json")) {
 					dirList.append(s, null);
 				}
 			}
@@ -427,7 +429,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 							FileConnection fc = null;
 							OutputStream o = null;
 							try {
-								fc = (FileConnection) Connector.open("file:///" + f + "jtsubcriptions.json", 3);
+								fc = (FileConnection) Connector.open("file:///" + f + "jtsubscriptions.json", 3);
 								if (fc.exists())
 									fc.delete();
 								fc.create();
@@ -477,7 +479,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 							} catch (Exception e) {
 							}
 						}
-						return;
+						curDir = null;
+						AppUI.inst.display(this);
+				        return;
 					}
 					curDir = f;
 					dirListOpen(f + "/", is);
@@ -544,10 +548,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		}
 		if(c == subsImportCmd) {
 			dir = 1;
+			dir();
 			return;
 		}
 		if(c == subsExportCmd) {
 			dir = 2;
+			dir();
 			return;
 		}
 		if(c == langCmd) {
@@ -574,19 +580,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		}
 		if(c == dirCmd) {
 			dir = 0;
-			dirList = new List("", List.IMPLICIT);
-			Settings.getRoots();
-			for(int i = 0; i < Settings.rootsList.size(); i++) {
-				String s = (String) Settings.rootsList.elementAt(i);
-				if(s.startsWith("file:///")) s = s.substring("file:///".length());
-				if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
-				dirList.append(s, null);
-			}
-			dirList.addCommand(List.SELECT_COMMAND);
-			dirList.setSelectCommand(List.SELECT_COMMAND);
-			dirList.addCommand(backCmd);
-			dirList.setCommandListener(this);
-			AppUI.inst.display(dirList);
+			dir();
 			return;
 		}
 		if(c == inputLangsCmd) {
@@ -610,6 +604,22 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			AppUI.inst.display(inputLangsList);
 		}
+	}
+	
+	private void dir() {
+		dirList = new List("", List.IMPLICIT);
+		Settings.getRoots();
+		for(int i = 0; i < Settings.rootsList.size(); i++) {
+			String s = (String) Settings.rootsList.elementAt(i);
+			if(s.startsWith("file:///")) s = s.substring("file:///".length());
+			if(s.endsWith("/")) s = s.substring(0, s.length() - 1);
+			dirList.append(s, null);
+		}
+		dirList.addCommand(List.SELECT_COMMAND);
+		dirList.setSelectCommand(List.SELECT_COMMAND);
+		dirList.addCommand(backCmd);
+		dirList.setCommandListener(this);
+		AppUI.inst.display(dirList);
 	}
 
 	public void itemStateChanged(Item item) {
