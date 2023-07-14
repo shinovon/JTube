@@ -530,7 +530,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				if(i == -2 || i == Canvas.KEY_NUM8) {
 					menuSelection++;
-					if(menuSelection > menuOptions.length - 1) {
+					if(menuSelection > itemOptions.length + menuOptions.length - 1) {
 						menuSelection = 0;
 					}
 				}
@@ -597,7 +597,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
 			return true;
 		}
-		
 		if(i == -6) {
 			leftSoft();
 			return true;
