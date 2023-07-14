@@ -160,8 +160,8 @@ public class VideoButtons extends UIItem implements UIConstants, LocaleConstants
 	
 	public int getOKLabel() {
 		switch(selectedIndex) {
-		case 0:
-			return scr.liked ? LocaleConstants.CMD_Unlike : LocaleConstants.CMD_Like;
+//		case 0:
+//			return scr.liked ? LocaleConstants.CMD_Unlike : LocaleConstants.CMD_Like;
 		case 1:
 			return LocaleConstants.BTN_Share;
 		case 2:

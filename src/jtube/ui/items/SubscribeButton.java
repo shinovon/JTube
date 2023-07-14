@@ -39,11 +39,10 @@ public class SubscribeButton extends AbstractButton implements UIConstants, Runn
 		g.drawString(s, x + (w >> 1), y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
-			g.drawRect(x, y, w-1, h-1);
-			//g.drawRect(x+1, y+1, w-3, h-3);
+			g.drawRect(x, y, w-1, h-1); 
 		}
 	}
-
+ 
 	public int getHeight() {
 		return h;
 	}

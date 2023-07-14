@@ -28,11 +28,13 @@ import javax.microedition.lcdui.Image;
 import jtube.App;
 import jtube.Loader;
 import jtube.LocalStorage;
+import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.Util;
 import jtube.models.VideoModel;
 import jtube.ui.AppUI;
 import jtube.ui.Locale;
+import jtube.ui.LocaleConstants;
 import jtube.ui.UIConstants;
 import jtube.ui.nokia_extensions.DirectFontUtil;
 import jtube.ui.screens.SearchScreen;
@@ -330,6 +332,24 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 		else video.unload();
 		if(Settings.rmsPreviews) App.inst.cancel(this);
 		img = null;
+	}
+	
+	public int[] contextActions() {
+		return new int[] {
+				LocaleConstants.CMD_Watch,
+				LocaleConstants.CMD_Download
+		};
+	}
+	
+	public void contextAction(int i) {
+		switch(i) {
+		case 0:
+			new Thread(new RunnableTask(video.videoId, RunnableTask.WATCH)).start();
+			break;
+		case 1:
+			App.download(video.videoId, video.title);
+			break;
+		}
 	}
 
 }

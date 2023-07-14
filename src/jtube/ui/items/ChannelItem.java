@@ -26,6 +26,8 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import jtube.App;
+import jtube.LocalStorage;
+import jtube.RunnableTask;
 import jtube.models.ChannelModel;
 import jtube.models.VideoModel;
 import jtube.ui.AppUI;
@@ -216,6 +218,24 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 			return LocaleConstants.CMD_ViewChannel;
 		}
 		return -1;
+	}
+	
+	public int[] contextActions() {
+		return new int[] {
+				LocalStorage.isSubscribed(channel.authorId) ? LocaleConstants.BTN_Unsubscribe : LocaleConstants.BTN_Subscribe
+		};
+	}
+	
+	public void contextAction(int i) {
+		switch(i) {
+		case 0:
+			if(LocalStorage.isSubscribed(channel.authorId)) {
+				LocalStorage.removeSubscription(channel.authorId);
+			} else {
+				LocalStorage.addSubscription(channel.authorId, channel.author);
+			}
+			break;
+		}
 	}
 
 }

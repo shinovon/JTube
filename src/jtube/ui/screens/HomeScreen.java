@@ -38,10 +38,8 @@ public class HomeScreen extends NavigationScreen {
 				Locale.s(CMD_Search),
 				Locale.s(CMD_SubscriptionsFeed),
 				Locale.s(CMD_Refresh),
-				Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends),
-				Locale.s(CMD_OpenByID),
 				Locale.s(CMD_Settings),
-				Locale.s(CMD_About),
+				Locale.s(CMD_FuncMenu),
 				Locale.s(CMD_Exit)
 		} : new String[] {
 				Locale.s(CMD_Refresh),
@@ -65,7 +63,30 @@ public class HomeScreen extends NavigationScreen {
 	}
 	
 	protected void menuAction(int action) {
-		if(!topBar) action-=2;
+		if(!topBar) {
+			switch(action) {
+			case 0:
+				openSearchTextBox();
+				break;
+			case 1:
+				ui.loadSubs();
+				ui.nextScreen(ui.subsScr);
+				break;
+			case 2:
+				new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
+				break;
+			case 3:
+				ui.showSettings();
+				break;
+			case 4:
+				ui.showOptions();
+				break;
+			case 5:
+				ui.exit();
+				break;
+			}
+			return;
+		}
 		switch(action) {
 		case -2:
 			openSearchTextBox();
@@ -97,9 +118,7 @@ public class HomeScreen extends NavigationScreen {
 			ui.showAbout(this);
 			break;
 		case 5:
-			if(this instanceof HomeScreen) {
-				ui.exit();
-			}
+			ui.exit();
 			break;
 		}
 	}

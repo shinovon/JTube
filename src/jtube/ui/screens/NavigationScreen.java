@@ -109,6 +109,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	private int menuSelection;
 
 	private String[] searchSuggestions;
+
+	private UIItem item;
+	private String[] itemOptions;
+
 	
 	protected NavigationScreen(String label) {
 		super(label);
@@ -247,7 +251,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			lastH = h;
 			if(menuOptions != null) {
 				menuW = w-w/4;
-				menuH = menuOptions.length * (mediumfontheight+8);
+				menuH = (menuOptions.length + (itemOptions != null ? itemOptions.length : 0)) * (mediumfontheight+8);
 			}
 			setEditorPositions();
 		}
@@ -364,6 +368,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				g.setColor(AppUI.getColor(COLOR_MAINBG));
 				g.fillRect(xx, yy, menuW, menuH);
 				int y2 = yy;
+				if(itemOptions != null) {
+					for(int i = 0; i < itemOptions.length; i++) {
+						g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
+						g.drawLine(xx+4, yy, xx+menuW-8, yy);
+						g.setColor(AppUI.getColor(COLOR_MAINFG));
+						g.drawString(Util.getOneLine(itemOptions[i], mediumfont, menuW-8), xx + 4, yy+4, 0);
+						yy += 8 + mediumfontheight;
+					}
+				}
 				for(int i = 0; i < menuOptions.length; i++) {
 					g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
 					g.drawLine(xx+4, yy, xx+menuW-8, yy);
@@ -393,17 +406,23 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						}
 					}
 					g.fillRect(xx, yy, menuW, menuH);
+					if(itemOptions != null) {
+						for(int i = 0; i < itemOptions.length; i++) {
+							g.setColor(AppUI.getColor(COLOR_MAINFG));
+							if(menuSelection == i) {
+								g.fillRect(xx, yy, 2, ih);
+							}
+							g.drawString(itemOptions[i], xx + 4, yy+4, 0);
+							yy += ih;
+						}
+					}
 					for(int i = 0; i < menuOptions.length; i++) {
 						g.setColor(AppUI.getColor(COLOR_MAINFG));
-						if(menuSelection == i) {
+						if(itemOptions != null ? menuSelection == i + itemOptions.length: menuSelection == i) {
 							g.fillRect(xx, yy, 2, ih);
 						}
 						g.drawString(menuOptions[i], xx + 4, yy+4, 0);
 						yy += ih;
-						/*if(i != menuOptions.length - 1) {
-							g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-							g.drawLine(xx, yy, xx+menuW, yy);
-						}*/
 					}
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
@@ -445,9 +464,19 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}
 				}
 				g.fillRect(xx, yy, menuW, menuH);
+				if(itemOptions != null) {
+					for(int i = 0; i < itemOptions.length; i++) {
+						g.setColor(AppUI.getColor(COLOR_MAINFG));
+						if(menuSelection == i) {
+							g.fillRect(xx, yy, 2, ih);
+						}
+						g.drawString(itemOptions[i], xx + 4, yy+4, 0);
+						yy += ih;
+					}
+				}
 				for(int i = 0; i < menuOptions.length; i++) {
 					g.setColor(AppUI.getColor(COLOR_MAINFG));
-					if(menuSelection == i) {
+					if(itemOptions != null ? menuSelection == i + itemOptions.length: menuSelection == i) {
 						g.fillRect(xx, yy, 2, ih);
 					}
 					g.drawString(menuOptions[i], xx + 4, yy+4, 0);
@@ -489,26 +518,52 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			if(i == Canvas.KEY_NUM1) {
 				menuSelection = 0;
 			}
-			if(i == Canvas.KEY_NUM7) {
-				menuSelection = menuOptions.length - 1;
-			}
-			if(i == -1 || i == Canvas.KEY_NUM2) {
-				menuSelection--;
-				if(menuSelection < 0) {
+			if(itemOptions != null) {
+				if(i == Canvas.KEY_NUM7) {
+					menuSelection = itemOptions.length + menuOptions.length - 1;
+				}
+				if(i == -1 || i == Canvas.KEY_NUM2) {
+					menuSelection--;
+					if(menuSelection < 0) {
+						menuSelection = itemOptions.length + menuOptions.length - 1;
+					}
+				}
+				if(i == -2 || i == Canvas.KEY_NUM8) {
+					menuSelection++;
+					if(menuSelection > menuOptions.length - 1) {
+						menuSelection = 0;
+					}
+				}
+				if(i == -5 || i == Canvas.KEY_NUM5) {
+					if(menuSelection >= itemOptions.length) {
+						menuAction(menuSelection - itemOptions.length);
+					} else {
+						item.contextAction(menuSelection);
+					}
+					menu = false;
+				}
+			} else {
+				if(i == Canvas.KEY_NUM7) {
 					menuSelection = menuOptions.length - 1;
 				}
-			}
-			if(i == -2 || i == Canvas.KEY_NUM8) {
-				menuSelection++;
-				if(menuSelection > menuOptions.length - 1) {
-					menuSelection = 0;
+				if(i == -1 || i == Canvas.KEY_NUM2) {
+					menuSelection--;
+					if(menuSelection < 0) {
+						menuSelection = menuOptions.length - 1;
+					}
+				}
+				if(i == -2 || i == Canvas.KEY_NUM8) {
+					menuSelection++;
+					if(menuSelection > menuOptions.length - 1) {
+						menuSelection = 0;
+					}
+				}
+				if(i == -5 || i == Canvas.KEY_NUM5) {
+					menuAction(menuSelection);
+					menu = false;
 				}
 			}
 			if(i == -7) {
-				menu = false;
-			}
-			if(i == -5 || i == Canvas.KEY_NUM5) {
-				menuAction(menuSelection);
 				menu = false;
 			}
 			repaint();
@@ -574,6 +629,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void leftSoft() {
 		if(menuOptions != null) {
+			item = getCurrentItem();
+			if(item != null && item.contextActions() != null) {
+				int[] contextActions = getCurrentItem().contextActions();
+				itemOptions = new String[contextActions.length];
+				for(int i = 0; i < contextActions.length; i++) {
+					itemOptions[i] = Locale.s(contextActions[i]);
+				}
+				menuH = (menuOptions.length + itemOptions.length) * (mediumfontheight+8);
+			}
 			menu = true;
 			menuSelection = 0;
 		}
@@ -629,6 +693,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				menu = false;
 				return;
 			}
+			// TODO
 			for(int i = 0; i < menuOptions.length; i++) {
 				if(y < yy+(i+1)*(mediumfontheight+8)) {
 					menuAction(i);

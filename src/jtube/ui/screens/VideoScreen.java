@@ -28,7 +28,6 @@ import javax.microedition.lcdui.TextField;
 import jtube.App;
 import jtube.Errors;
 import jtube.Loader;
-import jtube.LocalStorage;
 import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.models.AbstractModel;
@@ -205,10 +204,10 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		} catch (Exception e) {
 			App.error(this, Errors.VideoForm_load, e);
 		}
-		try {
-			liked = LocalStorage.isLiked(video.videoId);
-		} catch (Exception e) {
-		}
+//		try {
+//			liked = LocalStorage.isLiked(video.videoId);
+//		} catch (Exception e) {
+//		}
 		busy = false;
 	}
 	
@@ -225,13 +224,13 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void like() {
-		if(busy) return;
-		if(liked) {
-			LocalStorage.removeLiked(video.videoId);
-		} else {
-			LocalStorage.addLiked(video.videoId, video.title);
-		}
-		liked = !liked;
+//		if(busy) return;
+//		if(liked) {
+//			LocalStorage.removeLiked(video.videoId);
+//		} else {
+//			LocalStorage.addLiked(video.videoId, video.title);
+//		}
+//		liked = !liked;
 	}
 
 }

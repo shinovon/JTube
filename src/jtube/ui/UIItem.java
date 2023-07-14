@@ -124,5 +124,11 @@ public abstract class UIItem {
 	public boolean canBeFocused() {
 		return true;
 	}
+	
+	public int[] contextActions() {
+		return null;
+	}
+	
+	public void contextAction(int i) {}
 
 }
