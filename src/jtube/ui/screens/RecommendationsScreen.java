@@ -7,9 +7,11 @@ import jtube.ui.items.VideoItem;
 public class RecommendationsScreen extends NavigationScreen implements Runnable {
 
 	private boolean shown;
+	private String videoId;
 
-	public RecommendationsScreen() {
+	public RecommendationsScreen(String videoId) {
 		super(Locale.s(TITLE_Recommendations));
+		this.videoId = videoId;
 		menuOptions = null;
 		hasSearch = false;
 	}

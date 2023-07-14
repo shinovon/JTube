@@ -42,6 +42,7 @@ import jtube.ui.items.ChannelItem;
 import jtube.ui.items.Description;
 import jtube.ui.items.Label;
 import jtube.ui.items.LineSplit;
+import jtube.ui.items.RecommendationsButton;
 import jtube.ui.items.VideoButtons;
 import jtube.ui.nokia_extensions.DirectFontUtil;
 
@@ -101,6 +102,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		add(new VideoButtons(this, video.likeCount));
 		Description d = new Description(video.description, f);
 		add(d);
+		add(new RecommendationsButton());
 		relayout();
 		repaint();
 	}
@@ -231,6 +233,10 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 //			LocalStorage.addLiked(video.videoId, video.title);
 //		}
 //		liked = !liked;
+	}
+
+	public void recommendations() {
+		
 	}
 
 }

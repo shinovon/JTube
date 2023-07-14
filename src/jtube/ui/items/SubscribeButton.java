@@ -1,6 +1,5 @@
 package jtube.ui.items;
 
-import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 import jtube.App;
@@ -34,9 +33,8 @@ public class SubscribeButton extends AbstractButton implements UIConstants, Runn
 		g.setColor(scr.subscribed ? AppUI.getColor(COLOR_SUBSCRIBED_BG) : AppUI.getColor(COLOR_SUBSCRIBE_BG));
 		g.fillRoundRect(x + 8, y + 8, w - 16, 36, 18, 18);
 		g.setColor(scr.subscribed ? AppUI.getColor(COLOR_SUBSCRIBED_FG) : AppUI.getColor(COLOR_SUBSCRIBE_FG));
-		Font f = g.getFont();
-		String s = scr.subscribed ? Locale.s(LocaleConstants.BTN_Unsubscribe) : Locale.s(LocaleConstants.BTN_Subscribe);
-		g.drawString(s, x + (w >> 1), y + ((h - f.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
+		String s = Locale.s(scr.subscribed ? LocaleConstants.BTN_Unsubscribe : LocaleConstants.BTN_Subscribe);
+		g.drawString(s, x + (w >> 1), y + ((h - mediumfont.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-1); 
