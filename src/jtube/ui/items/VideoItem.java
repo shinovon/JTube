@@ -76,16 +76,6 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		int ih = Settings.videoPreviews ? imgHeight > 0 ? imgHeight : getImgHeight(w) : 0;
-		/*
-		if(img == null && Settings.rmsPreviews) {
-			try {
-				img = Records.saveOrGetImage(video.getVideoId(), null);
-				if(img != null)
-					img = video.customResize(img);
-			} catch (IOException e) {
-			}
-		}
-		*/
 		g.setColor(0);
 		if(Settings.smallPreviews) {
 			boolean b = w == 320;
@@ -101,8 +91,6 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 					g.setColor(0);
 					g.fillRect(xx, yy, iw, ih);
 					g.drawImage(img, xx + ((iw - img.getWidth()) >> 1), yy + ((ih - img.getHeight()) >> 1), 0);
-					//if(Settings.rmsPreviews)
-					//	img = null;
 				} else {
 					g.setColor(0xE5E5E5);
 					g.fillRect(xx, yy, iw, ih);
@@ -140,8 +128,6 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 			if(Settings.videoPreviews) {
 				if(img != null) {
 					g.drawImage(img, x, y, 0);
-					//if(Settings.rmsPreviews)
-					//	img = null;
 				} else if(ih != 0) {
 					g.fillRect(x, y, w, ih);
 				}
@@ -173,7 +159,6 @@ public class VideoItem extends AbstractButton implements UIConstants, Runnable {
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, h-2);
-			//g.drawRect(x+1, y+1, w-3, h-4);
 		}
 	}
 

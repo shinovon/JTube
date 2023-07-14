@@ -277,19 +277,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(search || topBar) {
 			g.translate(0, topBarHeight);
 			if(!search) _paint(g, w, h-(topBarHeight*2));
-			/*
-			if(search) {
-				int l = w * 30 + 1;
-				int c = AppUI.getColor(COLOR_SCREEN_DARK_ALPHA);
-				int[] rgb = new int[l];
-				for(int i=0; i < l; i++) {
-					rgb[i] = c;
-				}
-				for(int i = 0; i <= h; i+=30) {
-					g.drawRGB(rgb, 0, w, 0, i, w, 30, true);
-				}
-			}
-			*/
 			g.translate(0, -topBarHeight);
 			// top bar
 			g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
@@ -413,10 +400,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.setColor(AppUI.getColor(COLOR_MAINFG));
 					g.drawString(Util.getOneLine(menuOptions[i], mediumfont, menuW-8), xx + 4, yy+4, 0);
 					yy += 8 + mediumfontheight;
-					/*if(i != menuOptions.length - 1) {
-						g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
-						g.drawLine(xx, yy, xx+menuW, yy);
-					}*/
 				}
 				g.setColor(AppUI.getColor(COLOR_MAINBORDER));
 				g.drawRect(xx, y2, menuW, menuH);

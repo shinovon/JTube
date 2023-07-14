@@ -84,17 +84,4 @@ public class HomeScreen extends NavigationScreen {
 			break;
 		}
 	}
-/*
-	public void commandAction(Command c, Displayable d) {
-		if(c == backCmd) {
-			ui.display(null);
-			return;
-		}
-		if(c == optsCmd) {
-			ui.showOptions();
-			return;
-		}
-		super.commandAction(c, d);
-	}
-*/
 }

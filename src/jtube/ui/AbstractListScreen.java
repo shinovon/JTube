@@ -87,7 +87,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		}
 		int y = 0;
 		int s = (int)scroll;
-		//int j = 0;
 		try {
 			for (int i = 0; i < items.size(); i++) {
 				UIItem it = (UIItem) items.elementAt(i);
@@ -97,12 +96,9 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					if(sy + ih > 0 && sy < h) {
 						if(it.hidden) it.onShow();
 						it.paint(g, w, 0, s+y, (int)scroll);
-						//j = i;
 					} else if(!it.hidden) {
 						it.onHide();
-					}/* else if(j+1 == i) {
-						it.onShow();
-					}*/
+					}
 					y += ih;
 				}
 			}
@@ -140,13 +136,6 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 				ui.scrolling = false;
 			}
 		}
-		/*
-		g.setColor(AppUI.getColor(COLOR_SCROLLBAR_BORDER));
-		g.drawLine(w, 0, w+sw, 0);
-		g.drawLine(w, 0, w, h);
-		g.drawLine(w+sw-1, 0, w+sw-1, h);
-		g.drawLine(w, h-1, w+sw, h-1);
-		*/
 	}
 	
 	protected boolean scroll(int units) {

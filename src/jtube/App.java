@@ -172,30 +172,6 @@ public class App implements Constants, Runnable {
 	
 	private void checkUpdate() {
 		boolean b = false;
-		/*
-		try {
-			if(Settings.checkUpdates) {
-				JSONObject video = (JSONObject) App.invApi("videos/iTwHY7v9M8c?", "description,title");
-				String title = video.getNullableString("title");
-				if(title != null && !title.equalsIgnoreCase("jtube") && !title.trim().equalsIgnoreCase(App.midlet.getAppProperty("MIDlet-Version"))) {
-					b = true;
-					Alert a = new Alert("", "", null, AlertType.INFO);
-					a.setTimeout(-2);
-					a.setString(video.getString("description", "Download from: t.me/nnmidlets"));
-					a.setTitle(Locale.s(LocaleConstants.TXT_NewUpdateAvailable));
-					final Command okCmd = new Command(Locale.s(LocaleConstants.CMD_OK), Command.OK, 1);
-					a.addCommand(okCmd);
-					a.setCommandListener(new CommandListener() {
-						public void commandAction(Command c, Displayable d) {
-							if(c == okCmd) ui.display(null);
-						}
-					});
-					ui.display(a);
-				}
-			}
-		} catch (Exception e) {
-		}
-		*/
 		try {
 			String s = Util.getUtf(updateurl+
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
@@ -261,7 +237,7 @@ public class App implements Constants, Runnable {
 		if(!s.endsWith("?")) s = s.concat("&");
 		s += "region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US");
 		if(fields != null) {
-			s = s + "&fields=" + fields + ",error,errorBacktrace,code";
+			s = s + "&fields=" + fields + ",error,errorBacktrace,code,message";
 		}
 		s = Settings.inv + "api/v1/" + s;
 		if(Settings.useApiProxy) {
@@ -290,28 +266,6 @@ public class App implements Constants, Runnable {
 
 	static JSONObject getVideoInfo(String id, String res) throws JSONException, IOException {
 		boolean combined = res == null || res.charAt(0) != '_';
-		/*
-			if(piped) {
-			String s = Util.getUtf(imgproxy + Util.url("https://pipedapi.kavin.rocks/streams/" + id));
-			JSONObject j = JSON.getObject(s);
-			JSONArray videoStreams = j.getArray("videoStreams");
-			for(int i = videoStreams.size() - 1; i >= 0; i--) {
-				JSONObject v = videoStreams.getObject(i);
-				if(!v.getBoolean("videoOnly", false)) {
-					if(v.getString("quality").equalsIgnoreCase(res)) {
-						JSONObject r = new JSONObject();
-						r.put("url", v.getString("url"));
-						try {
-							r.put("clen", new Integer(v.getInt("bitrate")*j.getInt("duration")));
-						} catch (Exception e) {
-						}
-						return r;
-					}
-				}
-			}
-			return null;
-		} else {
-		*/
 		String f = combined ? "formatStreams" : "adaptiveFormats";
 		JSONObject j = (JSONObject) invApi("videos/"  + id + "?", f);
 		JSONArray arr = j.getArray(f);

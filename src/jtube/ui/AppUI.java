@@ -731,9 +731,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void back(UIScreen s) {
-		/*if(s instanceof IModelScreen && ((IModelScreen)s).getModel().fromSearch && searchScr != null) {
-			setScreen(searchScr);
-		} else */
 		if(!screenStacks[currentTab].empty()) {
 			if(s instanceof VideoScreen) {
 				setScreen((UIScreen) screenStacks[currentTab].peek());
