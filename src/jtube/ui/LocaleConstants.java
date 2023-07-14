@@ -148,5 +148,7 @@ public interface LocaleConstants {
 	public static final int SET_ChannelBanners = 136;
 	public static final int SET_SearchSuggestions = 137;
 	public static final int SET_PowerSaving = 138;
+	public static final int SET_ImportSubscriptions = 139;
+	public static final int SET_ExportSubscriptions = 140;
 
 }

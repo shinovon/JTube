@@ -114,30 +114,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		super(label);
 		init();
 		hasSearch = true;
-		if(this instanceof HomeScreen) {
-			menuOptions = !topBar ? new String[] {
-					Locale.s(CMD_Search),
-					Locale.s(CMD_SubscriptionsFeed),
-					Locale.s(CMD_Refresh),
-					Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends),
-					Locale.s(CMD_OpenByID),
-					Locale.s(CMD_Settings),
-					Locale.s(CMD_About),
-					Locale.s(CMD_Exit)
-			} : new String[] {
-					Locale.s(CMD_Refresh),
-					Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends),
-					Locale.s(CMD_OpenByID),
-					Locale.s(CMD_Settings),
-					Locale.s(CMD_About),
-					Locale.s(CMD_Exit)
-			};
-		} else {
-			menuOptions = new String[] {
-					Locale.s(CMD_Settings),
-					Locale.s(CMD_FuncMenu)
-			};
-		}
+		menuOptions = new String[] {
+				Locale.s(CMD_Settings),
+				Locale.s(CMD_FuncMenu)
+		};
 	}
 	
 	private static void init() {
@@ -348,7 +328,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				if(Settings.fullScreen) {
 					int xx = 4;
-					if(!(this instanceof HomeScreen || this instanceof SubscriptionFeedScreen)) {
+					if(!(this instanceof HomeScreen || this instanceof SubscriptionsFeedScreen)) {
 						g.drawImage(backImg, 12, 12, 0);
 						xx += 48;
 					}
@@ -435,7 +415,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				if(!menu) {
 					g.drawString(Locale.s(CMD_Func), 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
 				}
-				if(!(this instanceof SubscriptionFeedScreen && ui.currentTab == 1)) {
+				if(!(this instanceof SubscriptionsFeedScreen && ui.currentTab == 1)) {
 					if(menu || !(this instanceof HomeScreen)) {
 						g.drawString(Locale.s(CMD_Back), w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
 					} else {
@@ -757,7 +737,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				break;
 			case 1:
 				if(ui.subsScr == null) {
-					ui.subsScr = new SubscriptionFeedScreen();
+					ui.subsScr = new SubscriptionsFeedScreen();
 					new Thread(new RunnableTask(RunnableTask.SUBS)).start();
 				}
 				ui.currentTab = 1;

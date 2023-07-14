@@ -21,6 +21,9 @@ SOFTWARE.
 */
 package jtube.ui;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -42,6 +45,7 @@ import javax.microedition.lcdui.TextField;
 import jtube.App;
 import jtube.Constants;
 import jtube.Errors;
+import jtube.LocalStorage;
 import jtube.Settings;
 import jtube.Util;
 
@@ -96,6 +100,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final Command resetCmd = new Command(Locale.s(SET_Reset), Command.ITEM, 3);
 	static final Command langCmd = new Command(Locale.s(SET_ChooseLanguage), Command.ITEM, 1);
 	static final Command inputLangsCmd = new Command(Locale.s(SET_InputLanguages), Command.ITEM, 1);
+	static final Command subsImportCmd = new Command(Locale.s(SET_ImportSubscriptions), Command.ITEM, 1);
+	static final Command subsExportCmd = new Command(Locale.s(SET_ExportSubscriptions), Command.ITEM, 1);
 	
 	private ChoiceGroup videoResChoice;
 	private TextField regionText;
@@ -121,6 +127,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	
 	private List langsList;
 	private List inputLangsList;
+	private int dir;
 
 	private static final Command dirCmd = new Command("...", Command.ITEM, 1);
 
@@ -208,6 +215,18 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		inputLangsBtn.setItemCommandListener(this);
 		inputLangsBtn.setLayout(Item.LAYOUT_EXPAND);
 		append(inputLangsBtn);
+		StringItem subsImportBtn = new StringItem(null, Locale.s(SET_ImportSubscriptions), StringItem.BUTTON);
+		subsImportBtn.addCommand(subsImportCmd);
+		subsImportBtn.setDefaultCommand(subsImportCmd);
+		subsImportBtn.setItemCommandListener(this);
+		subsImportBtn.setLayout(Item.LAYOUT_EXPAND);
+		append(subsImportBtn);
+		StringItem subsExportBtn = new StringItem(null, Locale.s(SET_ExportSubscriptions), StringItem.BUTTON);
+		subsExportBtn.addCommand(subsExportCmd);
+		subsExportBtn.setDefaultCommand(subsExportCmd);
+		subsExportBtn.setItemCommandListener(this);
+		subsExportBtn.setLayout(Item.LAYOUT_EXPAND);
+		append(subsExportBtn);
 		append(debugChoice);
 		StringItem resetBtn = new StringItem(null, Locale.s(SET_Reset), StringItem.BUTTON);
 		resetBtn.addCommand(resetCmd);
@@ -341,7 +360,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		dirList.setSelectCommand(List.SELECT_COMMAND);
 		dirList.setCommandListener(this);
 		dirList.addCommand(dirSelectCmd);
-		dirList.append("- " + Locale.s(CMD_Select), null);
+		if(dir != 1) dirList.append("- " + Locale.s(CMD_Select), null);
 		try {
 			FileConnection fc = (FileConnection) Connector.open("file:///" + f);
 			Enumeration list = fc.list();
@@ -349,6 +368,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				String s = (String) list.nextElement();
 				if(s.endsWith("/")) {
 					dirList.append(s.substring(0, s.length() - 1), null);
+				} else if(s.equalsIgnoreCase("jtsubscriptions.json") && dir == 1) {
+					dirList.append(s, null);
 				}
 			}
 			fc.close();
@@ -400,12 +421,64 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 					String is = dirList.getString(dirList.getSelectedIndex());
 					if(is.equals("- " + Locale.s(CMD_Select))) {
 						dirList = null;
-						downloadDirText.setString(f);
+						if(dir == 0) {
+							downloadDirText.setString(f);
+						} else if(dir == 2) {
+							FileConnection fc = null;
+							OutputStream o = null;
+							try {
+								fc = (FileConnection) Connector.open("file:///" + f + "jtsubcriptions.json", 3);
+								if (fc.exists())
+									fc.delete();
+								fc.create();
+								o = fc.openDataOutputStream();
+								o.write(LocalStorage.exportSubscriptionsBytes());
+								o.flush();
+							} catch (Exception e) {
+								e.printStackTrace();
+							} finally {
+								try {
+									if (o != null)
+										o.close();
+									if (fc != null)
+										fc.close();
+								} catch (Exception e) {
+								}
+							}
+						}
 						curDir = null;
 						AppUI.inst.display(this);
 						return;
 					}
 					f += is;
+					if(dir == 1 && is.equalsIgnoreCase("jtsubscriptions.json")) {
+						FileConnection fc = null;
+						InputStream in = null;
+						try {
+							fc = (FileConnection) Connector.open("file:///" + f);
+							in = fc.openInputStream();
+							ByteArrayOutputStream bs = new ByteArrayOutputStream(530308);
+					        byte[] buf = new byte[4096];
+					        int read;
+					        while ((read = in.read(buf)) > 0) {
+					            bs.write(buf, 0, read);
+					        }
+					        byte[] bytes = bs.toByteArray();
+					        LocalStorage.importSubscriptions(bytes);
+					        bs.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						} finally {
+							try {
+								if (in != null)
+									in.close();
+								if (fc != null)
+									fc.close();
+							} catch (Exception e) {
+							}
+						}
+						return;
+					}
 					curDir = f;
 					dirListOpen(f + "/", is);
 					return;
@@ -464,8 +537,17 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 
 	public void commandAction(Command c, Item item) {
 		if(c == resetCmd) {
+			LocalStorage.clearAllData();
 			Settings.removeConfig();
 			App.midlet.notifyDestroyed();
+			return;
+		}
+		if(c == subsImportCmd) {
+			dir = 1;
+			return;
+		}
+		if(c == subsExportCmd) {
+			dir = 2;
 			return;
 		}
 		if(c == langCmd) {
@@ -491,6 +573,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			return;
 		}
 		if(c == dirCmd) {
+			dir = 0;
 			dirList = new List("", List.IMPLICIT);
 			Settings.getRoots();
 			for(int i = 0; i < Settings.rootsList.size(); i++) {

@@ -337,6 +337,10 @@ public class Locale implements LocaleConstants {
 				return "Search suggestions";
 			case SET_PowerSaving:
 				return "Power saving";
+			case SET_ImportSubscriptions:
+				return "Import subscriptions";
+			case SET_ExportSubscriptions:
+				return "Export subscriptions";
 			}
 		}
 		case 1: {
@@ -553,6 +557,10 @@ public class Locale implements LocaleConstants {
 				return "Подсказки поиска";
 			case SET_PowerSaving:
 				return "Экономия энергии";
+			case SET_ImportSubscriptions:
+				return "Импорт подписок";
+			case SET_ExportSubscriptions:
+				return "Экспорт подписок";
 			}
 		}
 		}

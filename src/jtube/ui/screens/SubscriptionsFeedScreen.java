@@ -9,6 +9,7 @@ import cc.nnproject.json.JSONObject;
 import jtube.App;
 import jtube.Constants;
 import jtube.Loader;
+import jtube.LoaderThread;
 import jtube.LocalStorage;
 import jtube.Settings;
 import jtube.models.ILoader;
@@ -17,21 +18,24 @@ import jtube.ui.Locale;
 import jtube.ui.items.Label;
 import jtube.ui.items.VideoItem;
 
-public class SubscriptionFeedScreen extends NavigationScreen implements Runnable, Constants, ILoader {
+public class SubscriptionsFeedScreen extends NavigationScreen implements Runnable, Constants, ILoader {
 
 	private int lastCount;
-	private Vector allVideos;
+	private Vector allVideos = new Vector();
 	private String[] subscriptions;
 	private int idx;
 	private Object lock = new Object();
 
-	public SubscriptionFeedScreen() {
+	public SubscriptionsFeedScreen() {
 		super(Locale.s(TITLE_Subscriptions));
+		menuOptions = new String[] {
+				Locale.s(CMD_ChannelsList)
+		};
 	}
 	
 	protected void show() { 
 		super.show();
-		if(lastCount != LocalStorage.getSubsciptions().length && !busy) {
+		if((lastCount != LocalStorage.getSubsciptions().length || allVideos.isEmpty()) && !busy) {
 			new Thread(this).start();
 			lastCount = LocalStorage.getSubsciptions().length;
 		}
@@ -39,6 +43,8 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 	
 	protected void hide() {
 		super.hide();
+		Loader.stop();
+		allVideos.removeAllElements();
 		for(int i = 0; i < items.size(); i++) {
 			Object o = items.elementAt(i);
 			if(o instanceof VideoItem) {
@@ -52,7 +58,7 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 		subscriptions = LocalStorage.getSubsciptions();
 		idx = 0;
 		try {
-			allVideos = new Vector();
+			allVideos.removeAllElements();
 			Loader.stop();
 			for(int i = 0; i < subscriptions.length; i+=2) {
 				Loader.add(this);
@@ -119,6 +125,9 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 			String id = subscriptions[(idx++) * 2];
 			JSONObject r = (JSONObject) App.invApi("channels/" + id + "/latest?", "videos(" + VIDEO_FIELDS + ",published)");
 			JSONArray j = r.getArray("videos");
+			if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {
+				throw new RuntimeException("loader interrupt");
+			}
 			for(int k = 0; k < j.size(); k++) {
 				if(k > 10) break;
 				allVideos.addElement(j.get(k));
@@ -130,6 +139,14 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 			synchronized(lock) {
 				lock.notify();
 			}
+		}
+	}
+	
+	protected void menuAction(int action) {
+		switch(action) {
+		case 0:
+			ui.nextScreen(new SubscriptionsListScreen());
+			break;
 		}
 	}
 

@@ -34,6 +34,23 @@ public class HomeScreen extends NavigationScreen {
 
 	public HomeScreen() {
 		super("");
+		menuOptions = !topBar ? new String[] {
+				Locale.s(CMD_Search),
+				Locale.s(CMD_SubscriptionsFeed),
+				Locale.s(CMD_Refresh),
+				Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends),
+				Locale.s(CMD_OpenByID),
+				Locale.s(CMD_Settings),
+				Locale.s(CMD_About),
+				Locale.s(CMD_Exit)
+		} : new String[] {
+				Locale.s(CMD_Refresh),
+				Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends),
+				Locale.s(CMD_OpenByID),
+				Locale.s(CMD_Settings),
+				Locale.s(CMD_About),
+				Locale.s(CMD_Exit)
+		};
 	}
 	
 	protected void hide() {

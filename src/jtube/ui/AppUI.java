@@ -54,10 +54,10 @@ import jtube.ui.nokia_extensions.DirectFontUtil;
 import jtube.ui.nokia_extensions.TextEditorUtil;
 import jtube.ui.screens.ChannelScreen;
 import jtube.ui.screens.HomeScreen;
-import jtube.ui.screens.SearchScreen;
-import jtube.ui.screens.SubscriptionFeedScreen;
-import jtube.ui.screens.VideoScreen;
 import jtube.ui.screens.NavigationScreen;
+import jtube.ui.screens.SearchScreen;
+import jtube.ui.screens.SubscriptionsFeedScreen;
+import jtube.ui.screens.VideoScreen;
 
 public class AppUI implements CommandListener, Constants, UIConstants, LocaleConstants, Commands, Runnable {
 	
@@ -75,7 +75,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public HomeScreen mainScr;
 	public SearchScreen searchScr;
 	public VideoScreen videoScr;
-	public SubscriptionFeedScreen subsScr;
+	public SubscriptionsFeedScreen subsScr;
 	
 	public int currentTab;
 	public Stack[] screenStacks = new Stack[] { new Stack(), new Stack(), new Stack() };
@@ -783,7 +783,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void loadSubs() {
 		if(subsScr != null) return;
-		subsScr = new SubscriptionFeedScreen();
+		subsScr = new SubscriptionsFeedScreen();
 	}
 
 	public void loadLib() {

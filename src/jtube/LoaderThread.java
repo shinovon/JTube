@@ -73,7 +73,7 @@ public class LoaderThread extends Thread {
 		}
 	}
 
-	boolean checkInterrupted() {
+	public boolean checkInterrupted() {
 		if(interrupt) {
 			interrupt = false;
 			interruptSuccess = true;

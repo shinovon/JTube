@@ -102,6 +102,13 @@ public class LocalStorage {
 		initSubscriptions();
 	}
 	
+	public static void clearAllData() {
+		try {
+			RecordStore.deleteRecordStore("jtsubscriptions");
+		} catch (Exception e) {
+		}
+	}
+	
 	private static void initSubscriptions() {
 		try {
 			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
@@ -116,7 +123,7 @@ public class LocalStorage {
 						subscriptions.removeElementAt(i);
 					}
 				}
-				byte[] b = new JSONArray(subscriptions).build().getBytes("UTF-8");
+				byte[] b = exportSubscriptionsBytes();
 				subsRS.setRecord(1, b, 0, b.length);
 			} else {
 				subscriptions = new Vector();
@@ -129,20 +136,34 @@ public class LocalStorage {
 		}
 	}
 	
+	public static void importSubscriptions(byte[] b) throws Exception {
+		String s = new String(b, "UTF-8");
+		subscriptions = JSON.getArray(s).getVector();
+		// remove repeats
+		for(int i = subscriptions.size()-2; i > 0; i-=2) {
+			int idx = subscriptions.indexOf(subscriptions.elementAt(i));
+			if(idx != i) {
+				subscriptions.removeElementAt(i+1);
+				subscriptions.removeElementAt(i);
+			}
+		}
+		saveSubscriptions();
+	}
+	
+	public static byte[] exportSubscriptionsBytes() throws Exception {
+		return new JSONArray(subscriptions).build().getBytes("UTF-8");
+	}
+	
 	public static void saveSubscriptions() {
-		long l = System.currentTimeMillis();
 		try {
 			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
-			byte[] b = new JSONArray(subscriptions).build().getBytes("UTF-8");
+			byte[] b = exportSubscriptionsBytes();
 			subsRS.setRecord(1, b, 0, b.length);
 			subsRS.closeRecordStore();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("save took " + (System.currentTimeMillis() - l));
 	}
-	
-	// TODO
 	
 	public static void addSubscription(String id, String name) {
 		subscriptions.addElement(id);
@@ -183,6 +204,8 @@ public class LocalStorage {
 		saveSubscriptions();
 	}
 	
+	// TODO
+	
 	public static void addHistory(String id, String name) {
 	}
 	
@@ -209,13 +232,6 @@ public class LocalStorage {
 	}
 	
 	public static void removeLiked(String id) {
-	}
-	
-	public static void clearAllData() {
-		try {
-			RecordStore.deleteRecordStore("jtsubscriptions");
-		} catch (Exception e) {
-		}
 	}
 
 }
