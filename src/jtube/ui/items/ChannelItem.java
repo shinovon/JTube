@@ -27,7 +27,6 @@ import javax.microedition.lcdui.Image;
 
 import jtube.App;
 import jtube.LocalStorage;
-import jtube.RunnableTask;
 import jtube.models.ChannelModel;
 import jtube.models.VideoModel;
 import jtube.ui.AppUI;
@@ -221,6 +220,9 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	}
 	
 	public int[] contextActions() {
+		if(getScreen() instanceof ChannelScreen) {
+			return null;
+		}
 		return new int[] {
 				LocalStorage.isSubscribed(channel.authorId) ? LocaleConstants.BTN_Unsubscribe : LocaleConstants.BTN_Subscribe
 		};

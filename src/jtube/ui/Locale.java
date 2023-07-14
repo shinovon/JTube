@@ -327,8 +327,6 @@ public class Locale implements LocaleConstants {
 				return "Unlike";
 			case BTN_Videos:
 				return "Videos";
-			case CMD_SubscriptionsFeed:
-				return "Subscriptions";
 			case CMD_ChannelsList:
 				return "Channels";
 			case SET_ChannelBanners:
@@ -547,8 +545,6 @@ public class Locale implements LocaleConstants {
 				return "Разонравилось"; // ??
 			case BTN_Videos:
 				return "Видео";
-			case CMD_SubscriptionsFeed:
-				return "Подписки";
 			case CMD_ChannelsList:
 				return "Каналы";
 			case SET_ChannelBanners:

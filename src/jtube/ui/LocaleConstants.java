@@ -143,12 +143,12 @@ public interface LocaleConstants {
 	public static final int CMD_Like = 131;
 	public static final int CMD_Unlike = 132;
 	public static final int BTN_Videos = 133;
-	public static final int CMD_SubscriptionsFeed = 134;
-	public static final int CMD_ChannelsList = 135;
-	public static final int SET_ChannelBanners = 136;
-	public static final int SET_SearchSuggestions = 137;
-	public static final int SET_PowerSaving = 138;
-	public static final int SET_ImportSubscriptions = 139;
-	public static final int SET_ExportSubscriptions = 140;
+	public static final int CMD_ChannelsList = 134;
+	public static final int SET_ChannelBanners = 135;
+	public static final int SET_SearchSuggestions = 136;
+	public static final int SET_PowerSaving = 137;
+	public static final int SET_ImportSubscriptions = 138;
+	public static final int SET_ExportSubscriptions = 139;
+	public static final int TITLE_Recommendations = 140;
 
 }

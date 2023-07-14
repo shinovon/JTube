@@ -6,11 +6,20 @@ import jtube.ui.Locale;
 
 public class SubscriptionsListScreen extends NavigationScreen implements Runnable {
 
-	protected SubscriptionsListScreen() {
+	private boolean shown;
+
+	public SubscriptionsListScreen() {
 		super(Locale.s(TITLE_Subscriptions));
-		new Thread(this).start();
 		menuOptions = null;
 		hasSearch = false;
+	}
+	
+	public void show() {
+		super.show();
+		if(!shown) {
+			new Thread(this).start();
+			shown = true;
+		}
 	}
 	
 	public void run() {

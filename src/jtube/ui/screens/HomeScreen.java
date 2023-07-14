@@ -36,7 +36,7 @@ public class HomeScreen extends NavigationScreen {
 		super("");
 		menuOptions = !topBar ? new String[] {
 				Locale.s(CMD_Search),
-				Locale.s(CMD_SubscriptionsFeed),
+				Locale.s(TITLE_Subscriptions),
 				Locale.s(CMD_Refresh),
 				Locale.s(CMD_Settings),
 				Locale.s(CMD_FuncMenu),
@@ -88,13 +88,6 @@ public class HomeScreen extends NavigationScreen {
 			return;
 		}
 		switch(action) {
-		case -2:
-			openSearchTextBox();
-			break;
-		case -1:
-			ui.loadSubs();
-			ui.nextScreen(ui.subsScr);
-			break;
 		case 0:
 			new Thread(new RunnableTask(RunnableTask.REFRESH)).start();
 			break;
