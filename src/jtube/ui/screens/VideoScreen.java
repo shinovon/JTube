@@ -102,7 +102,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 		add(new VideoButtons(this, video.likeCount));
 		Description d = new Description(video.description, f);
 		add(d);
-		add(new RecommendationsButton());
+		add(new RecommendationsButton(this));
 		relayout();
 		repaint();
 	}
@@ -236,7 +236,7 @@ public class VideoScreen extends NavigationScreen implements IModelScreen, Runna
 	}
 
 	public void recommendations() {
-		
+		ui.nextScreen(new RecommendationsScreen(video.videoId));
 	}
 
 }

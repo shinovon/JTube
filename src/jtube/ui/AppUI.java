@@ -43,6 +43,7 @@ import jtube.Constants;
 import jtube.Errors;
 import jtube.InvidiousException;
 import jtube.Loader;
+import jtube.LocalStorage;
 import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.Util;
@@ -601,6 +602,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			&& ((VideoModel)model).videoId.equals(((VideoModel)((VideoScreen)current).getModel()).videoId)) {
 			return;
 		}
+		if(model instanceof VideoModel) {
+			LocalStorage.addHistory(((VideoModel)model).videoId, ((VideoModel)model).title);
+		}
 		if(model instanceof PlaylistModel) {
 			if(((PlaylistModel) model).videoCount > PLAYLIST_VIDEOS_LIMIT) {
 				msg(">" + PLAYLIST_VIDEOS_LIMIT + " videos!!!");
@@ -722,6 +726,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void nextScreen(UIScreen s) {
 		if(screenStacks[currentTab].contains(s)) {
 			screenStacks[currentTab].removeElement(s);
+		}
+		if(current instanceof VideoScreen) {
+			disposeVideoPage();
 		}
 		if(!(current instanceof VideoScreen || (current instanceof SearchScreen && s instanceof SearchScreen))) {
 			screenStacks[currentTab].push(current);

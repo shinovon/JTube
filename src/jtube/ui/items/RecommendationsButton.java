@@ -41,11 +41,11 @@ public class RecommendationsButton extends AbstractButton implements UIConstants
 	}
 
 	protected void layout(int w) {
-		h = 52;
+		h = 36;
 	}
 
 	public void run() {
-		
+		scr.recommendations();
 	}
 	
 	public int getOKLabel() {
