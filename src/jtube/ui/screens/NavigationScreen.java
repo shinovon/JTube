@@ -117,6 +117,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(this instanceof HomeScreen) {
 			menuOptions = !topBar ? new String[] {
 					Locale.s(CMD_Search),
+					Locale.s(CMD_SubscriptionsFeed),
 					Locale.s(CMD_Refresh),
 					Locale.s(Settings.startScreen == 0 ? CMD_SwitchToPopular : CMD_SwitchToTrends),
 					Locale.s(CMD_OpenByID),

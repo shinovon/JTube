@@ -64,12 +64,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_Amoled),
 			Locale.s(SET_SmallPreviews),
 			Locale.s(SET_FullScreenMode),
-			"Channel banner",
-			"Search suggestions"
+			Locale.s(SET_ChannelBanners),
+			Locale.s(SET_SearchSuggestions)
 			};
 	static final String[] MISC_CHECKS = new String[] { 
 			Locale.s(SET_PreLoadRMS),
-			"Power saving"
+			Locale.s(SET_PowerSaving)
 			};
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug render",

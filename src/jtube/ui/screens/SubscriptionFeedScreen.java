@@ -13,6 +13,7 @@ import jtube.LocalStorage;
 import jtube.Settings;
 import jtube.models.ILoader;
 import jtube.models.VideoModel;
+import jtube.ui.Locale;
 import jtube.ui.items.Label;
 import jtube.ui.items.VideoItem;
 
@@ -25,7 +26,7 @@ public class SubscriptionFeedScreen extends NavigationScreen implements Runnable
 	private Object lock = new Object();
 
 	public SubscriptionFeedScreen() {
-		super("субскрибтионс");
+		super(Locale.s(TITLE_Subscriptions));
 	}
 	
 	protected void show() { 
