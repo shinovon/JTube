@@ -10,7 +10,7 @@ public class RunnableTask implements Runnable {
 	public static final int WATCH = 5;
 	public static final int MAIN = 6;
 	public static final int SUBS = 7;
-	public static final int LIB = 8;
+//	public static final int LIB = 8;
 	
 	int type;
 	String arg;
@@ -51,9 +51,9 @@ public class RunnableTask implements Runnable {
 		case SUBS:
 			AppUI.inst.loadSubs();
 			break;
-		case LIB:
-			AppUI.inst.loadLib();
-			break;
+//		case LIB:
+//			AppUI.inst.loadLib();
+//			break;
 		}
 	}
 

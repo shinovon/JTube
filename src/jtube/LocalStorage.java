@@ -204,34 +204,32 @@ public class LocalStorage {
 		saveSubscriptions();
 	}
 	
-	// TODO
-	
-	public static void addHistory(String id, String name) {
-	}
-	
-	public static boolean isWatched(String id) {
-		return false;
-	}
-	
-	public static String[] getHistory(int tab) {
-		return new String[0];
-	}
-	
-	public static void clearHistory() {
-	}
-	
-	public static void addLiked(String id, String name) {
-	}
-	
-	public static boolean isLiked(String id) {
-		return false;
-	}
-	
-	public static String[] getLiked(int tab) {
-		return new String[0];
-	}
-	
-	public static void removeLiked(String id) {
-	}
+//	public static void addHistory(String id, String name) {
+//	}
+//	
+//	public static boolean isWatched(String id) {
+//		return false;
+//	}
+//	
+//	public static String[] getHistory(int tab) {
+//		return new String[0];
+//	}
+//	
+//	public static void clearHistory() {
+//	}
+//	
+//	public static void addLiked(String id, String name) {
+//	}
+//	
+//	public static boolean isLiked(String id) {
+//		return false;
+//	}
+//	
+//	public static String[] getLiked(int tab) {
+//		return new String[0];
+//	}
+//	
+//	public static void removeLiked(String id) {
+//	}
 
 }

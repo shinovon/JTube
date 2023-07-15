@@ -72,8 +72,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	private static Image homeSelImg;
 	private static Image subsImg;
 	private static Image subsSelImg;
-	private static Image libImg;
-	private static Image libSelImg;
+//	private static Image libImg;
+//	private static Image libSelImg;
 
 	private static boolean init;
 	protected static boolean topBar;
@@ -156,8 +156,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		homeSelImg = Image.createImage("/homesel.png");
 		subsImg = Image.createImage("subs.png");
 		subsSelImg = Image.createImage("subssel.png");
-		libImg = Image.createImage("/lib.png");
-		libSelImg = Image.createImage("/libsel.png");
+//		libImg = Image.createImage("/lib.png");
+//		libSelImg = Image.createImage("/libsel.png");
 		if(Settings.amoled) {
 			amoledImgs = true;
 			searchImg = Util.invert(searchImg);
@@ -167,8 +167,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			homeSelImg = Util.invert(homeSelImg);
 			subsImg = Util.invert(subsImg);
 			subsSelImg = Util.invert(subsSelImg);
-			libImg = Util.invert(libImg);
-			libSelImg = Util.invert(libSelImg);
+//			libImg = Util.invert(libImg);
+//			libSelImg = Util.invert(libSelImg);
 		}
 	}
 	
@@ -325,10 +325,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
 						g.drawLine(0, h-topBarHeight, w, h-topBarHeight);
 			
-						int f = w / 3;
+						int f = w / 2;
 						g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-36, 0);
 						g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-36, 0);
-						g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
+//						g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
 					}
 				}
 				if(Settings.fullScreen) {
@@ -641,7 +641,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return true;
 		}
 		if(i == -4) {
-			if(ui.currentTab < 2)
+			if(ui.currentTab < 1)
 			selectTab(ui.currentTab+1);
 			return true;
 		}
@@ -798,14 +798,15 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return;
 		}
 		if(y > lastH-topBarHeight) {
-			int f = (int) (lastW / 3F);
+			int f = lastW / 2;
 			if(x > 0 && x < f) {
 				selectTab(0);
 			} else if(x > f && x < f*2) {
 				selectTab(1);
-			} else if(x > f*2 && x < lastW) {
-				selectTab(2);
 			}
+//			} else if(x > f*2 && x < lastW) {
+//				selectTab(2);
+//			}
 			return;
 		}
 		super.tap(x, y - topBarHeight, time);
@@ -833,9 +834,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				ui.currentTab = 1;
 				ui.setScreen(ui.subsScr);
-				break;
-			case 2:
-				
 				break;
 			}
 		}
@@ -872,7 +870,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 
 	protected void search(String s) {
 		new Thread(new RunnableTask(s, RunnableTask.SEARCH)).start();
-		//searchText = "";
 	}
 
 	protected void openSearchTextBox() {

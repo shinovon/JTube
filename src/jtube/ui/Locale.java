@@ -317,14 +317,14 @@ public class Locale implements LocaleConstants {
 				return "Unsubscribe";
 			case TITLE_Subscriptions:
 				return "Subscriptions";
-			case TITLE_History:
-				return "History";
-			case TITLE_Liked:
-				return "Liked videos";
-			case CMD_Like:
-				return "Like";
-			case CMD_Unlike:
-				return "Unlike";
+//			case TITLE_History:
+//				return "History";
+//			case TITLE_Liked:
+//				return "Liked videos";
+//			case CMD_Like:
+//				return "Like";
+//			case CMD_Unlike:
+//				return "Unlike";
 			case BTN_Videos:
 				return "Videos";
 			case CMD_ChannelsList:
@@ -537,14 +537,14 @@ public class Locale implements LocaleConstants {
 				return "Отписаться";
 			case TITLE_Subscriptions:
 				return "Подписки";
-			case TITLE_History:
-				return "История";
-			case TITLE_Liked:
-				return "Понравившиеся";
-			case CMD_Like:
-				return "Понравивилось";
-			case CMD_Unlike:
-				return "Разонравилось"; // ??
+//			case TITLE_History:
+//				return "История";
+//			case TITLE_Liked:
+//				return "Понравившиеся";
+//			case CMD_Like:
+//				return "Понравивилось";
+//			case CMD_Unlike:
+//				return "Разонравилось"; // ??
 			case BTN_Videos:
 				return "Видео";
 			case CMD_ChannelsList:

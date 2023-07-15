@@ -43,7 +43,6 @@ import jtube.Constants;
 import jtube.Errors;
 import jtube.InvidiousException;
 import jtube.Loader;
-import jtube.LocalStorage;
 import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.Util;
@@ -79,7 +78,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public SubscriptionsFeedScreen subsScr;
 	
 	public int currentTab;
-	public Stack[] screenStacks = new Stack[] { new Stack(), new Stack(), new Stack() };
+	public Stack[] screenStacks = new Stack[] { new Stack(), new Stack() };
 	
 	private SettingsForm settingsForm;
 
@@ -602,9 +601,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			&& ((VideoModel)model).videoId.equals(((VideoModel)((VideoScreen)current).getModel()).videoId)) {
 			return;
 		}
-		if(model instanceof VideoModel) {
-			LocalStorage.addHistory(((VideoModel)model).videoId, ((VideoModel)model).title);
-		}
+//		if(model instanceof VideoModel) {
+//			LocalStorage.addHistory(((VideoModel)model).videoId, ((VideoModel)model).title);
+//		}
 		if(model instanceof PlaylistModel) {
 			if(((PlaylistModel) model).videoCount > PLAYLIST_VIDEOS_LIMIT) {
 				msg(">" + PLAYLIST_VIDEOS_LIMIT + " videos!!!");
@@ -791,10 +790,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void loadSubs() {
 		if(subsScr != null) return;
 		subsScr = new SubscriptionsFeedScreen();
-	}
-
-	public void loadLib() {
-		
 	}
 
 }
