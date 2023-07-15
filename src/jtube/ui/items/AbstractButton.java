@@ -24,6 +24,7 @@ package jtube.ui.items;
 import javax.microedition.lcdui.Canvas;
 
 import jtube.ui.UIItem;
+import jtube.ui.screens.NavigationScreen;
 
 public abstract class AbstractButton extends UIItem {
 	
@@ -41,6 +42,10 @@ public abstract class AbstractButton extends UIItem {
 	
 	protected void tap(int x, int y, int time) {
 		unhover();
+		if(contextActions() != null && getScreen() instanceof NavigationScreen && time >= 500 && time <= 5000) {
+			((NavigationScreen) getScreen()).openItemMenu(this);
+			return;
+		}
 		if(time <= 200 && time >= 5) {
 			action();
 		}

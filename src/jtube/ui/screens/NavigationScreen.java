@@ -98,20 +98,21 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	private boolean editorHidden = true;
 
 	private boolean search;
-	private boolean menu;
 
+	protected String[] menuOptions;
+	private int menuSelection;
+	private boolean menu;
 	private int menuW;
 	private int menuH;
 	
 	protected boolean hasSearch;
-	protected String[] menuOptions;
-
-	private int menuSelection;
 
 	private String[] searchSuggestions;
 
-	private UIItem item;
 	private String[] itemOptions;
+	private boolean itemMenu;
+	private int itemMenuH;
+	private UIItem item;
 
 	
 	protected NavigationScreen(String label) {
@@ -249,8 +250,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(lastW != w || lastH != h) {
 			lastW = w;
 			lastH = h;
+			menuW = w-w/4;
 			if(menuOptions != null) {
-				menuW = w-w/4;
 				menuH = (menuOptions.length + (itemOptions != null ? itemOptions.length : 0)) * (mediumfontheight+8);
 			}
 			setEditorPositions();
@@ -386,6 +387,22 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				g.setColor(AppUI.getColor(COLOR_MAINBORDER));
 				g.drawRect(xx, y2, menuW, menuH);
+			} else if(itemMenu) {
+				int xx = (w-menuW) >> 1;
+				int yy = (h-itemMenuH) >> 1;
+				g.setFont(mediumfont);
+				g.setColor(AppUI.getColor(COLOR_MAINBG));
+				g.fillRect(xx, yy, menuW, itemMenuH);
+				int y2 = yy;
+				for(int i = 0; i < itemOptions.length; i++) {
+					g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
+					g.drawLine(xx+4, yy, xx+menuW-8, yy);
+					g.setColor(AppUI.getColor(COLOR_MAINFG));
+					g.drawString(Util.getOneLine(itemOptions[i], mediumfont, menuW-8), xx + 4, yy+4, 0);
+					yy += 8 + mediumfontheight;
+				}
+				g.setColor(AppUI.getColor(COLOR_MAINBORDER));
+				g.drawRect(xx, y2, menuW, itemMenuH);
 			}
 			return;
 		}
@@ -406,6 +423,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						}
 					}
 					g.fillRect(xx, yy, menuW, menuH);
+					int y2 = yy;
 					if(itemOptions != null) {
 						for(int i = 0; i < itemOptions.length; i++) {
 							g.setColor(AppUI.getColor(COLOR_MAINFG));
@@ -424,6 +442,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.drawString(menuOptions[i], xx + 4, yy+4, 0);
 						yy += ih;
 					}
+					g.setColor(AppUI.getColor(COLOR_MAINBORDER));
+					g.drawRect(xx, y2, menuW, itemMenuH);
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
 				g.fillRect(0, h-softBarHeight, w, softBarHeight);
@@ -464,6 +484,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}
 				}
 				g.fillRect(xx, yy, menuW, menuH);
+				int y2 = yy;
 				if(itemOptions != null) {
 					for(int i = 0; i < itemOptions.length; i++) {
 						g.setColor(AppUI.getColor(COLOR_MAINFG));
@@ -482,6 +503,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawString(menuOptions[i], xx + 4, yy+4, 0);
 					yy += ih;
 				}
+				g.drawRect(xx, y2, menuW, itemMenuH);
 			}
 		}
 	}
@@ -692,14 +714,19 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				menu = false;
 				return;
 			}
-			// TODO
-			for(int i = 0; i < menuOptions.length; i++) {
-				if(y < yy+(i+1)*(mediumfontheight+8)) {
-					menuAction(i);
-					menu = false;
-					break;
-				}
+			menuAction((y-yy)/(mediumfontheight+8));
+			menu = false;
+			return;
+		}
+		if(itemMenu) {
+			int xx = (lastW-menuW) >> 1;
+			int yy = (lastH-itemMenuH) >> 1;
+			if(x < xx || y < yy || x > xx+menuW || y > yy+itemMenuH) {
+				itemMenu = false;
+				return;
 			}
+			item.contextAction((y-yy)/(mediumfontheight+8));
+			itemMenu = false;
 			return;
 		}
 		if(y < topBarHeight) {
@@ -987,6 +1014,20 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void openItemMenu(UIItem item) {
+		this.item = item;
+		if(item != null && item.contextActions() != null) {
+			int[] contextActions = getCurrentItem().contextActions();
+			itemOptions = new String[contextActions.length];
+			for(int i = 0; i < contextActions.length; i++) {
+				itemOptions[i] = Locale.s(contextActions[i]);
+			}
+			itemMenuH = itemOptions.length * (mediumfontheight+8);
+		}
+		itemMenu = true;
+		
 	}
 	
 }
