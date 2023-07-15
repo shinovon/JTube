@@ -25,6 +25,8 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	private String[] subscriptions;
 	private int idx;
 	private Object lock = new Object();
+	private Thread thread;
+	private boolean loaded;
 
 	public SubscriptionsFeedScreen() {
 		super(Locale.s(TITLE_Subscriptions));
@@ -35,16 +37,19 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	
 	protected void show() { 
 		super.show();
-		if((lastCount != LocalStorage.getSubsciptions().length || allVideos.isEmpty()) && !busy) {
-			new Thread(this).start();
+		if((lastCount != LocalStorage.getSubsciptions().length || !loaded) && !busy) {
+			thread = new Thread(this);
+			thread.start();
 			lastCount = LocalStorage.getSubsciptions().length;
 		}
 	}
 	
 	protected void hide() {
 		super.hide();
+		if(thread != null) {
+			thread.interrupt();
+		}
 		Loader.stop();
-		allVideos.removeAllElements();
 		for(int i = 0; i < items.size(); i++) {
 			Object o = items.elementAt(i);
 			if(o instanceof VideoItem) {
@@ -55,6 +60,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 
 	public void run() {
 		busy = true;
+		loaded = false;
 		subscriptions = LocalStorage.getSubsciptions();
 		idx = 0;
 		try {
@@ -91,6 +97,8 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 				if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
 				add(v.makeListItem());
 			}
+			allVideos.removeAllElements();
+			loaded = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
