@@ -43,6 +43,7 @@ import jtube.Constants;
 import jtube.Errors;
 import jtube.InvidiousException;
 import jtube.Loader;
+import jtube.LocalStorage;
 import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.Util;
@@ -552,14 +553,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void exit() {
-		try {
-			String[] a = RecordStore.listRecordStores();
-			for(int i = 0; i < a.length; i++) {
-				if(a[i].equals(CONFIG_RECORD_NAME) || !a[i].startsWith("jС")) continue;
-				RecordStore.deleteRecordStore(a[i]);
-			}
-		} catch (Exception e) {
-		}
+		LocalStorage.clearCache();
 		App.midlet.notifyDestroyed();
 	}
 

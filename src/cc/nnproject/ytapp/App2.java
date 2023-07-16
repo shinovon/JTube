@@ -24,6 +24,7 @@ package cc.nnproject.ytapp;
 import javax.microedition.midlet.MIDlet;
 
 import jtube.App;
+import jtube.LocalStorage;
 
 public class App2 extends MIDlet {
 
@@ -32,6 +33,7 @@ public class App2 extends MIDlet {
 
 	protected void destroyApp(boolean b) {
 		running = false;
+		LocalStorage.clearCache();
 	}
 
 	protected void pauseApp() {}

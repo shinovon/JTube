@@ -98,6 +98,17 @@ public class LocalStorage {
 		}
 	}
 	
+	public static void clearCache() {
+		try {
+			String[] a = RecordStore.listRecordStores();
+			for(int i = 0; i < a.length; i++) {
+				if(!a[i].startsWith("jС")) continue;
+				RecordStore.deleteRecordStore(a[i]);
+			}
+		} catch (Exception e) {
+		}
+	}
+	
 	public static void init() {
 		initSubscriptions();
 	}

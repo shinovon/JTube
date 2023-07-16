@@ -544,6 +544,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 
 	public void commandAction(Command c, Item item) {
 		if(c == resetCmd) {
+			LocalStorage.clearCache();
 			LocalStorage.clearAllData();
 			Settings.removeConfig();
 			App.midlet.notifyDestroyed();
