@@ -28,6 +28,7 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.JSON;
@@ -63,11 +64,10 @@ public class Settings implements Constants {
 	public static boolean amoled;
 	public static boolean fastScrolling;
 	public static boolean smallPreviews = true;
-	public static boolean searchBar = true;
 	public static boolean autoStart;
 	public static boolean fullScreen = true;
-	public static boolean channelBanner = true;
-	public static boolean searchSuggestions = true;
+	public static boolean channelBanner;
+	public static boolean searchSuggestions;
 	public static boolean powerSaving;
 	public static boolean lazyLoad = true;
 	public static String[] inputLanguages = new String[] {"en", "ru"};
@@ -94,7 +94,7 @@ public class Settings implements Constants {
 	}
 	
 
-	public static void loadConfig() {
+	public static void loadConfig(Canvas testCanvas) {
 		customLocale = Locale.l;
 		fullScreen = true;
 		/*
@@ -232,7 +232,6 @@ public class Settings implements Constants {
 				}
 				Settings.downloadDir = downloadDir;
 				watchMethod = PlatformUtils.isSymbian3Based()/* || PlatformUtils.isBada() || PlatformUtils.isS603rd()*/ ? 1 : 0;
-				searchBar = false;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
 					httpStream = true;
@@ -240,6 +239,7 @@ public class Settings implements Constants {
 					videoPreviews = false;
 					serverstream = stream;
 					fastScrolling = true;
+					powerSaving = true;
 				} else {
 					if((!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3orLower()) || PlatformUtils.isBada()) {
 						httpStream = true;
@@ -248,7 +248,6 @@ public class Settings implements Constants {
 					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isSymbian93() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
-						searchBar = true;
 					}
 					if(PlatformUtils.isPhoneme()) {
 						asyncLoading = true;
@@ -263,9 +262,6 @@ public class Settings implements Constants {
 				if(PlatformUtils.isAsha()) {
 					serverstream = stream;
 					videoPreviews = true;
-					if(PlatformUtils.isAshaFullTouch()) {
-						searchBar = true;
-					}
 				} else if(PlatformUtils.isS40() /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
 					serverstream = stream;
 					videoPreviews = true;
@@ -280,6 +276,10 @@ public class Settings implements Constants {
 				} else {
 					videoRes = "360p";
 				}
+			}
+			if(testCanvas.hasPointerEvents()) {
+				channelBanner = true;
+				searchSuggestions = true;
 			}
 			saveConfig();
 		} else {
@@ -306,7 +306,6 @@ public class Settings implements Constants {
 				amoled = j.getBoolean("amoled", amoled);
 				smallPreviews = j.getBoolean("smallPreviews", smallPreviews);
 				fastScrolling = j.getBoolean("fastScrolling", fastScrolling);
-				searchBar = j.getBoolean("searchBar", searchBar);
 				autoStart = j.getBoolean("autoStart", autoStart);
 				fullScreen = j.getBoolean("fullScreen", fullScreen);
 				keyboard = j.getInt("keyboard", keyboard);
@@ -323,6 +322,7 @@ public class Settings implements Constants {
 				channelBanner = j.getBoolean("channelBanner", channelBanner);
 				searchSuggestions = j.getBoolean("searchSuggestions", searchSuggestions);
 				powerSaving = j.getBoolean("powerSaving", powerSaving);
+				lazyLoad = j.getBoolean("lazyLoad", lazyLoad);
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
 				if(i < 2) {
@@ -348,7 +348,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v2");
+			j.put("v", "v3");
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
@@ -370,7 +370,6 @@ public class Settings implements Constants {
 			j.put("amoled", amoled);
 			j.put("smallPreviews", smallPreviews);
 			j.put("fastScrolling", fastScrolling);
-			j.put("searchBar", searchBar);
 			j.put("autoStart", autoStart);
 			j.put("fullScreen", fullScreen);
 			j.put("keyboard", keyboard);
@@ -379,6 +378,7 @@ public class Settings implements Constants {
 			j.put("channelBanner", channelBanner);
 			j.put("searchSuggestions", searchSuggestions);
 			j.put("powerSaving", powerSaving);
+			j.put("lazyLoad", lazyLoad);
 			JSONArray inputLanguagesJson = new JSONArray();
 			for(int i = 0; i < inputLanguages.length; i++) {
 				inputLanguagesJson.add(inputLanguages[i]);
@@ -399,12 +399,8 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return !PlatformUtils.isSymbianJ9() &&
-				!(PlatformUtils.isSymbian() && PlatformUtils.getS60().startsWith("3")) && 
-				(PlatformUtils.isS30Plus() || 
-						App.startWidth < 176 || 
-						PlatformUtils.startMemory < 1024 * 1024 ||
-						(!PlatformUtils.isBada() && PlatformUtils.isSamsung()));
+		return !PlatformUtils.isSymbianJ9() && !(PlatformUtils.isSymbian()) && 
+				(App.startWidth < 176 || PlatformUtils.startMemory <= 1024 * 1024);
 	}
 	
 	public static void registerPush() {

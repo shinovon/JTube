@@ -801,7 +801,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			int f = lastW / 2;
 			if(x > 0 && x < f) {
 				selectTab(0);
-			} else if(x > f && x < f*2) {
+			} else if(x > f && x < lastW) {
 				selectTab(1);
 			}
 //			} else if(x > f*2 && x < lastW) {

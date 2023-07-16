@@ -197,7 +197,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void setScreen(UIScreen s) {
 		removeCommands();
-		display(null);
 		if(current != null) {
 			current.hide();
 		}
@@ -238,6 +237,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				mainScr = new HomeScreen();
 			}
 			mainScr.busy = true;
+			setScreen(mainScr);
+			display(null);
 			if(Settings.startScreen == 0) {
 				loadTrends();
 			} else {
@@ -258,7 +259,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			App.error(this, Errors.AppUI_loadForm, e);
 		}
 		mainScr.busy = false;
-		setScreen(mainScr);
 	}
 
 	public void init() {

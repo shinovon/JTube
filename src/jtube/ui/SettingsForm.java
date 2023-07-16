@@ -78,7 +78,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final String[] DEBUG_CHECKS = new String[] { 
 			"Debug render",
 			"Async loading",
-			"Fast scrolling"
+			"Fast scrolling",
+			"Lazy load"
 			};
 	static final String[] PLAYBACK_METHODS = new String[] { 
 			Locale.s(SET_Browser),
@@ -249,6 +250,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		debugChoice.setSelectedIndex(0, Settings.renderDebug);
 		debugChoice.setSelectedIndex(1, Settings.asyncLoading);
 		debugChoice.setSelectedIndex(2, Settings.fastScrolling);
+		debugChoice.setSelectedIndex(3, Settings.lazyLoad);
 		miscChoice.setSelectedIndex(0, Settings.rmsPreviews);
 		miscChoice.setSelectedIndex(1, Settings.powerSaving);
 		try {
@@ -336,6 +338,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.renderDebug = debugChoice.isSelected(0);
 			Settings.asyncLoading = debugChoice.isSelected(1);
 			Settings.fastScrolling = debugChoice.isSelected(2);
+			Settings.lazyLoad = debugChoice.isSelected(3);
 			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.keyboard = keyboardChoice.getSelectedIndex();
 			String apiProxy = apiProxyText.getString();

@@ -142,7 +142,7 @@ public class App implements Constants, Runnable {
 		}
 		Settings.region = Settings.region.toUpperCase();
 		tasksThread.start();
-		Settings.loadConfig();
+		Settings.loadConfig(splash);
 		Locale.init();
 		startUIThread();
 	}
@@ -517,15 +517,14 @@ public class App implements Constants, Runnable {
 		String s = str + " \n\n" + getThreadInfo(o);
 		Alert a = new Alert("", s, null, AlertType.WARNING);
 		a.setTimeout(-2);
-		Display.getDisplay(midlet).setCurrent(a);
+		displayAlert(a);
 	}
 
 	public static void error(Object o, String str) {
 		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " \n\n" + 
 				getThreadInfo(o);
 		Alert a = new Alert("", s, null, AlertType.ERROR);
-		a.setTimeout(-2);
-		Display.getDisplay(midlet).setCurrent(a);
+		displayAlert(a);
 	}
 
 	public static void error(Object o, int i, Throwable e) {
@@ -552,6 +551,14 @@ public class App implements Constants, Runnable {
 				(str2 != null ? " \n" + str2 : "");
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		a.setTimeout(-2);
+		displayAlert(a);
+	}
+	
+	private static void displayAlert(Alert a) {
+		if(inst.ui != null) {
+			inst.ui.display(a);
+			return;
+		}
 		Display.getDisplay(midlet).setCurrent(a);
 	}
 	
