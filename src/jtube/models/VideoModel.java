@@ -177,21 +177,17 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			} else if(Settings.rmsPreviews) {
 				if(Settings.isLowEndDevice()) {
 					LocalStorage.cacheThumbnail(videoId, b);
-					if(item != null && index <= 1 && index != -1) {
-						Image img = Image.createImage(b, 0, b.length);
-						b = null;
-						Util.gc();
-						item.setImage(customResize(img));
-					}
+					Image img = Image.createImage(b, 0, b.length);
+					b = null;
+					Util.gc();
+					item.setImage(customResize(img));
 					b = null;
 				} else {
 					tempImgBytes = b;
 					App.inst.schedule(this);
-					if(item != null && index <= 2 && index != -1) {
-						Image img = Image.createImage(b, 0, b.length);
-						Util.gc();
-						item.setImage(customResize(img));
-					}
+					Image img = Image.createImage(b, 0, b.length);
+					Util.gc();
+					item.setImage(customResize(img));
 				}
 			} else {
 				Image img = Image.createImage(b, 0, b.length);

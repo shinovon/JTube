@@ -33,7 +33,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
-import javax.microedition.rms.RecordStore;
 
 import cc.nnproject.json.AbstractJSON;
 import cc.nnproject.json.JSONArray;
