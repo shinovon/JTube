@@ -88,7 +88,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	protected boolean wasHidden;
 
 	private int topBarHeight = 48;
-	private int softBarHeight = 24;
+	private int softBarHeight = smallfontheight+4;
 	
 	protected String searchText = "";
 
