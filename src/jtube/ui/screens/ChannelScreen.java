@@ -207,8 +207,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		try {
 			if(!channel.extended) {
 				channel.extend();
-				init();
 			}
+			init();
 			if(Settings.videoPreviews) {
 				Loader.add(channel);
 				Loader.start();
