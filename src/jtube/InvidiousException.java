@@ -1,3 +1,4 @@
+package jtube;
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -19,35 +20,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+import cc.nnproject.json.JSONObject;
 
-import javax.microedition.midlet.MIDlet;
+public class InvidiousException extends RuntimeException {
 
-import jtube.App;
-import jtube.LocalStorage;
+	private JSONObject json;
+	private String url;
+	private String msg2;
 
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
+	public InvidiousException(JSONObject j) {
+		super(j.getNullableString("error"));
+		json = j;
 	}
 
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
-		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	public InvidiousException(JSONObject j, String msg, String url, String msg2) {
+		super(msg);
+		json = j;
+		this.url = url;
+		this.msg2 = msg2;
+	}
+	
+	public JSONObject getJSON() {
+		return json;
+	}
+	
+	public String toString() {
+		return "API error: " + getMessage();
+	}
+	
+	public String toErrMsg() {
+		boolean j = json != null;
+		boolean bt = j && json.has("backtrace");
+		boolean u = url != null;
+		boolean m2 = msg2 != null;
+		return  (!bt && j ? "Raw json: " + json.build() : "") + (u ? " \nAPI request: " + url : "") + (m2 ? " \n" + msg2 : "") + (bt ? " \nBacktrace: " + json.getString("backtrace") : "");
+	}
+	
+	public String getUrl() {
+		return url;
 	}
 
 }

@@ -19,35 +19,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.nokia_extensions;
 
-import javax.microedition.midlet.MIDlet;
+import cc.nnproject.utils.PlatformUtils;
 
-import jtube.App;
-import jtube.LocalStorage;
-
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
-	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+public class TextEditorUtil {
+	
+	private static boolean supported;
+	
+	public static void init() {
+		if((PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch()) && !PlatformUtils.isKemulator) {
+			try {
+				Class.forName("com.nokia.mid.ui.TextEditor");
+				supported = true;
+			} catch (Exception e) {
+			} catch (Error e) {
+			}
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	}
+	
+	public static TextEditorInst createTextEditor(String text, int maxSize, int constraints, int width, int height) {
+		if(!supported) return null;
+		try {
+			return TextEditorInvoker.createTextEditorInst(text, maxSize, constraints, width, height);
+		} catch (Throwable e) {
+		}
+		return null;
+	}
+	
+	public static boolean isSupported() {
+		return supported;
 	}
 
 }

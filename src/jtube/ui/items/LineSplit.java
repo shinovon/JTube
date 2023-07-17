@@ -19,35 +19,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.items;
 
-import javax.microedition.midlet.MIDlet;
+import javax.microedition.lcdui.Graphics;
 
-import jtube.App;
-import jtube.LocalStorage;
+import jtube.ui.AppUI;
+import jtube.ui.UIConstants;
+import jtube.ui.UIItem;
 
-public class App2 extends MIDlet {
+public class LineSplit extends UIItem implements UIConstants {
 
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
+	public void paint(Graphics g, int w, int x, int y, int sc) {
+		g.setColor(AppUI.getColor(COLOR_ITEMBORDER));
+		g.drawLine(x, y, w-x, y);
 	}
 
-	protected void pauseApp() {}
+	public int getHeight() {
+		return 1;
+	}
 
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
-		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	protected void layout(int w) {
+
+	}
+
+	public boolean canBeFocused() {
+		return false;
 	}
 
 }

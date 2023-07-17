@@ -1,3 +1,4 @@
+package jtube;
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -19,35 +20,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+import java.io.IOException;
 
-import javax.microedition.midlet.MIDlet;
+public class NetRequestException extends IOException {
+	
+	private String url;
+	private IOException cause;
 
-import jtube.App;
-import jtube.LocalStorage;
-
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
+	public NetRequestException(IOException e, String url) {
+		super(url);
+		cause = e;
+		this.url = url;
 	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
-		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	
+	public String getUrl() {
+		return url;
+	}
+	
+	public IOException getTheCause() {
+		return cause;
 	}
 
 }

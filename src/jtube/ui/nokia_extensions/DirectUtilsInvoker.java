@@ -19,35 +19,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.nokia_extensions;
 
-import javax.microedition.midlet.MIDlet;
+import javax.microedition.lcdui.Font;
 
-import jtube.App;
-import jtube.LocalStorage;
+import com.nokia.mid.ui.DirectUtils;
 
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
-	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+class DirectUtilsInvoker {
+	
+	static Font getFont(int face, int style, int height) {
+		try {
+			return DirectUtils.getFont(face, style, height);
+		} catch (Throwable e) {
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+		return null;
+	}
+	
+	static void init() {
+		DirectUtils.getFont(0, 0, 12);
 	}
 
 }

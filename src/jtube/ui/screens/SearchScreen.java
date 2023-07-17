@@ -19,35 +19,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.screens;
 
-import javax.microedition.midlet.MIDlet;
+import jtube.Settings;
+import jtube.ui.Locale;
+import jtube.ui.items.VideoItem;
 
-import jtube.App;
-import jtube.LocalStorage;
+public class SearchScreen extends NavigationScreen {
+	
+	private String query = "";
 
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
+	public SearchScreen(String q) {
+		super(Locale.s(TITLE_SearchQuery));
+		setSearchText(query = q);
+		menuOptions = !topBar ? new String[] {
+				Locale.s(CMD_Search),
+				Locale.s(CMD_Settings),
+				Locale.s(CMD_FuncMenu)
+		} : new String[] {
+				Locale.s(CMD_Settings),
+				Locale.s(CMD_FuncMenu)
+		};
 	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+	
+	protected void hide() {
+		super.hide();
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).unload();
+			}
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	}
+	
+	public String getQuery() {
+		return query;
+	}
+	
+	protected void menuAction(int action) {
+		if(!topBar) action--;
+		switch(action) {
+		case -1:
+			openSearchTextBox();
+			break;
+		default:
+			super.menuAction(action);
+		}
 	}
 
 }

@@ -19,35 +19,66 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.items;
 
-import javax.microedition.midlet.MIDlet;
+import javax.microedition.lcdui.Canvas;
 
-import jtube.App;
-import jtube.LocalStorage;
+import jtube.ui.UIItem;
+import jtube.ui.screens.NavigationScreen;
 
-public class App2 extends MIDlet {
+public abstract class AbstractButton extends UIItem {
+	
+	protected boolean hover;
 
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
+	protected abstract void action();
+	
+	protected void press(int x, int y) {
+		hover();
 	}
-
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
+	
+	protected void release(int x, int y) {
+		unhover();
+	}
+	
+	protected void tap(int x, int y, int time) {
+		unhover();
+		if(contextActions() != null && getScreen() instanceof NavigationScreen && time >= 500 && time <= 5000) {
+			((NavigationScreen) getScreen()).openItemMenu(this);
 			return;
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+		if(time <= 200 && time >= 5) {
+			action();
+		}
+	}
+
+	protected boolean keyPress(int i) {
+		if(i == -5 || i == Canvas.KEY_NUM5) {
+			hover();
+			action();
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean keyRelease(int i) {
+		if(i == -5 || i == Canvas.KEY_NUM5) {
+			unhover();
+			return true;
+		}
+		return false;
+	}
+	
+	public void defocus() {
+		super.defocus();
+		hover = false;
+	}
+
+	protected void hover() {
+		hover = true;
+	}
+
+	protected void unhover() {
+		hover = false;
 	}
 
 }

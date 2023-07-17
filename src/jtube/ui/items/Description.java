@@ -19,35 +19,54 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.ytapp;
+package jtube.ui.items;
 
-import javax.microedition.midlet.MIDlet;
+import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.Graphics;
 
-import jtube.App;
-import jtube.LocalStorage;
+import jtube.Util;
+import jtube.ui.AppUI;
+import jtube.ui.UIConstants;
+import jtube.ui.UIItem;
 
-public class App2 extends MIDlet {
-
-	private static boolean started;
-	public boolean running;
-
-	protected void destroyApp(boolean b) {
-		running = false;
-		LocalStorage.clearCache();
+public class Description extends UIItem implements UIConstants {
+	
+	private String[] textArr;
+	private String text;
+	private Font font;
+	
+	private int h;
+	private int lastW;
+	
+	public Description(String s, Font f) {
+		this.font = f;
+		this.text = s;
 	}
 
-	protected void pauseApp() {}
-
-	protected void startApp() {
-		if(started) {
-			App.checkStartArguments();
-			return;
+	public void paint(Graphics g, int w, int x, int y, int sc) {
+		if(textArr == null) return;
+		g.setFont(font);
+		y+=8;
+		int fh = 4+font.getHeight();
+		g.setColor(AppUI.getColor(COLOR_MAINFG));
+		for(int i = 0; i < textArr.length; i++) {
+			if(y+fh > 0 && y < ui.getHeight()) {
+				g.drawString(textArr[i], x + 8, y, 0);
+			}
+			y+=fh;
 		}
-		App.midlet = this;
-		started = true;
-		running = true;
-		App.inst = new App();
-		App.inst.startApp();
+	}
+
+	public int getHeight() {
+		return h;
+	}
+
+	protected void layout(int w) {
+		if(w == lastW) return;
+		lastW = w;
+		h = 8;
+		textArr = Util.getStringArray(text, w - 20, font);
+		h += textArr.length * (font.getHeight() + 4);
 	}
 
 }
