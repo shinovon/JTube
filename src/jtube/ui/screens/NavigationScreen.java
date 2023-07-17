@@ -154,8 +154,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		menuImg = Image.createImage("/menu.png");
 		homeImg = Image.createImage("/home.png");
 		homeSelImg = Image.createImage("/homesel.png");
-		subsImg = Image.createImage("subs.png");
-		subsSelImg = Image.createImage("subssel.png");
+		subsImg = Image.createImage("/subs.png");
+		subsSelImg = Image.createImage("/subssel.png");
 //		libImg = Image.createImage("/lib.png");
 //		libSelImg = Image.createImage("/libsel.png");
 		if(Settings.amoled) {
@@ -262,7 +262,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		if(search || topBar) {
 			g.translate(0, topBarHeight);
-			if(!search) _paint(g, w, h-(topBarHeight*2));
+			if(!search) _paint(g, w, h-(this instanceof VideoScreen ? topBarHeight : topBarHeight*2));
 			g.translate(0, -topBarHeight);
 			// top bar
 			g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
