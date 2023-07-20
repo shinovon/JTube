@@ -28,7 +28,8 @@ try {
 
 ```
 You will need:
-Symbian^3 SDK or S40 5th Edition SDK with Symbian^3 libraries imported
+Any J2ME SDK (e. g WTK, S40 5th, etc)
+Symbian^3 JAR libraries
 JDK 1.5.0
 Last version of Eclipse SDK
 MTJ plugin 2.0.1
@@ -46,7 +47,7 @@ Click on "Create package"
 
 Check the "Use deployment directory"<br>
 
-Uncheck "Obfuscate the code" if you don't want to optimize code<br>
+To use "Obfuscate the code" option you must set up proguard in preferences first<br>
 
 Then press "Finish"<br>
 
