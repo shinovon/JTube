@@ -28,8 +28,8 @@ try {
 
 ```
 You will need:
-S40 5th Edition SDK
-JDK 1.5.0 (to run S40 emulator)
+Symbian^3 SDK or S40 5th Edition SDK with Symbian^3 libraries imported
+JDK 1.5.0
 Last version of Eclipse SDK
 MTJ plugin 2.0.1
 ```
