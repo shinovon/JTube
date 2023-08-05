@@ -20,7 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -37,19 +36,12 @@ import jtube.ui.Locale;
 
 public class Util implements Constants {
 	
-	private static int buffer_size;
-	
 	private static String charset = "UTF-8";
 	private static String alt_charset = "ISO-8859-1";
 
 	private static Object connectionLock = new Object();
 	
 	static {
-		try {
-			buffer_size = Settings.isLowEndDevice() ? 512 : 4096;
-		} catch (Throwable t) {
-			buffer_size = 1024;
-		}
 		String s = System.getProperty("microedition.encoding");
 		if(s != null) {
 			alt_charset = s;
@@ -74,7 +66,30 @@ public class Util implements Constants {
 		if(!test) {
 			charset = alt_charset;
 		}
-	} 
+	}
+	
+	private static byte[] downloadBytes(InputStream inputStream, int initialSize, int bufferSize, int expandSize) throws IOException {
+		if (initialSize <= 0) initialSize = bufferSize;
+		byte[] buf = new byte[initialSize];
+		int count = 0;
+		byte[] readBuf = new byte[bufferSize];
+		int readLen;
+		while ((readLen = inputStream.read(readBuf)) != -1) {
+			if(count + readLen > buf.length) {
+				byte[] newbuf = new byte[count + expandSize];
+				System.arraycopy(buf, 0, newbuf, 0, count);
+				buf = newbuf;
+			}
+			System.arraycopy(readBuf, 0, buf, count, readLen);
+			count += readLen;
+		}
+		if(buf.length == count) {
+			return buf;
+		}
+		byte[] res = new byte[count];
+		System.arraycopy(buf, 0, res, 0, count);
+		return res;
+	}
 
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
@@ -84,7 +99,6 @@ public class Util implements Constants {
 		if(isLoader) {
 			il = (LoaderThread) Thread.currentThread();
 		}
-		ByteArrayOutputStream o = null;
 		HttpConnection hc = null;
 		InputStream in = null;
 		try {
@@ -134,13 +148,7 @@ public class Util implements Constants {
 				}
 				Thread.sleep(delay);
 			}
-			int read;
-			o = new ByteArrayOutputStream();
-			byte[] b = new byte[buffer_size];
-			while((read = in.read(b)) != -1) {
-				o.write(b, 0, read);
-			}
-			return o.toByteArray();
+			return downloadBytes(in, (int) hc.getLength(), 1024, 2048);
 		} catch (InterruptedException e) {
 			throw new RuntimeException("interrupted");
 		} finally {
@@ -150,10 +158,6 @@ public class Util implements Constants {
 			}
 			try {
 				if (hc != null) hc.close();
-			} catch (IOException e) {
-			}
-			try {
-				if (o != null) o.close();
 			} catch (IOException e) {
 			}
 		}
