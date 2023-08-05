@@ -598,7 +598,8 @@ public class Locale implements LocaleConstants {
 			} else {
 				return i + " подписчика";
 			}
-			s = Util.replace(s, ".0", "") + " подписчиков";
+			s = Util.replace(s, ".0 ", " ");
+			s += " подписчиков";
 			return s;
 		}
 		if (i >= 1000000) {
