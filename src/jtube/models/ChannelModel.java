@@ -91,9 +91,12 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 			if(authorThumbnails != null) {
 				imageUrl = App.getThumbUrl(authorThumbnails, hasSmallImage ? 36 : 48);
 			}
-			JSONArray authorBanners = o.getNullableArray("authorBanners");
-			if(authorBanners != null) {
-				bannerUrl = App.getSmallestThumbUrl(authorBanners);
+			try {
+				JSONArray authorBanners = o.getNullableArray("authorBanners");
+				if(authorBanners != null) {
+					bannerUrl = App.getSmallestThumbUrl(authorBanners);
+				}
+			} catch (Exception e) {
 			}
 		}
 		subCount = o.getInt("subCount", -1);
