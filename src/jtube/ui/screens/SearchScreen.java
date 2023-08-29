@@ -21,9 +21,7 @@ SOFTWARE.
 */
 package jtube.ui.screens;
 
-import jtube.Settings;
 import jtube.ui.Locale;
-import jtube.ui.items.VideoItem;
 
 public class SearchScreen extends NavigationScreen {
 	

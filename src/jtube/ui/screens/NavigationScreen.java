@@ -254,7 +254,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 	}
 	
-	public void paint(Graphics g, int w, int h) {
+	protected void paint(Graphics g, int w, int h) {
 		if(lastW != w || lastH != h) {
 			lastW = w;
 			lastH = h;

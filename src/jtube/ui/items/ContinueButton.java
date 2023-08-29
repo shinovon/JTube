@@ -7,15 +7,14 @@ import jtube.ui.AppUI;
 import jtube.ui.Locale;
 import jtube.ui.LocaleConstants;
 import jtube.ui.UIConstants;
-import jtube.ui.screens.VideoScreen;
+import jtube.ui.screens.ChannelScreen;
 
-public class RecommendationsButton extends AbstractButton implements UIConstants, Runnable {
+public class ContinueButton extends AbstractButton implements UIConstants, Runnable {
 	
-	private VideoScreen scr;
-	
+	private ChannelScreen scr;
 	private long lastTime;
 
-	public RecommendationsButton(VideoScreen scr) {
+	public ContinueButton(ChannelScreen scr) {
 		this.scr = scr;
 	}
 
@@ -28,13 +27,13 @@ public class RecommendationsButton extends AbstractButton implements UIConstants
 	public void paint(Graphics g, int w, int x, int y, int sc) {
 		g.setFont(mediumfont);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
-		g.drawString(Locale.s(LocaleConstants.TITLE_Recommendations), x + (w >> 1), y + ((36 - mediumfont.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
+		g.drawString(Locale.s(LocaleConstants.BTN_OlderVideos), x + (w >> 1), y + ((36 - mediumfont.getHeight()) >> 1), Graphics.HCENTER | Graphics.TOP);
 		if(inFocus && ui.isKeyInputMode()) {
 			g.setColor(AppUI.getColor(COLOR_ITEM_HIGHLIGHT));
 			g.drawRect(x, y, w-1, 35); 
 		}
 	}
- 
+
 	public int getHeight() {
 		return 36;
 	}
@@ -43,11 +42,11 @@ public class RecommendationsButton extends AbstractButton implements UIConstants
 	}
 
 	public void run() {
-		scr.recommendations();
+		scr.older();
 	}
 	
 	public int getOKLabel() {
-		return LocaleConstants.TITLE_Recommendations;
+		return LocaleConstants.BTN_OlderVideos;
 	}
 
 }

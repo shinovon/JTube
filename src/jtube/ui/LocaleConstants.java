@@ -150,5 +150,6 @@ public interface LocaleConstants {
 	public static final int SET_ImportSubscriptions = 138;
 	public static final int SET_ExportSubscriptions = 139;
 	public static final int TITLE_Recommendations = 140;
+	public static final int BTN_OlderVideos = 141;
 
 }
