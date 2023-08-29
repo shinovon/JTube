@@ -23,6 +23,7 @@ package jtube.ui.screens;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 
@@ -46,7 +47,6 @@ import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
 import jtube.ui.items.ChannelTabs;
 import jtube.ui.items.SubscribeButton;
-import jtube.ui.items.VideoItem;
 
 public class ChannelScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
 
@@ -65,6 +65,16 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	private ChannelTabs tabs;
 
 	private String q;
+
+	private int shownVideos;
+
+	private int totalVideos;
+
+	private String continuation;
+
+	private boolean continuing;
+
+	private VideoModel[] videoModels;
 
 	public ChannelScreen(ChannelModel c) {
 		super(c.author);
@@ -86,13 +96,17 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", "videos(" + VIDEO_FIELDS +
 					(getWidth() >= 320 ? ",viewCount" : "") + ")"
 					);
+			continuation = r.getNullableString("continuation");
 			JSONArray j = r.getArray("videos");
-			int l = j.size();
+			int l = totalVideos = j.size();
+			shownVideos = totalVideos >= LATESTVIDEOS_LIMIT ? LATESTVIDEOS_LIMIT : totalVideos;
+			videoModels = new VideoModel[totalVideos];
 			for(int i = 0; i < l; i++) {
-				UIItem item = parseAndMakeItem(j.getObject(i), false);
-				if(item == null) continue;
-				add(item);
-				if(i >= LATESTVIDEOS_LIMIT) break;
+				VideoModel v = videoModels[i] = new VideoModel(j.getObject(i), this);
+				if(i >= LATESTVIDEOS_LIMIT) continue;
+				if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
+				UIItem item = v.makeListItem();
+				if(item != null) add(item);
 			}
 		} catch (RuntimeException e) {
 			throw e;
@@ -124,11 +138,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		try {
 			JSONArray j = ((JSONObject) App.invApi("channels/playlists/" + channel.authorId + "?", "playlists(title,playlistId,videoCount)")).getArray("playlists");
 			int l = j.size();
-			for(int i = 0; i < l; i++) {
-				UIItem item = playlist(j.getObject(i));
-				if(item == null) continue;
-				add(item);
-				if(i >= PLAYLISTS_LIMIT) break;
+			for(int i = 0; i < l && i < PLAYLISTS_LIMIT; i++) {
+				addPlaylist(j.getObject(i));
 			}
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
@@ -153,9 +164,9 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(tabs = new ChannelTabs(this));
 	}
 
-	protected UIItem playlist(JSONObject j) {
+	private void addPlaylist(JSONObject j) {
 		PlaylistModel p = new PlaylistModel(j, this, channel);
-		return p.makeListItem();
+		add(p.makeListItem());
 	}
 
 	private void channelSearch(String q) {
@@ -169,11 +180,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
-			for(int i = 0; i < l; i++) {
-				UIItem item = parseAndMakeItem(j.getObject(i), true);
-				if(item == null) continue;
-				add(item);
-				if(i >= SEARCH_LIMIT) break;
+			for(int i = 0; i < l && i < SEARCH_LIMIT; i++) {
+				addVideo(j.getObject(i));
 			}
 		} catch (Exception e) {
 			App.error(this, Errors.ChannelForm_search, e);
@@ -181,10 +189,10 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		Loader.start();
 	}
 
-	protected UIItem parseAndMakeItem(JSONObject j, boolean search) {
+	private void addVideo(JSONObject j) {
 		VideoModel v = new VideoModel(j, this);
 		if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
-		return v.makeListItem();
+		add(v.makeListItem());
 	}
 
 	public void run() {
@@ -246,6 +254,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		channel.disposeExtendedVars();
 		channel = null;
 		parent = null;
+		videoModels = null;
+		continuation = null;
 	}
 	
 	protected void menuAction(int action) {
@@ -264,5 +274,33 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 			LocalStorage.addSubscription(channel.authorId, channel.author);
 		}
 		subscribed = !subscribed;
+	}
+
+	// TODO: onUpdate?
+	protected void paint(Graphics g, int w, int h) {
+		super.paint(g, w, h);
+		// подгрузка элементов
+		if(state != 1 || continuing || shownVideos < 5 /* || videoModels == null */ || h+(h>>1)-scroll < height) {
+			return;
+		}
+		if(totalVideos > shownVideos) {
+			continuing = true;
+			int start = shownVideos;
+			// TODO: выгружать превью?
+			// TODO: async
+			for(int i = start; i < totalVideos && i < start + LATESTVIDEOS_LIMIT; i++) {
+				VideoModel v = videoModels[i];
+				shownVideos++;
+				if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
+				UIItem item = v.makeListItem();
+				if(item != null) add(item);
+			}
+			continuing = false;
+			return;
+		}
+		if(continuation != null) {
+			continuing = true;
+			// TODO
+		}
 	}
 }
