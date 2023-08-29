@@ -51,17 +51,6 @@ public class HomeScreen extends NavigationScreen {
 		};
 	}
 	
-	protected void hide() {
-		super.hide();
-		if(!Settings.videoPreviews) return;
-		for(int i = 0; i < items.size(); i++) {
-			Object o = items.elementAt(i);
-			if(o instanceof VideoItem) {
-				((VideoItem)o).unload();
-			}
-		}
-	}
-	
 	protected void menuAction(int action) {
 		if(!topBar) {
 			switch(action) {

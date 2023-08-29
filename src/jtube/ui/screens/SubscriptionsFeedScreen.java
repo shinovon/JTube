@@ -45,17 +45,11 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	}
 	
 	protected void hide() {
-		super.hide();
 		if(thread != null) {
 			thread.interrupt();
 		}
 		Loader.stop();
-		for(int i = 0; i < items.size(); i++) {
-			Object o = items.elementAt(i);
-			if(o instanceof VideoItem) {
-				((VideoItem)o).unload();
-			}
-		}
+		super.hide();
 	}
 
 	public void run() {

@@ -143,17 +143,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		}
 	}
 	
-	protected void hide() {
-		super.hide();
-		if(!Settings.videoPreviews) return;
-		for(int i = 0; i < items.size(); i++) {
-			Object o = items.elementAt(i);
-			if(o instanceof VideoItem) {
-				((VideoItem)o).unload();
-			}
-		}
-	}
-	
 	private void init() {
 		scroll = 0;
 		busy = false;

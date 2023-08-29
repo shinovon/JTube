@@ -52,6 +52,7 @@ import jtube.ui.Locale;
 import jtube.ui.SearchSuggestionsThread;
 import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
+import jtube.ui.items.VideoItem;
 import jtube.ui.nokia_extensions.DirectFontUtil;
 import jtube.ui.nokia_extensions.TextEditorInst;
 import jtube.ui.nokia_extensions.TextEditorListener;
@@ -209,6 +210,13 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		} else if(keyboard != null && keyboard.isVisible()) {
 			keyboard.reset();
 			keyboard.hide();
+		}
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).unload();
+			}
 		}
 	}
 	

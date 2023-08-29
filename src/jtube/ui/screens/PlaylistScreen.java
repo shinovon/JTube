@@ -60,17 +60,6 @@ public class PlaylistScreen extends NavigationScreen implements IModelScreen, Co
 			new Thread(this).start();
 		}
 	}
-	
-	public void hide() {
-		super.hide();
-		if(!Settings.videoPreviews) return;
-		for(int i = 0; i < items.size(); i++) {
-			Object o = items.elementAt(i);
-			if(o instanceof VideoItem) {
-				((VideoItem)o).unload();
-			}
-		}
-	}
 
 	private UIItem item(JSONObject j, int i) {
 		VideoModel v = new VideoModel(j);
