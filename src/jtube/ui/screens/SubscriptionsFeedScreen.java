@@ -55,8 +55,12 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	public void run() {
 		busy = true;
 		loaded = false;
-		subscriptions = LocalStorage.getSubsciptions();
 		idx = 0;
+		subscriptions = LocalStorage.getSubsciptions();
+		if(subscriptions == null || subscriptions.length == 0) {
+			busy = false;
+			return;
+		}
 		try {
 			allVideos.removeAllElements();
 			Loader.stop();

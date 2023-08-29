@@ -187,6 +187,7 @@ public class LocalStorage {
 	}
 	
 	public static String[] getSubsciptions() {
+		if(subscriptions == null) return new String[0];
 		String[] arr = new String[subscriptions.size()];
 		subscriptions.copyInto(arr);
 		return arr;
