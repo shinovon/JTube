@@ -159,7 +159,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	}
 
 	private void channelSearch(String q) {
-		q = null;
 		state = 3;
 		clear();
 		add(item);
@@ -191,6 +190,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	public void run() {
 		if(q != null) {
 			channelSearch(q);
+			q = null;
 			return;
 		}
 		busy = true;
