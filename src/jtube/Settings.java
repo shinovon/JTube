@@ -59,7 +59,7 @@ public class Settings implements Constants {
 	public static int downloadBuffer = 1024;
 	public static boolean asyncLoading;
 	public static boolean checkUpdates = true;
-	public static boolean iteroniPlaybackProxy = true;
+	public static boolean playbackProxy = true;
 	public static boolean renderDebug;
 	public static boolean amoled;
 	public static boolean fastScrolling;
@@ -75,6 +75,7 @@ public class Settings implements Constants {
 	public static int keyboard = 0;
 	public static String apiProxy = invproxy;
 	public static boolean useApiProxy;
+	public static String videoplaybackProxy = vpb;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -107,7 +108,7 @@ public class Settings implements Constants {
 		if(ru) {
 			inv = iteroni;
 			httpStream = true;
-			iteroniPlaybackProxy = false;
+			playbackProxy = false;
 			useApiProxy = true;
 		}
 		try {
@@ -301,7 +302,7 @@ public class Settings implements Constants {
 				asyncLoading = j.getBoolean("asyncLoading", asyncLoading);
 				downloadBuffer = j.getInt("downloadBuffer", downloadBuffer);
 				checkUpdates = j.getBoolean("checkUpdates", true);
-				iteroniPlaybackProxy = j.getBoolean("iteroniPlaybackProxy", iteroniPlaybackProxy);
+				playbackProxy = j.getBoolean("iteroniPlaybackProxy", playbackProxy);
 				renderDebug = j.getBoolean("renderDebug", renderDebug);
 				amoled = j.getBoolean("amoled", amoled);
 				smallPreviews = j.getBoolean("smallPreviews", smallPreviews);
@@ -331,7 +332,7 @@ public class Settings implements Constants {
 					apiProxy = invproxy;
 					if(ru) {
 						httpStream = true;
-						iteroniPlaybackProxy = false;
+						playbackProxy = false;
 						useApiProxy = true;
 					}
 				}
@@ -365,7 +366,7 @@ public class Settings implements Constants {
 			j.put("asyncLoading", asyncLoading);
 			j.put("downloadBuffer", downloadBuffer);
 			j.put("checkUpdates", checkUpdates);
-			j.put("iteroniPlaybackProxy", iteroniPlaybackProxy);
+			j.put("iteroniPlaybackProxy", playbackProxy);
 			j.put("renderDebug", renderDebug);
 			j.put("amoled", amoled);
 			j.put("smallPreviews", smallPreviews);

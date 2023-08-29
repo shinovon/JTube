@@ -366,11 +366,11 @@ public class App implements Constants, Runnable {
 		if(o == null) throw new RuntimeException("not found");
 		String s = o.getString("url");
 		if(Settings.httpStream || forceProxy) {
-			if(Settings.iteroniPlaybackProxy) {
+			if(Settings.playbackProxy) {
 				int i = s.indexOf("/videoplayback");
-				s = Settings.inv + s.substring(i+1);
+				s = Settings.videoplaybackProxy + s.substring(i+14);
 			}
-			if(!Settings.iteroniPlaybackProxy || Settings.useApiProxy) {
+			if(!Settings.playbackProxy || Settings.useApiProxy) {
 				s = Settings.serverstream + Util.url(s);
 			}
 		}

@@ -260,7 +260,7 @@ public class Locale implements LocaleConstants {
 			case SET_Off:
 				return "Off";
 			case SET_IteroniProxy:
-				return "Use Invidious proxy for playback";
+				return "Use videoplayback proxy";
 			case CMD_Func:
 				return "Options";
 			case CMD_Refresh:
@@ -480,7 +480,7 @@ public class Locale implements LocaleConstants {
 			case SET_Off:
 				return "Выкл.";
 			case SET_IteroniProxy:
-				return "Стриминг через прокси Invidious";
+				return "Исп. videoplayback прокси";
 			case CMD_Func:
 				return "Функции";
 			case CMD_Refresh:
