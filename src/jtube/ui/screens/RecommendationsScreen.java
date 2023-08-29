@@ -9,7 +9,6 @@ import jtube.Loader;
 import jtube.Settings;
 import jtube.models.VideoModel;
 import jtube.ui.Locale;
-import jtube.ui.items.VideoItem;
 
 public class RecommendationsScreen extends NavigationScreen implements Runnable, Constants {
 

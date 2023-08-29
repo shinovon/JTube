@@ -28,7 +28,6 @@ import jtube.Loader;
 import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.ui.Locale;
-import jtube.ui.items.VideoItem;
 
 public class HomeScreen extends NavigationScreen {
 
