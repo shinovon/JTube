@@ -117,6 +117,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		if(state == 2) return;
 		state = 2;
 		clear();
+		if(item == null) item = channel.makePageItem();
 		add(item);
 		add(subscribe);
 		add(tabs);
