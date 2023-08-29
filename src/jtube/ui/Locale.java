@@ -181,8 +181,6 @@ public class Locale implements LocaleConstants {
 				return "Search query";
 			case TITLE_Settings:
 				return "Settings";
-			case BTN_LatestVideos:
-				return "Latest videos";
 			case BTN_SearchVideos:
 				return "Search videos";
 			case TITLE_Loading:
@@ -401,8 +399,6 @@ public class Locale implements LocaleConstants {
 				return "Результаты поиска";
 			case TITLE_Settings:
 				return "Настройки";
-			case BTN_LatestVideos:
-				return "Последние видео";
 			case BTN_SearchVideos:
 				return "Поиск видео";
 			case TITLE_Loading:
