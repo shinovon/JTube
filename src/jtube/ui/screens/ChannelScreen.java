@@ -46,6 +46,7 @@ import jtube.ui.Locale;
 import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
 import jtube.ui.items.ChannelTabs;
+import jtube.ui.items.ContinueButton;
 import jtube.ui.items.SubscribeButton;
 
 public class ChannelScreen extends NavigationScreen implements IModelScreen, Constants, Runnable {
@@ -55,26 +56,21 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 	private boolean shown;
 
 	private UIItem item;
+	private SubscribeButton subscribe;
+	private ChannelTabs tabs;
+	private UIItem continueBtn;
 
 	public int state;
+	private String q;
+	private boolean next;
 
 	public boolean subscribed;
 
-	private SubscribeButton subscribe;
-
-	private ChannelTabs tabs;
-
-	private String q;
-
-	private int shownVideos;
-
 	private int totalVideos;
-
+	private int shownVideos;
 	private String continuation;
-
-	private boolean continuing;
-
 	private VideoModel[] videoModels;
+	private boolean continuing;
 
 	public ChannelScreen(ChannelModel c) {
 		super(c.author);
@@ -93,8 +89,8 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(subscribe);
 		add(tabs);
 		try {
-			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/latest?", "videos(" + VIDEO_FIELDS +
-					(getWidth() >= 320 ? ",viewCount" : "") + ")"
+			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/videos?" + (next && continuation != null ? "continuation=" + Util.url(continuation) + "&" : ""), "videos(" + VIDEO_FIELDS +
+					(getWidth() >= 320 ? ",viewCount" : "") + "),continuation"
 					);
 			continuation = r.getNullableString("continuation");
 			JSONArray j = r.getArray("videos");
@@ -159,6 +155,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		busy = false;
 		if(channel == null) return;
 		subscribed = LocalStorage.isSubscribed(channel.authorId);
+		continueBtn = new ContinueButton(this);
 		add(item = channel.makePageItem());
 		add(subscribe = new SubscribeButton(this));
 		add(tabs = new ChannelTabs(this));
@@ -199,6 +196,12 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		if(q != null) {
 			channelSearch(q);
 			q = null;
+			return;
+		}
+		if(next) {
+			state = 0;
+			latestVideos();
+			next = false;
 			return;
 		}
 		busy = true;
@@ -286,6 +289,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		if(totalVideos > shownVideos) {
 			continuing = true;
 			int start = shownVideos;
+			// remove continue button
 			// TODO: выгружать превью?
 			// TODO: async
 			for(int i = start; i < totalVideos && i < start + LATESTVIDEOS_LIMIT; i++) {
@@ -295,12 +299,14 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 				UIItem item = v.makeListItem();
 				if(item != null) add(item);
 			}
+			if(shownVideos == totalVideos && continuation != null) add(continueBtn);
 			continuing = false;
 			return;
 		}
-		if(continuation != null) {
-			continuing = true;
-			// TODO
-		}
+	}
+
+	public void older() {
+		next = true;
+		new Thread(this).start();
 	}
 }

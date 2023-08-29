@@ -339,6 +339,8 @@ public class Locale implements LocaleConstants {
 				return "Export subscriptions";
 			case TITLE_Recommendations:
 				return "Recommendations";
+			case BTN_OlderVideos:
+				return "Older videos";
 			}
 		}
 		case 1: {
@@ -557,6 +559,8 @@ public class Locale implements LocaleConstants {
 				return "Экспорт подписок";
 			case TITLE_Recommendations:
 				return "Рекомендации";
+			case BTN_OlderVideos:
+				return "Следующие видео";
 			}
 		}
 		}
