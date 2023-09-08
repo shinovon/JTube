@@ -38,7 +38,6 @@ import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONException;
 import cc.nnproject.json.JSONObject;
-import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.ytapp.App2;
 import jtube.ui.AppUI;
 import jtube.ui.Locale;
@@ -415,11 +414,11 @@ public class App implements Constants, Runnable {
 					return;
 				}
 				String url = getVideoLink(id, Settings.videoRes, true);
-				boolean bada = PlatformUtils.isBada();
+				boolean bada = PlatformUtils.isBada;
 				String file = bada ? "file:///Media/Videos/" : ("file:///" + Settings.downloadDir);
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
-				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
+				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada) {
 					file += "watch.ram";
 				} else /*if (PlatformUtils.isSymbian93()) {
 					file += "watch.ram";

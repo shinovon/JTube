@@ -35,7 +35,6 @@ import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.keyboard.Keyboard;
-import cc.nnproject.utils.PlatformUtils;
 import jtube.ui.Locale;
 import midletintegration.MIDletIntegration;
 
@@ -242,7 +241,7 @@ public class Settings implements Constants {
 					fastScrolling = true;
 					powerSaving = true;
 				} else {
-					if((!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3orLower()) || PlatformUtils.isBada()) {
+					if((!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3orLower()) || PlatformUtils.isBada) {
 						httpStream = true;
 						asyncLoading = false;
 					}
@@ -260,7 +259,7 @@ public class Settings implements Constants {
 					}
 					videoPreviews = true;
 				}
-				if(PlatformUtils.isAsha()) {
+				if(PlatformUtils.isAsha) {
 					serverstream = stream;
 					videoPreviews = true;
 				} else if(PlatformUtils.isS40() /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {

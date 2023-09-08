@@ -23,7 +23,7 @@ package jtube.ui.nokia_extensions;
 
 import javax.microedition.lcdui.Font;
 
-import cc.nnproject.utils.PlatformUtils;
+import jtube.PlatformUtils;
 
 public class DirectFontUtil {
 	

@@ -21,7 +21,7 @@ SOFTWARE.
 */
 package jtube.ui.nokia_extensions;
 
-import cc.nnproject.utils.PlatformUtils;
+import jtube.PlatformUtils;
 
 public class TextEditorUtil {
 	

@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package cc.nnproject.utils;
+package jtube;
 
 public class PlatformUtils {
 
@@ -32,10 +32,6 @@ public class PlatformUtils {
 	public static final String os = System.getProperty("os.name");
 	public static final String vendor = System.getProperty("java.vendor");
 	public static final String version = System.getProperty("java.version");
-	
-	private static final String[] ashaFullTouchModels = new String[] { "230", "305", "306", "308", "309", "310", "311", "500", "501", "502", "503" };
-	private static final String[] ashaTouchAndTypeModels = new String[] { "202", "203", "300", "303" };
-	private static final String[] ashaTypeModels = new String[] { "200", "201", "205", "210", "302" };
 	
 	public static boolean isKemulator;
 	public static boolean isS60;
@@ -179,6 +175,7 @@ public class PlatformUtils {
 		if(platform.startsWith("Nokia300/") || platform.startsWith("NokiaC3-01") || platform.startsWith("NokiaX3-02")) {
 			return "6.1"; // 6th Edition FP1
 		}
+		isAsha = true;
 		if(isAshaFullTouch()) {
 			if(platform.startsWith("Nokia230") || platform.startsWith("Nokia5")) {
 				return "9.0"; // Asha Platform
@@ -193,6 +190,7 @@ public class PlatformUtils {
 			}
 			return "7.0"; // Java Runtime 1.0
 		}
+		isAsha = false;
 		if(checkClass("com.arm.cldc.mas.GlobalLock")) {
 			return "6.0"; // 6th Edition SDK
 		}
@@ -247,38 +245,40 @@ public class PlatformUtils {
 		return "1.0";
 	}
 	
-	public static boolean isBada() {
-		return isBada;
-	}
-	
-	public static boolean isAsha() {
-		return isAsha;
-	}
-	
 	public static boolean isAshaFullTouch() {
-		if(!isAsha()) return false;
+		if(!isAsha) return false;
 		String s = platform.substring(5);
-		for(int i = 0; i < ashaFullTouchModels.length; i++) {
-			if(s.startsWith(ashaFullTouchModels[i])) return true;
-		}
+		char c1 = s.charAt(0);
+		char c2 = s.charAt(1);
+		char c3 = s.charAt(2);
+		if((c1 != '2' && c1 != '3' && c1 != '5') || (c2 != '0' && c2 != '1' && c2 != '3')) return false;
+		if(c1 == '5') return true;
+		if(c1 == '2') return c2 == '3';
+		if(c1 == '3') return c2 == '0' ? c3 == '5' || c3 == '6' || c3 == '8' || c3 == '9' : c2 == '1' && (c3 == '0' || c3 == '1');
 		return false;
 	}
 	
 	public static boolean isAshaTouchAndType() {
-		if(!isAsha()) return false;
+		if(!isAsha) return false;
 		String s = platform.substring(5);
-		for(int i = 0; i < ashaTouchAndTypeModels.length; i++) {
-			if(s.startsWith(ashaTouchAndTypeModels[i])) return true;
-		}
+		char c1 = s.charAt(0);
+		char c2 = s.charAt(1);
+		char c3 = s.charAt(2);
+		if((c1 != '2' && c1 != '3') || c2 != '0') return false;
+		if(c1 == '2') return c2 == '0' && (c3 == '2' || c3 == '3');
+		if(c1 == '3') return c2 == '0' && (c3 == '0' || c3 == '3');
 		return false;
 	}
 	
 	public static boolean isAshaNoTouch() {
-		if(!isAsha()) return false;
+		if(!isAsha) return false;
 		String s = platform.substring(5);
-		for(int i = 0; i < ashaTypeModels.length; i++) {
-			if(s.startsWith(ashaTypeModels[i])) return true;
-		}
+		char c1 = s.charAt(0);
+		char c2 = s.charAt(1);
+		char c3 = s.charAt(2);
+		if((c1 != '2' && c1 != '3') || (c2 != '0' && c2 != '1')) return false;
+		if(c1 == '2') return c2 == '0' ? c3 == '0' && c3 == '1' && c3 == '5' : c2 == '1' && c3 == '0';
+		if(c1 == '3') return c2 == '0' && c3 == '2';
 		return false;
 	}
 
