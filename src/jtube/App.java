@@ -367,10 +367,8 @@ public class App implements Constants, Runnable {
 		String s = o.getString("url");
 		if(Settings.httpStream || forceProxy) {
 			if(Settings.playbackProxy) {
-				int i = s.indexOf("/videoplayback");
-				s = Settings.videoplaybackProxy + s.substring(i+14);
-			}
-			if(!Settings.playbackProxy || Settings.useApiProxy) {
+				s = Settings.videoplaybackProxy + s.substring(s.indexOf("/videoplayback")+14);
+			} else {
 				s = Settings.serverstream + Util.url(s);
 			}
 		}
@@ -418,7 +416,7 @@ public class App implements Constants, Runnable {
 				}
 				String url = getVideoLink(id, Settings.videoRes, true);
 				boolean bada = PlatformUtils.isBada();
-				String file = bada ? System.getProperty("fileconn.dir.videos") : ("file:///" + Settings.downloadDir);
+				String file = bada ? "file:///Media/Videos/" : ("file:///" + Settings.downloadDir);
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
 				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
@@ -433,9 +431,20 @@ public class App implements Constants, Runnable {
 				FileConnection fc = null;
 				OutputStream o = null;
 				try {
-					fc = (FileConnection) Connector.open(file, 3);
-					if (fc.exists())
-						fc.delete();
+					try {
+						fc = (FileConnection) Connector.open(file, 3);
+						if (fc.exists())
+							fc.delete();
+					} catch (IOException e) {
+						if(!bada) throw e;
+						file = System.getProperty("fileconn.dir.videos");
+						if (!file.endsWith("/") && !file.endsWith("\\"))
+							file += "/";
+						file += "watch.ram";
+						fc = (FileConnection) Connector.open(file, 3);
+						if (fc.exists())
+							fc.delete();
+					}
 					fc.create();
 					o = fc.openDataOutputStream();
 					o.write(url.getBytes("UTF-8"));
