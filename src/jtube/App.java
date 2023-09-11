@@ -601,8 +601,7 @@ public class App implements Constants, Runnable {
 		String s;
 		if((s = (String) args.get("url")) != null && s.length() > 0) {
 			try {
-				s = Util.decodeURL(s);
-				openURL(s);
+				openURL(Util.decodeURL(s));
 				return true;
 			} catch (IllegalArgumentException e) {
 				return false;
@@ -624,18 +623,17 @@ public class App implements Constants, Runnable {
 		if(inst == null || inst.ui == null) {
 			return;
 		}
-		final String https = "https://";
-		final String http = "http://";
-		final String www = "www.";
-		if(url.startsWith(https)) url = url.substring(https.length());
-		else if(url.startsWith(http)) url = url.substring(http.length());
-		if(url.startsWith(www)) url = url.substring(www.length());
+		if(url.startsWith("https")) url = url.substring(5);
+		else if(url.startsWith("http")) url = url.substring(4);
+		if(url.startsWith("://")) url = url.substring(3);
+		if(url.startsWith("www")) url = url.substring(3);
+		if(url.startsWith("m.")) url = url.substring(2);
 		if(url.startsWith("youtu.be")) {
 			int i = url.indexOf('/');
 			if(i == -1)
 				throw new IllegalArgumentException();
 			url = url.substring(i + 1);
-			if((i = url.indexOf('/')) != -1) {
+			if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 				url = url.substring(0, i);
 			}
 			inst.ui.openVideo(url);
@@ -660,17 +658,13 @@ public class App implements Constants, Runnable {
 				if(i == -1)
 					throw new IllegalArgumentException();
 				url = url.substring(i + 1);
-				if((i = url.indexOf('/')) != -1) {
-					url = url.substring(0, i);
-				} else if((i = url.indexOf('?')) != -1) {
+				if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 					url = url.substring(0, i);
 				}
 				inst.ui.openVideo(url);
 			} else if(url.startsWith("@")) {
 				url = url.substring(url.indexOf('@'));
-				if((i = url.indexOf('/')) != -1) {
-					url = url.substring(0, i);
-				} else if((i = url.indexOf('?')) != -1) {
+				if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 					url = url.substring(0, i);
 				}
 				inst.ui.openChannel(url);
@@ -679,9 +673,7 @@ public class App implements Constants, Runnable {
 				if(i == -1)
 					throw new IllegalArgumentException();
 				url = url.substring(i + 1);
-				if((i = url.indexOf('/')) != -1) {
-					url = url.substring(0, i);
-				} else if((i = url.indexOf('?')) != -1) {
+				if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 					url = url.substring(0, i);
 				}
 				inst.ui.openChannel(url);
