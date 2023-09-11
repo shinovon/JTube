@@ -247,6 +247,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 	}
 	
+	public void canvasFocused() {
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).onHide();
+			}
+		}
+	}
+	
 	private void setEditorPositions() {
 		if(editor != null && editor.isVisible()) {
 			editor.setSize(lastW-98, 24);
