@@ -248,11 +248,12 @@ public class PlatformUtils {
 	public static boolean isAshaFullTouch() {
 		if(!isAsha) return false;
 		String s = platform.substring(5);
+		if(s.startsWith("Asha5")) return true;
 		char c1 = s.charAt(0);
 		char c2 = s.charAt(1);
 		char c3 = s.charAt(2);
 		if((c1 != '2' && c1 != '3' && c1 != '5') || (c2 != '0' && c2 != '1' && c2 != '3')) return false;
-		if(c1 == '5') return true;
+		if(c1 == '5') return c3 != '0';
 		if(c1 == '2') return c2 == '3';
 		if(c1 == '3') return c2 == '0' ? c3 == '5' || c3 == '6' || c3 == '8' || c3 == '9' : c2 == '1' && (c3 == '0' || c3 == '1');
 		return false;
@@ -288,7 +289,7 @@ public class PlatformUtils {
 	}
 
 	public static boolean isSamsung() {
-		return platform != null && platform.toLowerCase().startsWith("samsung");
+		return platform != null && (platform.toLowerCase().startsWith("samsung") || platform.startsWith("GT-"));
 	}
 
 	public static boolean isPhoneme() {
