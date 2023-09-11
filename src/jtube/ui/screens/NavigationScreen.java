@@ -805,7 +805,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			return;
 		}
-		if(y > lastH-topBarHeight) {
+		if(y > lastH-topBarHeight && !(this instanceof VideoScreen)) {
 			int f = lastW / 2;
 			if(x > 0 && x < f) {
 				selectTab(0);
