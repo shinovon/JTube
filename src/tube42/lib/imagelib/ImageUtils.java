@@ -47,9 +47,9 @@ public final class ImageUtils {
 		int[] dst = new int[size_w * size_h];
 
 		if(Settings.powerSaving) {
-			resize_rgb_filtered(src_i, dst, w, h, size_w, size_h);
-		} else {
 			resize_rgb_unfiltered(src_i, dst, w, h, size_w, size_h);
+		} else {
+			resize_rgb_filtered(src_i, dst, w, h, size_w, size_h);
 		}
 
 		// not needed anymore
