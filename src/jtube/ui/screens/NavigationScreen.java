@@ -459,7 +459,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						yy += ih;
 					}
 					g.setColor(AppUI.getColor(COLOR_MAINBORDER));
-					g.drawRect(xx, y2, menuW, itemMenuH);
+					g.drawRect(xx, y2, menuW, menuH); // XXX
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
 				g.fillRect(0, h-softBarHeight, w, softBarHeight);
