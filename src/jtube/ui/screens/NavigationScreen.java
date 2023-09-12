@@ -302,6 +302,18 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 							g.drawLine(0, sy, w, sy);
 						}
 					}
+				} else {
+					g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
+					g.fillRect(0, h-softBarHeight, w, softBarHeight);
+					g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
+					g.drawLine(0, h-softBarHeight, w, h-softBarHeight);
+					g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
+					g.setFont(softFont);
+					String s1 = Locale.s(CMD_FullEdit);
+					String s2 = Locale.s(searchText.length() > 0 ? CMD_Clean : CMD_Cancel);
+					g.drawString(s1, 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
+					g.drawString(s2, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
+					g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
 				}
 				if(editor == null || editorHidden) {
 					if(keyboard != null && keyboard.isVisible()) {
@@ -324,30 +336,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}
 				}
 			} else {
-				if(!topBar) {
-					g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
-					g.fillRect(0, h-softBarHeight, w, softBarHeight);
+				if(!(this instanceof VideoScreen)) {
+					g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
+					g.fillRect(0, h-topBarHeight, w, topBarHeight);
 					g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
-					g.drawLine(0, h-softBarHeight, w, h-softBarHeight);
-					g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
-					g.setFont(softFont);
-					String s1 = Locale.s(CMD_FullEdit);
-					String s2 = Locale.s(searchText.length() > 0 ? CMD_Clean : CMD_Cancel);
-					g.drawString(s1, 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
-					g.drawString(s2, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
-					g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
-				} else {
-					if(!(this instanceof VideoScreen)) {
-						g.setColor(AppUI.getColor(COLOR_TOPBAR_BG));
-						g.fillRect(0, h-topBarHeight, w, topBarHeight);
-						g.setColor(AppUI.getColor(COLOR_TOPBAR_BORDER));
-						g.drawLine(0, h-topBarHeight, w, h-topBarHeight);
-			
-						int f = w / 2;
-						g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-36, 0);
-						g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-36, 0);
-//						g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
-					}
+					g.drawLine(0, h-topBarHeight, w, h-topBarHeight);
+		
+					int f = w / 2;
+					g.drawImage(ui.currentTab == 0 ? homeSelImg : homeImg, (f-24) >> 1, h-36, 0);
+					g.drawImage(ui.currentTab == 1 ? subsSelImg : subsImg, ((f-24) >> 1) + f, h-36, 0);
+//					g.drawImage(ui.currentTab == 2 ? libSelImg : libImg, ((f-24) >> 1) + f + f, h-36, 0);
 				}
 				if(Settings.fullScreen) {
 					int xx = 4;
@@ -632,6 +630,20 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				}
 				search(searchText);
 				return true;
+			}
+			if(i == -7) {
+				if(searchText.length() == 0) {
+					editorHidden = true;
+					if(editor != null && editor.isVisible()) {
+						editor.setFocus(false);
+						editor.setVisible(false);
+						editor.setParent(null);
+					} else if(keyboard != null && keyboard.isVisible()) {
+						keyboard.hide();
+					}
+					search = false;
+					return true;
+				}
 			}
 		}
 		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
