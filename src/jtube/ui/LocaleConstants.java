@@ -151,5 +151,8 @@ public interface LocaleConstants {
 	public static final int SET_ExportSubscriptions = 139;
 	public static final int TITLE_Recommendations = 140;
 	public static final int BTN_OlderVideos = 141;
+	public static final int SET_PlaybackProxy = 142;
+	public static final int SET_UrlPrefix = 143;
+	public static final int SET_Proxy = 144;
 
 }

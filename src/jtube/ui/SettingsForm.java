@@ -39,6 +39,7 @@ import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.ItemStateListener;
 import javax.microedition.lcdui.List;
+import javax.microedition.lcdui.Spacer;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
 
@@ -58,10 +59,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_VQ_AudioOnly),
 			"240p (" + Locale.s(SET_VQ_NoAudio) + ")"
 			};
-	static final String[] NET_CHECKS = new String[] { 
+	static final String[] PROXY_CHECKS = new String[] { 
+			Locale.s(SET_UseApiProxy),
 			Locale.s(SET_HTTPProxy),
-			Locale.s(SET_IteroniProxy),
-			Locale.s(SET_UseApiProxy)
 			};
 	static final String[] APPEARANCE_CHECKS = new String[] { 
 			Locale.s(SET_VideoPreviews), 
@@ -95,6 +95,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"j2mekeyboard",
 			Locale.s(SET_FullScreenInput)
 			};
+	static final String[] VPB_PROXY_VARIANTS = new String[] { 
+			"Invidious",
+			"nnchan",
+			Locale.s(SET_UrlPrefix)
+			};
 	
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
 	static final Command applyCmd = new Command(Locale.s(CMD_Apply), Command.BACK, 1);
@@ -108,7 +113,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private TextField regionText;
 	private TextField downloadDirText;
 	private TextField httpProxyText;
-	private ChoiceGroup netChoice;
 	private TextField invidiousText;
 	private ChoiceGroup uiChoice;
 	private StringItem dirBtn;
@@ -120,10 +124,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup autoStartChoice;
 	private ChoiceGroup keyboardChoice;
 	private TextField apiProxyText;
+	private ChoiceGroup proxyChoice;
+	private ChoiceGroup vpbProxyChoice;
 
 	private List dirList;
 	private String curDir;
-	private int proxyTextIdx;
 	private int apiProxyIdx;
 	
 	private List langsList;
@@ -165,7 +170,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
 		checkUpdatesChoice = new ChoiceGroup(Locale.s(SET_CheckUpdates), ChoiceGroup.POPUP, ON_OFF, null);
 		uiChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, APPEARANCE_CHECKS, null);
-		netChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, NET_CHECKS, null);
+		proxyChoice = new ChoiceGroup(Locale.s(SET_Proxy), ChoiceGroup.MULTIPLE, PROXY_CHECKS, null);
 		miscChoice = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, MISC_CHECKS, null);
 		downloadDirText = new TextField(Locale.s(SET_DownloadDir), Settings.downloadDir, 256, TextField.URL);
 		dirBtn = new StringItem(null, "...", Item.BUTTON);
@@ -173,14 +178,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		dirBtn.setDefaultCommand(dirCmd);
 		dirBtn.setItemCommandListener(this);
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
-		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
-				Settings.playbackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
+		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256, TextField.URL);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
 		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
 		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
 		apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
 				Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
+		vpbProxyChoice = new ChoiceGroup(Locale.s(SET_PlaybackProxy), ChoiceGroup.EXCLUSIVE, VPB_PROXY_VARIANTS, null);
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
@@ -189,54 +194,72 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(uiLabel);
 		append(uiChoice);
 		append(regionText);
+		
 		StringItem langBtn = new StringItem(null, Locale.s(SET_ChooseLanguage), StringItem.BUTTON);
 		langBtn.addCommand(langCmd);
 		langBtn.setDefaultCommand(langCmd);
 		langBtn.setItemCommandListener(this);
 		langBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
+		
 		append(langBtn);
+		append(spacer());
+		
 		append(netLabel);
-		append(netChoice);
 		append(invidiousText);
+		append(proxyChoice);
+		append(vpbProxyChoice);
 		apiProxyIdx = append(apiProxyText);
-		proxyTextIdx = append(httpProxyText);
-		append(downloadBufferText);
+		append(httpProxyText);
+		append(spacer());
+		
 		append(miscLabel);
 		append(miscChoice);
 		append(checkUpdatesChoice);
 		append(autoStartChoice);
-		append(inputLabel);
-		append(keyboardChoice);
+		append(downloadBufferText);
+		append(spacer());
+		
 		StringItem s = new StringItem(null, Locale.s(SET_j2mekeyboardSettings)+"\n");
 		s.setFont(Font.getFont(0, 0, 8));
-		append(s);
 		StringItem inputLangsBtn = new StringItem(null, Locale.s(SET_InputLanguages), StringItem.BUTTON);
 		inputLangsBtn.addCommand(inputLangsCmd);
 		inputLangsBtn.setDefaultCommand(inputLangsCmd);
 		inputLangsBtn.setItemCommandListener(this);
 		inputLangsBtn.setLayout(Item.LAYOUT_EXPAND);
-		append(inputLangsBtn);
 		StringItem subsImportBtn = new StringItem(null, Locale.s(SET_ImportSubscriptions), StringItem.BUTTON);
 		subsImportBtn.addCommand(subsImportCmd);
 		subsImportBtn.setDefaultCommand(subsImportCmd);
 		subsImportBtn.setItemCommandListener(this);
 		subsImportBtn.setLayout(Item.LAYOUT_EXPAND);
-		append(subsImportBtn);
 		StringItem subsExportBtn = new StringItem(null, Locale.s(SET_ExportSubscriptions), StringItem.BUTTON);
 		subsExportBtn.addCommand(subsExportCmd);
 		subsExportBtn.setDefaultCommand(subsExportCmd);
 		subsExportBtn.setItemCommandListener(this);
 		subsExportBtn.setLayout(Item.LAYOUT_EXPAND);
-		append(subsExportBtn);
-		append(debugChoice);
 		StringItem resetBtn = new StringItem(null, Locale.s(SET_Reset), StringItem.BUTTON);
 		resetBtn.addCommand(resetCmd);
 		resetBtn.setDefaultCommand(resetCmd);
 		resetBtn.setItemCommandListener(this);
 		resetBtn.setLayout(Item.LAYOUT_EXPAND);
+		
+		append(inputLabel);
+		append(keyboardChoice);
+		append(s);
+		append(inputLangsBtn);
+		append(spacer());
+		
+		append(subsImportBtn);
+		append(subsExportBtn);
+		append(debugChoice);
 		append(resetBtn);
 	}
 	
+	private Item spacer() {
+		Spacer spacer = new Spacer(10, 10);
+		spacer.setLayout(Item.LAYOUT_2 | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_NEWLINE_AFTER);
+		return spacer;
+	}
+
 	public void show() {
 		uiChoice.setSelectedIndex(0, Settings.videoPreviews);
 		uiChoice.setSelectedIndex(1, Settings.amoled);
@@ -244,9 +267,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		uiChoice.setSelectedIndex(3, Settings.fullScreen);
 		uiChoice.setSelectedIndex(4, Settings.channelBanner);
 		uiChoice.setSelectedIndex(5, Settings.searchSuggestions);
-		netChoice.setSelectedIndex(0, Settings.httpStream);
-		netChoice.setSelectedIndex(1, Settings.playbackProxy);
-		netChoice.setSelectedIndex(2, Settings.useApiProxy);
+		proxyChoice.setSelectedIndex(0, Settings.useApiProxy);
+		proxyChoice.setSelectedIndex(1, Settings.httpStream);
 		debugChoice.setSelectedIndex(0, Settings.renderDebug);
 		debugChoice.setSelectedIndex(1, Settings.asyncLoading);
 		debugChoice.setSelectedIndex(2, Settings.fastScrolling);
@@ -261,6 +283,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
 		autoStartChoice.setSelectedIndex(Settings.autoStart ? 0 : 1, true);
 		keyboardChoice.setSelectedIndex(Settings.keyboard, true);
+		vpbProxyChoice.setSelectedIndex(Settings.playbackProxyVariant, true);
 		setResolution();
 	}
 	
@@ -302,8 +325,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				dir = dir.substring(0, dir.length() - 1);
 			}
 			Settings.downloadDir = dir;
-			boolean[] net = new boolean[netChoice.size()];
-			netChoice.getSelectedFlags(net);
 			boolean[] ui = new boolean[uiChoice.size()];
 			uiChoice.getSelectedFlags(ui);
 			boolean[] misc = new boolean[miscChoice.size()];
@@ -314,9 +335,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.fullScreen = ui[3];
 			Settings.channelBanner = ui[4];
 			Settings.searchSuggestions = ui[5];
-			Settings.httpStream = net[0];
-			Settings.playbackProxy = net[1];
-			Settings.useApiProxy = net[2];
+			Settings.useApiProxy = proxyChoice.isSelected(0);
+			Settings.httpStream = proxyChoice.isSelected(1);
 			Settings.rmsPreviews = misc[0];
 			Settings.powerSaving = misc[1];
 			Settings.serverstream = httpProxyText.getString();
@@ -348,6 +368,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				apiProxy = "http://" + inv;
 			}
 			Settings.apiProxy = apiProxy;
+			Settings.playbackProxyVariant = vpbProxyChoice.getSelectedIndex();
 			Settings.saveConfig();
 		} catch (Exception e) {
 			App.error(this, Errors.Settings_apply, e);
@@ -627,20 +648,14 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 
 	public void itemStateChanged(Item item) {
-		if(item == netChoice) {
-			boolean b1 = Settings.playbackProxy;
-			boolean b2 = Settings.useApiProxy;
-			Settings.playbackProxy = netChoice.isSelected(1);
-			Settings.useApiProxy = netChoice.isSelected(2);
-			if(Settings.useApiProxy != b2) {
+		if(item == proxyChoice) {
+			boolean tmp = Settings.useApiProxy;
+			Settings.useApiProxy = proxyChoice.isSelected(0);
+			Settings.httpStream = proxyChoice.isSelected(1);
+			if(Settings.useApiProxy != tmp) {
 				apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
 						Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
 				set(apiProxyIdx, apiProxyText);
-			}
-			if(Settings.playbackProxy != b1) {
-				httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256,
-						Settings.playbackProxy ? TextField.URL | TextField.UNEDITABLE : TextField.URL);
-				set(proxyTextIdx, httpProxyText);
 			}
 		}
 		if(item == playMethodChoice) {

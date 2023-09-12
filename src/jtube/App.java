@@ -363,15 +363,25 @@ public class App implements Constants, Runnable {
 	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
 		JSONObject o = getVideoInfo(id, res);
 		if(o == null) throw new RuntimeException("not found");
-		String s = o.getString("url");
+		String url = o.getString("url");
 		if(Settings.httpStream || forceProxy) {
-			if(Settings.playbackProxy) {
-				s = Settings.videoplaybackProxy + s.substring(s.indexOf("/videoplayback")+14);
-			} else {
-				s = Settings.serverstream + Util.url(s);
+			switch(Settings.playbackProxyVariant) {
+			case 0:
+				url = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
+				if(Settings.useApiProxy) { // TODO?
+					url = Settings.serverstream + Util.url(url);
+				}
+				break;
+			case 1:
+				url = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
+				break;
+			case 2:
+				url = Settings.serverstream + Util.url(url);
+				break;
 			}
 		}
-		return s;
+		System.out.println(url);
+		return url;
 	}
 
 	public static String getVideoLink(String id, String res) throws JSONException, IOException {

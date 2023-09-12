@@ -170,7 +170,7 @@ public class Locale implements LocaleConstants {
 			case SET_InvAPI:
 				return "Invidious API Instance";
 			case SET_StreamProxy:
-				return "Stream proxy server";
+				return "URL prefix for playback";
 			case SET_CountryCode:
 				return "Country code (ISO 3166)";
 			case TITLE_Trends:
@@ -218,7 +218,7 @@ public class Locale implements LocaleConstants {
 			case CMD_Prev:
 				return "Prev. video";
 			case SET_HTTPProxy:
-				return "HTTP Proxy Streaming";
+				return "Video playback";
 			case SET_PreLoadRMS:
 				return "Pre-load images to RMS";
 			case SET_RememberSearch:
@@ -259,8 +259,6 @@ public class Locale implements LocaleConstants {
 				return "On";
 			case SET_Off:
 				return "Off";
-			case SET_IteroniProxy:
-				return "Use videoplayback proxy";
 			case CMD_Func:
 				return "Options";
 			case CMD_Refresh:
@@ -308,7 +306,7 @@ public class Locale implements LocaleConstants {
 			case SET_ApiProxy:
 				return "Proxy for API";
 			case SET_UseApiProxy:
-				return "API through proxy";
+				return "API";
 			case BTN_Subscribe:
 				return "Subscribe";
 			case BTN_Unsubscribe:
@@ -341,6 +339,12 @@ public class Locale implements LocaleConstants {
 				return "Recommendations";
 			case BTN_OlderVideos:
 				return "Older videos";
+			case SET_PlaybackProxy:
+				return "Playback proxy";
+			case SET_UrlPrefix:
+				return "URL prefix";
+			case SET_Proxy:
+				return "Proxy";
 			}
 		}
 		case 1: {
@@ -390,7 +394,7 @@ public class Locale implements LocaleConstants {
 			case SET_InvAPI:
 				return "Invidious API инстанс";
 			case SET_StreamProxy:
-				return "Прокси для стриминга";
+				return "URL прокси для стриминга";
 			case SET_CountryCode:
 				return "Код страны (ISO 3166)";
 			case TITLE_Trends:
@@ -438,9 +442,9 @@ public class Locale implements LocaleConstants {
 			case CMD_Prev:
 				return "Пред. видео";
 			case SET_HTTPProxy:
-				return "HTTP прокси стриминг";
+				return "Восп. видео";
 			case SET_PreLoadRMS:
-				return "Предзагрузка изображений в RMS";
+				return "Кэш изобр. в RMS";
 			case SET_RememberSearch:
 				return "Запоминание поиска";
 			case SET_VideoPreviews:
@@ -479,8 +483,6 @@ public class Locale implements LocaleConstants {
 				return "Вкл.";
 			case SET_Off:
 				return "Выкл.";
-			case SET_IteroniProxy:
-				return "Исп. videoplayback прокси";
 			case CMD_Func:
 				return "Функции";
 			case CMD_Refresh:
@@ -528,7 +530,7 @@ public class Locale implements LocaleConstants {
 			case SET_ApiProxy:
 				return "Прокси для API";
 			case SET_UseApiProxy:
-				return "API через прокси";
+				return "API";
 			case BTN_Subscribe:
 				return "Подписаться";
 			case BTN_Unsubscribe:
@@ -561,6 +563,12 @@ public class Locale implements LocaleConstants {
 				return "Рекомендации";
 			case BTN_OlderVideos:
 				return "Следующие видео";
+			case SET_PlaybackProxy:
+				return "Прокси для проигрывания";
+			case SET_UrlPrefix:
+				return "URL префикс";
+			case SET_Proxy:
+				return "Проксировать";
 			}
 		}
 		}
