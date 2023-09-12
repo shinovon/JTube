@@ -321,6 +321,7 @@ public class Settings implements Constants {
 				searchSuggestions = j.getBoolean("searchSuggestions", searchSuggestions);
 				powerSaving = j.getBoolean("powerSaving", powerSaving);
 				lazyLoad = j.getBoolean("lazyLoad", lazyLoad);
+				playbackProxyVariant = j.getInt("playbackProxyVariant", playbackProxyVariant);
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
 				if(i < 2) {
@@ -375,6 +376,7 @@ public class Settings implements Constants {
 			j.put("searchSuggestions", searchSuggestions);
 			j.put("powerSaving", powerSaving);
 			j.put("lazyLoad", lazyLoad);
+			j.put("playbackProxyVariant", playbackProxyVariant);
 			JSONArray inputLanguagesJson = new JSONArray();
 			for(int i = 0; i < inputLanguages.length; i++) {
 				inputLanguagesJson.add(inputLanguages[i]);
