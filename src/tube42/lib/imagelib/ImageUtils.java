@@ -9,6 +9,8 @@ package tube42.lib.imagelib;
 
 import javax.microedition.lcdui.*;
 
+import jtube.Settings;
+
 public final class ImageUtils {
 	
 	public static Image crop(Image src_i, int x0, int y0, int x1, int y1) {
@@ -44,13 +46,43 @@ public final class ImageUtils {
 
 		int[] dst = new int[size_w * size_h];
 
-		resize_rgb_filtered(src_i, dst, w, h, size_w, size_h);
+		if(Settings.powerSaving) {
+			resize_rgb_filtered(src_i, dst, w, h, size_w, size_h);
+		} else {
+			resize_rgb_unfiltered(src_i, dst, w, h, size_w, size_h);
+		}
 
 		// not needed anymore
 		src_i = null;
 
 		return Image.createRGBImage(dst, size_w, size_h, true);
 	}
+	
+	private static final void resize_rgb_unfiltered(Image src_i, int [] dst, 
+            int w0, int h0, int w1, int h1)
+    {       
+        int [] buffer = new int[w0];
+        
+        // scale with no filtering
+        int index1 = 0;
+        int index0_y = 0;
+        
+        for(int y = 0; y < h1; y++) {
+            int y_ = index0_y / h1;
+            int index0_x = 0;                        
+            src_i.getRGB(buffer, 0, w0, 0, y_, w0, 1);
+            
+            for(int x = 0; x < w1; x++) {                
+                int x_ = index0_x / w1;                
+                dst[index1++] = buffer[x_];
+                
+                // for next pixel
+                index0_x += w0;
+            }
+            // For next line
+            index0_y += h0;
+        }
+    }
 
 	private static final void resize_rgb_filtered(Image src_i, int[] dst, int w0, int h0, int w1, int h1) {
 		int[] buffer1 = new int[w0];

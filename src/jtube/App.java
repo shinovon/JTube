@@ -38,7 +38,6 @@ import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONException;
 import cc.nnproject.json.JSONObject;
-import cc.nnproject.utils.PlatformUtils;
 import cc.nnproject.ytapp.App2;
 import jtube.ui.AppUI;
 import jtube.ui.Locale;
@@ -364,17 +363,25 @@ public class App implements Constants, Runnable {
 	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
 		JSONObject o = getVideoInfo(id, res);
 		if(o == null) throw new RuntimeException("not found");
-		String s = o.getString("url");
+		String url = o.getString("url");
 		if(Settings.httpStream || forceProxy) {
-			if(Settings.playbackProxy) {
-				int i = s.indexOf("/videoplayback");
-				s = Settings.videoplaybackProxy + s.substring(i+14);
-			}
-			if(!Settings.playbackProxy || Settings.useApiProxy) {
-				s = Settings.serverstream + Util.url(s);
+			switch(Settings.playbackProxyVariant) {
+			case 0:
+				url = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
+				if(Settings.useApiProxy) { // TODO?
+					url = Settings.serverstream + Util.url(url);
+				}
+				break;
+			case 1:
+				url = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
+				break;
+			case 2:
+				url = Settings.serverstream + Util.url(url);
+				break;
 			}
 		}
-		return s;
+		System.out.println(url);
+		return url;
 	}
 
 	public static String getVideoLink(String id, String res) throws JSONException, IOException {
@@ -417,11 +424,11 @@ public class App implements Constants, Runnable {
 					return;
 				}
 				String url = getVideoLink(id, Settings.videoRes, true);
-				boolean bada = PlatformUtils.isBada();
-				String file = bada ? System.getProperty("fileconn.dir.videos") : ("file:///" + Settings.downloadDir);
+				boolean bada = PlatformUtils.isBada;
+				String file = bada ? "file:///Media/Videos/" : ("file:///" + Settings.downloadDir);
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
-				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada()) {
+				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada) {
 					file += "watch.ram";
 				} else /*if (PlatformUtils.isSymbian93()) {
 					file += "watch.ram";
@@ -433,9 +440,20 @@ public class App implements Constants, Runnable {
 				FileConnection fc = null;
 				OutputStream o = null;
 				try {
-					fc = (FileConnection) Connector.open(file, 3);
-					if (fc.exists())
-						fc.delete();
+					try {
+						fc = (FileConnection) Connector.open(file, 3);
+						if (fc.exists())
+							fc.delete();
+					} catch (IOException e) {
+						if(!bada) throw e;
+						file = System.getProperty("fileconn.dir.videos");
+						if (!file.endsWith("/") && !file.endsWith("\\"))
+							file += "/";
+						file += "watch.ram";
+						fc = (FileConnection) Connector.open(file, 3);
+						if (fc.exists())
+							fc.delete();
+					}
 					fc.create();
 					o = fc.openDataOutputStream();
 					o.write(url.getBytes("UTF-8"));
@@ -593,8 +611,7 @@ public class App implements Constants, Runnable {
 		String s;
 		if((s = (String) args.get("url")) != null && s.length() > 0) {
 			try {
-				s = Util.decodeURL(s);
-				openURL(s);
+				openURL(Util.decodeURL(s));
 				return true;
 			} catch (IllegalArgumentException e) {
 				return false;
@@ -616,18 +633,17 @@ public class App implements Constants, Runnable {
 		if(inst == null || inst.ui == null) {
 			return;
 		}
-		final String https = "https://";
-		final String http = "http://";
-		final String www = "www.";
-		if(url.startsWith(https)) url = url.substring(https.length());
-		else if(url.startsWith(http)) url = url.substring(http.length());
-		if(url.startsWith(www)) url = url.substring(www.length());
+		if(url.startsWith("https")) url = url.substring(5);
+		else if(url.startsWith("http")) url = url.substring(4);
+		if(url.startsWith("://")) url = url.substring(3);
+		if(url.startsWith("www")) url = url.substring(3);
+		if(url.startsWith("m.")) url = url.substring(2);
 		if(url.startsWith("youtu.be")) {
 			int i = url.indexOf('/');
 			if(i == -1)
 				throw new IllegalArgumentException();
 			url = url.substring(i + 1);
-			if((i = url.indexOf('/')) != -1) {
+			if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 				url = url.substring(0, i);
 			}
 			inst.ui.openVideo(url);
@@ -652,17 +668,13 @@ public class App implements Constants, Runnable {
 				if(i == -1)
 					throw new IllegalArgumentException();
 				url = url.substring(i + 1);
-				if((i = url.indexOf('/')) != -1) {
-					url = url.substring(0, i);
-				} else if((i = url.indexOf('?')) != -1) {
+				if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 					url = url.substring(0, i);
 				}
 				inst.ui.openVideo(url);
 			} else if(url.startsWith("@")) {
 				url = url.substring(url.indexOf('@'));
-				if((i = url.indexOf('/')) != -1) {
-					url = url.substring(0, i);
-				} else if((i = url.indexOf('?')) != -1) {
+				if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 					url = url.substring(0, i);
 				}
 				inst.ui.openChannel(url);
@@ -671,9 +683,7 @@ public class App implements Constants, Runnable {
 				if(i == -1)
 					throw new IllegalArgumentException();
 				url = url.substring(i + 1);
-				if((i = url.indexOf('/')) != -1) {
-					url = url.substring(0, i);
-				} else if((i = url.indexOf('?')) != -1) {
+				if((i = url.indexOf('/')) != -1 || (i = url.indexOf('?')) != -1) {
 					url = url.substring(0, i);
 				}
 				inst.ui.openChannel(url);

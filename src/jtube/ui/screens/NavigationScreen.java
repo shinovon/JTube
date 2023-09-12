@@ -38,9 +38,9 @@ import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.keyboard.Keyboard;
 import cc.nnproject.keyboard.KeyboardListener;
-import cc.nnproject.utils.PlatformUtils;
 import jtube.App;
 import jtube.Loader;
+import jtube.PlatformUtils;
 import jtube.RunnableTask;
 import jtube.Settings;
 import jtube.Util;
@@ -243,6 +243,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			if(addOk) {
 				ui.addCommand(okCmd);
+			}
+		}
+	}
+	
+	public void canvasFocused() {
+		if(!Settings.videoPreviews) return;
+		for(int i = 0; i < items.size(); i++) {
+			Object o = items.elementAt(i);
+			if(o instanceof VideoItem) {
+				((VideoItem)o).onHide();
 			}
 		}
 	}
@@ -805,7 +815,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 			return;
 		}
-		if(y > lastH-topBarHeight) {
+		if(y > lastH-topBarHeight && !(this instanceof VideoScreen)) {
 			int f = lastW / 2;
 			if(x > 0 && x < f) {
 				selectTab(0);

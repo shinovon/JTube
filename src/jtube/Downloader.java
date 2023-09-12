@@ -99,11 +99,19 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			JSONObject o = App.getVideoInfo(id, res);
 			String url = o.getString("url");
 			if(Settings.httpStream) {
-				if(Settings.playbackProxy) {
-					int i = url.indexOf("/videoplayback");
-					url = Settings.videoplaybackProxy + url.substring(i+14);
-				} else {
+				switch(Settings.playbackProxyVariant) {
+				case 0:
+					url = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
+					if(Settings.useApiProxy) {
+						url = Settings.serverstream + Util.url(url);
+					}
+					break;
+				case 1:
+					url = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
+					break;
+				case 2:
 					url = Settings.serverstream + Util.url(url);
+					break;
 				}
 			}
 			int contentLength = o.getInt("clen", 0);

@@ -31,7 +31,6 @@ import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Image;
 
-import cc.nnproject.utils.PlatformUtils;
 import jtube.ui.Locale;
 
 public class Util implements Constants {

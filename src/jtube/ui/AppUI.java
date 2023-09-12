@@ -559,6 +559,9 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void display(Displayable d) {
 		if(d == null) {
 			if(display.getCurrent() == canv) return;
+			if(current != null && current instanceof NavigationScreen) {
+				((NavigationScreen) current).canvasFocused();
+			}
 			display.setCurrent(canv);
 			repaint();
 			if(current != null) {
@@ -566,11 +569,11 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			}
 			return;
 		}
-		if(!(d instanceof Alert)) {
-			display.setCurrent(d);
-		} else {
+		if(d instanceof Alert) {
 			display.setCurrent((Alert) d, canv);
+			return;
 		}
+		display.setCurrent(d);
 	}
 
 	public void msg(String s) {
@@ -610,6 +613,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		IModelScreen scr = model.makeScreen();
 		scr.setContainerScreen(formContainer);
 		nextScreen((UIScreen) scr);
+		display(null);
 		if(scr instanceof VideoScreen) {
 			ui.videoScr = (VideoScreen) scr;
 		}
