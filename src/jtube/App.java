@@ -424,8 +424,34 @@ public class App implements Constants, Runnable {
 					return;
 				}
 				String url = getVideoLink(id, Settings.videoRes, true);
-				boolean bada = PlatformUtils.isBada;
-				String file = bada ? "file:///Media/Videos/" : ("file:///" + Settings.downloadDir);
+				
+				if(PlatformUtils.isBada) {
+					String file = "file:///Media/Videos/watch.ram";
+					FileConnection fc = null;
+					OutputStream o = null;
+					try {
+						fc = (FileConnection) Connector.open(file, 3);
+						if (fc.exists())
+							fc.delete();
+						fc.create();
+						o = fc.openDataOutputStream();
+						o.write(url.getBytes("UTF-8"));
+						o.flush();
+						Util.platReq(file);
+						return;
+					} catch (Exception e) {
+					} finally {
+						try {
+							if (o != null)
+								o.close();
+							if (fc != null)
+								fc.close();
+						} catch (Exception e) {
+						}
+					}
+				}
+				
+				String file = "file:///" + Settings.downloadDir;
 				if (!file.endsWith("/") && !file.endsWith("\\"))
 					file += "/";
 				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada) {
@@ -440,20 +466,9 @@ public class App implements Constants, Runnable {
 				FileConnection fc = null;
 				OutputStream o = null;
 				try {
-					try {
-						fc = (FileConnection) Connector.open(file, 3);
-						if (fc.exists())
-							fc.delete();
-					} catch (IOException e) {
-						if(!bada) throw e;
-						file = System.getProperty("fileconn.dir.videos");
-						if (!file.endsWith("/") && !file.endsWith("\\"))
-							file += "/";
-						file += "watch.ram";
-						fc = (FileConnection) Connector.open(file, 3);
-						if (fc.exists())
-							fc.delete();
-					}
+					fc = (FileConnection) Connector.open(file, 3);
+					if (fc.exists())
+						fc.delete();
 					fc.create();
 					o = fc.openDataOutputStream();
 					o.write(url.getBytes("UTF-8"));
@@ -464,13 +479,6 @@ public class App implements Constants, Runnable {
 							o.close();
 						if (fc != null)
 							fc.close();
-					} catch (Exception e) {
-					}
-				}
-				if(bada) {
-					try {
-						Util.platReq("file:///Media/Videos/watch.ram");
-						return;
 					} catch (Exception e) {
 					}
 				}

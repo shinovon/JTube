@@ -223,8 +223,10 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 		if(cItem == null) selectItem();
 		if(i == -1) {
 			if(cItem == null) return false;
-			if(cItem.getY() < -scroll) {
-				smoothlyScrollTo((int)scroll+(screenHeight/3));
+			int ss = (int) scroll;
+			if(scrollTarget < 0) ss = scrollTarget;
+			if(cItem.getY() < -ss) {
+				smoothlyScrollTo((int)ss+(screenHeight/3));
 			} else {
 				if(cItem.getListPosition() == 0) {
 					if(-scroll < screenHeight/4) {
@@ -239,15 +241,20 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					}
 					focusItem(item);
 				}
-				if(!isItemSeenOnScreen(cItem, 24)) {
-					smoothlyScrollTo(-cItem.getY());
+				if(!isItemSeenOnScreen(cItem, screenHeight/5)) {
+					int s = (int)scroll+(screenHeight/4);
+					if(s > -cItem.getY()) s = -cItem.getY();
+					smoothlyScrollTo(s);
+					//smoothlyScrollTo(-cItem.getY()+screenHeight/2);
 				}
 				return true;
 			}
 		} else if(i == -2) {
 			if(cItem == null) return false;
-			if(cItem.getY()+cItem.getHeight() > -(scroll-screenHeight)) {
-				smoothlyScrollTo((int)scroll-(screenHeight/3));
+			int ss = (int) scroll;
+			if(scrollTarget < 0) ss = scrollTarget;
+			if(cItem.getY()+cItem.getHeight() > -(ss-screenHeight)) {
+				smoothlyScrollTo((int)ss-(screenHeight/3));
 			} else {
 				if(cItem.getListPosition() == items.size()-1) return false;
 				UIItem item = (UIItem) items.elementAt(cItem.getListPosition()+1);
@@ -255,8 +262,11 @@ public abstract class AbstractListScreen extends UIScreen implements UIConstants
 					item = (UIItem) items.elementAt(item.getListPosition()+1);
 				}
 				focusItem(item);
-				if(!isItemSeenOnScreen(cItem, 24)) {
-					smoothlyScrollTo(-cItem.getY());
+				if(!isItemSeenOnScreen(cItem, screenHeight/5)) {
+					int s = (int)scroll-(screenHeight/4);
+					if(s < -cItem.getY()-cItem.getHeight()) s = -cItem.getY()-cItem.getHeight();
+					smoothlyScrollTo(s);
+					//smoothlyScrollTo(-cItem.getY()+screenHeight/2);
 				}
 			}
 			if(scroll < -height + screenHeight) {
