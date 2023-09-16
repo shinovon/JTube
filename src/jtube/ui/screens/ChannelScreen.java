@@ -261,10 +261,6 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		continuation = null;
 	}
 	
-	protected void menuAction(int action) {
-		super.menuAction(action);
-	}
-	
 	protected void back() {
 		super.back();
 	}
