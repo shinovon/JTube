@@ -95,7 +95,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"j2mekeyboard",
 			Locale.s(SET_FullScreenInput)
 			};
-	static final String[] VPB_PROXY_VARIANTS = new String[] { 
+	static final String[] VPB_PROXY_VARIANTS = new String[] {
 			"Invidious",
 			"nnchan",
 			Locale.s(SET_UrlPrefix)
