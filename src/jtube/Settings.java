@@ -50,7 +50,7 @@ public class Settings implements Constants {
 	public static boolean videoPreviews;
 	public static boolean searchChannels = true;
 	public static boolean rememberSearch;
-	public static boolean httpStream;
+	public static boolean httpStream = true;
 	public static int startScreen; // 0 - Trends 1 - Popular
 	public static String inv = iteroni;
 	public static boolean rmsPreviews;
@@ -176,7 +176,6 @@ public class Settings implements Constants {
 			// Defaults
 			if(PlatformUtils.isJ2ML()) {
 				videoPreviews = true;
-				httpStream = false;
 				videoRes = "360p";
 				downloadDir = "C:/";
 			} else {
@@ -231,21 +230,16 @@ public class Settings implements Constants {
 					downloadDir = downloadDir.substring("file:///".length());
 				}
 				Settings.downloadDir = downloadDir;
-				watchMethod = PlatformUtils.isSymbian3Based()/* || PlatformUtils.isBada() || PlatformUtils.isS603rd()*/ ? 1 : 0;
+				watchMethod = PlatformUtils.isSymbian3Based() ? 1 : 0;
 				boolean lowEnd = isLowEndDevice();
 				if(lowEnd) {
-					httpStream = true;
-					asyncLoading = false;
-					videoPreviews = false;
-					serverstream = stream;
 					fastScrolling = true;
 					powerSaving = true;
 				} else {
-					if((!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3orLower()) || PlatformUtils.isBada) {
-						httpStream = true;
-						asyncLoading = false;
-					}
-					if(PlatformUtils.isSymbian3Based() || PlatformUtils.isSymbian93() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
+					if(PlatformUtils.isSymbian3Based()) {
+						asyncLoading = true;
+						downloadBuffer = 16384;
+					} else if(PlatformUtils.isSymbian93() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
 					}
@@ -254,21 +248,12 @@ public class Settings implements Constants {
 						downloadBuffer = 4096;
 						rmsPreviews = true;
 					}
-					if(PlatformUtils.isS60v3orLower()) {
-						httpStream = true;
+					if(PlatformUtils.isS40() && !PlatformUtils.isAsha) {
+						rmsPreviews = true;
 					}
 					videoPreviews = true;
 				}
-				if(PlatformUtils.isAsha) {
-					serverstream = stream;
-					videoPreviews = true;
-				} else if(PlatformUtils.isS40() /*|| (PlatformUtils.isNotS60() && !PlatformUtils.isS603rd() && PlatformUtils.startMemory > 512 * 1024 && PlatformUtils.startMemory < 2024 * 1024)*/) {
-					serverstream = stream;
-					videoPreviews = true;
-					rmsPreviews = true;
-				} else {
-					serverstream = glype;
-				}
+				serverstream = PlatformUtils.isAsha || PlatformUtils.isS40() ? stream : glype;
 				int min = Math.min(App.startWidth, App.startHeight);
 				// Symbian 9.4 can't handle H.264/AVC
 				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
@@ -398,8 +383,7 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return !PlatformUtils.isSymbianJ9() && !(PlatformUtils.isSymbian()) && 
-				(App.startWidth < 176 || PlatformUtils.startMemory <= 1024 * 1024);
+		return !PlatformUtils.isSymbian() && (App.startWidth < 176 || PlatformUtils.startMemory <= 1024 * 1024);
 	}
 	
 	public static void registerPush() {
