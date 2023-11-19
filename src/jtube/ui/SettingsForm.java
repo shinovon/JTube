@@ -199,7 +199,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		langBtn.addCommand(langCmd);
 		langBtn.setDefaultCommand(langCmd);
 		langBtn.setItemCommandListener(this);
-		langBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER);
+		langBtn.setLayout(Item.LAYOUT_EXPAND);
 		
 		append(langBtn);
 		append(spacer());
