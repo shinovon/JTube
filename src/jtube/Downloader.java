@@ -146,6 +146,10 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
 			}
+			if(r > 302) {
+				fail("HTTP Error: " + r, Locale.s(TXT_DownloadFailed));
+				return;
+			}
 			if(cancel) throw new InterruptedException();
 			int redirectCount = 0;
 			while (r == 301 || r == 302) {
