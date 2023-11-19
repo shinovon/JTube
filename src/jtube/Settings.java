@@ -21,7 +21,6 @@ SOFTWARE.
 */
 package jtube;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -114,28 +113,19 @@ public class Settings implements Constants {
 			langsList = new Vector();
 			langsList.addElement(new String[] { "en", "English", "", "Built-in"});
 			langsList.addElement(new String[] { "ru", "Russian", "Русский", "Built-in"});
-			InputStream is = "".getClass().getResourceAsStream("/jtindex");
-			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-			char[] cbuf = new char[2048];
-			isr.read(cbuf);
-			isr.close();
-			try {
-				is.close();
-			} catch (Exception e) {
-			}
-			int i = 0;
-			char c;
+			InputStreamReader isr = new InputStreamReader("".getClass().getResourceAsStream("/jtindex"), "UTF-8");
 			boolean skipLine = false;
 			StringBuffer tmp = new StringBuffer();
 			boolean b = true;
 			while(b) {
-				c = cbuf[i++];
+				int c = isr.read();
 				switch(c) {
 				case '#':
-					skipLine = true;
+					if(tmp.length() == 0) skipLine = true;
 					break;
 				case '\r':
 					break;
+				case -1:
 				case 0:
 					b = false;
 				case '\n':
@@ -158,6 +148,7 @@ public class Settings implements Constants {
 					tmp.append(c);
 				}
 			}
+			isr.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
