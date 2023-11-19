@@ -1,4 +1,3 @@
-package jtube;
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -20,6 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package jtube;
 
 public interface Constants {
 	
