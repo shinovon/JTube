@@ -309,8 +309,8 @@ public class Settings implements Constants {
 						httpStream = true;
 						useApiProxy = true;
 					}
+					saveConfig();
 				}
-				saveConfig();
 				return;
 			} catch (Exception e) {
 			}
