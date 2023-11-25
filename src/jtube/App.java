@@ -118,35 +118,36 @@ public class App implements Constants, Runnable {
 	}
 
 	public void startApp() {
-		if(!"JTube".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Name"))) {
+		if(!"JTube".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Name"))
+			|| !"nnproject".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Vendor"))) {
 			throw new RuntimeException();
 		}
-		if(!"nnproject".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Vendor"))) {
-			throw new RuntimeException();
-		}
+		
 		SplashScreen splash = new SplashScreen();
 		Display.getDisplay(midlet).setCurrent(splash);
 		App.startWidth = splash.getWidth();
 		App.startHeight = splash.getHeight();
-		Settings.region = System.getProperty("user.country");
-		if(Settings.region == null) {
-			Settings.region = System.getProperty("microedition.locale");
-			if(Settings.region == null) {
-				Settings.region = "US";
+		
+		String region = System.getProperty("user.country");
+		if(region == null) {
+			region = System.getProperty("microedition.locale");
+			if(region == null) {
+				region = "US";
 			} else {
-				if(Settings.region.length() == 5) {
-					Settings.region = Settings.region.substring(3, 5);
-				} else if(Settings.region.length() > 2) {
-					Settings.region = "US";
+				if(region.length() == 5) {
+					region = region.substring(3, 5);
+				} else if(region.length() > 2) {
+					region = "US";
 				}
 			}
-		} else if(Settings.region.length() > 2) {
-			Settings.region = Settings.region.substring(0, 2);
+		} else if(region.length() > 2) {
+			region = region.substring(0, 2);
 		}
-		if(Settings.region.toLowerCase().equals("en")) {
-			Settings.region = "US";
+		if(region.toLowerCase().equals("en")) {
+			region = "US";
 		}
-		Settings.region = Settings.region.toUpperCase();
+		Settings.region = region.toUpperCase();
+		
 		tasksThread.start();
 		Settings.loadConfig(splash);
 		Locale.init();

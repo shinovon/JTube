@@ -249,6 +249,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			if(e.toString().indexOf("key: \"content\"") != -1) {
 				Settings.region = "US";
 				loadMain();
+				Settings.saveConfig();
 				return;
 			}
 			App.error(this, Errors.AppUI_loadForm, e);
