@@ -61,12 +61,12 @@ public class App implements Constants, Runnable {
 		public void run() {
 			try {
 				while(midlet.running) {
-					Runnable r = queuedTasks[0];
-					if(r == null) {
+					if(queuedTasks[0] == null) {
 						synchronized (tasksLock) {
 							tasksLock.wait();
 						}
 					}
+					Runnable r = queuedTasks[0];
 					System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
 					queuedTasks[queuedTasks.length - 1] = null;
 					queuedTasksIdx--;
