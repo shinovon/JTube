@@ -146,7 +146,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		setCommandListener(this);
 		addCommand(applyCmd);
 		Font titleFont = Font.getFont(0, Font.STYLE_BOLD, Font.SIZE_SMALL);
-		int titleLayout = Item.LAYOUT_LEFT;
+		final int titleLayout = Item.LAYOUT_LEFT;
 		StringItem videoLabel = new StringItem(null, " " + Locale.s(SET_Video) + EOL);
 		videoLabel.setFont(titleFont);
 		StringItem uiLabel = new StringItem(null, " " + Locale.s(SET_Appearance) + EOL);
@@ -180,7 +180,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256, TextField.URL);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
-		debugChoice = new ChoiceGroup("Debug", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
+		debugChoice = new ChoiceGroup("Other", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
 		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
 		apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
