@@ -124,18 +124,17 @@ public class LocalStorage {
 		try {
 			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
 			if(subsRS.getNumRecords() > 0) {
-				String s = new String(subsRS.getRecord(1), "UTF-8");
-				subscriptions = JSON.getArray(s);
-				// remove repeats
-				for(int i = subscriptions.size()-2; i > 0; i-=2) {
-					int idx = subscriptions.indexOf(subscriptions.get(i));
-					if(idx != i) {
-						subscriptions.remove(i+1);
-						subscriptions.remove(i);
-					}
-				}
-				byte[] b = exportSubscriptionsBytes();
-				subsRS.setRecord(1, b, 0, b.length);
+				subscriptions = JSON.getArray(new String(subsRS.getRecord(1), "UTF-8"));
+//				// remove repeats
+//				for(int i = subscriptions.size()-2; i > 0; i-=2) {
+//					int idx = subscriptions.indexOf(subscriptions.get(i));
+//					if(idx != i) {
+//						subscriptions.remove(i+1);
+//						subscriptions.remove(i);
+//					}
+//				}
+//				byte[] b = exportSubscriptionsBytes();
+//				subsRS.setRecord(1, b, 0, b.length);
 			} else {
 				subscriptions = new JSONArray();
 				subsRS.addRecord("[]".getBytes(), 0, 2);
@@ -148,8 +147,7 @@ public class LocalStorage {
 	}
 	
 	public static void importSubscriptions(byte[] b) throws Exception {
-		String s = new String(b, "UTF-8");
-		subscriptions = JSON.getArray(s);
+		subscriptions = JSON.getArray(new String(b, "UTF-8"));
 		// remove repeats
 		for(int i = subscriptions.size()-2; i > 0; i-=2) {
 			int idx = subscriptions.indexOf(subscriptions.get(i));
