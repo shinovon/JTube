@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022 Arman Jussupgaliyev
+Copyright (c) 2022 Arman Jussupgaliyev
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import jtube.ui.Locale;
 public class HomeScreen extends NavigationScreen {
 
 	public HomeScreen() {
-		super("");
+		super(null);
 		menuOptions = !topBar ? new String[] {
 				Locale.s(CMD_Search),
 				Locale.s(TITLE_Subscriptions),

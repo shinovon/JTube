@@ -44,7 +44,7 @@ import jtube.ui.items.Label;
 import jtube.ui.items.LineSplit;
 import jtube.ui.items.RecommendationsButton;
 import jtube.ui.items.VideoButtons;
-import jtube.ui.nokia_extensions.DirectFontUtil;
+import jtube.ui.nokia.DirectFontUtil;
 
 public class VideoScreen extends NavigationScreen implements IModelScreen, Runnable, Commands {
 

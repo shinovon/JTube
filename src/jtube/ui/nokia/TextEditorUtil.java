@@ -19,33 +19,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package jtube.ui.nokia_extensions;
+package jtube.ui.nokia;
 
-import com.nokia.mid.ui.TextEditor;
+import jtube.PlatformUtils;
 
-public class TextEditorInvoker {
+public class TextEditorUtil {
 	
-	static TextEditor createTextEditor(String text, int maxSize, int constraints, int width, int height) {
-		return TextEditor.createTextEditor(text, maxSize, constraints, width, height);
+	private static boolean supported;
+	
+	public static void init() {
+		if((PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch()) && !PlatformUtils.isKemulator) {
+			try {
+				Class.forName("com.nokia.mid.ui.TextEditor");
+				supported = true;
+			} catch (Exception e) {
+			} catch (Error e) {
+			}
+		}
 	}
 	
-	static TextEditorInst createTextEditorInst(String text, int maxSize, int constraints, int width, int height) {
-		TextEditor editor = createTextEditor(text, maxSize, constraints, width, height);
-		TextEditorInst inst = null;
+	public static TextEditorInst createTextEditor(String text, int maxSize, int constraints, int width, int height) {
+		if(!supported) return null;
 		try {
-			Class.forName("com.nokia.mid.ui.S60TextEditor");
-			inst = new S60TextEditorImpl();
-			if(inst.setEditor(editor)) {
-				return inst;
-			}
-		} catch (Exception e) {
-		} catch (Error e) {
-		}
-		inst = new TextEditorImpl();
-		if(inst.setEditor(editor)) {
-			return inst;
+			return TextEditorInvoker.createTextEditorInst(text, maxSize, constraints, width, height);
+		} catch (Throwable e) {
 		}
 		return null;
+	}
+	
+	public static boolean isSupported() {
+		return supported;
 	}
 
 }

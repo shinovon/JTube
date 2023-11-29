@@ -1,4 +1,3 @@
-package jtube;
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -20,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package jtube;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -145,6 +146,10 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				hc.setRequestMethod("GET");
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
+			}
+			if(r > 302) {
+				fail("HTTP Error: " + r, Locale.s(TXT_DownloadFailed));
+				return;
 			}
 			if(cancel) throw new InterruptedException();
 			int redirectCount = 0;

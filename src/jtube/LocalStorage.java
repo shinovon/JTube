@@ -1,6 +1,5 @@
-package jtube;
 /*
-Copyright (c) 2022 Arman Jussupgaliyev
+Copyright (c) 2023 Arman Jussupgaliyev
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package jtube;
+
 import java.io.IOException;
-import java.util.Vector;
 
 import javax.microedition.lcdui.Image;
 import javax.microedition.rms.RecordStore;
@@ -31,7 +31,7 @@ import cc.nnproject.json.JSONArray;
 
 public class LocalStorage {
 	
-	private static Vector subscriptions;
+	private static JSONArray subscriptions;
 
 	public static void cacheThumbnail(String id, byte[] b) {
 		try {
@@ -124,45 +124,43 @@ public class LocalStorage {
 		try {
 			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
 			if(subsRS.getNumRecords() > 0) {
-				String s = new String(subsRS.getRecord(1), "UTF-8");
-				subscriptions = JSON.getArray(s).getVector();
-				// remove repeats
-				for(int i = subscriptions.size()-2; i > 0; i-=2) {
-					int idx = subscriptions.indexOf(subscriptions.elementAt(i));
-					if(idx != i) {
-						subscriptions.removeElementAt(i+1);
-						subscriptions.removeElementAt(i);
-					}
-				}
-				byte[] b = exportSubscriptionsBytes();
-				subsRS.setRecord(1, b, 0, b.length);
+				subscriptions = JSON.getArray(new String(subsRS.getRecord(1), "UTF-8"));
+//				// remove repeats
+//				for(int i = subscriptions.size()-2; i > 0; i-=2) {
+//					int idx = subscriptions.indexOf(subscriptions.get(i));
+//					if(idx != i) {
+//						subscriptions.remove(i+1);
+//						subscriptions.remove(i);
+//					}
+//				}
+//				byte[] b = exportSubscriptionsBytes();
+//				subsRS.setRecord(1, b, 0, b.length);
 			} else {
-				subscriptions = new Vector();
+				subscriptions = new JSONArray();
 				subsRS.addRecord("[]".getBytes(), 0, 2);
 			}
 			subsRS.closeRecordStore();
 		} catch (Exception e) {
-			subscriptions = new Vector();
+			subscriptions = new JSONArray();
 			e.printStackTrace();
 		}
 	}
 	
 	public static void importSubscriptions(byte[] b) throws Exception {
-		String s = new String(b, "UTF-8");
-		subscriptions = JSON.getArray(s).getVector();
+		subscriptions = JSON.getArray(new String(b, "UTF-8"));
 		// remove repeats
 		for(int i = subscriptions.size()-2; i > 0; i-=2) {
-			int idx = subscriptions.indexOf(subscriptions.elementAt(i));
+			int idx = subscriptions.indexOf(subscriptions.get(i));
 			if(idx != i) {
-				subscriptions.removeElementAt(i+1);
-				subscriptions.removeElementAt(i);
+				subscriptions.remove(i+1);
+				subscriptions.remove(i);
 			}
 		}
 		saveSubscriptions();
 	}
 	
 	public static byte[] exportSubscriptionsBytes() throws Exception {
-		return new JSONArray(subscriptions).build().getBytes("UTF-8");
+		return subscriptions.build().getBytes("UTF-8");
 	}
 	
 	public static void saveSubscriptions() {
@@ -177,26 +175,26 @@ public class LocalStorage {
 	}
 	
 	public static void addSubscription(String id, String name) {
-		subscriptions.addElement(id);
-		subscriptions.addElement(name);
+		subscriptions.add(id);
+		subscriptions.add(name);
 		saveSubscriptions();
 	}
 	
 	public static boolean isSubscribed(String id) {
-		return subscriptions.contains(id);
+		return subscriptions.has(id);
 	}
 	
 	public static String[] getSubsciptions() {
 		if(subscriptions == null) return new String[0];
 		String[] arr = new String[subscriptions.size()];
-		subscriptions.copyInto(arr);
+		subscriptions.copyInto(arr, 0, arr.length);
 		return arr;
 	}
 	
 	public static String[] getSubsciptionIds() {
 		String[] arr = new String[subscriptions.size() >> 1];
 		for(int i = 0; i < arr.length; i++) {
-			arr[i] = (String) subscriptions.elementAt(i * 2);
+			arr[i] = (String) subscriptions.get(i * 2);
 		}
 		return arr;
 	}
@@ -204,15 +202,15 @@ public class LocalStorage {
 	public static String[] getSubsciptionNames() {
 		String[] arr = new String[subscriptions.size() >> 1];
 		for(int i = 0; i < arr.length; i++) {
-			arr[i] = (String) subscriptions.elementAt((i * 2) + 1);
+			arr[i] = (String) subscriptions.get((i * 2) + 1);
 		}
 		return arr;
 	}
 	
 	public static void removeSubscription(String id) {
 		int idx = subscriptions.indexOf(id);
-		subscriptions.removeElementAt(idx+1);
-		subscriptions.removeElementAt(idx);
+		subscriptions.remove(idx+1);
+		subscriptions.remove(idx);
 		saveSubscriptions();
 	}
 	

@@ -1,4 +1,3 @@
-package jtube;
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -20,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package jtube;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Hashtable;
@@ -58,28 +59,24 @@ public class App implements Constants, Runnable {
 	private Object tasksLock = new Object();
 	private Thread tasksThread = new Thread("Task Thread") {
 		public void run() {
-			while(midlet.running) {
-				try {
-					synchronized (tasksLock) {
-						tasksLock.wait();
-					}
-					while(true) {
-						Runnable r = queuedTasks[0];
-						if(r == null) break;
-						System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
-						queuedTasks[queuedTasks.length - 1] = null;
-						queuedTasksIdx--;
-						try {
-							r.run();
-						} catch (Exception e) {
+			try {
+				while(midlet.running) {
+					Runnable r = queuedTasks[0];
+					if(r == null) {
+						synchronized (tasksLock) {
+							tasksLock.wait();
 						}
-						Thread.sleep(1);
 					}
-				} catch (InterruptedException e) {
-					return;
-				} catch (Exception e) {
-					e.printStackTrace();
+					System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
+					queuedTasks[queuedTasks.length - 1] = null;
+					queuedTasksIdx--;
+					try {
+						r.run();
+					} catch (Throwable e) {
+					}
+					Thread.sleep(1);
 				}
+			} catch (Exception e) {
 			}
 		}
 	};
@@ -100,52 +97,46 @@ public class App implements Constants, Runnable {
 
 	public void cancel(Runnable r) {
 		synchronized(tasksLock) {
-			int idx = -1;
 			for(int i = 0; i < queuedTasks.length; i++) {
 				if(queuedTasks[i] == r) {
-					idx = i;
-					break;
+					if(i < queuedTasks.length - 1) {
+						System.arraycopy(queuedTasks, i+1, queuedTasks, i, queuedTasks.length - i);
+					}
+					queuedTasks[queuedTasks.length - 1] = null;
+					return;
 				}
-			}
-			if(idx != -1) {
-				if(idx < queuedTasks.length - 1) {
-					System.arraycopy(queuedTasks, idx+1, queuedTasks, idx, queuedTasks.length - idx);
-				}
-				queuedTasks[queuedTasks.length - 1] = null;
 			}
 		}
 	}
 
 	public void startApp() {
-		if(!"JTube".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Name"))) {
+		if(!"JTube".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Name"))
+			|| !"nnproject".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Vendor"))) {
 			throw new RuntimeException();
 		}
-		if(!"nnproject".equalsIgnoreCase(midlet.getAppProperty("MIDlet-Vendor"))) {
-			throw new RuntimeException();
-		}
+		
 		SplashScreen splash = new SplashScreen();
 		Display.getDisplay(midlet).setCurrent(splash);
 		App.startWidth = splash.getWidth();
 		App.startHeight = splash.getHeight();
-		Settings.region = System.getProperty("user.country");
-		if(Settings.region == null) {
-			Settings.region = System.getProperty("microedition.locale");
-			if(Settings.region == null) {
-				Settings.region = "US";
+		
+		String region = System.getProperty("user.country");
+		if(region == null) {
+			region = System.getProperty("microedition.locale");
+			if(region == null) {
+				region = "US";
 			} else {
-				if(Settings.region.length() == 5) {
-					Settings.region = Settings.region.substring(3, 5);
-				} else if(Settings.region.length() > 2) {
-					Settings.region = "US";
+				if(region.length() == 5) {
+					region = region.substring(3, 5);
+				} else if(region.length() > 2 || region.equalsIgnoreCase("en")) {
+					region = "US";
 				}
 			}
-		} else if(Settings.region.length() > 2) {
-			Settings.region = Settings.region.substring(0, 2);
+		} else if(region.length() > 2) {
+			region = region.substring(0, 2);
 		}
-		if(Settings.region.toLowerCase().equals("en")) {
-			Settings.region = "US";
-		}
-		Settings.region = Settings.region.toUpperCase();
+		Settings.region = region.toUpperCase();
+		
 		tasksThread.start();
 		Settings.loadConfig(splash);
 		Locale.init();
@@ -180,7 +171,7 @@ public class App implements Constants, Runnable {
 		try {
 			String s = Util.getUtf(updateurl+
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
-					"&l="+Locale.l+
+					"&l="+Locale.lang+
 					"&s="+(App.midlet.getAppProperty("JTube-Samsung-Build") != null ? "1" : "0")+
 					"&p="+Util.url(PlatformUtils.platform)
 					);

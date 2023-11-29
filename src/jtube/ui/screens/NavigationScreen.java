@@ -53,10 +53,10 @@ import jtube.ui.SearchSuggestionsThread;
 import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
 import jtube.ui.items.VideoItem;
-import jtube.ui.nokia_extensions.DirectFontUtil;
-import jtube.ui.nokia_extensions.TextEditorInst;
-import jtube.ui.nokia_extensions.TextEditorListener;
-import jtube.ui.nokia_extensions.TextEditorUtil;
+import jtube.ui.nokia.DirectFontUtil;
+import jtube.ui.nokia.TextEditorInst;
+import jtube.ui.nokia.TextEditorListener;
+import jtube.ui.nokia.TextEditorUtil;
 
 public abstract class NavigationScreen extends AbstractListScreen implements TextEditorListener, CommandListener, Commands, KeyboardListener {
 
@@ -325,8 +325,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						if(searchText.length() > 0) {
 							s = searchText;
 							g.setColor(AppUI.getColor(COLOR_MAINFG));
-							while(searchFont.stringWidth(s) >= w-(topBar ? 100 : 0)) {
-								s = s.substring(1);
+							int ww = w-(topBar ? 100 : 0);
+							if(searchFont.stringWidth(s) > ww) {
+								while(searchFont.stringWidth(s = s.substring(1)) >= ww);
 							}
 						} else {
 							g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
@@ -354,15 +355,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						xx += 48;
 					}
 					if(!(this instanceof VideoScreen)) {
-						String s = getTitle();
+						String s = label;
 						if(s != null && s.length() > 0) {
-							int ww = w-96-xx - (smallfont.charWidth('.')*2);
+							int ww = w-96-xx;
 							if(mediumfont.stringWidth(s) >= ww) {
 								g.setFont(smallfont);
-								while(smallfont.stringWidth(s) >= ww) {
-									s = s.substring(0, s.length()-1);
-								}
-								s += "..";
+								s = Util.getOneLine(s, smallfont, ww);
 							} else {
 								g.setFont(mediumfont);
 							}
@@ -459,7 +457,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						yy += ih;
 					}
 					g.setColor(AppUI.getColor(COLOR_MAINBORDER));
-					g.drawRect(xx, y2, menuW, menuH); // XXX
+					g.drawRect(xx, y2, menuW, menuH);
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
 				g.fillRect(0, h-softBarHeight, w, softBarHeight);
@@ -477,8 +475,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.drawString(Locale.s(CMD_Exit), w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
 					}
 				}
-				if(getCurrentItem() != null) {
-					UIItem ci = getCurrentItem();
+				UIItem ci = cItem;
+				if(ci != null) {
 					if(ci.getOKLabel() > 0) {
 						g.drawString(Locale.s(ci.getOKLabel()), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
 					}
@@ -680,9 +678,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void leftSoft() {
 		if(menuOptions != null) {
-			item = getCurrentItem();
-			if(item != null && item.contextActions() != null) {
-				int[] contextActions = getCurrentItem().contextActions();
+			item = cItem;
+			int[] contextActions;
+			if(item != null && (contextActions = item.contextActions()) != null) {
 				itemOptions = new String[contextActions.length];
 				for(int i = 0; i < contextActions.length; i++) {
 					itemOptions[i] = Locale.s(contextActions[i]);
@@ -1045,8 +1043,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	public void openItemMenu(UIItem item) {
 		this.item = item;
-		if(item != null && item.contextActions() != null) {
-			int[] contextActions = getCurrentItem().contextActions();
+		int[] contextActions;
+		if(item != null && (contextActions = item.contextActions()) != null) {
 			itemOptions = new String[contextActions.length];
 			for(int i = 0; i < contextActions.length; i++) {
 				itemOptions[i] = Locale.s(contextActions[i]);

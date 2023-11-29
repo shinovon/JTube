@@ -35,7 +35,7 @@ import jtube.ui.Locale;
 import jtube.ui.LocaleConstants;
 import jtube.ui.UIConstants;
 import jtube.ui.UIScreen;
-import jtube.ui.nokia_extensions.DirectFontUtil;
+import jtube.ui.nokia.DirectFontUtil;
 import jtube.ui.screens.ChannelScreen;
 import jtube.ui.screens.VideoScreen;
 import tube42.lib.imagelib.ImageUtils;
@@ -88,7 +88,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	}
 
 	public void paint(Graphics g, int w, int x, int y, int sc) {
-		boolean page = getScreen() instanceof ChannelScreen;
+		boolean page = screen instanceof ChannelScreen;
 		if(page) {
 			g.setColor(AppUI.getColor(COLOR_CHANNELPAGE_BG));
 			g.fillRect(x, y, w, h);
@@ -115,7 +115,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 			g.drawString(subsStr, x + (w >> 1), y, Graphics.HCENTER | Graphics.TOP);
 			return;
 		}
-		boolean small = channel.hasSmallImage && getScreen() instanceof IModelScreen;
+		boolean small = channel.hasSmallImage && screen instanceof IModelScreen;
 		int iw = small ? 36 : 48;
 		g.drawImage(img != null ? img : small ? defaultImg36 : defaultImg, x + 4, y + (h >> 1), Graphics.LEFT | Graphics.VCENTER);
 		g.setColor(AppUI.getColor(COLOR_MAINFG));
@@ -148,7 +148,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 
 	protected void layout(int w) {
 		h = 52;
-		if(getScreen() instanceof ChannelScreen) {
+		if(screen instanceof ChannelScreen) {
 			h = 0;
 			if(channel.bannerImg != null) {
 				h += (int)(w*channel.bannerImg.getHeight()/(float)channel.bannerImg.getWidth());
@@ -205,7 +205,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 
 	protected void action() {
 		UIScreen s;
-		if(getScreen() instanceof VideoScreen && (s = ((VideoModel) ((VideoScreen)getScreen()).getModel()).getContainerScreen()) instanceof ChannelScreen) {
+		if(screen instanceof VideoScreen && (s = ((VideoModel) ((VideoScreen)screen).getModel()).getContainerScreen()) instanceof ChannelScreen) {
 			ui.nextScreen(s);
 		} else {
 			ui.open(channel);
@@ -213,14 +213,14 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	}
 	
 	public int getOKLabel() {
-		if(getScreen() instanceof VideoScreen) {
+		if(screen instanceof VideoScreen) {
 			return LocaleConstants.CMD_ViewChannel;
 		}
 		return -1;
 	}
 	
 	public int[] contextActions() {
-		if(getScreen() instanceof ChannelScreen) {
+		if(screen instanceof ChannelScreen) {
 			return null;
 		}
 		return new int[] {

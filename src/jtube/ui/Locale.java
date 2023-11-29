@@ -1,5 +1,3 @@
-package jtube.ui;
-
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -21,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package jtube.ui;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,79 +30,67 @@ import jtube.Util;
 
 public class Locale implements LocaleConstants {
 
-	public static final String systemLocale;
 	public static boolean loaded;
 	public static int localei;
 	private static String[] values = new String[512];
-	public static String l;
-
-	static {
-		// J9, JRE language property
-		String s = System.getProperty("user.language");
-		if (s == null) {
-			s = System.getProperty("microedition.locale");
-			if (s == null) {
-				s = "en";
-			}
-		}
-		if (s.length() >= 2) {
-			s = s.substring(0, 2);
-		}
-		systemLocale = s.toLowerCase();
-		if (!s.equals("en") && (s.equals("ru") || s.equals("uk") || s.equals("be") || s.equals("kk") || s.equals("ua")
-				|| s.equals("by") || s.equals("kz"))) {
-			localei = 1;
-			l = "ru";
-		} else {
-			localei = 0;
-			l = "en";
-		}
-	}
+	public static String lang;
 
 	public static void init() {
+		String sys = System.getProperty("user.language");
+		if (sys == null) {
+			if ((sys = System.getProperty("microedition.locale")) == null) {
+				sys = "en";
+			}
+		}
+		if ((sys = sys.toLowerCase()).length() >= 2) {
+			sys = sys.substring(0, 2);
+		}
+		if (!sys.equals("en") &&
+				(sys.equals("ru") || sys.equals("be") ||
+				sys.equals("kk") || sys.equals("ua"))
+				) {
+			localei = 1;
+			lang = "ru";
+		} else {
+			localei = 0;
+			lang = "en";
+		}
+		
 		String s = Settings.customLocale;
 		boolean b = true;
-		if (s == null || (s = s.trim()).length() == 0) {
-			s = systemLocale;
+		if (s == null || (s = s.trim().toLowerCase()).length() == 0) {
+			s = sys;
 			b = false;
 		}
 		InputStream in = null;
 		try {
-			in = Locale.class.getResourceAsStream("/jtlng_" + s.toLowerCase());
+			in = Locale.class.getResourceAsStream("/jtlng_".concat(s));
 		} catch (Exception e) {
 		}
 		if (in != null) {
-			DataInputStream d = new DataInputStream(in);
+			in = new DataInputStream(in);
 			try {
-				try {
-					int i;
-					while ((i = d.readShort()) != -1) {
-						String sl = d.readUTF();
-						if(i == ISOLanguageCode) {
-							i = values.length - 1;
-						}
-						values[i] = sl;
-					}
-				} catch (IOException e) {
-				} finally {
-					d.close();
+				int i;
+				while ((i = ((DataInputStream) in).readShort()) != -1) {
+					values[i == ISOLanguageCode ? values.length - 1 : i] = ((DataInputStream) in).readUTF();
 				}
 				loaded = true;
-			} catch (IOException e) {
-			}
-		} else {
-			if (b) {
-				if (s.equals("ru")) {
-					localei = 1;
-				} else if (s.equals("en")) {
-					localei = 0;
-				}
-			} else {
-				s = localei == 0 ? "en" : localei == 1 ? "ru" : "unk";
-			}
+				lang = s;
+				return;
+			} catch(IOException e) {
+			} finally {
+				try { in.close(); } catch (IOException e) {}
+			} 
 		}
-		l = s;
-		s = null;
+		if (b) {
+			if (s.equals("ru")) {
+				localei = 1;
+				lang = s;
+				return;
+			}
+			localei = 0;
+			lang = "en";
+		}
 	}
 
 	public static String s(int c) {
@@ -112,7 +100,7 @@ public class Locale implements LocaleConstants {
 				if(values[values.length - 1] != null) {
 					return values[values.length - 1];
 				}
-				break;
+				return "en-US";
 			default:
 				if(values[c] != null) return values[c];
 			}

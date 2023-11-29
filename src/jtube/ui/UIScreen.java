@@ -21,20 +21,13 @@ SOFTWARE.
 */
 package jtube.ui;
 
-import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Graphics;
 
 public abstract class UIScreen {
 	
-	static {
-		if(AppUI.inst == null) {
-			System.out.println("UIScreen class initialized before AppUI?!?!");
-		}
-	}
+	protected static AppUI ui;
 	
-	protected static AppUI ui = AppUI.inst;
-	
-	private String label;
+	protected String label;
 	
 	protected float scroll;
 	protected int width;
@@ -53,15 +46,6 @@ public abstract class UIScreen {
 	
 	protected abstract void paint(Graphics g, int w, int h);
 	
-	public String getTitle() {
-		return label;
-	}
-	
-	public void setTitle(String s) {
-		this.label = s;
-		ui.updateScreenTitle(this);
-	}
-	
 	public void repaint() {
 		ui.repaint();
 	}
@@ -69,11 +53,6 @@ public abstract class UIScreen {
 	public void repaint(UIItem item) {
 		ui.repaint();
 	}
-
-	public int getHeight() {
-		return height;
-	}
-
 
 	protected void press(int x, int y) {}
 	protected void release(int x, int y) {}
@@ -92,19 +71,11 @@ public abstract class UIScreen {
 		return false;
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
 	public boolean hasScrollBar() {
 		return false;
 	}
 
 	public void setScrollBarY(int y) {
-	}
-
-	protected final void addCommand(Command c) {
-		ui.addCommand(c);
 	}
 	
 	protected void relayout() {

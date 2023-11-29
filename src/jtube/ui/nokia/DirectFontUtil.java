@@ -19,24 +19,41 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package jtube.ui.nokia_extensions;
+package jtube.ui.nokia;
 
-public interface TextEditorListener {
-	public static final int ACTION_CONTENT_CHANGE = 1;
-	public static final int ACTION_OPTIONS_CHANGE = 2;
-	public static final int ACTION_CARET_MOVE = 4;
-	public static final int ACTION_TRAVERSE_PREVIOUS = 8;
-	public static final int ACTION_TRAVERSE_NEXT = 16;
-	public static final int ACTION_PAINT_REQUEST = 32;
-	public static final int ACTION_DIRECTION_CHANGE = 64;
-	public static final int ACTION_INPUT_MODE_CHANGE = 128;
-	public static final int ACTION_LANGUAGE_CHANGE = 256;
-	public static final int ACTION_TRAVERSE_OUT_SCROLL_UP = 512;
-	public static final int ACTION_TRAVERSE_OUT_SCROLL_DOWN = 1024;
-	public static final int ACTION_SCROLLBAR_CHANGED = 2048;
-	public static final int ACTION_VIRTUAL_KEYBOARD_OPEN = 4096;
-	public static final int ACTION_VIRTUAL_KEYBOARD_CLOSE = 8192;
+import javax.microedition.lcdui.Font;
 
-	public void inputAction(TextEditorInst editor, int event);
+import jtube.PlatformUtils;
+
+public class DirectFontUtil {
+	
+	private static boolean supported;
+	
+	public static void init() {
+		if(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch() || PlatformUtils.isKemulator || PlatformUtils.isJ2ML()) {
+			try {
+				DirectUtilsInvoker.init();
+				supported = true;
+			} catch (Exception e) {
+			} catch (Error e) {
+			}
+		}
+	}
+	
+	public static Font getFont(int face, int style, int height, int size) {
+		if(supported) {
+			try {
+				Font f = DirectUtilsInvoker.getFont(face, style, height);
+				if(f != null) return f;
+			} catch (Throwable e) {
+			}
+		}
+		return Font.getFont(face, style, size);
+	}
+
+	public static boolean isSupported() {
+		return supported;
+	}
 	
 }
+

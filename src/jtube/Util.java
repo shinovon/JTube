@@ -1,4 +1,3 @@
-package jtube;
 /*
 Copyright (c) 2022 Arman Jussupgaliyev
 
@@ -20,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+package jtube;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -410,10 +411,9 @@ public class Util implements Constants {
 		if(font.stringWidth(text) < maxWidth) {
 			return text;
 		}
-		while(font.stringWidth(text + "..") >= maxWidth) {
-			text = text.substring(0, text.length() - 1);
-		}
-		return text + "..";
+		maxWidth -= font.charWidth('.')*2;
+		while(font.stringWidth((text = text.substring(0, text.length() - 1))) >= maxWidth);
+		return text.concat("..");
 	}
 	
 	public static String htmlText(String str) {

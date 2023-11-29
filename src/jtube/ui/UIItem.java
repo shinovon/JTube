@@ -27,12 +27,10 @@ public abstract class UIItem {
 	
 	protected static AppUI ui = AppUI.inst;
 	
-	private UIScreen screen;
+	protected UIScreen screen;
 	protected boolean inFocus;
-	private int y;
-
+	protected int y;
 	protected int index;
-
 	protected boolean hidden = true;
 
 	public UIItem(UIScreen screen) {
@@ -62,37 +60,8 @@ public abstract class UIItem {
 		inFocus = false;
 	}
 	
-	public void setScreen(UIScreen screen) {
-		this.screen = screen;
-	}
-	
-	public UIScreen getScreen() {
-		return screen;
-	}
-	
-	public final int getWidth() {
-		return screen.getWidth();
-	}
-	
 	protected final void repaint() {
-		if(screen != null)
-		screen.repaint(this);
-	}
-
-	public void setY(int y) {
-		this.y = y;
-	}
-	
-	public int getY() {
-		return y;
-	}
-
-	public void setIndex(int i) {
-		index = i;
-	}
-	
-	public int getListPosition() {
-		return index;
+		if(screen != null) screen.repaint(this);
 	}
 	
 	public void relayout() {
@@ -103,10 +72,6 @@ public abstract class UIItem {
 	public boolean isSeenOnScreen() {
 		if(screen == null) return false;
 		return screen.isItemSeenOnScreen(this);
-	}
-	
-	protected boolean isHidden() {
-		return hidden;
 	}
 	
 	protected void onHide() {

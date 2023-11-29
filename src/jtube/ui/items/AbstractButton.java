@@ -33,17 +33,17 @@ public abstract class AbstractButton extends UIItem {
 	protected abstract void action();
 	
 	protected void press(int x, int y) {
-		hover();
+		hover = true;
 	}
 	
 	protected void release(int x, int y) {
-		unhover();
+		hover = false;
 	}
 	
 	protected void tap(int x, int y, int time) {
-		unhover();
-		if(contextActions() != null && getScreen() instanceof NavigationScreen && time >= 500 && time <= 5000) {
-			((NavigationScreen) getScreen()).openItemMenu(this);
+		hover = false;
+		if(contextActions() != null && screen instanceof NavigationScreen && time >= 500 && time <= 5000) {
+			((NavigationScreen) screen).openItemMenu(this);
 			return;
 		}
 		if(time <= 200 && time >= 5) {
@@ -53,7 +53,7 @@ public abstract class AbstractButton extends UIItem {
 
 	protected boolean keyPress(int i) {
 		if(i == -5 || i == Canvas.KEY_NUM5) {
-			hover();
+			hover = true;
 			action();
 			return true;
 		}
@@ -62,7 +62,7 @@ public abstract class AbstractButton extends UIItem {
 
 	protected boolean keyRelease(int i) {
 		if(i == -5 || i == Canvas.KEY_NUM5) {
-			unhover();
+			hover = false;
 			return true;
 		}
 		return false;
@@ -70,14 +70,6 @@ public abstract class AbstractButton extends UIItem {
 	
 	public void defocus() {
 		super.defocus();
-		hover = false;
-	}
-
-	protected void hover() {
-		hover = true;
-	}
-
-	protected void unhover() {
 		hover = false;
 	}
 

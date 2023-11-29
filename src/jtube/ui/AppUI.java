@@ -50,8 +50,8 @@ import jtube.models.AbstractModel;
 import jtube.models.ChannelModel;
 import jtube.models.PlaylistModel;
 import jtube.models.VideoModel;
-import jtube.ui.nokia_extensions.DirectFontUtil;
-import jtube.ui.nokia_extensions.TextEditorUtil;
+import jtube.ui.nokia.DirectFontUtil;
+import jtube.ui.nokia.TextEditorUtil;
 import jtube.ui.screens.ChannelScreen;
 import jtube.ui.screens.HomeScreen;
 import jtube.ui.screens.NavigationScreen;
@@ -67,9 +67,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public AppUI() {
 		if(inst != null) throw new Error();
-		inst = this;
-		UIScreen.ui = this;
-		UIItem.ui = this;
+		UIItem.ui = UIScreen.ui = inst = this;
 	}
 	
 	public HomeScreen mainScr;
@@ -204,22 +202,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		canv.resetScreen();
 		repaint();
 		s.show();
-		String t = s.getTitle();
-		if(t != null && t.length() > 0) {
-			canv.setTitle(t);
-		} else {
-			canv.setTitle(null);
-		}
+		canv.setTitle(s.label);
 	}
 	
 	public void updateScreenTitle(UIScreen s) {
 		if(this.current == s) {
-			String t = s.getTitle();
-			if(t != null && t.length() > 0) {
-				canv.setTitle(t);
-			} else {
-				canv.setTitle(null);
-			}
+			canv.setTitle(s.label);
 		}
 	}
 	
@@ -249,6 +237,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			if(e.toString().indexOf("key: \"content\"") != -1) {
 				Settings.region = "US";
 				loadMain();
+				Settings.saveConfig();
 				return;
 			}
 			App.error(this, Errors.AppUI_loadForm, e);
@@ -262,7 +251,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void init() {
-		inst = this;
 		canv = new JTubeCanvas(this);
 		resetFullScreenMode();
 		try {
@@ -277,13 +265,8 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public void resetFullScreenMode() {
 		try {
-			if(Settings.fullScreen) {
-				canv.setFullScreenMode(true);
-				canv.setCommandListener(null);
-			} else {
-				canv.setFullScreenMode(false);
-				canv.setCommandListener(this);
-			}
+			canv.setFullScreenMode(Settings.fullScreen);
+			canv.setCommandListener(Settings.fullScreen ? null : this);
 		} catch (Exception e) {
 		}
 	}
@@ -323,12 +306,14 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void loadTrends() throws IOException {
-		mainScr.setTitle(Locale.s(TITLE_Trends));
+		mainScr.label = Locale.s(TITLE_Trends);
+		updateScreenTitle(mainScr);
 		load("trending");
 	}
 
 	public void loadPopular() throws IOException {
-		mainScr.setTitle(Locale.s(TITLE_Popular));
+		mainScr.label = Locale.s(TITLE_Popular);
+		updateScreenTitle(mainScr);
 		load("popular");
 	}
 
@@ -640,7 +625,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				+ "t.me/nnmidlets" + EOL
 				+ "vk.com/nnprojectcc" + EOL + EOL
 				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77, curoviyxru"
-				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.l +"): " + Locale.s(0) : ""));
+				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.lang +"): " + Locale.s(0) : ""));
 		t.setCommandListener(l == null ? this : l);
 		t.addCommand(new Command("OK", Command.OK, 1));
 		display(t);
@@ -666,8 +651,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void removeCommands() {
 		try {
 			for(int i = 0; i < commands.size(); i++) {
-				Command c = (Command) commands.elementAt(i);
-				canv.removeCommand(c);
+				canv.removeCommand((Command) commands.elementAt(i));
 			}
 		} catch (Exception e) {
 		}
