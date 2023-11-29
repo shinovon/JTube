@@ -325,8 +325,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						if(searchText.length() > 0) {
 							s = searchText;
 							g.setColor(AppUI.getColor(COLOR_MAINFG));
-							while(searchFont.stringWidth(s) >= w-(topBar ? 100 : 0)) {
-								s = s.substring(1);
+							int ww = w-(topBar ? 100 : 0);
+							if(searchFont.stringWidth(s) > ww) {
+								while(searchFont.stringWidth(s = s.substring(1)) >= ww);
 							}
 						} else {
 							g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
@@ -354,15 +355,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						xx += 48;
 					}
 					if(!(this instanceof VideoScreen)) {
-						String s = getTitle();
+						String s = label;
 						if(s != null && s.length() > 0) {
-							int ww = w-96-xx - (smallfont.charWidth('.')*2);
+							int ww = w-96-xx;
 							if(mediumfont.stringWidth(s) >= ww) {
 								g.setFont(smallfont);
-								while(smallfont.stringWidth(s) >= ww) {
-									s = s.substring(0, s.length()-1);
-								}
-								s += "..";
+								s = Util.getOneLine(s, smallfont, ww);
 							} else {
 								g.setFont(mediumfont);
 							}
@@ -459,7 +457,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						yy += ih;
 					}
 					g.setColor(AppUI.getColor(COLOR_MAINBORDER));
-					g.drawRect(xx, y2, menuW, menuH); // XXX
+					g.drawRect(xx, y2, menuW, menuH);
 				}
 				g.setColor(AppUI.getColor(COLOR_SOFTBAR_BG));
 				g.fillRect(0, h-softBarHeight, w, softBarHeight);

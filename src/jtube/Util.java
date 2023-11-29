@@ -411,10 +411,9 @@ public class Util implements Constants {
 		if(font.stringWidth(text) < maxWidth) {
 			return text;
 		}
-		while(font.stringWidth(text + "..") >= maxWidth) {
-			text = text.substring(0, text.length() - 1);
-		}
-		return text + "..";
+		maxWidth -= font.charWidth('.')*2;
+		while(font.stringWidth((text = text.substring(0, text.length() - 1))) >= maxWidth);
+		return text.concat("..");
 	}
 	
 	public static String htmlText(String str) {

@@ -521,7 +521,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			if(d == langsList) {
 				if(langsList.getSelectedIndex() == -1) {
-					Settings.customLocale = Locale.l;
+					Settings.customLocale = Locale.lang;
 				} else {
 					Settings.customLocale = ((String[])Settings.langsList.elementAt(langsList.getSelectedIndex()))[0];
 				}

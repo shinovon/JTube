@@ -59,28 +59,24 @@ public class App implements Constants, Runnable {
 	private Object tasksLock = new Object();
 	private Thread tasksThread = new Thread("Task Thread") {
 		public void run() {
-			while(midlet.running) {
-				try {
-					synchronized (tasksLock) {
-						tasksLock.wait();
-					}
-					while(true) {
-						Runnable r = queuedTasks[0];
-						if(r == null) break;
-						System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
-						queuedTasks[queuedTasks.length - 1] = null;
-						queuedTasksIdx--;
-						try {
-							r.run();
-						} catch (Exception e) {
+			try {
+				while(midlet.running) {
+					Runnable r = queuedTasks[0];
+					if(r == null) {
+						synchronized (tasksLock) {
+							tasksLock.wait();
 						}
-						Thread.sleep(1);
 					}
-				} catch (InterruptedException e) {
-					return;
-				} catch (Exception e) {
-					e.printStackTrace();
+					System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
+					queuedTasks[queuedTasks.length - 1] = null;
+					queuedTasksIdx--;
+					try {
+						r.run();
+					} catch (Throwable e) {
+					}
+					Thread.sleep(1);
 				}
+			} catch (Exception e) {
 			}
 		}
 	};
@@ -101,18 +97,14 @@ public class App implements Constants, Runnable {
 
 	public void cancel(Runnable r) {
 		synchronized(tasksLock) {
-			int idx = -1;
 			for(int i = 0; i < queuedTasks.length; i++) {
 				if(queuedTasks[i] == r) {
-					idx = i;
-					break;
+					if(i < queuedTasks.length - 1) {
+						System.arraycopy(queuedTasks, i+1, queuedTasks, i, queuedTasks.length - i);
+					}
+					queuedTasks[queuedTasks.length - 1] = null;
+					return;
 				}
-			}
-			if(idx != -1) {
-				if(idx < queuedTasks.length - 1) {
-					System.arraycopy(queuedTasks, idx+1, queuedTasks, idx, queuedTasks.length - idx);
-				}
-				queuedTasks[queuedTasks.length - 1] = null;
 			}
 		}
 	}
@@ -136,15 +128,12 @@ public class App implements Constants, Runnable {
 			} else {
 				if(region.length() == 5) {
 					region = region.substring(3, 5);
-				} else if(region.length() > 2) {
+				} else if(region.length() > 2 || region.equalsIgnoreCase("en")) {
 					region = "US";
 				}
 			}
 		} else if(region.length() > 2) {
 			region = region.substring(0, 2);
-		}
-		if(region.toLowerCase().equals("en")) {
-			region = "US";
 		}
 		Settings.region = region.toUpperCase();
 		
@@ -182,7 +171,7 @@ public class App implements Constants, Runnable {
 		try {
 			String s = Util.getUtf(updateurl+
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
-					"&l="+Locale.l+
+					"&l="+Locale.lang+
 					"&s="+(App.midlet.getAppProperty("JTube-Samsung-Build") != null ? "1" : "0")+
 					"&p="+Util.url(PlatformUtils.platform)
 					);

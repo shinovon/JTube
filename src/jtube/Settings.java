@@ -95,7 +95,7 @@ public class Settings implements Constants {
 	
 
 	public static void loadConfig(Canvas testCanvas) {
-		customLocale = Locale.l;
+		customLocale = Locale.lang;
 		fullScreen = true;
 		/*
 		String s = System.getProperty("kemulator.libvlc.supported");

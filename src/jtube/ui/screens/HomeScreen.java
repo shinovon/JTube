@@ -32,7 +32,7 @@ import jtube.ui.Locale;
 public class HomeScreen extends NavigationScreen {
 
 	public HomeScreen() {
-		super("");
+		super(null);
 		menuOptions = !topBar ? new String[] {
 				Locale.s(CMD_Search),
 				Locale.s(TITLE_Subscriptions),
