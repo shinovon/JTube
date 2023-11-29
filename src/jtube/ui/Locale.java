@@ -23,6 +23,7 @@ package jtube.ui;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import jtube.Settings;
 import jtube.Util;
@@ -61,16 +62,17 @@ public class Locale implements LocaleConstants {
 			s = sys;
 			b = false;
 		}
-		DataInputStream in = null;
+		InputStream in = null;
 		try {
-			in = new DataInputStream(Locale.class.getResourceAsStream("/jtlng_".concat(s)));
+			in = Locale.class.getResourceAsStream("/jtlng_".concat(s));
 		} catch (Exception e) {
 		}
 		if (in != null) {
+			in = new DataInputStream(in);
 			try {
 				int i;
-				while ((i = in.readShort()) != -1) {
-					values[i == ISOLanguageCode ? values.length - 1 : i] = in.readUTF();
+				while ((i = ((DataInputStream) in).readShort()) != -1) {
+					values[i == ISOLanguageCode ? values.length - 1 : i] = ((DataInputStream) in).readUTF();
 				}
 				loaded = true;
 				lang = s;
