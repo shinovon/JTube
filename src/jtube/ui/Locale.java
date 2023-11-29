@@ -32,22 +32,23 @@ public class Locale implements LocaleConstants {
 
 	public static boolean loaded;
 	public static int localei;
+	private static String systemLocale;
 	private static String[] values = new String[512];
 	public static String lang;
 
 	public static void init() {
-		String sys = System.getProperty("user.language");
-		if (sys == null) {
-			if ((sys = System.getProperty("microedition.locale")) == null) {
-				sys = "en";
+		String s = System.getProperty("user.language");
+		if (s == null) {
+			if ((s = System.getProperty("microedition.locale")) == null) {
+				s = "en";
 			}
 		}
-		if ((sys = sys.toLowerCase()).length() >= 2) {
-			sys = sys.substring(0, 2);
+		if ((s = s.toLowerCase()).length() >= 2) {
+			s = s.substring(0, 2);
 		}
-		if (!sys.equals("en") &&
-				(sys.equals("ru") || sys.equals("be") ||
-				sys.equals("kk") || sys.equals("ua"))
+		if (!s.equals("en") &&
+				(s.equals("ru") || s.equals("be") ||
+				s.equals("kk") || s.equals("ua"))
 				) {
 			localei = 1;
 			lang = "ru";
@@ -55,11 +56,15 @@ public class Locale implements LocaleConstants {
 			localei = 0;
 			lang = "en";
 		}
-		
+		systemLocale = s;
+	}
+	
+	
+	public static void load() {	
 		String s = Settings.customLocale;
 		boolean b = true;
 		if (s == null || (s = s.trim().toLowerCase()).length() == 0) {
-			s = sys;
+			s = systemLocale;
 			b = false;
 		}
 		InputStream in = null;

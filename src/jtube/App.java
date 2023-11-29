@@ -125,12 +125,10 @@ public class App implements Constants, Runnable {
 			region = System.getProperty("microedition.locale");
 			if(region == null) {
 				region = "US";
-			} else {
-				if(region.length() == 5) {
-					region = region.substring(3, 5);
-				} else if(region.length() > 2 || region.equalsIgnoreCase("en")) {
-					region = "US";
-				}
+			} else if(region.length() == 5) {
+				region = region.substring(3, 5);
+			} else if(region.length() > 2 || region.equalsIgnoreCase("en")) {
+				region = "US";
 			}
 		} else if(region.length() > 2) {
 			region = region.substring(0, 2);
@@ -138,8 +136,9 @@ public class App implements Constants, Runnable {
 		Settings.region = region.toUpperCase();
 		
 		tasksThread.start();
-		Settings.loadConfig(splash);
 		Locale.init();
+		Settings.loadConfig(splash);
+		Locale.load();
 		startUIThread();
 	}
 	

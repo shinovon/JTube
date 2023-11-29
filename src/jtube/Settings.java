@@ -74,7 +74,7 @@ public class Settings implements Constants {
 	public static String apiProxy = invproxy;
 	public static boolean useApiProxy;
 	public static String videoplaybackProxy = vpb;
-	public static int playbackProxyVariant = 0;
+	public static int playbackProxyVariant = 1;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -103,7 +103,7 @@ public class Settings implements Constants {
 			watchMethod = 1;
 		}
 		*/
-		boolean ru = region.equalsIgnoreCase("RU") || customLocale.equalsIgnoreCase("ru");
+		boolean ru = "ru".equalsIgnoreCase(region) || "ru".equalsIgnoreCase(customLocale);
 		if(ru) {
 			inv = iteroni;
 			httpStream = true;
