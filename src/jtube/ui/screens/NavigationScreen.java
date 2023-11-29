@@ -53,10 +53,10 @@ import jtube.ui.SearchSuggestionsThread;
 import jtube.ui.UIItem;
 import jtube.ui.UIScreen;
 import jtube.ui.items.VideoItem;
-import jtube.ui.nokia_extensions.DirectFontUtil;
-import jtube.ui.nokia_extensions.TextEditorInst;
-import jtube.ui.nokia_extensions.TextEditorListener;
-import jtube.ui.nokia_extensions.TextEditorUtil;
+import jtube.ui.nokia.DirectFontUtil;
+import jtube.ui.nokia.TextEditorInst;
+import jtube.ui.nokia.TextEditorListener;
+import jtube.ui.nokia.TextEditorUtil;
 
 public abstract class NavigationScreen extends AbstractListScreen implements TextEditorListener, CommandListener, Commands, KeyboardListener {
 
@@ -475,8 +475,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.drawString(Locale.s(CMD_Exit), w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
 					}
 				}
-				if(getCurrentItem() != null) {
-					UIItem ci = getCurrentItem();
+				UIItem ci = cItem;
+				if(ci != null) {
 					if(ci.getOKLabel() > 0) {
 						g.drawString(Locale.s(ci.getOKLabel()), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
 					}
@@ -678,9 +678,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	protected void leftSoft() {
 		if(menuOptions != null) {
-			item = getCurrentItem();
-			if(item != null && item.contextActions() != null) {
-				int[] contextActions = getCurrentItem().contextActions();
+			item = cItem;
+			int[] contextActions;
+			if(item != null && (contextActions = item.contextActions()) != null) {
 				itemOptions = new String[contextActions.length];
 				for(int i = 0; i < contextActions.length; i++) {
 					itemOptions[i] = Locale.s(contextActions[i]);
@@ -1043,8 +1043,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	
 	public void openItemMenu(UIItem item) {
 		this.item = item;
-		if(item != null && item.contextActions() != null) {
-			int[] contextActions = getCurrentItem().contextActions();
+		int[] contextActions;
+		if(item != null && (contextActions = item.contextActions()) != null) {
 			itemOptions = new String[contextActions.length];
 			for(int i = 0; i < contextActions.length; i++) {
 				itemOptions[i] = Locale.s(contextActions[i]);

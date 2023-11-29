@@ -19,41 +19,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package jtube.ui.nokia_extensions;
+package jtube.ui.nokia;
 
-import javax.microedition.lcdui.Font;
+import com.nokia.mid.ui.S60TextEditor;
+import com.nokia.mid.ui.TextEditor;
 
-import jtube.PlatformUtils;
+public class S60TextEditorImpl extends TextEditorImpl {
 
-public class DirectFontUtil {
-	
-	private static boolean supported;
-	
-	public static void init() {
-		if(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch() || PlatformUtils.isKemulator || PlatformUtils.isJ2ML()) {
-			try {
-				DirectUtilsInvoker.init();
-				supported = true;
-			} catch (Exception e) {
-			} catch (Error e) {
-			}
+	private S60TextEditor _S60editor;
+
+	public boolean setEditor(Object editor) {
+		if(editor instanceof S60TextEditor) {
+			_S60editor = (S60TextEditor) editor;
+			_editor = (TextEditor) editor;
+			return true;
 		}
-	}
-	
-	public static Font getFont(int face, int style, int height, int size) {
-		if(supported) {
-			try {
-				Font f = DirectUtilsInvoker.getFont(face, style, height);
-				if(f != null) return f;
-			} catch (Throwable e) {
-			}
-		}
-		return Font.getFont(face, style, size);
+		return false;
 	}
 
-	public static boolean isSupported() {
-		return supported;
+	public void setCaretXY(int x, int y) {
+		_S60editor.setCaretXY(x, y);
 	}
-	
+
+	public void setTouchEnabled(boolean enabled) {
+		_S60editor.setTouchEnabled(enabled);
+	}
+
+	public void setIndicatorVisibility(boolean b) {
+		_S60editor.setIndicatorVisibility(b);
+	}
+
+	public void setPreferredTouchMode(int mode) {
+		_S60editor.setPreferredTouchMode(mode);
+	}
+
 }
-

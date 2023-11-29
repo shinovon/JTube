@@ -34,7 +34,7 @@ import jtube.ui.Locale;
 import jtube.ui.LocaleConstants;
 import jtube.ui.UIConstants;
 import jtube.ui.UIItem;
-import jtube.ui.nokia_extensions.DirectFontUtil;
+import jtube.ui.nokia.DirectFontUtil;
 import jtube.ui.screens.VideoScreen;
 
 public class VideoButtons extends UIItem implements UIConstants, LocaleConstants {

@@ -111,7 +111,7 @@ public class PlaylistItem extends AbstractButton implements UIConstants {
 	}
 
 	protected void action() {
-		ui.open(playlist, playlist.getContainerScreen() != null ? playlist.getContainerScreen() : getScreen());
+		ui.open(playlist, playlist.getContainerScreen() != null ? playlist.getContainerScreen() : screen);
 	}
 
 }

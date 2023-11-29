@@ -21,7 +21,6 @@ SOFTWARE.
 */
 package jtube.ui;
 
-import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Graphics;
 
 public abstract class UIScreen {
@@ -55,11 +54,6 @@ public abstract class UIScreen {
 		ui.repaint();
 	}
 
-	public int getHeight() {
-		return height;
-	}
-
-
 	protected void press(int x, int y) {}
 	protected void release(int x, int y) {}
 	protected void tap(int x, int y, int time) {}
@@ -77,19 +71,11 @@ public abstract class UIScreen {
 		return false;
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
 	public boolean hasScrollBar() {
 		return false;
 	}
 
 	public void setScrollBarY(int y) {
-	}
-
-	protected final void addCommand(Command c) {
-		ui.addCommand(c);
 	}
 	
 	protected void relayout() {

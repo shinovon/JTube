@@ -50,8 +50,8 @@ import jtube.models.AbstractModel;
 import jtube.models.ChannelModel;
 import jtube.models.PlaylistModel;
 import jtube.models.VideoModel;
-import jtube.ui.nokia_extensions.DirectFontUtil;
-import jtube.ui.nokia_extensions.TextEditorUtil;
+import jtube.ui.nokia.DirectFontUtil;
+import jtube.ui.nokia.TextEditorUtil;
 import jtube.ui.screens.ChannelScreen;
 import jtube.ui.screens.HomeScreen;
 import jtube.ui.screens.NavigationScreen;
@@ -67,9 +67,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	
 	public AppUI() {
 		if(inst != null) throw new Error();
-		inst = this;
-		UIScreen.ui = this;
-		UIItem.ui = this;
+		UIItem.ui = UIScreen.ui = inst = this;
 	}
 	
 	public HomeScreen mainScr;
@@ -253,7 +251,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 
 	public void init() {
-		UIScreen.ui = inst = this;
 		canv = new JTubeCanvas(this);
 		resetFullScreenMode();
 		try {
@@ -654,8 +651,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public void removeCommands() {
 		try {
 			for(int i = 0; i < commands.size(); i++) {
-				Command c = (Command) commands.elementAt(i);
-				canv.removeCommand(c);
+				canv.removeCommand((Command) commands.elementAt(i));
 			}
 		} catch (Exception e) {
 		}

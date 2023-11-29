@@ -90,7 +90,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		add(tabs);
 		try {
 			JSONObject r = (JSONObject) App.invApi("channels/" + channel.authorId + "/videos?" + (next && continuation != null ? "continuation=" + Util.url(continuation) + "&" : ""), "videos(" + VIDEO_FIELDS +
-					(getWidth() >= 320 ? ",viewCount" : "") + "),continuation"
+					(width >= 320 ? ",viewCount" : "") + "),continuation"
 					);
 			continuation = r.getNullableString("continuation");
 			JSONArray j = r.getArray("videos");
@@ -174,7 +174,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		Loader.stop();
 		try {
 			JSONArray j = (JSONArray) App.invApi("channels/search/" + channel.authorId + "?q=" + Util.url(q), VIDEO_FIELDS +
-					(getWidth() >= 320 ? ",publishedText,viewCount" : "")
+					(width >= 320 ? ",publishedText,viewCount" : "")
 					);
 			int l = j.size();
 			for(int i = 0; i < l && i < SEARCH_LIMIT; i++) {

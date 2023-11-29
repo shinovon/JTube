@@ -19,38 +19,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package jtube.ui.nokia_extensions;
+package jtube.ui.nokia;
 
-import com.nokia.mid.ui.S60TextEditor;
-import com.nokia.mid.ui.TextEditor;
+public interface TextEditorListener {
+	public static final int ACTION_CONTENT_CHANGE = 1;
+	public static final int ACTION_OPTIONS_CHANGE = 2;
+	public static final int ACTION_CARET_MOVE = 4;
+	public static final int ACTION_TRAVERSE_PREVIOUS = 8;
+	public static final int ACTION_TRAVERSE_NEXT = 16;
+	public static final int ACTION_PAINT_REQUEST = 32;
+	public static final int ACTION_DIRECTION_CHANGE = 64;
+	public static final int ACTION_INPUT_MODE_CHANGE = 128;
+	public static final int ACTION_LANGUAGE_CHANGE = 256;
+	public static final int ACTION_TRAVERSE_OUT_SCROLL_UP = 512;
+	public static final int ACTION_TRAVERSE_OUT_SCROLL_DOWN = 1024;
+	public static final int ACTION_SCROLLBAR_CHANGED = 2048;
+	public static final int ACTION_VIRTUAL_KEYBOARD_OPEN = 4096;
+	public static final int ACTION_VIRTUAL_KEYBOARD_CLOSE = 8192;
 
-public class S60TextEditorImpl extends TextEditorImpl {
-
-	private S60TextEditor _S60editor;
-
-	public boolean setEditor(Object editor) {
-		if(editor instanceof S60TextEditor) {
-			_S60editor = (S60TextEditor) editor;
-			_editor = (TextEditor) editor;
-			return true;
-		}
-		return false;
-	}
-
-	public void setCaretXY(int x, int y) {
-		_S60editor.setCaretXY(x, y);
-	}
-
-	public void setTouchEnabled(boolean enabled) {
-		_S60editor.setTouchEnabled(enabled);
-	}
-
-	public void setIndicatorVisibility(boolean b) {
-		_S60editor.setIndicatorVisibility(b);
-	}
-
-	public void setPreferredTouchMode(int mode) {
-		_S60editor.setPreferredTouchMode(mode);
-	}
-
+	public void inputAction(TextEditorInst editor, int event);
+	
 }
