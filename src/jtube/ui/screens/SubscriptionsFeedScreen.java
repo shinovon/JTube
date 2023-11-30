@@ -64,7 +64,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 		}
 	}
 	
-	protected void hide() {
+	public void hide() {
 		if(thread != null) {
 			thread.interrupt();
 		}

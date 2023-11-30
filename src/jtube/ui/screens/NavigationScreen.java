@@ -297,7 +297,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
 						g.setFont(smallfont);
 						for(int i = 0; i < searchSuggestions.length; i++) {
-							g.drawString(Util.getOneLine(searchSuggestions[i], smallfont, w-16), 8, sy+((48-smallfontheight) >> 1), 0);
+							if(searchSuggestions[i] != null)
+								g.drawString(Util.getOneLine(searchSuggestions[i], smallfont, w-16), 8, sy+((48-smallfontheight) >> 1), 0);
 							sy += 48;
 							g.drawLine(0, sy, w, sy);
 						}
