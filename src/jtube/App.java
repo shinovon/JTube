@@ -75,10 +75,10 @@ public class App implements Constants, Runnable {
 						queuedTasksIdx--;
 					}
 					try {
-						if(r instanceof Runnable)
-							((Runnable) r).run();
-						else if(r instanceof UIScreen)
+						if(r instanceof UIScreen)
 							((UIScreen) r).hide();
+						else if(r instanceof Runnable)
+							((Runnable) r).run();
 					} catch (Throwable e) {
 					}
 					Thread.sleep(1);
@@ -95,7 +95,7 @@ public class App implements Constants, Runnable {
 		synchronized(tasksLock) {
 			if(queuedTasksIdx == queuedTasks.length) {
 				Object[] tmp = queuedTasks;
-				queuedTasks = new Runnable[queuedTasks.length + 16];
+				queuedTasks = new Object[queuedTasks.length + 16];
 				System.arraycopy(tmp, 0, queuedTasks, 0, tmp.length);
 			}
 			tasksLock.notify();
@@ -110,6 +110,7 @@ public class App implements Constants, Runnable {
 						System.arraycopy(queuedTasks, i+1, queuedTasks, i, queuedTasks.length - i);
 					}
 					queuedTasks[queuedTasks.length - 1] = null;
+					queuedTasksIdx--;
 				}
 				return;
 			}

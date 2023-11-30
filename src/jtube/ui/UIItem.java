@@ -31,7 +31,7 @@ public abstract class UIItem {
 	protected boolean inFocus;
 	protected int y;
 	protected int index;
-	protected boolean hidden = true;
+	public boolean hidden = true;
 
 	public UIItem(UIScreen screen) {
 		this.screen = screen;

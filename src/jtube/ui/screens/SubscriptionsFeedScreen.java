@@ -47,6 +47,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	private Object lock = new Object();
 	private Thread thread;
 	private boolean loaded;
+	private boolean interrupt;
 
 	public SubscriptionsFeedScreen() {
 		super(Locale.s(TITLE_Subscriptions));
@@ -60,21 +61,22 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 		if((lastCount != LocalStorage.getSubsciptions().length || !loaded) && !busy) {
 			thread = new Thread(this);
 			thread.start();
-			lastCount = LocalStorage.getSubsciptions().length;
 		}
 	}
 	
 	public void hide() {
+		interrupt = true;
+		busy = false;
+		Loader.stop();
 		if(thread != null) {
 			thread.interrupt();
 		}
-		clear();
 		allVideos.removeAllElements();
-		Loader.stop();
 		super.hide();
 	}
 
 	public void run() {
+		lastCount = 0;
 		busy = true;
 		loaded = false;
 		idx = 0;
@@ -87,6 +89,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 			allVideos.removeAllElements();
 			Loader.stop();
 			Thread.sleep(100);
+			if(interrupt) return;
 			for(int i = 0; i < subscriptions.length; i+=2) {
 				Loader.add(this);
 			}
@@ -95,13 +98,16 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 			synchronized(lock) {
 				lock.wait();
 			}
+			if(interrupt) return;
 			// sorting
-			for (int i = 0; i < allVideos.size(); i++) {
-				for (int j = i + 1; j < allVideos.size(); j++) {
-					if (((JSONObject) allVideos.elementAt(i)).getLong("published") < ((JSONObject) allVideos.elementAt(j)).getLong("published")) {
-						Object t = allVideos.elementAt(i);
-						allVideos.setElementAt(allVideos.elementAt(j), i);
-						allVideos.setElementAt(t, j);
+			int l = allVideos.size();
+			for (int i = 0; i < l; i++) {
+				for (int j = i + 1; j < l; j++) {
+					JSONObject t1 = (JSONObject) allVideos.elementAt(i);
+					JSONObject t2 = (JSONObject) allVideos.elementAt(j);
+					if (t1.getLong("published") < t2.getLong("published")) {
+						allVideos.setElementAt(t2, i);
+						allVideos.setElementAt(t1, j);
 					}
 				}
 			}
@@ -120,6 +126,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 			}
 			allVideos.removeAllElements();
 			loaded = true;
+			lastCount = subscriptions.length;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -158,6 +165,10 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 			JSONObject r = (JSONObject) App.invApi("channels/" + id + "/latest?", "videos(" + VIDEO_FIELDS + ",published)");
 			JSONArray j = r.getArray("videos");
 			if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {
+				interrupt = true;
+				synchronized(lock) {
+					lock.notify();
+				}
 				throw new RuntimeException("loader interrupt");
 			}
 			for(int k = 0; k < j.size(); k++) {

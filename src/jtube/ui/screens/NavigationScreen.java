@@ -251,9 +251,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		if(!Settings.videoPreviews) return;
 		for(int i = 0; i < items.size(); i++) {
 			Object o = items.elementAt(i);
-			if(o instanceof VideoItem) {
-				((VideoItem)o).onHide();
-			}
+			if(!(o instanceof VideoItem) || ((UIItem)o).hidden) continue;
+			((VideoItem)o).onHide();
 		}
 	}
 	
