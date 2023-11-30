@@ -122,7 +122,6 @@ public class Settings implements Constants {
 				switch(c) {
 				case '#':
 					if(tmp.length() == 0) skipLine = true;
-					break;
 				case '\r':
 					break;
 				case -1:
@@ -130,7 +129,7 @@ public class Settings implements Constants {
 					b = false;
 				case '\n':
 					if(!skipLine && tmp.length() > 6) {
-						String line = tmp.toString();
+						String line = tmp.toString().trim();
 						if(line.startsWith("jtlng_")) {
 							int idx = line.indexOf('=');
 							String[] arr = new String[5];
@@ -145,7 +144,7 @@ public class Settings implements Constants {
 					tmp.setLength(0);
 					break;
 				default:
-					tmp.append(c);
+					tmp.append((char) c);
 				}
 			}
 			isr.close();
