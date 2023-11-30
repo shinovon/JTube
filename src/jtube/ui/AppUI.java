@@ -495,12 +495,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 					break;
 				}
 				case 4:
-					//Settings
+					// Settings
 					showSettings();
 					break;
 				case 5:
 					// About
-					showAbout(this);
+					showAbout();
 					break;
 				case 6:
 					// Exit
@@ -528,12 +528,12 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			new Thread(new RunnableTask(((TextBox) d).getString(), RunnableTask.ID)).start();
 			return;
 		}
-		if(this.current != null && current instanceof CommandListener) {
-			((CommandListener)current).commandAction(c, d);
-			return;
-		}
 		if(d instanceof Alert || d instanceof Form) {
 			display(null);
+			return;
+		}
+		if(this.current != null && current instanceof CommandListener) {
+			((CommandListener)current).commandAction(c, d);
 			return;
 		}
 	}
@@ -619,7 +619,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 	}
 	
-	public void showAbout(CommandListener l) {
+	public void showAbout() {
 		Form t = new Form("About");
 		t.append("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + "\n\n");
 		t.append("By Shinovon (nnp.nnchan.ru)" + "\n"
@@ -627,7 +627,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				+ "vk.com/nnprojectcc\n\n"
 				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77, curoviyxru"
 				+ (Locale.loaded ? "\n\nCustom localization author (" + Locale.lang +"): " + Locale.s(0) : ""));
-		t.setCommandListener(l == null ? this : l);
+		t.setCommandListener(this);
 		t.addCommand(new Command("OK", Command.OK, 1));
 		display(t);
 	}

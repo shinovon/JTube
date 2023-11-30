@@ -96,7 +96,7 @@ public class HomeScreen extends NavigationScreen {
 			ui.showSettings();
 			break;
 		case 4:
-			ui.showAbout(this);
+			ui.showAbout();
 			break;
 		case 5:
 			ui.exit();
