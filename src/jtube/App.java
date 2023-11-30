@@ -69,9 +69,11 @@ public class App implements Constants, Runnable {
 						}
 					}
 					Object r = queuedTasks[0];
-					System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
-					queuedTasks[queuedTasks.length - 1] = null;
-					queuedTasksIdx--;
+					synchronized(tasksLock) {
+						System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
+						queuedTasks[queuedTasks.length - 1] = null;
+						queuedTasksIdx--;
+					}
 					try {
 						if(r instanceof Runnable)
 							((Runnable) r).run();
@@ -90,26 +92,26 @@ public class App implements Constants, Runnable {
 
 	public void schedule(Object r) {
 		queuedTasks[queuedTasksIdx++] = r;
-		if(queuedTasksIdx == queuedTasks.length) {
-			Object[] tmp = queuedTasks;
-			queuedTasks = new Runnable[queuedTasks.length + 16];
-			System.arraycopy(tmp, 0, queuedTasks, 0, tmp.length);
-		}
 		synchronized(tasksLock) {
+			if(queuedTasksIdx == queuedTasks.length) {
+				Object[] tmp = queuedTasks;
+				queuedTasks = new Runnable[queuedTasks.length + 16];
+				System.arraycopy(tmp, 0, queuedTasks, 0, tmp.length);
+			}
 			tasksLock.notify();
 		}
 	}
 
 	public void cancel(Runnable r) {
-		synchronized(tasksLock) {
-			for(int i = 0; i < queuedTasks.length; i++) {
-				if(queuedTasks[i] == r) {
+		for(int i = 0; i < queuedTasks.length; i++) {
+			if(queuedTasks[i] == r) {
+				synchronized(tasksLock) {
 					if(i < queuedTasks.length - 1) {
 						System.arraycopy(queuedTasks, i+1, queuedTasks, i, queuedTasks.length - i);
 					}
 					queuedTasks[queuedTasks.length - 1] = null;
-					return;
 				}
+				return;
 			}
 		}
 	}
