@@ -194,9 +194,10 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void setScreen(UIScreen s) {
+		if(current == s) return;
 		removeCommands();
 		if(current != null) {
-			current.hide();
+			App.inst.schedule(current);
 		}
 		current = s;
 		canv.resetScreen();
