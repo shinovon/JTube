@@ -68,6 +68,8 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 		if(thread != null) {
 			thread.interrupt();
 		}
+		clear();
+		allVideos.removeAllElements();
 		Loader.stop();
 		super.hide();
 	}
@@ -84,6 +86,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 		try {
 			allVideos.removeAllElements();
 			Loader.stop();
+			Thread.sleep(100);
 			for(int i = 0; i < subscriptions.length; i+=2) {
 				Loader.add(this);
 			}
@@ -148,7 +151,10 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	public void load() {
 		if(idx*2 >= subscriptions.length) return;
 		try {
-			String id = subscriptions[(idx++) * 2];
+			String id;
+			synchronized(subscriptions) {
+				id = subscriptions[(idx++) * 2];
+			}
 			JSONObject r = (JSONObject) App.invApi("channels/" + id + "/latest?", "videos(" + VIDEO_FIELDS + ",published)");
 			JSONArray j = r.getArray("videos");
 			if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {

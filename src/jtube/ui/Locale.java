@@ -69,7 +69,7 @@ public class Locale implements LocaleConstants {
 		}
 		InputStream in = null;
 		try {
-			in = Locale.class.getResourceAsStream("/jtlng_".concat(s));
+			in = "".getClass().getResourceAsStream("/jtlng_".concat(s));
 		} catch (Exception e) {
 		}
 		if (in != null) {

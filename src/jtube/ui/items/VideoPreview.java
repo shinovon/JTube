@@ -47,6 +47,7 @@ public class VideoPreview extends AbstractButton implements UIConstants {
 	}
 
 	protected void action() {
+		screen.busy = true;
 		new Thread(new RunnableTask(video.videoId, RunnableTask.WATCH)).start();
 	}
 

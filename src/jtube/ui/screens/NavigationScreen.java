@@ -198,7 +198,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 	}
 
-	protected void hide() {
+	public void hide() {
 		wasHidden = true;
 		search = false;
 		if(editor != null && !editorHidden && editor.isVisible() && topBar) {
@@ -858,7 +858,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			case 1:
 				if(ui.subsScr == null) {
 					ui.subsScr = new SubscriptionsFeedScreen();
-					new Thread(new RunnableTask(RunnableTask.SUBS)).start();
 				}
 				ui.currentTab = 1;
 				ui.setScreen(ui.subsScr);

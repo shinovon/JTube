@@ -87,6 +87,6 @@ public abstract class UIScreen {
 
 	protected void show() {}
 
-	protected void hide() {}
+	public void hide() {}
 
 }

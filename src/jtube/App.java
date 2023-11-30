@@ -42,7 +42,9 @@ import cc.nnproject.json.JSONObject;
 import cc.nnproject.ytapp.App2;
 import jtube.ui.AppUI;
 import jtube.ui.Locale;
+import jtube.ui.UIScreen;
 import jtube.ui.screens.SplashScreen;
+import jtube.ui.screens.VideoScreen;
 import midletintegration.MIDletIntegration;
 
 public class App implements Constants, Runnable {
@@ -54,7 +56,7 @@ public class App implements Constants, Runnable {
 	public static int startWidth;
 	public static int startHeight;
 	
-	private Runnable[] queuedTasks = new Runnable[30];
+	private Object[] queuedTasks = new Object[30];
 	private int queuedTasksIdx;
 	private Object tasksLock = new Object();
 	private Thread tasksThread = new Thread("Task Thread") {
@@ -66,12 +68,15 @@ public class App implements Constants, Runnable {
 							tasksLock.wait();
 						}
 					}
-					Runnable r = queuedTasks[0];
+					Object r = queuedTasks[0];
 					System.arraycopy(queuedTasks, 1, queuedTasks, 0, queuedTasks.length - 1);
 					queuedTasks[queuedTasks.length - 1] = null;
 					queuedTasksIdx--;
 					try {
-						r.run();
+						if(r instanceof Runnable)
+							((Runnable) r).run();
+						else if(r instanceof UIScreen)
+							((UIScreen) r).hide();
 					} catch (Throwable e) {
 					}
 					Thread.sleep(1);
@@ -83,10 +88,10 @@ public class App implements Constants, Runnable {
 
 	private Thread uiThread;
 
-	public void schedule(Runnable r) {
+	public void schedule(Object r) {
 		queuedTasks[queuedTasksIdx++] = r;
 		if(queuedTasksIdx == queuedTasks.length) {
-			Runnable[] tmp = queuedTasks;
+			Object[] tmp = queuedTasks;
 			queuedTasks = new Runnable[queuedTasks.length + 16];
 			System.arraycopy(tmp, 0, queuedTasks, 0, tmp.length);
 		}
@@ -385,6 +390,9 @@ public class App implements Constants, Runnable {
 	
 	public static void watch(final String id) {
 		Loader.stop();
+		if(AppUI.inst.current instanceof VideoScreen) {
+			AppUI.inst.current.busy = true;
+		}
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
@@ -486,6 +494,9 @@ public class App implements Constants, Runnable {
 				return;
 			}
 			error(null, Errors.App_watch, e);
+		}
+		if(AppUI.inst.current instanceof VideoScreen) {
+			AppUI.inst.current.busy = false;
 		}
 	}
 	
