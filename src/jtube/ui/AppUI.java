@@ -30,6 +30,7 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
@@ -531,7 +532,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			((CommandListener)current).commandAction(c, d);
 			return;
 		}
-		if(d instanceof Alert || d instanceof TextBox) {
+		if(d instanceof Alert || d instanceof Form) {
 			display(null);
 			return;
 		}
@@ -619,14 +620,13 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public void showAbout(CommandListener l) {
-		//boolean samsung = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
-		TextBox t = new TextBox("", "", 200, TextField.ANY | TextField.UNEDITABLE);
-		t.setTitle("JTube v" + App.midlet.getAppProperty("MIDlet-Version"));
-		t.setString("By Shinovon (nnp.nnchan.ru)" + EOL
-				+ "t.me/nnmidlets" + EOL
-				+ "vk.com/nnprojectcc" + EOL + EOL
+		Form t = new Form("About");
+		t.append("JTube v" + App.midlet.getAppProperty("MIDlet-Version") + "\n\n");
+		t.append("By Shinovon (nnp.nnchan.ru)" + "\n"
+				+ "t.me/nnmidlets\n"
+				+ "vk.com/nnprojectcc\n\n"
 				+ "Special thanks to ales_alte, Jazmin Rocio, Feodor0090, musecat77, curoviyxru"
-				+ (Locale.loaded ? EOL + EOL + "Custom localization author (" + Locale.lang +"): " + Locale.s(0) : ""));
+				+ (Locale.loaded ? "\n\nCustom localization author (" + Locale.lang +"): " + Locale.s(0) : ""));
 		t.setCommandListener(l == null ? this : l);
 		t.addCommand(new Command("OK", Command.OK, 1));
 		display(t);
