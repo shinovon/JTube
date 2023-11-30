@@ -74,7 +74,7 @@ public class Settings implements Constants {
 	public static String apiProxy = invproxy;
 	public static boolean useApiProxy;
 	public static String videoplaybackProxy = vpb;
-	public static int playbackProxyVariant = 1;
+	public static int playbackProxyVariant = 0;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -108,6 +108,7 @@ public class Settings implements Constants {
 			inv = iteroni;
 			httpStream = true;
 			useApiProxy = true;
+			playbackProxyVariant = 1;
 		}
 		try {
 			langsList = new Vector();
