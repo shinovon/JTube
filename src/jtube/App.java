@@ -130,6 +130,9 @@ public class App implements Constants, Runnable {
 		
 		String region = System.getProperty("user.country");
 		if(region == null) {
+			region = System.getProperty("user.region");
+		}
+		if(region == null) {
 			region = System.getProperty("microedition.locale");
 			if(region == null) {
 				region = "US";
