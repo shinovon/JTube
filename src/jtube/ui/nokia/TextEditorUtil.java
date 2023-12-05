@@ -32,8 +32,7 @@ public class TextEditorUtil {
 			try {
 				Class.forName("com.nokia.mid.ui.TextEditor");
 				supported = true;
-			} catch (Exception e) {
-			} catch (Error e) {
+			} catch (Throwable e) {
 			}
 		}
 	}
@@ -44,6 +43,7 @@ public class TextEditorUtil {
 			return TextEditorInvoker.createTextEditorInst(text, maxSize, constraints, width, height);
 		} catch (Throwable e) {
 		}
+		supported = false;
 		return null;
 	}
 	

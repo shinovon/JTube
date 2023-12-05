@@ -219,12 +219,10 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 			if(e.toString().indexOf("format") != -1) {
 				try {
 					_loadAuthorImg();
-				} catch (Exception e1) {
-				} catch (Error e1) {
+				} catch (Throwable e2) {
 				}
 			}
-		} catch (Exception e) {
-		} catch (OutOfMemoryError e) {
+		} catch (Throwable e) {
 		}
 	}
 

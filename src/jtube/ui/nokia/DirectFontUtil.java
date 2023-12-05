@@ -32,10 +32,10 @@ public class DirectFontUtil {
 	public static void init() {
 		if(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch() || PlatformUtils.isKemulator || PlatformUtils.isJ2ML()) {
 			try {
+				Class.forName("com.nokia.mid.ui.DirectUtils");
 				DirectUtilsInvoker.init();
 				supported = true;
-			} catch (Exception e) {
-			} catch (Error e) {
+			} catch (Throwable e) {
 			}
 		}
 	}

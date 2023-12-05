@@ -183,6 +183,7 @@ public class App implements Constants, Runnable {
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
 					"&l="+Locale.lang+
 					"&s="+(App.midlet.getAppProperty("JTube-Samsung-Build") != null ? "1" : "0")+
+					"&b="+(App.midlet.getAppProperty("JTube-BlackBerry-Build") != null ? "1" : "0")+
 					"&p="+Util.url(PlatformUtils.platform)
 					);
 			JSONObject j = JSON.getObject(s);
