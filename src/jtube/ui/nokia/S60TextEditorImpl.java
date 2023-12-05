@@ -35,19 +35,19 @@ public class S60TextEditorImpl extends TextEditorImpl {
 	}
 
 	public void setCaretXY(int x, int y) {
-		((S60TextEditor) _S60editor).setCaretXY(x, y);
+		((S60TextEditor) _editor).setCaretXY(x, y);
 	}
 
 	public void setTouchEnabled(boolean enabled) {
-		((S60TextEditor) _S60editor).setTouchEnabled(enabled);
+		((S60TextEditor) _editor).setTouchEnabled(enabled);
 	}
 
 	public void setIndicatorVisibility(boolean b) {
-		((S60TextEditor) _S60editor).setIndicatorVisibility(b);
+		((S60TextEditor) _editor).setIndicatorVisibility(b);
 	}
 
 	public void setPreferredTouchMode(int mode) {
-		((S60TextEditor) _S60editor).setPreferredTouchMode(mode);
+		((S60TextEditor) _editor).setPreferredTouchMode(mode);
 	}
 
 }
