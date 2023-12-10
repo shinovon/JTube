@@ -39,6 +39,7 @@ public class PlatformUtils {
 	public static boolean isBada;
 	public static boolean isJ2MELoader;
 	public static boolean isS40;
+	public static boolean isJ9;
 	
 	public static int width;
 	public static int height;
@@ -61,20 +62,25 @@ public class PlatformUtils {
 							|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
 							|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
 		}
-		}
+		isJ9 = platform != null && platform.indexOf("sw_platform=S60") != -1;
+	}
 	
 	// works with symbians that use j9 vm
 	private static boolean isS60PlatformVersion(String v) {
-		return platform.indexOf("platform_version=" + v) != -1;
+		return isJ9 && platform.indexOf("sw_platform_version=" + v) != -1;
 	}
 	
 	// returns true for symbians that use j9 vm
 	public static boolean isSymbianJ9() {
-		return platform != null && platform.indexOf("platform=S60") != -1;
+		return isJ9;
+	}
+	
+	public static boolean isSymbianJRT2() {
+		return isJ9 && platform.indexOf("java_build_version=2.") != -1;
 	}
 	
 	public static boolean isSymbianTouch() {
-		return isSymbianJ9() && isS60PlatformVersion("5");
+		return isJ9 && isS60PlatformVersion("5");
 	}
 	
 	public static boolean isSymbian3Based() {
@@ -82,16 +88,16 @@ public class PlatformUtils {
 	}
 	
 	public static boolean isSymbian94() {
-		return isSymbianJ9() && isS60PlatformVersion("5.0");
+		return isJ9 && isS60PlatformVersion("5.0");
 	}
 
 	public static boolean isSymbianAnna() {
-		return isSymbianJ9() && isS60PlatformVersion("5.2");
+		return isJ9 && isS60PlatformVersion("5.2");
 	}
 
 	public static boolean isBelle() {
-		int i = platform.indexOf("version=5.") + "version=5.".length();
-		return isSymbianJ9() && isS60PlatformVersion("5") && Integer.parseInt(platform.substring(i, i+1)) >= 3;
+		int i = platform.indexOf("sw_platform_version=5.") + "sw_platform_version=5.".length();
+		return isJ9 && isS60PlatformVersion("5") && Integer.parseInt(platform.substring(i, i+1)) >= 3;
 	}
 	
 	public static boolean isSymbian93() {
@@ -121,7 +127,7 @@ public class PlatformUtils {
 		if(!isSymbian()) {
 			return null;
 		}
-		if(isSymbianJ9()) {
+		if(isJ9) {
 			int i = platform.indexOf("platform_version=") + "platform_version=".length();
 			return platform.substring(i, i+3);
 		}
