@@ -528,7 +528,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 			new Thread(new RunnableTask(((TextBox) d).getString(), RunnableTask.ID)).start();
 			return;
 		}
-		if(d instanceof Alert || d instanceof Form) {
+		if(d instanceof Alert || d instanceof Form || d instanceof TextBox) {
 			display(null);
 			return;
 		}

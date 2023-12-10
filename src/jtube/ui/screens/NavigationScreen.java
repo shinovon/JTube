@@ -964,7 +964,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			ui.display(null);
 			return;
 		}
-		if(d instanceof Alert) {
+		if(d instanceof Alert || d instanceof TextBox) {
 			ui.display(null);
 			return;
 		}
