@@ -64,8 +64,9 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 
 	static {
 		try {
-			defaultImg = roundImage(Image.createImage("".getClass().getResourceAsStream("/user48.png")));
-			defaultImg36 = roundImage(Image.createImage("".getClass().getResourceAsStream("/user36.png")));
+			Image img = Image.createImage("".getClass().getResourceAsStream("/user48.png"));
+			defaultImg = roundImage(img);
+			defaultImg36 = roundImage(ImageUtils.resize(img, 36, 36));
 		} catch (Exception e) {
 		}
 	}
