@@ -216,7 +216,7 @@ public class App implements Constants, Runnable {
 				a.addCommand(new Command(Locale.s(Locale.CMD_Download), Command.OK, 1));
 				a.setCommandListener(new CommandListener() {
 					public void commandAction(Command c, Displayable d) {
-						if(c.getPriority() == 2) {
+						if(c.getPriority() == 1) {
 							try {
 								App.midlet.platformRequest(url);
 							} catch (Exception e) {
