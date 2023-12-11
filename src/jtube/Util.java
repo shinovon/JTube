@@ -94,11 +94,6 @@ public class Util implements Constants {
 	public static byte[] get(String url) throws IOException {
 		if (url == null)
 			throw new IllegalArgumentException("URL is null");
-		boolean isLoader = Thread.currentThread() instanceof LoaderThread;
-		LoaderThread il = null;
-		if(isLoader) {
-			il = (LoaderThread) Thread.currentThread();
-		}
 		HttpConnection hc = null;
 		InputStream in = null;
 		try {
@@ -113,8 +108,8 @@ public class Util implements Constants {
 			if(locale != null) {
 				hc.setRequestProperty("accept-language", locale);
 			}
-			if(isLoader) {
-				if(il.checkInterrupted()) {
+			if(Thread.currentThread() instanceof LoaderThread) {
+				if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");
 				}
 			} else {
@@ -140,13 +135,7 @@ public class Util implements Constants {
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
 			if(!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS40()) {
-				int delay = 200;
-				if(url.endsWith("jpg")) {
-					delay = 100;
-				} else if(PlatformUtils.isSamsung()) {
-					delay = 300;
-				}
-				Thread.sleep(delay);
+				Thread.sleep(url.endsWith("jpg") ? 100 : PlatformUtils.isSamsung() ? 300 : 200);
 			}
 			return downloadBytes(in, (int) hc.getLength(), 1024, 2048);
 		} catch (InterruptedException e) {

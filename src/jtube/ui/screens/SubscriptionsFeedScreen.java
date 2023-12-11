@@ -88,7 +88,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 		}
 		try {
 			allVideos.removeAllElements();
-			Loader.stop();
+			Loader.synchronize();
 			Thread.sleep(200);
 			if(interrupt) return;
 			for(int i = 0; i < subscriptions.length; i+=2) {
@@ -128,6 +128,7 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 			allVideos.removeAllElements();
 			loaded = true;
 			lastCount = subscriptions.length;
+			subscriptions = null;
 		} catch (Exception e) {
 		}
 		busy = false;
@@ -156,34 +157,32 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	}
 
 	public void load() {
-		String id;
-		synchronized(subscriptions) {
-			if(idx*2 >= subscriptions.length) return;
-			id = subscriptions[(idx++) * 2];
-		}
 		try {
-			JSONObject r = (JSONObject) App.invApi("channels/" + id + "/latest?", "videos(" + VIDEO_FIELDS + ",published)");
+			if(idx*2 >= subscriptions.length) return;
+			int i;
+			synchronized(subscriptions) {
+				i = idx++;
+			}
+			JSONObject r = (JSONObject) App.invApi("channels/" + subscriptions[i * 2] + "/latest?", "videos(" + VIDEO_FIELDS + ",published)");
 			JSONArray j = r.getArray("videos");
 			if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {
-				System.out.println("loader interrupted " + idx);
 				interrupt = true;
 				synchronized(lock) {
 					lock.notify();
 				}
 				throw new RuntimeException("loader interrupt");
 			}
-			for(int k = 0; k < j.size(); k++) {
-				if(k > 10) break;
+			for(int k = 0; k < j.size() && k < 10; k++) {
 				allVideos.addElement(j.get(k));
+			}
+			if((++i)*2 >= subscriptions.length) {
+				synchronized(lock) {
+					lock.notify();
+				}
 			}
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-		}
-		if(idx*2 >= subscriptions.length) {
-			synchronized(lock) {
-				lock.notify();
-			}
 		}
 	}
 	

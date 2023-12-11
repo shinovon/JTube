@@ -46,6 +46,7 @@ public class RecommendationsScreen extends NavigationScreen implements Runnable,
 	public void show() {
 		super.show();
 		if(!shown) {
+			Loader.stop();
 			new Thread(this).start();
 			shown = true;
 		}

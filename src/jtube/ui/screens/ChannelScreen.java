@@ -200,6 +200,7 @@ public class ChannelScreen extends NavigationScreen implements IModelScreen, Con
 		}
 		if(next) {
 			state = 0;
+			Loader.stop();
 			latestVideos();
 			next = false;
 			return;

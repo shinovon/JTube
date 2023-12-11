@@ -28,6 +28,7 @@ public class LoaderThread extends Thread {
 	private boolean interruptSuccess;
 	private Object lock1;
 	private Object lock2;
+	protected Object threadLock = new Object();
 	private boolean interrupt;
 
 	public LoaderThread(int priority, int i) {
@@ -63,6 +64,9 @@ public class LoaderThread extends Thread {
 				}
 				synchronized(lock2) {
 					lock2.notify();
+				}
+				synchronized(threadLock) {
+					threadLock.notify();
 				}
 			}
 		} catch (Exception e) {

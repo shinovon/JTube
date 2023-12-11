@@ -93,4 +93,32 @@ public class Loader {
 			tasksIdx = 0;
 		}
 	}
+	
+	public static void synchronize() {
+		try {
+			start();
+			synchronized(lock2) {
+				lock2.wait();
+			}
+			if(t0 != null) {
+				start();
+				synchronized(t0.threadLock) {
+					t0.threadLock.wait();
+				}
+			}
+			if(t1 != null) {
+				start();
+				synchronized(t1.threadLock) {
+					t1.threadLock.wait();
+				}
+			}
+			if(t2 != null) {
+				start();
+				synchronized(t2.threadLock) {
+					t2.threadLock.wait();
+				}
+			}
+		} catch (Exception e) {
+		}
+	}
 }
