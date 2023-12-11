@@ -102,7 +102,7 @@ public class Util implements Constants {
 		HttpConnection hc = null;
 		InputStream in = null;
 		try {
-			hc = (HttpConnection) Connector.open(url);
+			hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
 			if(charset != null) {
@@ -134,7 +134,7 @@ public class Util implements Constants {
 					redir = host + redir;
 				}
 				hc.close();
-				hc = (HttpConnection) Connector.open(redir);
+				hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(redir));
 				hc.setRequestMethod("GET");
 			}
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
@@ -521,6 +521,13 @@ public class Util implements Constants {
 		} catch (Exception e) {
 		}
 		return str;
+	}
+	
+	public static String getPlatformSpecificUrl(String url) {
+		if(PlatformUtils.isBlackBerry() && Settings.bbWifi) {
+			return url + ";deviceside=true;interface=wifi";
+		}
+		return url;
 	}
 
 }

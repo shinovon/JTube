@@ -74,7 +74,9 @@ public class Settings implements Constants {
 	public static String apiProxy = invproxy;
 	public static boolean useApiProxy;
 	public static String videoplaybackProxy = vpb;
-	public static int playbackProxyVariant = 0;
+	public static int playbackProxyVariant = 1;
+	public static boolean bbWifi = true;
+	public static boolean bbSet = false;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -266,13 +268,13 @@ public class Settings implements Constants {
 				region = j.getString("region", region);
 				downloadDir = j.getString("downloadDir", downloadDir);
 				videoPreviews = j.getBoolean("videoPreviews", videoPreviews);
-				//searchChannels = j.getBoolean("searchChannels", searchChannels);
+//				searchChannels = j.getBoolean("searchChannels", searchChannels);
 				httpStream = j.getBoolean("httpStream", httpStream);
 				serverstream = j.getString("serverstream", serverstream);
 				startScreen = j.getInt("startScreen", startScreen);
 				rmsPreviews = j.getBoolean("rmsPreviews", rmsPreviews);
 				customLocale = j.getString("customLocale", customLocale);
-				//searchPlaylists = j.getBoolean("searchPlaylists", searchPlaylists);
+//				searchPlaylists = j.getBoolean("searchPlaylists", searchPlaylists);
 				watchMethod = j.getInt("watchMethod", watchMethod);
 				asyncLoading = j.getBoolean("asyncLoading", asyncLoading);
 				downloadBuffer = j.getInt("downloadBuffer", downloadBuffer);
@@ -286,10 +288,7 @@ public class Settings implements Constants {
 				keyboard = j.getInt("keyboard", keyboard);
 				if(j.has("inputLanguages")) {
 					JSONArray a = j.getArray("inputLanguages");
-					inputLanguages = new String[a.size()];
-					for(int i = 0; i < a.size(); i++) {
-						inputLanguages[i] = a.getString(i);
-					}
+					a.copyInto(inputLanguages = new String[a.size()]);
 				}
 				inv = j.getString("inv", inv);
 				apiProxy = j.getString("apiProxy", apiProxy);
@@ -299,6 +298,9 @@ public class Settings implements Constants {
 				powerSaving = j.getBoolean("powerSaving", powerSaving);
 				lazyLoad = j.getBoolean("lazyLoad", lazyLoad);
 				playbackProxyVariant = j.getInt("playbackProxyVariant", playbackProxyVariant);
+				bbWifi = j.getBoolean("bbWifi", bbWifi);
+				bbSet = j.getBoolean("bbSet", false);
+				
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
 				if(i < 2) {
@@ -328,14 +330,14 @@ public class Settings implements Constants {
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
 			j.put("videoPreviews", videoPreviews);
-			j.put("searchChannels", searchChannels);
+//			j.put("searchChannels", searchChannels);
 			j.put("httpStream", httpStream);
 			j.put("serverstream", serverstream);
 			j.put("inv", inv);
 			j.put("startScreen", startScreen);
 			j.put("rmsPreviews", rmsPreviews);
 			j.put("customLocale", customLocale);
-			j.put("searchPlaylists", searchPlaylists);
+//			j.put("searchPlaylists", searchPlaylists);
 			j.put("watchMethod", watchMethod);
 			j.put("asyncLoading", asyncLoading);
 			j.put("downloadBuffer", downloadBuffer);
@@ -359,6 +361,8 @@ public class Settings implements Constants {
 				inputLanguagesJson.add(inputLanguages[i]);
 			}
 			j.put("inputLanguages", inputLanguagesJson);
+			j.put("bbWifi", bbWifi);
+			j.put("bbSet", bbSet);
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();

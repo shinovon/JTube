@@ -123,7 +123,7 @@ public class App implements Constants, Runnable {
 			throw new RuntimeException();
 		}
 		
-		SplashScreen splash = new SplashScreen();
+		final SplashScreen splash = new SplashScreen();
 		Display.getDisplay(midlet).setCurrent(splash);
 		App.startWidth = splash.getWidth();
 		App.startHeight = splash.getHeight();
@@ -150,6 +150,25 @@ public class App implements Constants, Runnable {
 		Locale.init();
 		Settings.loadConfig(splash);
 		Locale.load();
+		
+		if(PlatformUtils.isBlackBerry() && !Settings.bbSet) {
+			Alert a = new Alert("");
+			a.setString("Network");
+			a.addCommand(new Command("Wi-Fi", Command.OK, 1));
+			a.addCommand(new Command("Cellular", Command.CANCEL, 2));
+			a.setCommandListener(new CommandListener() {
+				public void commandAction(Command c, Displayable d) {
+					if(Settings.bbSet) return;
+					Settings.bbWifi = c.getPriority() == 1;
+					Settings.bbSet = true;
+					Display.getDisplay(App.midlet).setCurrent(splash);
+					Settings.saveConfig();
+					startUIThread();
+				}
+			});
+			Display.getDisplay(midlet).setCurrent(a);
+			return;
+		}
 		startUIThread();
 	}
 	
@@ -168,6 +187,7 @@ public class App implements Constants, Runnable {
 					ui.loadMain();
 				}
 				try {
+					Thread.sleep(100);
 					checkUpdate();
 				} catch (Throwable e) {
 				}
@@ -192,23 +212,17 @@ public class App implements Constants, Runnable {
 				String msg = j.getString("message", Locale.s(Locale.TXT_NewUpdateAvailable));
 				Alert a = new Alert("", "", null, AlertType.INFO);
 				a.setString(msg);
-				final Command ignoreCmd = new Command(Locale.s(Locale.CMD_Ignore), Command.EXIT, 1);
-				final Command okCmd = new Command(Locale.s(Locale.CMD_Download), Command.OK, 1);
-				a.addCommand(ignoreCmd);
-				a.addCommand(okCmd);
+				a.addCommand(new Command(Locale.s(Locale.CMD_Ignore), Command.EXIT, 2));
+				a.addCommand(new Command(Locale.s(Locale.CMD_Download), Command.OK, 1));
 				a.setCommandListener(new CommandListener() {
 					public void commandAction(Command c, Displayable d) {
-						if(c == ignoreCmd) {
-							ui.display(null);
-						}
-						if(c == okCmd) {
-							ui.display(null);
+						if(c.getPriority() == 2) {
 							try {
 								App.midlet.platformRequest(url);
 							} catch (Exception e) {
-								e.printStackTrace();
 							}
 						}
+						ui.display(null);
 					}
 				});
 				ui.display(a);

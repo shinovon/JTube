@@ -27,7 +27,7 @@ public class PlatformUtils {
 	public static final long _1MB = 1024 * 1024;
 	public static final long ASHA_MEM = 2621424;
 	
-	public static final String platform = System.getProperty("microedition.platform");
+	public static final String platform;
 	public static final long startMemory = Runtime.getRuntime().totalMemory();
 	public static final String os = System.getProperty("os.name");
 	public static final String vendor = System.getProperty("java.vendor");
@@ -45,6 +45,9 @@ public class PlatformUtils {
 	public static int height;
 	
 	static {
+		String p = System.getProperty("microedition.platform");
+		if(p == null) p = "";
+		platform = p;
 		isKemulator = checkClass("emulator.custom.CustomMethod");
 		isJ2MELoader = checkClass("javax.microedition.shell.MicroActivity");
 		isS60 = isSymbian();
@@ -55,19 +58,14 @@ public class PlatformUtils {
 		isAsha = isNokia() && s40v != null && (s40v.startsWith("7") || s40v.startsWith("8") || s40v.startsWith("9"));
 		// bada check
 		String s2;
-		if(platform != null && platform.startsWith("SAMSUNG-GT-")) {
+		if(platform.startsWith("SAMSUNG-GT-")) {
 			s2 = platform.substring("SAMSUNG-GT-".length());
 			if(s2.startsWith("S")) s2 = s2.substring(1);
 			isBada = s2.startsWith("538")
 							|| s2.startsWith("85") || s2.startsWith("72") || s2.startsWith("525")
 							|| s2.startsWith("533") || s2.startsWith("57")|| s2.startsWith("86");
 		}
-		isJ9 = platform != null && platform.indexOf("sw_platform=S60") != -1;
-	}
-	
-	// works with symbians that use j9 vm
-	private static boolean isS60PlatformVersion(String v) {
-		return isJ9 && platform.indexOf("sw_platform_version=" + v) != -1;
+		isJ9 = platform.indexOf("sw_platform=S60") != -1;
 	}
 	
 	// returns true for symbians that use j9 vm
@@ -75,33 +73,37 @@ public class PlatformUtils {
 		return isJ9;
 	}
 	
+	private static boolean isJ9S60Version(String v) {
+		return isJ9 && platform.indexOf("sw_platform_version=" + v) != -1;
+	}
+	
 	public static boolean isSymbianJRT2() {
 		return isJ9 && platform.indexOf("java_build_version=2.") != -1;
 	}
 	
 	public static boolean isSymbianTouch() {
-		return isJ9 && isS60PlatformVersion("5");
+		return isJ9 && isJ9S60Version("5");
 	}
 	
 	public static boolean isSymbian3Based() {
-		return isSymbianTouch() && !isS60PlatformVersion("5.0");
+		return isSymbianTouch() && !isJ9S60Version("5.0");
 	}
 	
 	public static boolean isSymbian94() {
-		return isJ9 && isS60PlatformVersion("5.0");
+		return isJ9 && isJ9S60Version("5.0");
 	}
 
 	public static boolean isSymbianAnna() {
-		return isJ9 && isS60PlatformVersion("5.2");
+		return isJ9 && isJ9S60Version("5.2");
 	}
 
 	public static boolean isBelle() {
 		int i = platform.indexOf("sw_platform_version=5.") + "sw_platform_version=5.".length();
-		return isJ9 && isS60PlatformVersion("5") && Integer.parseInt(platform.substring(i, i+1)) >= 3;
+		return isJ9 && isJ9S60Version("5") && Integer.parseInt(platform.substring(i, i+1)) >= 3;
 	}
 	
 	public static boolean isSymbian93() {
-		return isS60PlatformVersion("3.2");
+		return isJ9S60Version("3.2");
 	}
 
 	public static boolean isS60v3() {
@@ -115,7 +117,7 @@ public class PlatformUtils {
 
 	// Symbian check
 	public static boolean isSymbian() {
-		return (platform != null && platform.indexOf("platform=S60") != -1) ||
+		return platform.indexOf("platform=S60") != -1 ||
 				System.getProperty("com.symbian.midp.serversocket.support") != null ||
 				System.getProperty("com.symbian.default.to.suite.icon") != null ||
 				checkClass("com.symbian.midp.io.protocol.http.Protocol") ||
@@ -295,27 +297,31 @@ public class PlatformUtils {
 	}
 
 	public static boolean isSamsung() {
-		return platform != null && (platform.toLowerCase().startsWith("samsung") || platform.startsWith("GT-"));
+		return platform.toLowerCase().startsWith("samsung") || platform.startsWith("GT-");
 	}
 
 	public static boolean isPhoneme() {
-		return version != null && version.indexOf("phoneme") != -1;
+		return version.indexOf("phoneme") != -1;
 	}
 
 	public static boolean isNokia() {
-		return platform != null && platform.startsWith("Nokia");
+		return platform.startsWith("Nokia");
 	}
 
 	public static boolean isSonyEricsson() {
-		return System.getProperty("com.sonyericsson.java.platform") != null || (platform != null && platform.toLowerCase().startsWith("sonyericsson"));
+		return System.getProperty("com.sonyericsson.java.platform") != null || platform.toLowerCase().startsWith("sonyericsson");
 	}
 
 	public static boolean isWTK() {
-		return platform != null && (platform.startsWith("wtk") || platform.endsWith("wtk"));
+		return platform.startsWith("wtk") || platform.endsWith("wtk");
 	}
 
 	public static boolean isPlatformJ2ME() {
 		return "j2me".equals(platform);
+	}
+	
+	public static boolean isBlackBerry() {
+		return platform.toLowerCase().startsWith("blackberry");
 	}
 	
 	public static boolean checkClass(String s) {

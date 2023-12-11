@@ -129,7 +129,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			}
 			fc.create();
 			info(Locale.s(TXT_Connecting));
-			hc = (HttpConnection) Connector.open(url);
+			hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
 			hc.setRequestProperty("User-Agent", userAgent);
 			int r;
 			try {
@@ -142,7 +142,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				}
 				Thread.sleep(2000);
 				info("Connection retry");
-				hc = (HttpConnection) Connector.open(url);
+				hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
 				hc.setRequestMethod("GET");
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();
@@ -162,7 +162,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 					redir = host + redir;
 				}
 				hc.close();
-				hc = (HttpConnection) Connector.open(redir);
+				hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(redir));
 				hc.setRequestMethod("GET");
 				hc.setRequestProperty("User-Agent", userAgent);
 				r = hc.getResponseCode();

@@ -641,6 +641,8 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					}
 					search = false;
 					return true;
+				} else if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed('\b')) {
+					return true;
 				}
 			}
 		}
