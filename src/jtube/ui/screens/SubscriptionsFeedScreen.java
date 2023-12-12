@@ -30,35 +30,27 @@ import cc.nnproject.json.JSONObject;
 import jtube.App;
 import jtube.Constants;
 import jtube.Loader;
-import jtube.LoaderThread;
 import jtube.LocalStorage;
 import jtube.Settings;
-import jtube.models.ILoader;
 import jtube.models.VideoModel;
 import jtube.ui.Locale;
 import jtube.ui.items.Label;
 
-public class SubscriptionsFeedScreen extends NavigationScreen implements Runnable, Constants, ILoader {
+public class SubscriptionsFeedScreen extends NavigationScreen implements Runnable, Constants {
 
 	private int lastCount;
-	private Vector allVideos = new Vector();
 	private String[] subscriptions;
-	private int idx;
-	private Object lock = new Object();
 	private Thread thread;
 	private boolean loaded;
-	private boolean interrupt;
 
 	public SubscriptionsFeedScreen() {
 		super(Locale.s(TITLE_Subscriptions));
-		menuOptions = new String[] {
-				Locale.s(CMD_ChannelsList)
-		};
+		menuOptions = new String[] { Locale.s(CMD_ChannelsList) };
 	}
 	
 	protected void show() { 
 		super.show();
-		if((lastCount != LocalStorage.getSubsciptions().length || !loaded) && !busy) {
+		if(lastCount != LocalStorage.getSubsciptions().length || !loaded) {
 			Loader.stop();
 			thread = new Thread(this);
 			thread.start();
@@ -66,13 +58,11 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 	}
 	
 	public void hide() {
-		interrupt = true;
 		busy = false;
 		Loader.stop();
 		if(thread != null) {
 			thread.interrupt();
 		}
-		allVideos.removeAllElements();
 		super.hide();
 	}
 
@@ -80,42 +70,35 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 		lastCount = 0;
 		busy = true;
 		loaded = false;
-		idx = 0;
 		subscriptions = LocalStorage.getSubsciptions();
 		if(subscriptions == null || subscriptions.length == 0) {
 			busy = false;
 			return;
 		}
 		try {
-			allVideos.removeAllElements();
-			Loader.synchronize();
-			Thread.sleep(200);
-			if(interrupt) return;
+			Vector videos = new Vector(subscriptions.length * 5);
 			for(int i = 0; i < subscriptions.length; i+=2) {
-				Loader.add(this);
+				JSONArray j = ((JSONObject) App.invApi("channels/" + subscriptions[i] + "/latest?", "videos(" + VIDEO_FIELDS + ",published)")).getArray("videos");
+				for(int k = 0; k < j.size() && k < 10; k++) {
+					videos.addElement(j.get(k));
+				}
+				Thread.sleep(1);
 			}
-			Loader.start();
-			// wait till all channels load
-			synchronized(lock) {
-				lock.wait();
-			}
-			if(interrupt) return;
 			// sorting
-			int l = allVideos.size();
+			int l = videos.size();
 			for (int i = 0; i < l; i++) {
 				for (int j = i + 1; j < l; j++) {
-					JSONObject t1 = (JSONObject) allVideos.elementAt(i);
-					JSONObject t2 = (JSONObject) allVideos.elementAt(j);
+					JSONObject t1 = (JSONObject) videos.elementAt(i);
+					JSONObject t2 = (JSONObject) videos.elementAt(j);
 					if (t1.getLong("published") < t2.getLong("published")) {
-						allVideos.setElementAt(t2, i);
-						allVideos.setElementAt(t1, j);
+						videos.setElementAt(t2, i);
+						videos.setElementAt(t1, j);
 					}
 				}
 			}
 			Date lastDate = null;
-			for(int i = 0; i < allVideos.size(); i++) {
-				if(i > 100) break;
-				JSONObject j = (JSONObject) allVideos.elementAt(i);
+			for(int i = 0; i < videos.size() && i < 100; i++) {
+				JSONObject j = (JSONObject) videos.elementAt(i);
 				VideoModel v = new VideoModel(j);
 				Date date = new Date(j.getLong("published") * 1000L);
 				if(lastDate == null || !dateEqual(date, lastDate)) {
@@ -125,11 +108,11 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 				if(Settings.videoPreviews && !Settings.lazyLoad) Loader.add(v);
 				add(v.makeListItem());
 			}
-			allVideos.removeAllElements();
 			loaded = true;
 			lastCount = subscriptions.length;
 			subscriptions = null;
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		busy = false;
 	}
@@ -154,36 +137,6 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
     	String s = String.valueOf(i);
     	if(s.length() < 2) s = "0" + s;
 		return s;
-	}
-
-	public void load() {
-		try {
-			if(idx*2 >= subscriptions.length) return;
-			int i;
-			synchronized(subscriptions) {
-				i = idx++;
-			}
-			JSONObject r = (JSONObject) App.invApi("channels/" + subscriptions[i * 2] + "/latest?", "videos(" + VIDEO_FIELDS + ",published)");
-			JSONArray j = r.getArray("videos");
-			if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {
-				interrupt = true;
-				synchronized(lock) {
-					lock.notify();
-				}
-				throw new RuntimeException("loader interrupt");
-			}
-			for(int k = 0; k < j.size() && k < 10; k++) {
-				allVideos.addElement(j.get(k));
-			}
-			if((++i)*2 >= subscriptions.length) {
-				synchronized(lock) {
-					lock.notify();
-				}
-			}
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-		}
 	}
 	
 	protected void menuAction(int action) {
