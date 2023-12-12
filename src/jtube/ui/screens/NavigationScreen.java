@@ -1038,7 +1038,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				searchSuggestions[i] = Util.htmlText(suggestions.getString(i));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	

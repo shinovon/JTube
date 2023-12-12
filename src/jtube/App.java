@@ -631,7 +631,6 @@ public class App implements Constants, Runnable {
 				return parseStartArguments();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return false;
 	}

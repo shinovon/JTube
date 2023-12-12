@@ -461,7 +461,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 								o.write(LocalStorage.exportSubscriptionsBytes());
 								o.flush();
 							} catch (Exception e) {
-								e.printStackTrace();
 							} finally {
 								try {
 									if (o != null)

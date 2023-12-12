@@ -337,7 +337,6 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				Util.platReq(file);
 				AppUI.inst.display(null);
 			} catch (Exception e) {
-				e.printStackTrace();
 				info(e.toString());
 			}
 		}

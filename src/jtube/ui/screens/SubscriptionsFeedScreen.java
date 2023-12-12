@@ -112,7 +112,6 @@ public class SubscriptionsFeedScreen extends NavigationScreen implements Runnabl
 			lastCount = subscriptions.length;
 			subscriptions = null;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		busy = false;
 	}

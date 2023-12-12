@@ -140,7 +140,6 @@ public class Util implements Constants {
 			return downloadBytes(in, (int) hc.getLength(), 1024, 2048);
 		} catch (IOException e) {
 			if(loader != null && loader.checkInterrupted()) {
-				e.printStackTrace();
 				throw new RuntimeException("interrupted");
 			}
 			throw e; 

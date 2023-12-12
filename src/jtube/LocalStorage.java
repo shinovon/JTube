@@ -170,7 +170,6 @@ public class LocalStorage {
 			subsRS.setRecord(1, b, 0, b.length);
 			subsRS.closeRecordStore();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
