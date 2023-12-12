@@ -242,8 +242,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 		} catch (InterruptedException e) {
 			fail(Locale.s(TXT_Canceled), "");
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.toString(), Locale.s(TXT_DownloadFailed));
+			if(!cancel) fail(e.toString(), Locale.s(TXT_DownloadFailed));
 		} finally {
 			try {
 				if(out != null) out.close();
