@@ -96,25 +96,25 @@ public class Util implements Constants {
 			throw new IllegalArgumentException("URL is null");
 		HttpConnection hc = null;
 		InputStream in = null;
+		LoaderThread loader = Thread.currentThread() instanceof LoaderThread ? (LoaderThread) Thread.currentThread() : null;
 		try {
 			hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
 			hc.setRequestMethod("GET");
 			hc.setRequestProperty("User-Agent", userAgent);
 			if(charset != null) {
-				// this doesn't work
 				hc.setRequestProperty("accept-charset", charset.toLowerCase());
 			}
 			String locale = Locale.s(Locale.ISOLanguageCode);
 			if(locale != null) {
 				hc.setRequestProperty("accept-language", locale);
 			}
-			if(Thread.currentThread() instanceof LoaderThread) {
-				if(((LoaderThread) Thread.currentThread()).checkInterrupted()) {
+			if(loader != null) {
+				if(loader.checkInterrupted()) {
 					throw new RuntimeException("loader interrupt");
 				}
-			} else {
-				Thread.sleep(1);
+				loader.setConnection(hc);
 			}
+			Thread.sleep(1);
 			synchronized(connectionLock) {}
 			int r = hc.getResponseCode();
 			int redirects = 0;
@@ -138,6 +138,12 @@ public class Util implements Constants {
 				Thread.sleep(url.endsWith("jpg") ? 100 : PlatformUtils.isSamsung() ? 300 : 200);
 			}
 			return downloadBytes(in, (int) hc.getLength(), 1024, 2048);
+		} catch (IOException e) {
+			if(loader != null && loader.checkInterrupted()) {
+				e.printStackTrace();
+				throw new RuntimeException("interrupted");
+			}
+			throw e; 
 		} catch (InterruptedException e) {
 			throw new RuntimeException("interrupted");
 		} finally {
@@ -149,6 +155,7 @@ public class Util implements Constants {
 				if (hc != null) hc.close();
 			} catch (IOException e) {
 			}
+			if(loader != null) loader.setConnection(null);
 		}
 	}
 	

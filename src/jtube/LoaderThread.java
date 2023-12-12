@@ -21,15 +21,17 @@ SOFTWARE.
 */
 package jtube;
 
+import javax.microedition.io.HttpConnection;
+
 import jtube.models.ILoader;
 
 public class LoaderThread extends Thread {
 	
-	private boolean interruptSuccess;
 	private Object lock1;
 	private Object lock2;
 	protected Object threadLock = new Object();
 	private boolean interrupt;
+	private HttpConnection connection;
 
 	public LoaderThread(int priority, int i) {
 		super("Loader-"+i);
@@ -80,23 +82,23 @@ public class LoaderThread extends Thread {
 	public boolean checkInterrupted() {
 		if(interrupt) {
 			interrupt = false;
-			interruptSuccess = true;
 			return true;
 		}
 		return false;
 	}
 
 	public void doInterrupt() {
-		interruptSuccess = false;
 		interrupt = true;
-	}
-	
-	public boolean isInterruptSuccess() {
-		if(interruptSuccess) {
-			interruptSuccess = false;
-			return true;
+		if(connection == null) return;
+		try {
+			connection.close();
+		} catch (Exception e) {
 		}
-		return false;
+		connection = null;
+	}
+
+	public void setConnection(HttpConnection c) {
+		this.connection = c;
 	}
 
 }

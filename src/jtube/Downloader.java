@@ -54,6 +54,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 	private String file;
 	private Thread t;
 	private boolean cancel;
+	private HttpConnection hc;
 	
 	static final Command dlOkCmd = new Command(Locale.s(CMD_OK), Command.CANCEL, 1);
 	static final Command dlOpenCmd = new Command(Locale.s(CMD_Open), Command.OK, 1);
@@ -74,7 +75,6 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 		indicator.setValue(Gauge.CONTINUOUS_RUNNING);
 		FileConnection fc = null;
 		OutputStream out = null;
-		HttpConnection hc = null;
 		InputStream in = null;
 		try {
 			String f = id;
@@ -324,6 +324,12 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 		}
 		if(c == dlCancelCmd) {
 			cancel = true;
+			if(hc != null) {
+				try {
+					hc.close();
+				} catch (Exception e) {
+				}
+			}
 			t.interrupt();
 			AppUI.inst.display(null);
 		}
