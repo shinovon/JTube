@@ -854,14 +854,14 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					ui.mainScr = new HomeScreen();
 					new Thread(new RunnableTask(RunnableTask.MAIN)).start();
 				}
-				ui.currentTab = 0;
+				ui.screenStacks[ui.currentTab = tab].removeAllElements();
 				ui.setScreen(ui.mainScr);
 				break;
 			case 1:
 				if(ui.subsScr == null) {
 					ui.subsScr = new SubscriptionsFeedScreen();
 				}
-				ui.currentTab = 1;
+				ui.screenStacks[ui.currentTab = tab].removeAllElements();
 				ui.setScreen(ui.subsScr);
 				break;
 			}
