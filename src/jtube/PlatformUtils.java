@@ -301,7 +301,7 @@ public class PlatformUtils {
 	}
 
 	public static boolean isPhoneme() {
-		return version.indexOf("phoneme") != -1;
+		return version != null && version.indexOf("phoneme") != -1;
 	}
 
 	public static boolean isNokia() {
