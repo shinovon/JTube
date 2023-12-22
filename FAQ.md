@@ -1,14 +1,18 @@
 # FAQ
 ## Questions & Unswers
-<b>Is it possible to select Opera as the browser for video playback?</b><br>
-No. Java is very limited in the ability to open third-party applications, and this makes no sense.<br>
-
 <b>No sound (S40)</b><br>
 The device does not support the audio codec issued by YouTube
 
 <b>Where can I get the language editor for JTube?</b><br>
 You can find it in telegram chat: https://t.me/nnmidletschat<br>
 Or build it from here: https://github.com/shinovon/jtlngedit
+
+<b>360p has only audio track without video or doesn't open (s60v3, v5 / Symbian 9.x)</b><br>
+9.2-9.3: You may use CorePlayer to watch 360p, but expect lags on 9.2 due to slowness of processors they typically have<br>
+9.4: No solution for now, 144p only
+
+<b>Is it possible to select Opera as the browser for video playback?</b><br>
+No. Java is very limited in the ability to open third-party applications, and this makes no sense.<br>
 
 ## Errors
 ### Common
@@ -19,9 +23,15 @@ Occurs because the user clicked "no" when prompted to allow network requests or 
 Usually this error tells what happened and most often it occurs due to sending too much requests
 
 <b>The page cannot be opened (403)</b><br>
-JTube does not currently support auto-generated music videos and vevo
+Try different proxy settings, they are unstable most of the time because of google's attempts to cancel invidious.<br>
+note: JTube does not support auto-generated music videos and vevo.
 
-### Symbian
+<b>JSONException: Unexpected end of text</b><br>
+HTTP data was not downloaded completely or was corrupted.<br>
+Happens most often on Samsungs, can't be fixed.<br>
+Keep refreshing the page until it successfully loads.
+
+### Symbian S60
 <b>java.io.IOException: -1 (Symbian 9.2-9.4 & Symbian^3)</b><br>
 Reason: App can't access the internet<br>
 Solutions:
@@ -55,3 +65,4 @@ Reason: Choosen invidious instance is probably using cloudflare<br>
 Reason: App can't access the internet<br>
 Solution:
 1. Set up APN settings for apps in device settings
+
