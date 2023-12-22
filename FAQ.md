@@ -22,7 +22,7 @@ Occurs because the user clicked "no" when prompted to allow network requests or 
 <b>API error</b><br>
 Usually this error tells what happened and most often it occurs due to sending too much requests
 
-<b>The page cannot be opened (403)</b><br>
+<b>The page cannot be opened / Invalid web address / HTTP Response code 403</b><br>
 Try different proxy settings, they are unstable most of the time because of google's attempts to cancel invidious.<br>
 note: JTube does not support auto-generated music videos and vevo.
 
@@ -30,6 +30,9 @@ note: JTube does not support auto-generated music videos and vevo.
 HTTP data was not downloaded completely or was corrupted.<br>
 Happens most often on Samsungs, can't be fixed.<br>
 Keep refreshing the page until it successfully loads.
+
+<b>ConnectionNotFoundException (downloader)</b><br>
+Opening files is not supported on your device, you have to open them manually from gallery or system file manager.
 
 ### Symbian S60
 <b>java.io.IOException: -1 (Symbian 9.2-9.4 & Symbian^3)</b><br>
