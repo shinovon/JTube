@@ -81,12 +81,12 @@ public class PlatformUtils {
 		return isJ9 && platform.indexOf("java_build_version=2.") != -1;
 	}
 	
-	public static boolean isSymbianTouch() {
+	public static boolean isS60v5() {
 		return isJ9 && isJ9S60Version("5");
 	}
 	
 	public static boolean isSymbian3Based() {
-		return isSymbianTouch() && !isJ9S60Version("5.0");
+		return isS60v5() && !isJ9S60Version("5.0");
 	}
 	
 	public static boolean isSymbian94() {
