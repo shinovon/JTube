@@ -430,8 +430,19 @@ public class App implements Constants, Runnable {
 	}
 	
 	public static void download(final String id, String name) {
-		Downloader d = new Downloader(id, Settings.videoRes, Settings.downloadDir, name);
-		d.start();
+		if(Settings.downloadDir == null || Settings.downloadDir.length() < 2) {
+			Alert a = new Alert("");
+			a.setString(Locale.s(Locale.TXT_DownloadDirWarning));
+			a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2));
+			a.setCommandListener(new CommandListener() {
+				public void commandAction(Command c, Displayable d) {
+					if(c.getPriority() == 2) AppUI.inst.showSettings();
+				}
+			});
+			displayAlert(a);
+			return;
+		}
+		new Downloader(id, Settings.videoRes, Settings.downloadDir, name).start();
 	}
 	
 	public static void watch(final String id) {
@@ -456,13 +467,9 @@ public class App implements Constants, Runnable {
 					a.setString(Locale.s(Locale.TXT_DownloadDirWarning));
 					a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2));
 					a.setCommandListener(new CommandListener() {
-
-						public void commandAction(Command c, Displayable arg1) {
-							if(c.getPriority() == 2) {
-								AppUI.inst.showSettings();
-							}
+						public void commandAction(Command c, Displayable d) {
+							if(c.getPriority() == 2) AppUI.inst.showSettings();
 						}
-						
 					});
 					displayAlert(a);
 					return;
