@@ -74,7 +74,7 @@ public class Settings implements Constants {
 	public static String apiProxy = invproxy;
 	public static boolean useApiProxy;
 	public static String videoplaybackProxy = vpb;
-	public static int playbackProxyVariant = 1;
+	public static int playbackProxyVariant = 0;
 	public static boolean bbWifi = true;
 	public static boolean bbSet = false;
 	
@@ -110,7 +110,6 @@ public class Settings implements Constants {
 			inv = iteroni;
 			httpStream = true;
 			useApiProxy = true;
-			playbackProxyVariant = 1;
 		}
 		try {
 			langsList = new Vector();
@@ -311,6 +310,9 @@ public class Settings implements Constants {
 						useApiProxy = true;
 					}
 					saveConfig();
+				} else if(i < 5) {
+					playbackProxyVariant = 0;
+					saveConfig();
 				}
 				return;
 			} catch (Exception e) {
@@ -324,7 +326,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v4");
+			j.put("v", "v5");
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);

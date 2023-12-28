@@ -51,10 +51,10 @@ public class App implements Constants, Runnable {
 	
 	public static App inst;
 	public static App2 midlet;
-	private AppUI ui;
 	
 	public static int startWidth;
 	public static int startHeight;
+	private static int workingProxy;
 	
 	private Object[] queuedTasks = new Object[30];
 	private int queuedTasksIdx;
@@ -88,6 +88,7 @@ public class App implements Constants, Runnable {
 		}
 	};
 
+	private AppUI ui;
 	private Thread uiThread;
 
 	public void schedule(Object r) {
@@ -372,36 +373,60 @@ public class App implements Constants, Runnable {
 					}
 				}
 			}
+			System.out.println(r);
 			return r;
 		}
 	}
 
-	public static String getVideoLink(String id, String res, boolean forceProxy) throws JSONException, IOException {
-		JSONObject o = getVideoInfo(id, res);
-		if(o == null) throw new RuntimeException("not found");
-		String url = o.getString("url");
+	public static String getVideoLink(JSONObject videoInfo, boolean forceProxy) throws JSONException, IOException {
+		if(videoInfo == null) throw new RuntimeException("not found");
+		String url = videoInfo.getString("url");
 		if(Settings.httpStream || forceProxy) {
-			switch(Settings.playbackProxyVariant) {
-			case 0:
+			int i = Settings.playbackProxyVariant;
+			if(Settings.playbackProxyVariant == 0) {
+				// Test proxies on auto mode
+				if(workingProxy == 0) {
+					try {
+						String url2 = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
+						if(Settings.useApiProxy) {
+							url2 = Settings.serverstream + Util.url(url2);
+						}
+						if(Util.head(url2) >= 400) throw new Exception();
+						workingProxy = 1;
+						url = url2;
+					} catch (Exception e) {
+						try {
+							String url2 = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
+							if(Util.head(url2) >= 400) throw new Exception();
+							url = url2;
+							workingProxy = 2;
+						} catch (Exception e2) {
+//							url = Settings.serverstream + Util.url(url);
+							url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
+							workingProxy = 3;
+						}
+					}
+				} else {
+					i = workingProxy;
+				}
+			}
+			switch(i) {
+			case 1:
 				url = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
-				if(Settings.useApiProxy) { // TODO?
+				if(Settings.useApiProxy) {
 					url = Settings.serverstream + Util.url(url);
 				}
 				break;
-			case 1:
+			case 2:
 				url = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
 				break;
-			case 2:
+			case 3:
 				url = Settings.serverstream + Util.url(url);
 				break;
 			}
 		}
 		System.out.println(url);
 		return url;
-	}
-
-	public static String getVideoLink(String id, String res) throws JSONException, IOException {
-		return getVideoLink(id, res, false);
 	}
 	
 	public static void download(final String id, String name) {
@@ -417,7 +442,7 @@ public class App implements Constants, Runnable {
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
-				String url = getVideoLink(id, Settings.videoRes);
+				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), false);
 				try {
 					Util.platReq(url);
 				} catch (Exception e) {
@@ -429,8 +454,7 @@ public class App implements Constants, Runnable {
 				if(Settings.downloadDir == null || Settings.downloadDir.length() < 2) {
 					Alert a = new Alert("");
 					a.setString(Locale.s(Locale.TXT_DownloadDirWarning));
-					Command c = new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2);
-					a.addCommand(c);
+					a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2));
 					a.setCommandListener(new CommandListener() {
 
 						public void commandAction(Command c, Displayable arg1) {
@@ -440,9 +464,10 @@ public class App implements Constants, Runnable {
 						}
 						
 					});
+					displayAlert(a);
 					return;
 				}
-				String url = getVideoLink(id, Settings.videoRes, true);
+				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), true);
 				
 				if(PlatformUtils.isBada) {
 					String file = "file:///Media/Videos/watch.ram";
@@ -575,8 +600,7 @@ public class App implements Constants, Runnable {
 	}
 
 	public static void error(Object o, String str) {
-		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " \n\n" + 
-				getThreadInfo(o);
+		String s = str + " \n" + CONTANT_DEVELOPER_STRING + " \n\n" + getThreadInfo(o);
 		Alert a = new Alert("", s, null, AlertType.ERROR);
 		displayAlert(a);
 	}
@@ -592,7 +616,7 @@ public class App implements Constants, Runnable {
 			error(o, i, e2.getTheCause().toString(), "URL: " + e2.getUrl());
 			return;
 		}
-		error(o, i, e.toString(), null);
+		error(o, i, parseError(e, i), null);
 	}
 
 	public static void error(Object o, int i, String str) {
@@ -729,6 +753,12 @@ public class App implements Constants, Runnable {
 		} else {
 			throw new IllegalArgumentException();
 		}
+	}
+	
+	public static String parseError(Throwable exception, int code) {
+		String s = exception.toString();
+		// TODO
+		return s;
 	}
 
 }

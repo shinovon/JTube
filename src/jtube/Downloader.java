@@ -98,23 +98,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			info(f);
 			
 			JSONObject o = App.getVideoInfo(id, res);
-			String url = o.getString("url");
-			if(Settings.httpStream) {
-				switch(Settings.playbackProxyVariant) {
-				case 0:
-					url = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
-					if(Settings.useApiProxy) {
-						url = Settings.serverstream + Util.url(url);
-					}
-					break;
-				case 1:
-					url = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
-					break;
-				case 2:
-					url = Settings.serverstream + Util.url(url);
-					break;
-				}
-			}
+			String url = App.getVideoLink(o, false);
 			int contentLength = o.getInt("clen", 0);
 			o = null;
 			// wait
@@ -176,16 +160,16 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			byte[] buf = new byte[bufSize];
 			int read = 0;
 			int downloaded = 0;
-			int l = contentLength;
-			if(l <= 0) {
-				try {
-					l = (int) hc.getLength();
-				} catch (Exception e) {
-			
-				}
+			int len = 0;
+			try {
+				len = (int) hc.getLength();
+			} catch (Exception e) {
+			}
+			if(len <= 0) {
+				len = contentLength;
 			}
 			boolean ind = false;
-			if(l > 0) {
+			if(len > 0) {
 				indicator.setValue(0);
 				indicator.setMaxValue(100);
 				ind = true;
@@ -202,7 +186,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				a = 2;
 			}
 			if(cancel) throw new InterruptedException();
-			String sizeStr = "" + ((int) (((double)l / 1024 / 1024) * 10)) / 10D;
+			String sizeStr = "" + ((int) (((double)len / 1024 / 1024) * 10)) / 10D;
 			long t = System.currentTimeMillis();
 			int s = 0;
 			int i = 0;
@@ -226,7 +210,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 						spd = j + " KB/s";
 					}
 					if(ind) {
-						percent = (int)(((double)downloaded / (double)l) * 100d);
+						percent = (int)(((double)downloaded / (double)len) * 100d);
 						info(Locale.s(TXT_Downloading) + " \n" + 
 						((int) ((downloaded / 1024D / 1024D) * 100)) / 100D + " / " + sizeStr + " MB \n("
 								+ spd + ") " + percent + "%"
@@ -337,7 +321,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 				Util.platReq(file);
 				AppUI.inst.display(null);
 			} catch (Exception e) {
-				info(e.toString());
+				info("Player call failed! Open file from gallery instead.\n" + e.toString());
 			}
 		}
 	}

@@ -524,5 +524,48 @@ public class Util implements Constants {
 		}
 		return url;
 	}
+	
+	public static int head(String url) throws IOException { 
+		HttpConnection hc = null;
+		try {
+			hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
+			try {
+				hc.setRequestMethod("HEAD");
+			} catch (Exception e) {
+				hc.setRequestMethod("GET");
+			}
+			hc.setRequestProperty("User-Agent", userAgent);
+			Thread.sleep(1);
+			synchronized(connectionLock) {}
+			int r = hc.getResponseCode();
+			int redirects = 0;
+			while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
+				if(redirects++ > 5) {
+					throw new IOException("Too many redirects!");
+				}
+				String redir = hc.getHeaderField("Location");
+				if (redir.startsWith("/")) {
+					String tmp = url.substring(url.indexOf("//") + 2);
+					String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
+					redir = host + redir;
+				}
+				hc.close();
+				hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(redir));
+				try {
+					hc.setRequestMethod("HEAD");
+				} catch (Exception e) {
+					hc.setRequestMethod("GET");
+				}
+			}
+			return r;
+		} catch (InterruptedException e) {
+			throw new RuntimeException("interrupted");
+		} finally {
+			try {
+				if (hc != null) hc.close();
+			} catch (IOException e) {
+			}
+		}
+	}
 
 }

@@ -96,6 +96,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_FullScreenInput)
 			};
 	static final String[] VPB_PROXY_VARIANTS = new String[] {
+			"Auto",
 			"Invidious",
 			"nnchan",
 			Locale.s(SET_UrlPrefix)
@@ -185,7 +186,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
 		apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
 				Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
-		vpbProxyChoice = new ChoiceGroup(Locale.s(SET_PlaybackProxy), ChoiceGroup.EXCLUSIVE, VPB_PROXY_VARIANTS, null);
+		vpbProxyChoice = new ChoiceGroup(Locale.s(SET_PlaybackProxy), ChoiceGroup.POPUP, VPB_PROXY_VARIANTS, null);
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
