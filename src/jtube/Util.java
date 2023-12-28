@@ -48,7 +48,7 @@ public class Util implements Constants {
 		}
 		// Test UTF-8 support
 		String testWord = "выф";
-		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isPlatformJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isSymbian()) {
+		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isPlatformJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isS60) {
 			try {
 				String tmp = new String(testWord.getBytes("UTF8"), "UTF8");
 				if(tmp.charAt(0) == 'в') {
@@ -134,7 +134,7 @@ public class Util implements Constants {
 			}
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
 			in = hc.openInputStream();
-			if(!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS40()) {
+			if(!PlatformUtils.isJ9 && !PlatformUtils.isS40) {
 				Thread.sleep(url.endsWith("jpg") ? 100 : PlatformUtils.isSamsung() ? 300 : 200);
 			}
 			return downloadBytes(in, (int) hc.getLength(), 1024, 2048);

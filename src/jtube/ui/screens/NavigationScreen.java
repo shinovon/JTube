@@ -139,10 +139,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			}
 		} catch (Exception e) {
 		}
-		addOk = !topBar &&
-				!PlatformUtils.isSymbianJ9() && !PlatformUtils.isS60v3() &&
-				!PlatformUtils.isSonyEricsson() && !PlatformUtils.isKemulator &&
-				!PlatformUtils.isJ2ML() && !PlatformUtils.isPhoneme();
+		addOk = !topBar && PlatformUtils.isS40;
 		if(topBar) {
 			suggestionsThread = new SearchSuggestionsThread();
 			suggestionsThread.start();

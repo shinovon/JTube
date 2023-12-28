@@ -239,12 +239,12 @@ public class Settings implements Constants {
 						downloadBuffer = 4096;
 						rmsPreviews = true;
 					}
-					if(PlatformUtils.isS40() && !PlatformUtils.isAsha) {
+					if(PlatformUtils.isS40 && !PlatformUtils.isAsha) {
 						rmsPreviews = true;
 					}
 					videoPreviews = true;
 				}
-				serverstream = PlatformUtils.isAsha || PlatformUtils.isS40() ? stream : glype;
+				serverstream = PlatformUtils.isAsha || PlatformUtils.isS40 ? stream : glype;
 				int min = Math.min(App.startWidth, App.startHeight);
 				// Symbian 9.4 can't handle H.264/AVC
 				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
@@ -379,7 +379,7 @@ public class Settings implements Constants {
 	}
 	
 	public static boolean isLowEndDevice() {
-		return !PlatformUtils.isSymbian() && (App.startWidth < 176 || PlatformUtils.startMemory <= 1024 * 1024);
+		return !PlatformUtils.isS60 && (App.startWidth < 176 || PlatformUtils.startMemory <= 1024 * 1024);
 	}
 	
 	public static void registerPush() {

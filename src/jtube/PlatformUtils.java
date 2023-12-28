@@ -68,11 +68,6 @@ public class PlatformUtils {
 		isJ9 = platform.indexOf("sw_platform=S60") != -1;
 	}
 	
-	// returns true for symbians that use j9 vm
-	public static boolean isSymbianJ9() {
-		return isJ9;
-	}
-	
 	private static boolean isJ9S60Version(String v) {
 		return isJ9 && platform.indexOf("sw_platform_version=" + v) != -1;
 	}
@@ -126,7 +121,7 @@ public class PlatformUtils {
 	
 	// returns the estimated s60 version
 	public static String getS60() {
-		if(!isSymbian()) {
+		if(!isS60) {
 			return null;
 		}
 		if(isJ9) {
@@ -171,13 +166,9 @@ public class PlatformUtils {
 		}
 		return "1.0"; // s60 v1.0
 	}
-
-	public static boolean isS40() {
-		return isS40;
-	}
 	
 	public static String getS40_version() { // not real version
-		if(!isS40()) {
+		if(!isS40) {
 			return null;
 		}
 		if(platform.startsWith("Nokia300/") || platform.startsWith("NokiaC3-01") || platform.startsWith("NokiaX3-02")) {
