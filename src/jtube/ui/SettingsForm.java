@@ -56,8 +56,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			"144p", 
 			"360p", 
 			"720p", 
-			Locale.s(SET_VQ_AudioOnly),
-			"240p (" + Locale.s(SET_VQ_NoAudio) + ")"
+//			Locale.s(SET_VQ_AudioOnly),
+//			"240p (" + Locale.s(SET_VQ_NoAudio) + ")"
 			};
 	static final String[] PROXY_CHECKS = new String[] { 
 			Locale.s(SET_UseApiProxy),
@@ -181,7 +181,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		invidiousText = new TextField(Locale.s(SET_InvAPI), Settings.inv, 256, TextField.URL);
 		httpProxyText = new TextField(Locale.s(SET_StreamProxy), Settings.serverstream, 256, TextField.URL);
 		downloadBufferText = new TextField(Locale.s(SET_DownloadBuffer), Integer.toString(Settings.downloadBuffer), 6, TextField.NUMERIC);
-		debugChoice = new ChoiceGroup("Other", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
+		debugChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, DEBUG_CHECKS, null);
 		autoStartChoice = new ChoiceGroup(Locale.s(SET_AutoStart), ChoiceGroup.POPUP, ON_OFF, null);
 		keyboardChoice = new ChoiceGroup(Locale.s(SET_VirtualKeyboard), ChoiceGroup.POPUP, VIRTUAL_KEYBOARDS, null);
 		apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
