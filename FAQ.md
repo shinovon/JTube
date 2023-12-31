@@ -23,7 +23,8 @@ Occurs because the user clicked "no" when prompted to allow network requests or 
 Usually this error tells what happened and most often it occurs due to sending too much requests
 
 <b>The page cannot be opened / Invalid web address / HTTP Response code 403</b><br>
-Try different proxy settings, they are unstable most of the time because of google's attempts to cancel invidious.<br>
+Set "playback proxy" setting to "Auto"<br>
+Proxies may work unstable because of google's attempts to cancel invidious.<br>
 note: JTube does not support auto-generated music videos and vevo.
 
 <b>JSONException: Unexpected end of text</b><br>
