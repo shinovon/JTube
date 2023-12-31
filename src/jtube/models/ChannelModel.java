@@ -146,12 +146,13 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	}
 
 	public void dispose() {
-		imageUrl = null;
-		img = null;
-		if(item != null) item.setImage(null);
+		bannerUrl = imageUrl = null;
+		bannerImg = img = null;
+		if(item != null) item.img = null;
 	}
 	
 	public void disposeExtendedVars() {
+		bannerImg = null;
 		extended = false;
 		hasSmallImage = false;
 	}

@@ -50,7 +50,7 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 
 	private String author;
 
-	private Image img;
+	public Image img;
 	private Image bannerImg;
 	private int bannerWidth;
 
