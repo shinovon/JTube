@@ -72,7 +72,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	}
 	
 	public HomeScreen mainScr;
-	public SearchScreen searchScr;
 	public VideoScreen videoScr;
 	public SubscriptionsFeedScreen subsScr;
 	
@@ -321,7 +320,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 
 	public void search(String q) {
 		Loader.stop();
-		searchScr = new SearchScreen(q);
+		SearchScreen searchScr = new SearchScreen(q);
 		searchScr.busy = true;
 		display(null);
 		nextScreen(searchScr);
@@ -395,13 +394,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		videoScr = null;
 		Util.gc();
 	}
-
-	public void disposeSearchPage() {
-		if(searchScr == null) return;
-		searchScr.clear();
-		searchScr = null;
-		Util.gc();
-	}
 	
 	public void refresh() {
 		try {
@@ -457,9 +449,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				{
 					// Search
 					Loader.stop();
-					if(searchScr != null) {
-						disposeSearchPage();
-					}
 					TextBox t = new TextBox("", "", 256, TextField.ANY);
 					t.setCommandListener(this);
 					t.setTitle(Locale.s(CMD_Search));
@@ -680,9 +669,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 		}
 		if(videoScr != null) {
 			disposeVideoPage();
-		}
-		if(searchScr != null) {
-			disposeSearchPage();
 		}
 	}
 
