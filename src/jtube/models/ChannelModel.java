@@ -30,6 +30,7 @@ import cc.nnproject.json.JSONObject;
 import jtube.App;
 import jtube.Constants;
 import jtube.InvidiousException;
+import jtube.LocalStorage;
 import jtube.Settings;
 import jtube.ui.IModelScreen;
 import jtube.ui.UIItem;
@@ -52,10 +53,10 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 	public boolean fromSearch;
 
 	private String imageUrl;
-	public boolean rounded;
 	public boolean hasSmallImage;
 	private String bannerUrl;
 	public boolean loaded;
+	private boolean page;
 	
 	public ChannelModel(String id) {
 		this.authorId = id;
@@ -119,17 +120,19 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 			item.setImage(img);
 			return;
 		}
-		if(imageUrl == null) return;
-		try {
-			byte[] b = App.getImageBytes(imageUrl);
-			int i = hasSmallImage ? 36 : 48;
-			img = Image.createImage(b, 0, b.length);
-			b = null;
-			img = ImageUtils.resize(img, i, i);
-			item.setImage(img);
-			imageUrl = null;
-		} catch (Throwable e) {
+		int size = hasSmallImage ? 36 : 48;
+		if((img = LocalStorage.getAvatar(authorId)) == null) {
+			if(imageUrl == null) return;
+			try {
+				byte[] b = App.getImageBytes(imageUrl);
+				if(page) LocalStorage.saveAvatar(authorId, b);
+				item.setImage(img = ChannelItem.roundImage(ImageUtils.resize(Image.createImage(b, 0, b.length), size, size)));
+			} catch (Throwable e) {
+			}
+		} else {
+			item.setImage(img = ChannelItem.roundImage(ImageUtils.resize(img, size, size)));
 		}
+		imageUrl = null;
 		if(bannerUrl == null) return;
 		try {
 			byte[] b = App.getImageBytes(bannerUrl);
@@ -165,20 +168,12 @@ public class ChannelModel extends AbstractModel implements ILoader, Constants {
 
 	public UIItem makePageItem() {
 		hasSmallImage = false;
+		page = true;
 		return item = new ChannelItem(this);
 	}
 
 	public IModelScreen makeScreen() {
 		return new ChannelScreen(this);
-	}
-
-	public void setImage(Image img, boolean b) {
-		this.img = img;
-		rounded = b;
-	}
-
-	public void setImage(Image img) {
-		this.img = img;
 	}
 
 }

@@ -26,6 +26,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
 import jtube.App;
+import jtube.Loader;
 import jtube.LocalStorage;
 import jtube.models.ChannelModel;
 import jtube.models.VideoModel;
@@ -75,14 +76,8 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 		super();
 		this.channel = c;
 		if(c.img != null) {
-			if(!c.rounded) {
-				this.img = roundImage(c.img);
-				c.setImage(img, true);
-			} else {
-				int s = c.hasSmallImage ? 36 : 48;
-				this.img = ImageUtils.resize(c.img, s, s);
-				c.setImage(img, true);
-			}
+			int s = c.hasSmallImage ? 36 : 48;
+			c.img = img = ImageUtils.resize(c.img, s, s);
 		}
 		this.author = c.author;
 		subsStr = Locale.subscribers(c.subCount);
@@ -168,16 +163,14 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 	
 	public void onShow() {
 		if(!channel.loaded) {
-			channel.load();
+			Loader.add(channel);
+			Loader.start();
 		}
 	}
 
 	public void setImage(Image img) {
-		if(img != null) {
-			this.img = roundImage(img);
-			channel.setImage(this.img, true);
-			repaint();
-		}
+		this.img = img;
+		repaint();
 	}
 
 	public static Image roundImage(Image img) {

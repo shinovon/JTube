@@ -31,16 +31,20 @@ import cc.nnproject.json.JSONArray;
 
 public class LocalStorage {
 	
+	// constants
+	private static final String SUBSCRIPTIONS = "jtsubscriptions";
+	private static final String AVATARS_INDEX = "jtavaindex";
+	private static final String THUMBNAIL_PREFIX = "jC";
+	private static final String AVATAR_PREFIX = "jtava.";
+	
 	private static JSONArray subscriptions;
+	private static JSONArray avatars;
+	private static int avatarsLastIndex;
 
 	public static void cacheThumbnail(String id, byte[] b) {
 		try {
-			RecordStore.deleteRecordStore("jС"+id);
-		} catch (Exception e) {
-		}
-		try {
-			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			rs.addRecord(b, 0, b.length);
+			RecordStore rs = RecordStore.openRecordStore(THUMBNAIL_PREFIX + id, true);
+			setOrAdd(rs, 1, b);
 			rs.closeRecordStore();
 		} catch (Exception e) {
 		}
@@ -48,15 +52,7 @@ public class LocalStorage {
 	
 	public static void cacheThumbnail(String id, String url) {
 		try {
-			RecordStore.deleteRecordStore("jС"+id);
-		} catch (Exception e) {
-		}
-		try {
-			RecordStore rs = RecordStore.openRecordStore("jС"+id, true);
-			byte[] b = App.getImageBytes(url);
-			rs.addRecord(b, 0, b.length);
-			b = null;
-			rs.closeRecordStore();
+			cacheThumbnail(id, App.getImageBytes(url));
 		} catch (Exception e) {
 		}
 	}
@@ -66,7 +62,7 @@ public class LocalStorage {
 			byte[] b = null;
 			RecordStore rs = null;
 			try {
-				rs = RecordStore.openRecordStore("jС"+id, true);
+				rs = RecordStore.openRecordStore(THUMBNAIL_PREFIX + id, true);
 				if(rs.getNumRecords() > 0) {
 					b = rs.getRecord(1);
 				}
@@ -79,9 +75,7 @@ public class LocalStorage {
 				b = App.getImageBytes(url);
 				if(rs != null) {
 					try {
-						if(rs.getNumRecords() <= 0) {
-							rs.addRecord(b, 0, b.length);
-						}
+						setOrAdd(rs, 1, b);
 					} catch (Exception e) {
 					}
 				}
@@ -98,11 +92,39 @@ public class LocalStorage {
 		}
 	}
 	
+	public static Image getAvatar(String id) {
+		int i = avatars.indexOf(id);
+		if(i != -1) {
+			try {
+				RecordStore rs = RecordStore.openRecordStore(AVATAR_PREFIX.concat(Integer.toHexString(avatars.getInt(i + 1))), false);
+				byte[] b = rs.getRecord(1);
+				rs.closeRecordStore();
+				return Image.createImage(b, 0, b.length);
+			} catch (Exception e) {
+			}
+		}
+		return null;
+	}
+	
+	public static void saveAvatar(String id, byte[] b) {
+		if(avatars.has(id)) return;
+		avatars.add(id);
+		int i;
+		avatars.add(i = ++avatarsLastIndex);
+		try {
+			RecordStore rs = RecordStore.openRecordStore(AVATAR_PREFIX.concat(Integer.toHexString(i)), true);
+			setOrAdd(rs, 1, b);
+			rs.closeRecordStore();
+		} catch (Exception e) {
+		}
+		saveAvatars();
+	}
+	
 	public static void clearCache() {
 		try {
 			String[] a = RecordStore.listRecordStores();
 			for(int i = 0; i < a.length; i++) {
-				if(!a[i].startsWith("jС")) continue;
+				if(!a[i].startsWith(THUMBNAIL_PREFIX)) continue;
 				RecordStore.deleteRecordStore(a[i]);
 			}
 		} catch (Exception e) {
@@ -115,34 +137,39 @@ public class LocalStorage {
 	
 	public static void clearAllData() {
 		try {
-			RecordStore.deleteRecordStore("jtsubscriptions");
+			RecordStore.deleteRecordStore(SUBSCRIPTIONS);
+		} catch (Exception e) {
+		}
+		try {
+			String[] a = RecordStore.listRecordStores();
+			for(int i = 0; i < a.length; i++) {
+				if(!a[i].startsWith(AVATAR_PREFIX)) continue;
+				RecordStore.deleteRecordStore(a[i]);
+			}
+		} catch (Exception e) {
+		}
+		try {
+			RecordStore.deleteRecordStore(AVATARS_INDEX);
 		} catch (Exception e) {
 		}
 	}
 	
 	private static void initSubscriptions() {
+		RecordStore rs;
 		try {
-			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
-			if(subsRS.getNumRecords() > 0) {
-				subscriptions = JSON.getArray(new String(subsRS.getRecord(1), "UTF-8"));
-//				// remove repeats
-//				for(int i = subscriptions.size()-2; i > 0; i-=2) {
-//					int idx = subscriptions.indexOf(subscriptions.get(i));
-//					if(idx != i) {
-//						subscriptions.remove(i+1);
-//						subscriptions.remove(i);
-//					}
-//				}
-//				byte[] b = exportSubscriptionsBytes();
-//				subsRS.setRecord(1, b, 0, b.length);
-			} else {
-				subscriptions = new JSONArray();
-				subsRS.addRecord("[]".getBytes(), 0, 2);
-			}
-			subsRS.closeRecordStore();
+			rs = RecordStore.openRecordStore(SUBSCRIPTIONS, false);
+			subscriptions = JSON.getArray(new String(rs.getRecord(1), "UTF-8"));
+			rs.closeRecordStore();
 		} catch (Exception e) {
 			subscriptions = new JSONArray();
-			e.printStackTrace();
+		}
+		try {
+			rs = RecordStore.openRecordStore(AVATARS_INDEX, false);
+			avatarsLastIndex = Integer.parseInt(new String(rs.getRecord(1)));
+			avatars = JSON.getArray(new String(rs.getRecord(2), "UTF-8"));
+			rs.closeRecordStore();
+		} catch (Exception e) {
+			avatars = new JSONArray();
 		}
 	}
 	
@@ -165,10 +192,19 @@ public class LocalStorage {
 	
 	public static void saveSubscriptions() {
 		try {
-			RecordStore subsRS = RecordStore.openRecordStore("jtsubscriptions", true);
-			byte[] b = exportSubscriptionsBytes();
-			subsRS.setRecord(1, b, 0, b.length);
-			subsRS.closeRecordStore();
+			RecordStore rs = RecordStore.openRecordStore(SUBSCRIPTIONS, true);
+			setOrAdd(rs, 1, exportSubscriptionsBytes());
+			rs.closeRecordStore();
+		} catch (Exception e) {
+		}
+	}
+	
+	public static void saveAvatars() {
+		try {
+			RecordStore rs = RecordStore.openRecordStore(AVATARS_INDEX, true);
+			setOrAdd(rs, 1, Integer.toString(avatarsLastIndex).getBytes());
+			setOrAdd(rs, 2, avatars.build().getBytes("UTF-8"));
+			rs.closeRecordStore();
 		} catch (Exception e) {
 		}
 	}
@@ -190,27 +226,19 @@ public class LocalStorage {
 		return arr;
 	}
 	
-	public static String[] getSubsciptionIds() {
-		String[] arr = new String[subscriptions.size() >> 1];
-		for(int i = 0; i < arr.length; i++) {
-			arr[i] = (String) subscriptions.get(i * 2);
-		}
-		return arr;
-	}
-	
-	public static String[] getSubsciptionNames() {
-		String[] arr = new String[subscriptions.size() >> 1];
-		for(int i = 0; i < arr.length; i++) {
-			arr[i] = (String) subscriptions.get((i * 2) + 1);
-		}
-		return arr;
-	}
-	
 	public static void removeSubscription(String id) {
 		int idx = subscriptions.indexOf(id);
 		subscriptions.remove(idx+1);
 		subscriptions.remove(idx);
 		saveSubscriptions();
+	}
+	
+	private static void setOrAdd(RecordStore rs, int n, byte[] b) throws Exception {
+		try {
+			rs.setRecord(n, b, 0, b.length);
+		} catch (Exception e) {
+			rs.addRecord(b, 0, b.length);
+		}
 	}
 	
 //	public static void addHistory(String id, String name) {

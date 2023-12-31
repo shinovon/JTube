@@ -24,6 +24,7 @@ package jtube.ui.screens;
 import jtube.LocalStorage;
 import jtube.models.ChannelModel;
 import jtube.ui.Locale;
+import jtube.ui.items.ChannelItem;
 
 public class SubscriptionsListScreen extends NavigationScreen implements Runnable {
 
@@ -47,7 +48,7 @@ public class SubscriptionsListScreen extends NavigationScreen implements Runnabl
 		clear();
 		String[] subscriptions = LocalStorage.getSubsciptions();
 		for(int i = 0; i < subscriptions.length; i += 2) {
-			add(new ChannelModel(subscriptions[i], subscriptions[i + 1], null).makeListItem());
+			add(new ChannelModel(subscriptions[i], subscriptions[i + 1], ChannelItem.roundImage(LocalStorage.getAvatar(subscriptions[i]))).makeListItem());
 		}
 	}
 

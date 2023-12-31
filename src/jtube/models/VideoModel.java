@@ -229,7 +229,7 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private void _loadAuthorImg() throws Exception {
 		byte[] b = App.getImageBytes(authorThumbnailUrl);
 		authorThumbnailUrl = null;
-		channelItem.setImage(ImageUtils.resize(Image.createImage(b, 0, b.length), 36, 36));
+		channelItem.setImage(ChannelItem.roundImage(ImageUtils.resize(Image.createImage(b, 0, b.length), 36, 36)));
 	}
 	
 	public void setIndex(int i) {
