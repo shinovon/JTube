@@ -338,6 +338,8 @@ public class Locale implements LocaleConstants {
 				return "URL prefix";
 			case SET_Proxy:
 				return "Proxy";
+			case SET_Auto:
+				return "Auto";
 			}
 		}
 		case 1: {
@@ -562,6 +564,8 @@ public class Locale implements LocaleConstants {
 				return "URL префикс";
 			case SET_Proxy:
 				return "Проксировать";
+			case SET_Auto:
+				return "Автоматический выбор";
 			}
 		}
 		}

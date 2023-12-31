@@ -386,6 +386,7 @@ public class App implements Constants, Runnable {
 			if(Settings.playbackProxyVariant == 0) {
 				// Test proxies on auto mode
 				if(workingProxy == 0) {
+					// invidious
 					try {
 						String url2 = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
 						if(Settings.useApiProxy) {
@@ -395,20 +396,24 @@ public class App implements Constants, Runnable {
 						workingProxy = 1;
 						url = url2;
 					} catch (Exception e) {
+						// nnp.nnchan.ru
 						try {
 							String url2 = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
 							if(Util.head(url2) >= 400) throw new Exception();
 							url = url2;
 							workingProxy = 2;
 						} catch (Exception e2) {
+							// nnm.nnchan.ru
 //							url = Settings.serverstream + Util.url(url);
 							url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
-							workingProxy = 3;
+							workingProxy = 4;
 						}
 					}
 				} else {
 					i = workingProxy;
 				}
+			} else {
+				i = 3;
 			}
 			switch(i) {
 			case 1:
@@ -422,6 +427,9 @@ public class App implements Constants, Runnable {
 				break;
 			case 3:
 				url = Settings.serverstream + Util.url(url);
+				break;
+			case 4:
+				url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
 				break;
 			}
 		}

@@ -155,5 +155,6 @@ public interface LocaleConstants {
 	public static final int SET_PlaybackProxy = 142;
 	public static final int SET_UrlPrefix = 143;
 	public static final int SET_Proxy = 144;
+	public static final int SET_Auto = 145;
 
 }

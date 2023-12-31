@@ -96,9 +96,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_FullScreenInput)
 			};
 	static final String[] VPB_PROXY_VARIANTS = new String[] {
-			"Auto",
-			"Invidious",
-			"nnchan",
+			Locale.s(SET_Auto),
 			Locale.s(SET_UrlPrefix)
 			};
 	

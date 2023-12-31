@@ -314,6 +314,9 @@ public class Settings implements Constants {
 					playbackProxyVariant = 0;
 					saveConfig();
 				}
+				if(playbackProxyVariant != 0) {
+					playbackProxyVariant = 1;
+				}
 				return;
 			} catch (Exception e) {
 			}
