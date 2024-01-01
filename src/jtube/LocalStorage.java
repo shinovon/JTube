@@ -132,7 +132,22 @@ public class LocalStorage {
 	}
 	
 	public static void init() {
-		initSubscriptions();
+		RecordStore rs;
+		try {
+			rs = RecordStore.openRecordStore(SUBSCRIPTIONS, false);
+			subscriptions = JSON.getArray(new String(rs.getRecord(1), "UTF-8"));
+			rs.closeRecordStore();
+		} catch (Exception e) {
+			subscriptions = new JSONArray();
+		}
+		try {
+			rs = RecordStore.openRecordStore(AVATARS_INDEX, false);
+			avatarsLastIndex = Integer.parseInt(new String(rs.getRecord(1)));
+			avatars = JSON.getArray(new String(rs.getRecord(2), "UTF-8"));
+			rs.closeRecordStore();
+		} catch (Exception e) {
+			avatars = new JSONArray();
+		}
 	}
 	
 	public static void clearAllData() {
@@ -151,25 +166,6 @@ public class LocalStorage {
 		try {
 			RecordStore.deleteRecordStore(AVATARS_INDEX);
 		} catch (Exception e) {
-		}
-	}
-	
-	private static void initSubscriptions() {
-		RecordStore rs;
-		try {
-			rs = RecordStore.openRecordStore(SUBSCRIPTIONS, false);
-			subscriptions = JSON.getArray(new String(rs.getRecord(1), "UTF-8"));
-			rs.closeRecordStore();
-		} catch (Exception e) {
-			subscriptions = new JSONArray();
-		}
-		try {
-			rs = RecordStore.openRecordStore(AVATARS_INDEX, false);
-			avatarsLastIndex = Integer.parseInt(new String(rs.getRecord(1)));
-			avatars = JSON.getArray(new String(rs.getRecord(2), "UTF-8"));
-			rs.closeRecordStore();
-		} catch (Exception e) {
-			avatars = new JSONArray();
 		}
 	}
 	
