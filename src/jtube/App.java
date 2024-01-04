@@ -412,8 +412,6 @@ public class App implements Constants, Runnable {
 				} else {
 					i = workingProxy;
 				}
-			} else {
-				i = 3;
 			}
 			switch(i) {
 			case 1:
