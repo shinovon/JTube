@@ -33,13 +33,11 @@ public class LocalStorage {
 	
 	// constants
 	private static final String SUBSCRIPTIONS = "jtsubscriptions";
-	private static final String AVATARS_INDEX = "jtavaindex";
+	private static final String AVATARS = "jtavatarscache";
 	private static final String THUMBNAIL_PREFIX = "jC";
-	private static final String AVATAR_PREFIX = "jtava.";
 	
 	private static JSONArray subscriptions;
 	private static JSONArray avatars;
-	private static int avatarsLastIndex;
 
 	public static void cacheThumbnail(String id, byte[] b) {
 		try {
@@ -92,12 +90,12 @@ public class LocalStorage {
 		}
 	}
 	
-	public static Image getAvatar(String id) {
-		int i = avatars.indexOf(id);
+	public static Image getAvatar(String author) {
+		int i = avatars.indexOf(author);
 		if(i != -1) {
 			try {
-				RecordStore rs = RecordStore.openRecordStore(AVATAR_PREFIX.concat(Integer.toHexString(avatars.getInt(i + 1))), false);
-				byte[] b = rs.getRecord(1);
+				RecordStore rs = RecordStore.openRecordStore(AVATARS, false);
+				byte[] b = rs.getRecord(avatars.getInt(i + 1));
 				rs.closeRecordStore();
 				return Image.createImage(b, 0, b.length);
 			} catch (Exception e) {
@@ -106,18 +104,22 @@ public class LocalStorage {
 		return null;
 	}
 	
-	public static void saveAvatar(String id, byte[] b) {
-		if(avatars.has(id)) return;
-		avatars.add(id);
-		int i;
-		avatars.add(i = ++avatarsLastIndex);
+	public static void saveAvatar(String author, byte[] b) {
+		if(avatars.has(author)) return;
+		int id;
 		try {
-			RecordStore rs = RecordStore.openRecordStore(AVATAR_PREFIX.concat(Integer.toHexString(i)), true);
-			setOrAdd(rs, 1, b);
+			RecordStore rs = RecordStore.openRecordStore(AVATARS, true);
+			if(rs.getNumRecords() == 0) {
+				setOrAdd(rs, 1, new byte[] { (byte) '[', (byte) ']' });
+			}
+			avatars.add(author);
+			avatars.add(id = rs.getNextRecordID());
+			setOrAdd(rs, id, b);
+			b = avatars.toString().getBytes("UTF-8");
+			rs.setRecord(1, b, 0, b.length);
 			rs.closeRecordStore();
 		} catch (Exception e) {
 		}
-		saveAvatars();
 	}
 	
 	public static void clearCache() {
@@ -141,9 +143,12 @@ public class LocalStorage {
 			subscriptions = new JSONArray();
 		}
 		try {
-			rs = RecordStore.openRecordStore(AVATARS_INDEX, false);
-			avatarsLastIndex = Integer.parseInt(new String(rs.getRecord(1)));
-			avatars = JSON.getArray(new String(rs.getRecord(2), "UTF-8"));
+			rs = RecordStore.openRecordStore(AVATARS, false);
+			if(rs.getNumRecords() > 0) {
+				avatars = JSON.getArray(new String(rs.getRecord(1), "UTF-8"));
+			} else {
+				avatars = new JSONArray();
+			}
 			rs.closeRecordStore();
 		} catch (Exception e) {
 			avatars = new JSONArray();
@@ -151,20 +156,14 @@ public class LocalStorage {
 	}
 	
 	public static void clearAllData() {
+//		subscriptions = new JSONArray();
+//		avatars = new JSONArray();
 		try {
 			RecordStore.deleteRecordStore(SUBSCRIPTIONS);
 		} catch (Exception e) {
 		}
 		try {
-			String[] a = RecordStore.listRecordStores();
-			for(int i = 0; i < a.length; i++) {
-				if(!a[i].startsWith(AVATAR_PREFIX)) continue;
-				RecordStore.deleteRecordStore(a[i]);
-			}
-		} catch (Exception e) {
-		}
-		try {
-			RecordStore.deleteRecordStore(AVATARS_INDEX);
+			RecordStore.deleteRecordStore(AVATARS);
 		} catch (Exception e) {
 		}
 	}
@@ -190,16 +189,6 @@ public class LocalStorage {
 		try {
 			RecordStore rs = RecordStore.openRecordStore(SUBSCRIPTIONS, true);
 			setOrAdd(rs, 1, exportSubscriptionsBytes());
-			rs.closeRecordStore();
-		} catch (Exception e) {
-		}
-	}
-	
-	public static void saveAvatars() {
-		try {
-			RecordStore rs = RecordStore.openRecordStore(AVATARS_INDEX, true);
-			setOrAdd(rs, 1, Integer.toString(avatarsLastIndex).getBytes());
-			setOrAdd(rs, 2, avatars.build().getBytes("UTF-8"));
 			rs.closeRecordStore();
 		} catch (Exception e) {
 		}
