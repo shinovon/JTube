@@ -409,9 +409,9 @@ public class App implements Constants, Runnable {
 							workingProxy = 4;
 						}
 					}
-				} else {
-					i = workingProxy;
+					return url;
 				}
+				i = workingProxy;
 			}
 			switch(i) {
 			case 1:
