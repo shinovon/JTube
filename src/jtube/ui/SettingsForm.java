@@ -53,7 +53,7 @@ import jtube.Util;
 public class SettingsForm extends Form implements CommandListener, ItemCommandListener, LocaleConstants, Constants, ItemStateListener {
 	
 	static final String[] VIDEO_QUALITIES = new String[] { 
-			"144p", 
+//			"144p", 
 			"360p", 
 			"720p", 
 //			Locale.s(SET_VQ_AudioOnly),
@@ -289,19 +289,16 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	}
 	
 	private void setResolution() {
-		if(Settings.videoRes == null) {
+		if(Settings.videoRes != null && Settings.videoRes.equals("720p")) {
 			videoResChoice.setSelectedIndex(1, true);
-		} else if(Settings.videoRes.equals("144p")) {
+		} else {
 			videoResChoice.setSelectedIndex(0, true);
-		} else if(Settings.videoRes.equals("360p")) {
-			videoResChoice.setSelectedIndex(1, true);
-		} else if(Settings.videoRes.equals("720p")) {
-			videoResChoice.setSelectedIndex(2, true);
-		} else if(Settings.videoRes.equals("_audiohigh")) {
-			videoResChoice.setSelectedIndex(3, true);
-		} else if(Settings.videoRes.equals("_240p")) {
-			videoResChoice.setSelectedIndex(4, true);
 		}
+//		else if(Settings.videoRes.equals("_audiohigh")) {
+//			videoResChoice.setSelectedIndex(3, true);
+//		} else if(Settings.videoRes.equals("_240p")) {
+//			videoResChoice.setSelectedIndex(4, true);
+//		}
 	}
 	
 	private void applySettings() {
