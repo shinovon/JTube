@@ -299,7 +299,6 @@ public class App implements Constants, Runnable {
 			JSONObject _144 = null;
 			JSONObject _360 = null;
 			JSONObject _720 = null;
-			JSONObject other = null;
 			for(int i = 0; i < l; i++) {
 				JSONObject o = arr.getObject(i);
 				String q = o.getString("qualityLabel");
@@ -309,32 +308,27 @@ public class App implements Constants, Runnable {
 					_360 = o;
 				} else if(q.startsWith("144p")) {
 					_144 = o;
-				} else {
-					other = o;
 				}
 			}
 			JSONObject o = null;
 			if(res == null) {
 				if(_360 != null) {
 					o = _360;
-				} else if(other != null) {
-					o = other;
 				} else if(_144 != null) {
 					o = _144;
 				} 
 			} else if(res.equals("144p")) {
 				if(_144 != null) {
 					o = _144;
-				} else if(_360 != null) {
+				}
+				/* else if(_360 != null) {
 					o = _360;
 				} else if(other != null) {
 					o = other;
-				}
+				}*/
 			} else if(res.equals("360p")) {
 				if(_360 != null) {
 					o = _360;
-				} else if(other != null) {
-					o = other;
 				} else if(_144 != null) {
 					o = _144;
 				} 
@@ -343,11 +337,12 @@ public class App implements Constants, Runnable {
 					o = _720;
 				} else if(_360 != null) {
 					o = _360;
-				} else if(other != null) {
-					o = other;
 				} else if(_144 != null) {
 					o = _144;
 				} 
+			}
+			if(o == null) {
+				throw new RuntimeException("Failed to find link for selected quality: " + res);
 			}
 			return o;
 		} else {
