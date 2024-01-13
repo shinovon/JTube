@@ -41,7 +41,7 @@ import midletintegration.MIDletIntegration;
 public class Settings implements Constants {
 	
 	// Settings
-	public static String videoRes;
+	public static String videoRes = "360p";
 	public static String region;
 	public static int watchMethod = 1;
 	public static String downloadDir;
@@ -248,10 +248,11 @@ public class Settings implements Constants {
 				int min = Math.min(App.startWidth, App.startHeight);
 				// Symbian 9.4 can't handle H.264/AVC
 				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
-					videoRes = "144p";
-				} else {
-					videoRes = "360p";
+					Settings.watchMethod = 2;
 				}
+//				} else {
+//					videoRes = "360p";
+//				}
 			}
 			if(testCanvas.hasPointerEvents()) {
 				channelBanner = true;

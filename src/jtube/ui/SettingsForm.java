@@ -284,16 +284,16 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		checkUpdatesChoice.setSelectedIndex(Settings.checkUpdates ? 0 : 1, true);
 		autoStartChoice.setSelectedIndex(Settings.autoStart ? 0 : 1, true);
 		keyboardChoice.setSelectedIndex(Settings.keyboard, true);
-		vpbProxyChoice.setSelectedIndex(Settings.playbackProxyVariant, true);
+		try {
+			vpbProxyChoice.setSelectedIndex(Settings.playbackProxyVariant, true);
+		} catch (IndexOutOfBoundsException e) {
+			playMethodChoice.setSelectedIndex(Settings.playbackProxyVariant = 0, true);
+		}
 		setResolution();
 	}
 	
 	private void setResolution() {
-		if(Settings.videoRes != null && Settings.videoRes.equals("720p")) {
-			videoResChoice.setSelectedIndex(1, true);
-		} else {
-			videoResChoice.setSelectedIndex(0, true);
-		}
+		videoResChoice.setSelectedIndex(Settings.videoRes != null && Settings.videoRes.equals("720p") ? 1 : 0, true);
 //		else if(Settings.videoRes.equals("_audiohigh")) {
 //			videoResChoice.setSelectedIndex(3, true);
 //		} else if(Settings.videoRes.equals("_240p")) {
