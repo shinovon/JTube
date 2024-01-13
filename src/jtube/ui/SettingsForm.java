@@ -303,18 +303,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	
 	private void applySettings() {
 		try {
-			int i = videoResChoice.getSelectedIndex();
-			if(i == 0) {
-				Settings.videoRes = "144p";
-			} else if(i == 1) {
-				Settings.videoRes = "360p";
-			} else if(i == 2) {
-				Settings.videoRes = "720p";
-			} else if(i == 3) {
-				Settings.videoRes = "_audiohigh";
-			} else if(i == 4) {
-				Settings.videoRes = "_240p";
-			}
+			Settings.videoRes = videoResChoice.getSelectedIndex() == 1 ? "720p" : "360p";
 			Settings.region = regionText.getString().trim().toUpperCase();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
@@ -323,20 +312,19 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				dir = dir.substring(0, dir.length() - 1);
 			}
 			Settings.downloadDir = dir;
-			boolean[] ui = new boolean[uiChoice.size()];
-			uiChoice.getSelectedFlags(ui);
-			boolean[] misc = new boolean[miscChoice.size()];
-			miscChoice.getSelectedFlags(misc);
-			Settings.videoPreviews = ui[0];
-			Settings.amoled = ui[1];
-			Settings.smallPreviews = ui[2];
-			Settings.fullScreen = ui[3];
-			Settings.channelBanner = ui[4];
-			Settings.searchSuggestions = ui[5];
+			boolean[] b = new boolean[uiChoice.size()];
+			uiChoice.getSelectedFlags(b);
+			Settings.videoPreviews = b[0];
+			Settings.amoled = b[1];
+			Settings.smallPreviews = b[2];
+			Settings.fullScreen = b[3];
+			Settings.channelBanner = b[4];
+			Settings.searchSuggestions = b[5];
 			Settings.useApiProxy = proxyChoice.isSelected(0);
 			Settings.httpStream = proxyChoice.isSelected(1);
-			Settings.rmsPreviews = misc[0];
-			Settings.powerSaving = misc[1];
+			miscChoice.getSelectedFlags(b = new boolean[miscChoice.size()]);
+			Settings.rmsPreviews = b[0];
+			Settings.powerSaving = b[1];
 			Settings.serverstream = httpProxyText.getString();
 			String inv = invidiousText.getString();
 			if(inv.length() <= 2) {
@@ -353,10 +341,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.watchMethod = playMethodChoice.getSelectedIndex();
 			Settings.downloadBuffer = Integer.parseInt(downloadBufferText.getString());
 			Settings.checkUpdates = checkUpdatesChoice.isSelected(0);
-			Settings.renderDebug = debugChoice.isSelected(0);
-			Settings.asyncLoading = debugChoice.isSelected(1);
-			Settings.fastScrolling = debugChoice.isSelected(2);
-			Settings.lazyLoad = debugChoice.isSelected(3);
+			debugChoice.getSelectedFlags(b = new boolean[debugChoice.size()]);
+			Settings.renderDebug = b[0];
+			Settings.asyncLoading = b[1];
+			Settings.fastScrolling = b[2];
+			Settings.lazyLoad = b[3];
 			Settings.autoStart = autoStartChoice.isSelected(0);
 			Settings.keyboard = keyboardChoice.getSelectedIndex();
 			String apiProxy = apiProxyText.getString();
