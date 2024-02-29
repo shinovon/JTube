@@ -47,7 +47,7 @@ import jtube.ui.screens.SplashScreen;
 import jtube.ui.screens.VideoScreen;
 import midletintegration.MIDletIntegration;
 
-public class App implements Constants, Runnable {
+public class App implements Constants, Runnable, CommandListener {
 	
 	public static App inst;
 	public static App2 midlet;
@@ -90,6 +90,9 @@ public class App implements Constants, Runnable {
 
 	private AppUI ui;
 	private Thread uiThread;
+	
+	private SplashScreen splash;
+	private String update;
 
 	public void schedule(Object r) {
 		queuedTasks[queuedTasksIdx++] = r;
@@ -124,7 +127,7 @@ public class App implements Constants, Runnable {
 			throw new RuntimeException();
 		}
 		
-		final SplashScreen splash = new SplashScreen();
+		SplashScreen splash = new SplashScreen();
 		Display.getDisplay(midlet).setCurrent(splash);
 		App.startWidth = splash.getWidth();
 		App.startHeight = splash.getHeight();
@@ -153,20 +156,12 @@ public class App implements Constants, Runnable {
 		Locale.load();
 		
 		if(PlatformUtils.isBlackBerry() && !Settings.bbSet) {
+			this.splash = splash;
 			Alert a = new Alert("");
 			a.setString("Network");
-			a.addCommand(new Command("Wi-Fi", Command.OK, 1));
-			a.addCommand(new Command("Cellular", Command.CANCEL, 2));
-			a.setCommandListener(new CommandListener() {
-				public void commandAction(Command c, Displayable d) {
-					if(Settings.bbSet) return;
-					Settings.bbWifi = c.getPriority() == 1;
-					Settings.bbSet = true;
-					Display.getDisplay(App.midlet).setCurrent(splash);
-					Settings.saveConfig();
-					startUIThread();
-				}
-			});
+			a.addCommand(new Command("Wi-Fi", Command.OK, 4));
+			a.addCommand(new Command("Cellular", Command.CANCEL, 5));
+			a.setCommandListener(this);
 			Display.getDisplay(midlet).setCurrent(a);
 			return;
 		}
@@ -209,23 +204,13 @@ public class App implements Constants, Runnable {
 					);
 			JSONObject j = JSON.getObject(s);
 			if(j.getBoolean("update_available", false) && Settings.checkUpdates && !b) {
-				final String url = j.getString("download_url");
+				update = j.getString("download_url");
 				String msg = j.getString("message", Locale.s(Locale.TXT_NewUpdateAvailable));
 				Alert a = new Alert("", "", null, AlertType.INFO);
 				a.setString(msg);
 				a.addCommand(new Command(Locale.s(Locale.CMD_Ignore), Command.EXIT, 2));
 				a.addCommand(new Command(Locale.s(Locale.CMD_Download), Command.OK, 1));
-				a.setCommandListener(new CommandListener() {
-					public void commandAction(Command c, Displayable d) {
-						if(c.getPriority() == 1) {
-							try {
-								App.midlet.platformRequest(url);
-							} catch (Exception e) {
-							}
-						}
-						ui.display(null);
-					}
-				});
+				a.setCommandListener(this);
 				ui.display(a);
 			}
 		} catch (Exception e) {
@@ -434,12 +419,8 @@ public class App implements Constants, Runnable {
 		if(Settings.downloadDir == null || Settings.downloadDir.length() < 2) {
 			Alert a = new Alert("");
 			a.setString(Locale.s(Locale.TXT_DownloadDirWarning));
-			a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2));
-			a.setCommandListener(new CommandListener() {
-				public void commandAction(Command c, Displayable d) {
-					if(c.getPriority() == 2) AppUI.inst.showSettings();
-				}
-			});
+			a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 3));
+			a.setCommandListener(inst);
 			displayAlert(a);
 			return;
 		}
@@ -466,12 +447,8 @@ public class App implements Constants, Runnable {
 				if(Settings.downloadDir == null || Settings.downloadDir.length() < 2) {
 					Alert a = new Alert("");
 					a.setString(Locale.s(Locale.TXT_DownloadDirWarning));
-					a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 2));
-					a.setCommandListener(new CommandListener() {
-						public void commandAction(Command c, Displayable d) {
-							if(c.getPriority() == 2) AppUI.inst.showSettings();
-						}
-					});
+					a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 3));
+					a.setCommandListener(inst);
 					displayAlert(a);
 					return;
 				}
@@ -767,6 +744,30 @@ public class App implements Constants, Runnable {
 		String s = exception.toString();
 		// TODO
 		return s;
+	}
+
+	public void commandAction(Command c, Displayable d) {
+		switch(c.getPriority()) {
+		case 1:
+			try {
+				App.midlet.platformRequest(update);
+			} catch (Exception e) {}
+		case 2:
+			update = null;
+			ui.display(null);
+			return;
+		case 3:
+			AppUI.inst.showSettings();
+			return;
+		case 4:
+			Settings.bbWifi = true;
+		case 5:
+			Display.getDisplay(App.midlet).setCurrent(splash);
+			splash = null;
+			Settings.saveConfig();
+			startUIThread();
+			return;
+		}
 	}
 
 }
