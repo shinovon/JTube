@@ -233,7 +233,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Playback method";
 			case SET_SymbianOnline:
-				return "Online (Symbian/Bada)";
+				return "Online (Symbian^3)";
 			case SET_Browser:
 				return "Via browser";
 			case SET_DownloadBuffer:
@@ -459,7 +459,7 @@ public class Locale implements LocaleConstants {
 			case SET_PlaybackMethod:
 				return "Способ проигрывания";
 			case SET_SymbianOnline:
-				return "Онлайн (Symbian/Bada)";
+				return "Онлайн (Symbian^3)";
 			case SET_Browser:
 				return "Через браузер";
 			case SET_DownloadBuffer:
