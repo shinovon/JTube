@@ -163,7 +163,6 @@ public class Util implements Constants {
 		try {
 			return new String(b, charset);
 		} catch (Throwable e) {
-			e.printStackTrace();
 			return new String(b, charset = alt_charset);
 		}
 	}

@@ -353,7 +353,6 @@ public class App implements Constants, Runnable, CommandListener {
 					}
 				}
 			}
-			System.out.println(r);
 			return r;
 		}
 	}
@@ -411,7 +410,6 @@ public class App implements Constants, Runnable, CommandListener {
 				break;
 			}
 		}
-		System.out.println(url);
 		return url;
 	}
 	
@@ -591,7 +589,6 @@ public class App implements Constants, Runnable, CommandListener {
 	}
 
 	public static void error(Object o, int i, Throwable e) {
-		e.printStackTrace();
 		if(e instanceof InvidiousException) {
 			error(o, i, e.toString(), ((InvidiousException)e).toErrMsg());
 			return;

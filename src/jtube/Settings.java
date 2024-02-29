@@ -155,7 +155,6 @@ public class Settings implements Constants {
 		try {
 			supportedInputLanguages = Keyboard.getSupportedLanguages();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		RecordStore r = null;
 		try {
