@@ -579,7 +579,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				int s = 0;
 				while(i < Settings.langsList.size()) {
 					String[] a = (String[]) Settings.langsList.elementAt(i++);
-					int x = langsList.append((a[2].length() > 0 ? a[2] + (a[1].equalsIgnoreCase(a[2]) ? "" : " (" + a[1] + ")") : a[1]) + "\n" + a[3], null);
+					int x = langsList.append((a[2].length() > 0 ? a[2] + (a[1].equalsIgnoreCase(a[2]) ? "" : ("ar".equals(a[0]) ? " " + a[1] : " (" + a[1] + ")")) : a[1]) + "\n" + a[3], null);
 					if(a[0].equalsIgnoreCase(Settings.customLocale)) {
 						s = x;
 					}
