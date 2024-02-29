@@ -156,6 +156,7 @@ public class App implements Constants, Runnable, CommandListener {
 		Locale.load();
 		
 		if(PlatformUtils.isBlackBerry() && !Settings.bbSet) {
+			Settings.bbWifi = false;
 			this.splash = splash;
 			Alert a = new Alert("");
 			a.setString("Network");
@@ -747,7 +748,10 @@ public class App implements Constants, Runnable, CommandListener {
 		switch(c.getPriority()) {
 		case 1:
 			try {
-				App.midlet.platformRequest(update);
+				if(App.midlet.platformRequest(update)) {
+					App.midlet.notifyDestroyed();
+					return;
+				}
 			} catch (Exception e) {}
 		case 2:
 			update = null;
