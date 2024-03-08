@@ -68,7 +68,7 @@ public class Util implements Constants {
 		}
 	}
 	
-	private static byte[] downloadBytes(InputStream inputStream, int initialSize, int bufferSize, int expandSize) throws IOException {
+	public static byte[] readBytes(InputStream inputStream, int initialSize, int bufferSize, int expandSize) throws IOException {
 		if (initialSize <= 0) initialSize = bufferSize;
 		byte[] buf = new byte[initialSize];
 		int count = 0;
@@ -137,7 +137,7 @@ public class Util implements Constants {
 			if(!PlatformUtils.isJ9 && !PlatformUtils.isS40) {
 				Thread.sleep(url.endsWith("jpg") ? 100 : PlatformUtils.isSamsung() ? 300 : 200);
 			}
-			return downloadBytes(in, (int) hc.getLength(), 1024, 2048);
+			return readBytes(in, (int) hc.getLength(), 1024, 2048);
 		} catch (IOException e) {
 			if(loader != null && loader.checkInterrupted()) {
 				throw new RuntimeException("interrupted");

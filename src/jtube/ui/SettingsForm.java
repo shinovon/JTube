@@ -21,7 +21,6 @@ SOFTWARE.
 */
 package jtube.ui;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
@@ -469,15 +468,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 						try {
 							fc = (FileConnection) Connector.open("file:///" + f);
 							in = fc.openInputStream();
-							ByteArrayOutputStream bs = new ByteArrayOutputStream(530308);
-					        byte[] buf = new byte[4096];
-					        int read;
-					        while ((read = in.read(buf)) > 0) {
-					            bs.write(buf, 0, read);
-					        }
-					        byte[] bytes = bs.toByteArray();
-					        LocalStorage.importSubscriptions(bytes);
-					        bs.close();
+					        LocalStorage.importSubscriptions(Util.readBytes(in, (int) fc.fileSize(), 1024, 2048));
 						} catch (Exception e) {
 						} finally {
 							try {
