@@ -627,7 +627,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				return true;
 			}
 			if(i == -7) {
-				if(searchText.length() == 0) {
+				if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(-7)) {
+					return true;
+				} else if(searchText.length() == 0) {
 					editorHidden = true;
 					if(editor != null && editor.isVisible()) {
 						editor.setFocus(false);
@@ -637,8 +639,6 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 						keyboard.hide();
 					}
 					search = false;
-					return true;
-				} else if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed('\b')) {
 					return true;
 				}
 			}
@@ -651,6 +651,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			return true;
 		}
 		if(i == -7) {
+			if(keyboard != null && keyboard.isVisible()) {
+				onKeyboardCancel();
+				return true;
+			}
 			if(this instanceof HomeScreen) {
 				ui.exit();
 			} else {
@@ -805,8 +809,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 								showEditor();
 							}
 							editor.setFocus(true);
-						} else if(keyboard != null) {
-						} else {
+						} else if(keyboard == null) {
 							openSearchTextBox();
 						}
 					}
@@ -993,37 +996,48 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		return search || menu;
 	}
 
-	public boolean appendChar(char c) {
+	public boolean onKeyboardType(char c) {
 		return true;
 	}
 
-	public boolean removeChar() {
+	public boolean onKeyboardBackspace() {
 		return true;
 	}
 
-	public void langChanged() {
+	public void onKeyboardLanguageChanged() {
 	}
 
-	public void textUpdated() {
+	public void onKeyboardTextUpdated() {
 		searchText = keyboard.getText();
 		if(suggestionsThread != null) suggestionsThread.schedule();
 	}
 
-	public void done() {
+	public void onKeyboardDone() {
+		search = false;
 		keyboard.hide();
 		search(searchText = keyboard.getText());
 	}
 	
-	public void requestRepaint() {
+	public void onKeyboardRepaintRequested() {
 		repaint();
 	}
 	
-	public void requestTextBoxRepaint() {
+	public void onTextBoxRepaintRequested() {
 		repaint();
 	}
 	
-	public void cancel() {
-		hide();
+	public void onKeyboardCancel() {
+		search = false;
+		if(editor != null && !editorHidden && editor.isVisible() && topBar) {
+			editorHidden = true;
+			searchText = "";
+			editor.setFocus(false);
+			editor.setVisible(false);
+			editor.setParent(null);
+		} else if(keyboard != null && keyboard.isVisible()) {
+			keyboard.reset();
+			keyboard.hide();
+		}
 	}
 
 	public void loadSuggestions() {
