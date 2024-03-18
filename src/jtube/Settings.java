@@ -91,7 +91,7 @@ public class Settings implements Constants {
 				if(s.startsWith("file:///")) s = s.substring("file:///".length());
 				rootsList.addElement(s);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		}
 	}
 	
@@ -398,7 +398,7 @@ public class Settings implements Constants {
 			} else {
 				MIDletIntegration.unregisterPush(port);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		}
 	}
 
