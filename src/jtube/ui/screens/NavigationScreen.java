@@ -37,6 +37,7 @@ import javax.microedition.lcdui.TextField;
 import cc.nnproject.json.JSONArray;
 import cc.nnproject.json.JSONObject;
 import cc.nnproject.keyboard.Keyboard;
+import cc.nnproject.keyboard.KeyboardConstants;
 import cc.nnproject.keyboard.KeyboardListener;
 import jtube.App;
 import jtube.Loader;
@@ -115,6 +116,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	private int itemMenuH;
 	private UIItem item;
 
+	private static boolean qwerty;
 	
 	protected NavigationScreen(String label) {
 		super(label);
@@ -192,6 +194,7 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 			keyboard.setTextHint(Locale.s(TXT_SearchHint));
 			keyboard.setLanguages(Settings.inputLanguages);
 			ui.getCanvas().setKeyboard(keyboard);
+			qwerty = keyboard.getPhysicalKeyboardType() != KeyboardConstants.PHYSICAL_KEYBOARD_PHONE_KEYPAD;
 		}
 	}
 
@@ -306,11 +309,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 					g.drawLine(0, h-softBarHeight, w, h-softBarHeight);
 					g.setColor(AppUI.getColor(COLOR_SOFTBAR_FG));
 					g.setFont(softFont);
+					boolean b = searchText.length() > 0;
 					String s1 = Locale.s(CMD_FullEdit);
-					String s2 = Locale.s(searchText.length() > 0 ? CMD_Clean : CMD_Cancel);
+					String s2 = Locale.s(b && !qwerty ? CMD_Clean : CMD_Cancel);
 					g.drawString(s1, 2, h-2, Graphics.BOTTOM | Graphics.LEFT);
 					g.drawString(s2, w-2, h-2, Graphics.BOTTOM | Graphics.RIGHT);
-					g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
+					if(b) g.drawString(Locale.s(CMD_Search), w >> 1, h-2, Graphics.BOTTOM | Graphics.HCENTER);
 				}
 				if(editor == null || editorHidden) {
 					if(keyboard != null && keyboard.isVisible()) {
@@ -604,7 +608,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		}
 		if(search) {
 			if(i == -6) {
-				TextBox t = new TextBox("", "", 256, TextField.ANY);
+				String s = searchText;
+				if(s == null) s = "";
+				TextBox t = new TextBox("", s, 256, TextField.ANY);
 				t.setCommandListener(this);
 				t.setTitle(Locale.s(CMD_Search));
 				t.addCommand(textOkCmd);
@@ -627,24 +633,16 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				return true;
 			}
 			if(i == -7) {
-				if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(-7)) {
-					return true;
-				} else if(searchText.length() == 0) {
-					editorHidden = true;
-					if(editor != null && editor.isVisible()) {
-						editor.setFocus(false);
-						editor.setVisible(false);
-						editor.setParent(null);
-					} else if(keyboard != null && keyboard.isVisible()) {
-						keyboard.hide();
+				if(keyboard != null && keyboard.isVisible()) {
+					if(keyboard.keyPressed(-7)) {
+						return true;
 					}
-					search = false;
+					onKeyboardCancel();
 					return true;
 				}
+				search = false;
+				return true;
 			}
-		}
-		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
-			return true;
 		}
 		if(i == -6) {
 			leftSoft();
@@ -661,6 +659,10 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 				back();
 			}
 			repaint();
+			return true;
+		}
+
+		if(keyboard != null && keyboard.isVisible() && keyboard.keyPressed(i)) {
 			return true;
 		}
 		if(super.keyPress(i)) {
@@ -1026,18 +1028,9 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 		repaint();
 	}
 	
-	public void onKeyboardCancel() {
+	public final void onKeyboardCancel() {
 		search = false;
-		if(editor != null && !editorHidden && editor.isVisible() && topBar) {
-			editorHidden = true;
-			searchText = "";
-			editor.setFocus(false);
-			editor.setVisible(false);
-			editor.setParent(null);
-		} else if(keyboard != null && keyboard.isVisible()) {
-			keyboard.reset();
-			keyboard.hide();
-		}
+		keyboard.hide();
 	}
 
 	public void loadSuggestions() {
