@@ -77,6 +77,10 @@ public class Settings implements Constants {
 	public static int playbackProxyVariant = 0;
 	public static boolean bbWifi = true;
 	public static boolean bbSet = false;
+	public static String jtdlUrl = null;
+	public static boolean jtdlEnabled = false;
+	public static String jtdlFormat = "240_mpeg4";
+	public static String jtdlPassword;
 	
 	public static Vector rootsList;
 	public static Vector langsList;
@@ -299,6 +303,11 @@ public class Settings implements Constants {
 				bbWifi = j.getBoolean("bbWifi", bbWifi);
 				bbSet = j.getBoolean("bbSet", false);
 				
+				jtdlUrl = j.getString("jtdlUrl", jtdlUrl);
+				jtdlEnabled = j.getBoolean("jtdlEnabled", jtdlEnabled);
+				jtdlFormat = j.getString("jtdlFormat", jtdlFormat);
+				jtdlPassword = j.getString(jtdlPassword, jtdlPassword);
+				
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
 				if(i < 2) {
@@ -326,7 +335,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v5");
+			j.put("v", "v6");
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
@@ -364,6 +373,12 @@ public class Settings implements Constants {
 			j.put("inputLanguages", inputLanguagesJson);
 			j.put("bbWifi", bbWifi);
 			j.put("bbSet", bbSet);
+			
+			j.put("jtdlUrl", jtdlUrl);
+			j.put("jtdlEnabled", jtdlEnabled);
+			j.put("jtdlFormat", jtdlFormat);
+			j.put("jtdlPassword", jtdlPassword);
+			
 			byte[] b = j.build().getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();

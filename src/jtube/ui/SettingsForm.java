@@ -126,6 +126,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private TextField apiProxyText;
 	private ChoiceGroup proxyChoice;
 	private ChoiceGroup vpbProxyChoice;
+	
+	private ChoiceGroup jtdlCheck;
+	private TextField jtdlUrlField;
+	private TextField jtdlFormatField;
+	private TextField jtdlPasswordField;
 
 	private List dirList;
 	private String curDir;
@@ -157,12 +162,15 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		miscLabel.setFont(titleFont);
 		StringItem inputLabel = new StringItem(null, " " + Locale.s(SET_Input) + EOL);
 		inputLabel.setFont(titleFont);
+		StringItem jtdlLabel = new StringItem(null, " JTDL " + EOL);
+		jtdlLabel.setFont(titleFont);
 		try {
 			videoLabel.setLayout(titleLayout);
 			uiLabel.setLayout(titleLayout);
 			netLabel.setLayout(titleLayout);
 			miscLabel.setLayout(titleLayout);
 			inputLabel.setLayout(titleLayout);
+			jtdlLabel.setLayout(titleLayout);
 		} catch (Exception e) {
 		}
 		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
@@ -186,11 +194,24 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		apiProxyText = new TextField(Locale.s(SET_ApiProxy), Settings.apiProxy, 256,
 				Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
 		vpbProxyChoice = new ChoiceGroup(Locale.s(SET_PlaybackProxy), ChoiceGroup.POPUP, VPB_PROXY_VARIANTS, null);
+		
+		jtdlCheck = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, new String[] { "Enabled" }, null);
+		jtdlUrlField = new TextField("URL", Settings.jtdlUrl != null ? Settings.jtdlUrl : "", 256, TextField.URL);
+		jtdlFormatField = new TextField("Format", Settings.jtdlFormat, 32, TextField.ANY);
+		jtdlPasswordField = new TextField("Password", Settings.jtdlPassword != null ? Settings.jtdlPassword : "", 64, TextField.ANY);
+		
 		append(videoLabel);
 		append(videoResChoice);
 		append(playMethodChoice);
 		append(downloadDirText);
 		append(dirBtn);
+		
+		append(jtdlLabel);
+		append(jtdlCheck);
+		append(jtdlUrlField);
+		append(jtdlFormatField);
+		append(jtdlPasswordField);
+		
 		append(uiLabel);
 		append(uiChoice);
 		append(regionText);
@@ -288,6 +309,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		} catch (IndexOutOfBoundsException e) {
 			playMethodChoice.setSelectedIndex(Settings.playbackProxyVariant = 0, true);
 		}
+		jtdlCheck.setSelectedIndex(0, Settings.jtdlEnabled);
 		setResolution();
 	}
 	
@@ -355,6 +377,12 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			}
 			Settings.apiProxy = apiProxy;
 			Settings.playbackProxyVariant = vpbProxyChoice.getSelectedIndex();
+			
+			Settings.jtdlEnabled = jtdlCheck.isSelected(0);
+			Settings.jtdlUrl = jtdlUrlField.getString();
+			Settings.jtdlFormat = jtdlFormatField.getString();
+			Settings.jtdlPassword = jtdlPasswordField.getString();
+			
 			Settings.saveConfig();
 		} catch (Exception e) {
 			App.error(this, Errors.Settings_apply, e);

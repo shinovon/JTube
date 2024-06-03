@@ -1,5 +1,5 @@
 Nokia-MIDlet-Background-Event: pause
-MIDlet-Version: 2.9.2
+MIDlet-Version: 2.9.99
 MIDlet-Info-URL: http://nnp.nnchan.ru/jtube
 Nokia-MIDlet-S60-Selection-Key-Compatibility: true
 MicroEdition-Configuration: CLDC-1.1
@@ -10,6 +10,7 @@ Nokia-Scalable-Icon: /icon.svg
 Nokia-MIDlet-On-Screen-Keypad: no
 MIDlet-Vendor: nnproject
 MIDletIntegration-Port: 1260
+MIDletIntegration-ID: jtube
 MIDlet-Icon: /icon.png
 MIDlet-1: JTube,/icon.png,cc.nnproject.ytapp.App2
 MicroEdition-Profile: MIDP-2.0

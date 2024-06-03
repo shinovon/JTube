@@ -434,7 +434,13 @@ public class App implements Constants, Runnable, CommandListener {
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
-				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), false);
+				String url;
+				if(Settings.jtdlEnabled && Settings.jtdlUrl != null && Settings.jtdlUrl.trim().length() > 1) {
+					url = Settings.jtdlUrl + "?v=" + id + "&f=" + Settings.jtdlFormat +
+							(Settings.jtdlPassword != null ? "&p=" + Util.url(Settings.jtdlPassword) : "");
+				} else {
+					url = getVideoLink(getVideoInfo(id, Settings.videoRes), false);
+				}
 				try {
 					Util.platReq(url);
 				} catch (Exception e) {
@@ -449,9 +455,26 @@ public class App implements Constants, Runnable, CommandListener {
 					a.addCommand(new Command(Locale.s(Locale.CMD_Settings), Command.OK, 3));
 					a.setCommandListener(inst);
 					displayAlert(a);
+					if(AppUI.inst.current instanceof VideoScreen) {
+						AppUI.inst.current.busy = false;
+					}
 					return;
 				}
-				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), true);
+
+				String url;
+				if(Settings.jtdlEnabled && Settings.jtdlUrl != null && Settings.jtdlUrl.trim().length() > 1) {
+					url = Settings.jtdlUrl + "?v=" + id + "&f=" + Settings.jtdlFormat +
+							(Settings.jtdlPassword != null ? "&p=" + Util.url(Settings.jtdlPassword) : "")
+							+ "&s3";
+					Util.platReq(url);
+					
+					if(AppUI.inst.current instanceof VideoScreen) {
+						AppUI.inst.current.busy = false;
+					}
+					return;
+				} else {
+					url = getVideoLink(getVideoInfo(id, Settings.videoRes), true);
+				}
 				
 				if(PlatformUtils.isBada) {
 					String file = "file:///Media/Videos/watch.ram";
@@ -466,6 +489,10 @@ public class App implements Constants, Runnable, CommandListener {
 						o.write(url.getBytes("UTF-8"));
 						o.flush();
 						Util.platReq(file);
+
+						if(AppUI.inst.current instanceof VideoScreen) {
+							AppUI.inst.current.busy = false;
+						}
 						return;
 					} catch (Exception e) {
 					} finally {
@@ -521,6 +548,10 @@ public class App implements Constants, Runnable, CommandListener {
 		} catch (Exception e) {
 			if(e instanceof RuntimeException && "not found".equals(e.getMessage())) {
 				inst.ui.msg("Selected quality is not available");
+
+				if(AppUI.inst.current instanceof VideoScreen) {
+					AppUI.inst.current.busy = false;
+				}
 				return;
 			}
 			error(null, Errors.App_watch, e);
