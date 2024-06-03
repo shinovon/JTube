@@ -246,6 +246,7 @@ public class PlatformUtils {
 	
 	public static boolean isAshaFullTouch() {
 		if(!isAsha) return false;
+		if(System.getProperty("com.nokia.mid.ui.version") == null) return false;
 		String s = platform.substring(5);
 		if(s.startsWith("Asha5")) return true;
 		char c1 = s.charAt(0);

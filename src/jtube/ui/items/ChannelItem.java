@@ -108,7 +108,8 @@ public class ChannelItem extends AbstractButton implements UIConstants {
 			y += 16 + g.getFont().getHeight();
 			g.setFont(subsCountFont);
 			g.setColor(AppUI.getColor(COLOR_GRAYTEXT));
-			g.drawString(subsStr, x + (w >> 1), y, Graphics.HCENTER | Graphics.TOP);
+			if(subsStr != null)
+				g.drawString(subsStr, x + (w >> 1), y, Graphics.HCENTER | Graphics.TOP);
 			return;
 		}
 		boolean small = channel.hasSmallImage && screen instanceof IModelScreen;

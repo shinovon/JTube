@@ -118,13 +118,14 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	
 	public VideoModel extend() throws InvidiousException, IOException {
 		if(!extended) {
-			parse((JSONObject) App.invApi("videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
+			try {
+				parse((JSONObject) App.invApi("videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
+			} catch (Exception ignored) {}
 			try {
 				JSONObject j = (JSONObject) App.invApi("channels/" + authorId + "?", "subCount");
 				if(j.has("subCount"))
 					subCount = j.getInt("subCount", 0);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) {}
 		}
 		return this;
 	}
