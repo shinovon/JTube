@@ -21,10 +21,12 @@ SOFTWARE.
 */
 package jtube.ui;
 
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.game.GameCanvas;
 
 import cc.nnproject.keyboard.Keyboard;
+import jtube.PlatformUtils;
 import jtube.Settings;
 
 public class JTubeCanvas extends GameCanvas implements UIConstants {
@@ -47,6 +49,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	private boolean scrollSlide;
 	private int flushTime;
 	private Keyboard keyboard;
+	private boolean bb;
 	
 	JTubeCanvas(AppUI ui) {
 		super(false);
@@ -57,6 +60,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		if(!super.hasPointerEvents()) {
 			ui.setKeyInputMode();
 		}
+		bb = PlatformUtils.isBlackBerry();
 		updateScreen();
 	}
 
@@ -203,8 +207,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void keyPressed(int i) { 
-		if(i == -21) i = -6;
-		else if(i == -22) i = -7;
+		i = convertKeyCode(i);
 		UIScreen s = ui.current;
 		if(s != null) {
 			try {
@@ -216,8 +219,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void keyReleased(int i) {
-		if(i == -21) i = -6;
-		else if(i == -22) i = -7;
+		i = convertKeyCode(i);
 		UIScreen s = ui.current;
 		if(s != null) {
 			try {
@@ -229,8 +231,7 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 	}
 	
 	public void keyRepeated(int i) {
-		if(i == -21) i = -6;
-		else if(i == -22) i = -7;
+		i = convertKeyCode(i);
 		UIScreen s = ui.current;
 		if(s != null) {
 			try {
@@ -245,6 +246,27 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		width = w;
 		height = h;
 		if(ui != null) needRepaint();
+	}
+	
+	private int convertKeyCode(int i) {
+		if (i == -21) return -6;
+		if (i == -22) return -7;
+		if (bb) {
+			switch (i) {
+			case Canvas.UP:
+				return -1;
+			case Canvas.DOWN:
+				return -2;
+			case Canvas.LEFT:
+				return -3;
+			case Canvas.RIGHT:
+				return -4;
+			case -8:
+			case 8:
+				return -5;
+			}
+		}
+		return i;
 	}
 
 	private void needRepaint() {
