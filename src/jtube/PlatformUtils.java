@@ -285,7 +285,7 @@ public class PlatformUtils {
 
 	// J2ME Loader check
 	public static boolean isJ2ML() {
-		return os != null && os.equals("Linux") && vendor != null && vendor.equals("The Android Project");
+		return "Linux".equals(os) && "The Android Project".equals(vendor);
 	}
 
 	public static boolean isSamsung() {

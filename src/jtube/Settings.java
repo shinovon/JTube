@@ -115,6 +115,9 @@ public class Settings implements Constants {
 			httpStream = true;
 			useApiProxy = true;
 		}
+		if (PlatformUtils.isSamsung()) {
+			useApiProxy = true;
+		}
 		try {
 			langsList = new Vector();
 			langsList.addElement(new String[] { "en", "English", "", "Built-in"});
@@ -318,11 +321,13 @@ public class Settings implements Constants {
 						httpStream = true;
 						useApiProxy = true;
 					}
-					saveConfig();
-				} else if(i < 5) {
+				} else if (i < 5) {
 					playbackProxyVariant = 0;
-					saveConfig();
 				}
+				if (i < 7) {
+					if (PlatformUtils.isSamsung()) useApiProxy = true;
+				}
+				if(i < 7) saveConfig();
 				return;
 			} catch (Exception e) {
 			}
@@ -335,7 +340,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v6");
+			j.put("v", "v7");
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);

@@ -76,9 +76,7 @@ public class Util implements Constants {
 		int readLen;
 		while ((readLen = inputStream.read(readBuf)) != -1) {
 			if(count + readLen > buf.length) {
-				byte[] newbuf = new byte[count + expandSize];
-				System.arraycopy(buf, 0, newbuf, 0, count);
-				buf = newbuf;
+				System.arraycopy(buf, 0, buf = new byte[count + expandSize], 0, count);
 			}
 			System.arraycopy(readBuf, 0, buf, count, readLen);
 			count += readLen;
@@ -133,9 +131,30 @@ public class Util implements Constants {
 				hc.setRequestMethod("GET");
 			}
 			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
+			if(PlatformUtils.isSamsung() || App.midlet.getAppProperty("JTube-Samsung-Build") != null) {
+				in = hc.openDataInputStream();
+				Thread.sleep(400);
+				int l = (int) hc.getLength();
+				if (l <= 0) l = 1024;
+				byte[] buf = new byte[l];
+				int count = 0;
+				int i;
+				while ((i = in.read()) != -1) {
+					if(count + 1 > buf.length) {
+						System.arraycopy(buf, 0, buf = new byte[count + 2048], 0, count);
+					}
+					buf[count++] = (byte) i;
+				}
+				if(buf.length == count) {
+					return buf;
+				}
+				byte[] res = new byte[count];
+				System.arraycopy(buf, 0, res, 0, count);
+				return res;
+			}
 			in = hc.openInputStream();
 			if(!PlatformUtils.isJ9 && !PlatformUtils.isS40) {
-				Thread.sleep(url.endsWith("jpg") ? 100 : PlatformUtils.isSamsung() ? 300 : 200);
+				Thread.sleep(url.endsWith("jpg") ? 100 : 200);
 			}
 			return readBytes(in, (int) hc.getLength(), 1024, 2048);
 		} catch (IOException e) {
