@@ -253,6 +253,11 @@ public class JTubeCanvas extends GameCanvas implements UIConstants {
 		if (i == -22) return -7;
 		if (bb) {
 			switch (i) {
+			case 'q':
+				return -6;
+			case 'o':
+			case 'p':
+				return -7;
 			case Canvas.UP:
 				return -1;
 			case Canvas.DOWN:

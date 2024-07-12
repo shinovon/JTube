@@ -72,7 +72,7 @@ public class Settings implements Constants {
 	public static String[] supportedInputLanguages = new String[0];
 	public static int keyboard = 0;
 	public static String apiProxy = invproxy;
-	public static boolean useApiProxy;
+	public static boolean useApiProxy = true;
 	public static String videoplaybackProxy = vpb;
 	public static int playbackProxyVariant = 0;
 	public static boolean bbWifi = true;
@@ -113,9 +113,6 @@ public class Settings implements Constants {
 		if(ru) {
 			inv = iteroni;
 			httpStream = true;
-			useApiProxy = true;
-		}
-		if (PlatformUtils.isSamsung()) {
 			useApiProxy = true;
 		}
 		try {
@@ -324,10 +321,10 @@ public class Settings implements Constants {
 				} else if (i < 5) {
 					playbackProxyVariant = 0;
 				}
-				if (i < 7) {
-					if (PlatformUtils.isSamsung()) useApiProxy = true;
+				if (i < 8) {
+					useApiProxy = true;
+					saveConfig();
 				}
-				if(i < 7) saveConfig();
 				return;
 			} catch (Exception e) {
 			}
@@ -340,7 +337,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v7");
+			j.put("v", "v8");
 			j.put("videoRes", videoRes);
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);

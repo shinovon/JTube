@@ -665,7 +665,7 @@ public class App implements Constants, Runnable, CommandListener {
 	
 	public static boolean checkStartArguments() {
 		try {
-			if(MIDletIntegration.checkLaunch()) {
+			if(MIDletIntegration.checkLaunch(Settings.autoStart)) {
 				return parseStartArguments();
 			}
 		} catch (Exception e) {

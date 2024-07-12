@@ -693,7 +693,7 @@ public class Locale implements LocaleConstants {
 					int i10 = i % 10;
 					boolean b = true;
 					if (s.indexOf("years ago") != -1) {
-						if (i10 == 1 && i % 100 != 10) {
+						if (i10 == 1 && i % 100 != 11) {
 							s = "год";
 						} else if (i10 >= 5 || i10 <= 1) {
 							s = "лет";
@@ -701,7 +701,7 @@ public class Locale implements LocaleConstants {
 							s = "года";
 						}
 					} else if (s.indexOf("months ago") != -1) {
-						if (i10 == 1 && i % 100 != 10) {
+						if (i == 1) {
 							s = "месяц";
 						} else if (i10 >= 5 || i10 <= 1) {
 							s = "месяцев";
@@ -709,7 +709,7 @@ public class Locale implements LocaleConstants {
 							s = "месяца";
 						}
 					} else if (s.indexOf("weeks ago") != -1) {
-						if (i10 == 1 && i % 100 != 10) {
+						if (i == 1) {
 							s = "неделю";
 						} else if (i % 10 >= 5 || i10 <= 1) {
 							s = "недель";
@@ -717,7 +717,7 @@ public class Locale implements LocaleConstants {
 							s = "недели";
 						}
 					} else if (s.indexOf("days ago") != -1) {
-						if (i10 == 1 && i % 100 != 10) {
+						if (i10 == 1 && i % 100 != 11) {
 							s = "день";
 						} else if (i10 >= 5 || i10 <= 1) {
 							s = "дней";
@@ -725,7 +725,7 @@ public class Locale implements LocaleConstants {
 							s = "дня";
 						}
 					} else if (s.indexOf("hours ago") != -1) {
-						if (i10 == 1 && i % 100 != 10) {
+						if (i10 == 1 && i % 100 != 11) {
 							s = "час";
 						} else if (i10 >= 5 || i10 <= 1) {
 							s = "часов";
@@ -733,7 +733,7 @@ public class Locale implements LocaleConstants {
 							s = "часа";
 						}
 					} else if (s.indexOf("minutes ago") != -1) {
-						if (i10 == 1 && i % 100 != 10) {
+						if (i10 == 1 && i % 100 != 11) {
 							s = "минуту";
 						} else if (i10 >= 5 || i10 <= 1) {
 							s = "минут";
