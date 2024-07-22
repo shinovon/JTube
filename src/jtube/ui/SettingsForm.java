@@ -83,7 +83,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final String[] PLAYBACK_METHODS = new String[] { 
 			Locale.s(SET_Browser),
 			Locale.s(SET_SymbianOnline),
-			Locale.s(SET_Via2yxa)
+			Locale.s(SET_Via2yxa),
+			"JTDL"
 			};
 	static final String[] ON_OFF = new String[] { 
 			Locale.s(SET_On),
@@ -127,7 +128,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	private ChoiceGroup proxyChoice;
 	private ChoiceGroup vpbProxyChoice;
 	
-	private ChoiceGroup jtdlCheck;
 	private TextField jtdlUrlField;
 	private TextField jtdlFormatField;
 	private TextField jtdlPasswordField;
@@ -195,8 +195,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 				Settings.useApiProxy ? TextField.URL : TextField.URL | TextField.UNEDITABLE);
 		vpbProxyChoice = new ChoiceGroup(Locale.s(SET_PlaybackProxy), ChoiceGroup.POPUP, VPB_PROXY_VARIANTS, null);
 		
-		jtdlCheck = new ChoiceGroup(null, ChoiceGroup.MULTIPLE, new String[] { "Enabled" }, null);
-		jtdlUrlField = new TextField("URL", Settings.jtdlUrl != null ? Settings.jtdlUrl : "", 256, TextField.URL);
+		jtdlUrlField = new TextField("JTDL URL", Settings.jtdlUrl != null ? Settings.jtdlUrl : "", 256, TextField.URL);
 		jtdlFormatField = new TextField("Format", Settings.jtdlFormat, 32, TextField.ANY);
 		jtdlPasswordField = new TextField("Password", Settings.jtdlPassword != null ? Settings.jtdlPassword : "", 64, TextField.ANY);
 		
@@ -207,7 +206,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		append(dirBtn);
 		
 		append(jtdlLabel);
-		append(jtdlCheck);
 		append(jtdlUrlField);
 		append(jtdlFormatField);
 		append(jtdlPasswordField);
@@ -309,7 +307,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		} catch (IndexOutOfBoundsException e) {
 			playMethodChoice.setSelectedIndex(Settings.playbackProxyVariant = 0, true);
 		}
-		jtdlCheck.setSelectedIndex(0, Settings.jtdlEnabled);
 		setResolution();
 	}
 	
@@ -378,7 +375,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.apiProxy = apiProxy;
 			Settings.playbackProxyVariant = vpbProxyChoice.getSelectedIndex();
 			
-			Settings.jtdlEnabled = jtdlCheck.isSelected(0);
 			Settings.jtdlUrl = jtdlUrlField.getString();
 			Settings.jtdlFormat = jtdlFormatField.getString();
 			Settings.jtdlPassword = jtdlPasswordField.getString();

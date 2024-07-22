@@ -434,13 +434,7 @@ public class App implements Constants, Runnable, CommandListener {
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
-				String url;
-				if(Settings.jtdlEnabled && Settings.jtdlUrl != null && Settings.jtdlUrl.trim().length() > 1) {
-					url = Settings.jtdlUrl + "?v=" + id + "&f=" + Settings.jtdlFormat +
-							(Settings.jtdlPassword != null ? "&p=" + Util.url(Settings.jtdlPassword) : "");
-				} else {
-					url = getVideoLink(getVideoInfo(id, Settings.videoRes), false);
-				}
+				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), false);
 				try {
 					Util.platReq(url);
 				} catch (Exception e) {
@@ -461,20 +455,7 @@ public class App implements Constants, Runnable, CommandListener {
 					return;
 				}
 
-				String url;
-				if(Settings.jtdlEnabled && Settings.jtdlUrl != null && Settings.jtdlUrl.trim().length() > 1) {
-					url = Settings.jtdlUrl + "?v=" + id + "&f=" + Settings.jtdlFormat +
-							(Settings.jtdlPassword != null ? "&p=" + Util.url(Settings.jtdlPassword) : "")
-							+ "&s3";
-					Util.platReq(url);
-					
-					if(AppUI.inst.current instanceof VideoScreen) {
-						AppUI.inst.current.busy = false;
-					}
-					return;
-				} else {
-					url = getVideoLink(getVideoInfo(id, Settings.videoRes), true);
-				}
+				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), true);
 				
 				if(PlatformUtils.isBada) {
 					String file = "file:///Media/Videos/watch.ram";
@@ -542,6 +523,12 @@ public class App implements Constants, Runnable, CommandListener {
 			}
 			case 2: {
 				Util.platReq("https://next.2yxa.mobi/mov.php?id=" + id + "&poisk=you" + (Locale.localei != 1 ? "&lang=en" : ""));
+				break;
+			}
+			case 3: {
+				Util.platReq(Settings.jtdlUrl + "?v=" + id + "&f=" + Settings.jtdlFormat +
+						(Settings.jtdlPassword != null ? "&p=" + Util.url(Settings.jtdlPassword) : "")
+						);
 				break;
 			}
 			}

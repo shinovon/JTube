@@ -78,7 +78,6 @@ public class Settings implements Constants {
 	public static boolean bbWifi = true;
 	public static boolean bbSet = false;
 	public static String jtdlUrl = null;
-	public static boolean jtdlEnabled = false;
 	public static String jtdlFormat = "240_mpeg4";
 	public static String jtdlPassword;
 	
@@ -304,7 +303,6 @@ public class Settings implements Constants {
 				bbSet = j.getBoolean("bbSet", false);
 				
 				jtdlUrl = j.getString("jtdlUrl", jtdlUrl);
-				jtdlEnabled = j.getBoolean("jtdlEnabled", jtdlEnabled);
 				jtdlFormat = j.getString("jtdlFormat", jtdlFormat);
 				jtdlPassword = j.getString(jtdlPassword, jtdlPassword);
 				
@@ -377,7 +375,6 @@ public class Settings implements Constants {
 			j.put("bbSet", bbSet);
 			
 			j.put("jtdlUrl", jtdlUrl);
-			j.put("jtdlEnabled", jtdlEnabled);
 			j.put("jtdlFormat", jtdlFormat);
 			j.put("jtdlPassword", jtdlPassword);
 			
