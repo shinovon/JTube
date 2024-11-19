@@ -110,11 +110,10 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 	static final Command subsImportCmd = new Command(Locale.s(SET_ImportSubscriptions), Command.ITEM, 1);
 	static final Command subsExportCmd = new Command(Locale.s(SET_ExportSubscriptions), Command.ITEM, 1);
 	
-//	private ChoiceGroup videoResChoice;
 	private TextField regionText;
 	private TextField downloadDirText;
 	private TextField httpProxyText;
-	private TextField invidiousText;
+	public TextField invidiousText;
 	private ChoiceGroup uiChoice;
 	private StringItem dirBtn;
 	private ChoiceGroup debugChoice;
@@ -170,7 +169,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			miscLabel.setLayout(titleLayout);
 			inputLabel.setLayout(titleLayout);
 		} catch (Exception e) {}
-//		videoResChoice = new ChoiceGroup(Locale.s(SET_VideoRes), ChoiceGroup.POPUP, VIDEO_QUALITIES, null);
 		regionText = new TextField(Locale.s(SET_CountryCode), Settings.region, 3, TextField.ANY);
 		playMethodChoice = new ChoiceGroup(Locale.s(SET_PlaybackMethod), ChoiceGroup.POPUP, PLAYBACK_METHODS, null);
 		checkUpdatesChoice = new ChoiceGroup(Locale.s(SET_CheckUpdates), ChoiceGroup.POPUP, ON_OFF, null);
@@ -205,7 +203,6 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		}
 		
 		append(videoLabel);
-//		append(videoResChoice);
 		append(playMethodChoice);
 		append(downloadDirText);
 		append(dirBtn);
@@ -232,6 +229,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		
 		append(netLabel);
 		append(invidiousText);
+		StringItem l = new StringItem(null, "(Changes automatically)");
+		l.setFont(UIConstants.smallfont);
+		l.setLayout(Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_LEFT);
+		append(l);
+		
 		append(proxyChoice);
 		append(vpbProxyChoice);
 		apiProxyIdx = append(apiProxyText);
@@ -312,23 +314,13 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 		try {
 			vpbProxyChoice.setSelectedIndex(Settings.playbackProxyVariant, true);
 		} catch (IndexOutOfBoundsException e) {
-			playMethodChoice.setSelectedIndex(Settings.playbackProxyVariant = 0, true);
+			vpbProxyChoice.setSelectedIndex(Settings.playbackProxyVariant = 0, true);
 		}
-		setResolution();
-	}
-	
-	private void setResolution() {
-//		videoResChoice.setSelectedIndex(Settings.videoRes != null && Settings.videoRes.equals("720p") ? 1 : 0, true);
-//		else if(Settings.videoRes.equals("_audiohigh")) {
-//			videoResChoice.setSelectedIndex(3, true);
-//		} else if(Settings.videoRes.equals("_240p")) {
-//			videoResChoice.setSelectedIndex(4, true);
-//		}
+		invidiousText.setString(Settings.inv);
 	}
 	
 	private void applySettings() {
 		try {
-//			Settings.videoRes = videoResChoice.getSelectedIndex() == 1 ? "720p" : "360p";
 			Settings.region = regionText.getString().trim().toUpperCase();
 			String dir = downloadDirText.getString();
 			//dir = Util.replace(dir, "/", dirsep);
@@ -382,9 +374,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Settings.apiProxy = apiProxy;
 			Settings.playbackProxyVariant = vpbProxyChoice.getSelectedIndex();
 			
-			Settings.jtdlUrl = jtdlUrlField.getString();
-			Settings.jtdlFormat = jtdlFormatField.getString();
-			Settings.jtdlPassword = jtdlPasswordField.getString();
+			if (jtdlUrlField != null) {
+				Settings.jtdlUrl = jtdlUrlField.getString();
+				Settings.jtdlFormat = jtdlFormatField.getString();
+				Settings.jtdlPassword = jtdlPasswordField.getString();
+			}
 			
 			Settings.saveConfig();
 		} catch (Exception e) {
@@ -499,7 +493,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 						try {
 							fc = (FileConnection) Connector.open("file:///" + f);
 							in = fc.openInputStream();
-					        LocalStorage.importSubscriptions(Util.readBytes(in, (int) fc.fileSize(), 1024, 2048));
+					        LocalStorage.importSubscriptions(Util.readBytes(in, (int) fc.fileSize(), 1024, 2048, false));
 						} catch (Exception e) {
 						} finally {
 							try {

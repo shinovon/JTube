@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import javax.microedition.lcdui.Image;
 
-import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
 import jtube.App;
 import jtube.Constants;

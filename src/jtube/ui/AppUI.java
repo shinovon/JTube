@@ -78,7 +78,7 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 	public int currentTab;
 	public Stack[] screenStacks = new Stack[] { new Stack(), new Stack() };
 	
-	private SettingsForm settingsForm;
+	public SettingsForm settingsForm;
 
 	private static JTubeCanvas canv;
 	public UIScreen current;
@@ -284,9 +284,6 @@ public class AppUI implements CommandListener, Constants, UIConstants, LocaleCon
 				return;
 			}
 			JSONArray j = (JSONArray) r;
-			try {
-			} catch (Exception e) {
-			}
 			int l = j.size();
 			for(int i = 0; i < l; i++) {
 				UIItem item = parseAndMakeItem(j.getObject(i), false, i);

@@ -43,45 +43,58 @@ public class Util implements Constants {
 	
 	static {
 		String s = System.getProperty("microedition.encoding");
-		if(s != null) {
+		if (s != null) {
 			alt_charset = s;
 		}
 		// Test UTF-8 support
 		String testWord = "выф";
-		if((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isPlatformJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isS60) {
+		if ((PlatformUtils.isSonyEricsson() || PlatformUtils.isSamsung() || PlatformUtils.isPlatformJ2ME() || PlatformUtils.isWTK()) && !PlatformUtils.isS60) {
 			try {
 				String tmp = new String(testWord.getBytes("UTF8"), "UTF8");
-				if(tmp.charAt(0) == 'в') {
+				if (tmp.charAt(0) == 'в') {
 					charset = "UTF8";
 				}
-			} catch (Throwable e) {
-			}
+			} catch (Throwable e) {}
 		}
 		boolean test = false;
 		try {
 			String tmp = new String(testWord.getBytes(charset), charset);
-			if(tmp.charAt(0) == 'в') test = true;
-		} catch (Throwable e) {
-		}
-		if(!test) {
+			if (tmp.charAt(0) == 'в') test = true;
+		} catch (Throwable e) {}
+		if (!test) {
 			charset = alt_charset;
 		}
 	}
 	
-	public static byte[] readBytes(InputStream inputStream, int initialSize, int bufferSize, int expandSize) throws IOException {
+	public static byte[] readBytes(InputStream stream, int initialSize, int bufferSize, int expandSize, boolean samsung) throws IOException {
 		if (initialSize <= 0) initialSize = bufferSize;
 		byte[] buf = new byte[initialSize];
 		int count = 0;
+		int i;
+		if (samsung) {
+			while ((i = stream.read()) != -1) {
+				if (count + 1 > buf.length) {
+					System.arraycopy(buf, 0, buf = new byte[count + 2048], 0, count);
+				}
+				buf[count++] = (byte) i;
+			}
+			if (buf.length == count) {
+				return buf;
+			}
+			byte[] res = new byte[count];
+			System.arraycopy(buf, 0, res, 0, count);
+			return res;
+		}
+		
 		byte[] readBuf = new byte[bufferSize];
-		int readLen;
-		while ((readLen = inputStream.read(readBuf)) != -1) {
-			if(count + readLen > buf.length) {
+		while ((i = stream.read(readBuf)) != -1) {
+			if (count + i > buf.length) {
 				System.arraycopy(buf, 0, buf = new byte[count + expandSize], 0, count);
 			}
-			System.arraycopy(readBuf, 0, buf, count, readLen);
-			count += readLen;
+			System.arraycopy(readBuf, 0, buf, count, i);
+			count += i;
 		}
-		if(buf.length == count) {
+		if (buf.length == count) {
 			return buf;
 		}
 		byte[] res = new byte[count];
@@ -96,69 +109,18 @@ public class Util implements Constants {
 		InputStream in = null;
 		LoaderThread loader = Thread.currentThread() instanceof LoaderThread ? (LoaderThread) Thread.currentThread() : null;
 		try {
-			hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
-			hc.setRequestMethod("GET");
-			hc.setRequestProperty("User-Agent", userAgent);
-			if(charset != null) {
-				hc.setRequestProperty("accept-charset", charset.toLowerCase());
-			}
-			String locale = Locale.s(Locale.ISOLanguageCode);
-			if(locale != null) {
-				hc.setRequestProperty("accept-language", locale);
-			}
-			if(loader != null) {
-				if(loader.checkInterrupted()) {
-					throw new RuntimeException("loader interrupt");
-				}
-				loader.setConnection(hc);
-			}
-			Thread.sleep(1);
-			synchronized(connectionLock) {}
-			int r = hc.getResponseCode();
-			int redirects = 0;
-			while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
-				if(redirects++ > 5) {
-					throw new IOException("Too many redirects!");
-				}
-				String redir = hc.getHeaderField("Location");
-				if (redir.startsWith("/")) {
-					String tmp = url.substring(url.indexOf("//") + 2);
-					String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
-					redir = host + redir;
-				}
-				hc.close();
-				hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(redir));
-				hc.setRequestMethod("GET");
-			}
-			if(r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
-			if(PlatformUtils.isSamsung() || App.midlet.getAppProperty("JTube-Samsung-Build") != null) {
-				in = hc.openDataInputStream();
+			hc = open(url, loader);
+			
+			boolean samsung = PlatformUtils.samsungBuild || PlatformUtils.isSamsung();
+			in = samsung ? hc.openDataInputStream() : hc.openInputStream();
+			if (samsung) {
 				Thread.sleep(400);
-				int l = (int) hc.getLength();
-				if (l <= 0) l = 1024;
-				byte[] buf = new byte[l];
-				int count = 0;
-				int i;
-				while ((i = in.read()) != -1) {
-					if(count + 1 > buf.length) {
-						System.arraycopy(buf, 0, buf = new byte[count + 2048], 0, count);
-					}
-					buf[count++] = (byte) i;
-				}
-				if(buf.length == count) {
-					return buf;
-				}
-				byte[] res = new byte[count];
-				System.arraycopy(buf, 0, res, 0, count);
-				return res;
-			}
-			in = hc.openInputStream();
-			if(!PlatformUtils.isJ9 && !PlatformUtils.isS40) {
+			} else if (!PlatformUtils.isJ9 && !PlatformUtils.isS40) {
 				Thread.sleep(url.endsWith("jpg") ? 100 : 200);
 			}
-			return readBytes(in, (int) hc.getLength(), 1024, 2048);
+			return readBytes(in, (int) hc.getLength(), 1024, 2048, samsung);
 		} catch (IOException e) {
-			if(loader != null && loader.checkInterrupted()) {
+			if (loader != null && loader.checkInterrupted()) {
 				throw new RuntimeException("interrupted");
 			}
 			throw e; 
@@ -173,19 +135,102 @@ public class Util implements Constants {
 				if (hc != null) hc.close();
 			} catch (IOException e) {
 			}
-			if(loader != null) loader.setConnection(null);
+			if (loader != null) loader.setConnection(null);
+		}
+	}
+	
+	private static String readUtf(InputStream in, int i) throws IOException {
+		byte[] buf = new byte[i <= 0 ? 1024 : i];
+		i = 0;
+		int j;
+		while ((j = in.read(buf, i, buf.length - i)) != -1) {
+			if ((i += j) >= buf.length) {
+				System.arraycopy(buf, 0, buf = new byte[i + 2048], 0, i);
+			}
+		}
+		try {
+			return new String(buf, 0, i, charset);
+		} catch (Throwable e) {
+			return new String(buf, 0, i, charset = alt_charset);
 		}
 	}
 	
 	public static String getUtf(String url) throws IOException {
-		byte[] b = get(url);
+		if (url == null)
+			throw new IllegalArgumentException("URL is null");
+		
+		HttpConnection hc = null;
+		InputStream in = null;
+		LoaderThread loader = Thread.currentThread() instanceof LoaderThread ? (LoaderThread) Thread.currentThread() : null;
 		try {
-			return new String(b, charset);
-		} catch (Throwable e) {
-			return new String(b, charset = alt_charset);
+			hc = open(url, loader);
+			if (PlatformUtils.samsungBuild || PlatformUtils.isSamsung()) {
+				Thread.sleep(400);
+				byte[] b = readBytes(in = hc.openDataInputStream(), (int) hc.getLength(), 1024, 2048, true);
+				try {
+					return new String(b, charset);
+				} catch (Throwable e) {
+					return new String(b, charset = alt_charset);
+				}
+			}
+			return readUtf(in = hc.openInputStream(), (int) hc.getLength());
+		} catch (IOException e) {
+			if (loader != null && loader.checkInterrupted()) {
+				throw new RuntimeException("interrupted");
+			}
+			throw e; 
+		} catch (InterruptedException e) {
+			throw new RuntimeException("interrupted");
+		} finally {
+			try {
+				if (in != null) in.close();
+			} catch (IOException e) {}
+			try {
+				if (hc != null) hc.close();
+			} catch (IOException e) {}
+			if (loader != null) loader.setConnection(null);
 		}
 	}
 	
+	private static HttpConnection open(String url, LoaderThread loader) throws IOException, InterruptedException {
+		HttpConnection hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(url));
+		hc.setRequestMethod("GET");
+		hc.setRequestProperty("User-Agent", userAgent);
+		if (charset != null) {
+			hc.setRequestProperty("accept-charset", charset.toLowerCase());
+		}
+		String locale = Locale.s(Locale.ISOLanguageCode);
+		if (locale != null) {
+			hc.setRequestProperty("accept-language", locale);
+		}
+		if (loader != null) {
+			if (loader.checkInterrupted()) {
+				throw new RuntimeException("loader interrupt");
+			}
+			loader.setConnection(hc);
+		}
+		Thread.sleep(1);
+		synchronized(connectionLock) {}
+		int r = hc.getResponseCode();
+		int redirects = 0;
+		while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
+			if (redirects++ > 5) {
+				throw new IOException("Too many redirects!");
+			}
+			String redir = hc.getHeaderField("Location");
+			if (redir.startsWith("/")) {
+				String tmp = url.substring(url.indexOf("//") + 2);
+				String host = url.substring(0, url.indexOf("//")) + "//" + tmp.substring(0, tmp.indexOf("/"));
+				redir = host + redir;
+			}
+			hc.close();
+			hc = (HttpConnection) Connector.open(Util.getPlatformSpecificUrl(redir));
+			hc.setRequestMethod("GET");
+		}
+		if (r >= 401 && r != 500) throw new IOException(r + " " + hc.getResponseMessage());
+		return hc;
+	}
+
 	public static String url(String url) {
 		StringBuffer sb = new StringBuffer();
 		char[] chars = url.toCharArray();
@@ -236,13 +281,13 @@ public class Util implements Constants {
 	}
 
 	public static String timeStr(int i) {
-		if(i < 0) return null;
+		if (i < 0) return null;
 		String s = "" + i % 60;
-		if(s.length() < 2) s = "0" + s;
+		if (s.length() < 2) s = "0" + s;
 		String m = "" + (i % 3600) / 60;
 		int h = i / 3600;
-		if(h > 0) {
-			if(m.length() < 2)
+		if (h > 0) {
+			if (m.length() < 2)
 				m = "0" + m;
 			return h + ":" + m + ":" + s;
 		} else {
@@ -271,7 +316,7 @@ public class Util implements Constants {
 		}
 		for (int i = 0; i < v.size(); i++) {
 			String s = (String) v.elementAt(i);
-			if(font.stringWidth(s) >= maxWidth) {
+			if (font.stringWidth(s) >= maxWidth) {
 				int i1 = 0;
 				for (int i2 = 0; i2 < s.length(); i2++) {
 					if (font.stringWidth(s.substring(i1, i2+1)) >= maxWidth) {
@@ -316,7 +361,7 @@ public class Util implements Constants {
 	}
 	
 	public static void platReq(String s) throws ConnectionNotFoundException {
-		if(App.midlet.platformRequest(s)) {
+		if (App.midlet.platformRequest(s)) {
 			App.midlet.notifyDestroyed();
 		}
 	}
@@ -329,9 +374,9 @@ public class Util implements Constants {
 		for(int i = 0; i < cs.length && i < 32; i++) {
 			char c = cs[i];
 			// replace spaces
-			if(c <= 32) sb.append('_');
+			if (c <= 32) sb.append('_');
 			// chars to remove
-			else if(c == '/' || c == '\\'|| c == '.' ||
+			else if (c == '/' || c == '\\'|| c == '.' ||
 					c == ',' || c == '*' || c == ':' ||
 					c == '?' || c == '!' || c == '\''|| 
 					c == '"' || c == '<' || c == '>' || 
@@ -339,16 +384,16 @@ public class Util implements Constants {
 					c == ')' || c == '^' || c == '`' ||
 					c == ';')
 				continue;
-			else if(c >= 1040 && c <= 1103) {
+			else if (c >= 1040 && c <= 1103) {
 				c = Character.toLowerCase(c);
 				// replace russian letters
 				for(int j = 0; j < arr1.length; j++) {
-					if(arr1[j] == c) {
+					if (arr1[j] == c) {
 						sb.append(arr2[j]);
 						break;
 					}
 				}
-			} else if(c >= 123) continue;
+			} else if (c >= 123) continue;
 			else sb.append(c);
 		}
 		s = sb.toString();
@@ -421,7 +466,7 @@ public class Util implements Constants {
 	}
 
 	public static String getOneLine(String text, Font font, int maxWidth) {
-		if(font.stringWidth(text) < maxWidth) {
+		if (font.stringWidth(text) < maxWidth) {
 			return text;
 		}
 		maxWidth -= font.charWidth('.')*2;
@@ -443,35 +488,35 @@ public class Util implements Constants {
 					case '&': {
 						next: {
 							replaced: {
-								if(l < i + 1) {
+								if (l < i + 1) {
 									sb.append(c);
 									break loop;
 								}
 								try {
 									switch (chars[i + 1]) {
 									case 'a':
-										if(chars[i + 2] == 'm' && chars[i + 3] == 'p' && chars[i + 4] == ';') {
+										if (chars[i + 2] == 'm' && chars[i + 3] == 'p' && chars[i + 4] == ';') {
 											i += 5;
 											sb.append('&');
 											break replaced;
 										}
 										break next;
 									case 'l':
-										if(chars[i + 2] == 't' && chars[i + 3] == ';') {
+										if (chars[i + 2] == 't' && chars[i + 3] == ';') {
 											i += 4;
 											sb.append('<');
 											break replaced;
 										}
 										break next;
 									case 'g':
-										if(chars[i + 2] == 't' && chars[i + 3] == ';') {
+										if (chars[i + 2] == 't' && chars[i + 3] == ';') {
 											i += 4;
 											sb.append('>');
 											break replaced;
 										}
 										break next;
 									case 'q':
-										if(chars[i + 2] == 'u' && chars[i + 3] == 'o' && chars[i + 4] == 't' && chars[i + 5] == ';') {
+										if (chars[i + 2] == 'u' && chars[i + 3] == 'o' && chars[i + 4] == 't' && chars[i + 5] == ';') {
 											i += 6;
 											sb.append('\"');
 											break replaced;
@@ -479,12 +524,12 @@ public class Util implements Constants {
 										break next;
 									case '#':
 										try {
-											if(chars[i + 4] == ';') {
+											if (chars[i + 4] == ';') {
 												String s = chars[i + 2] + "" + chars[i + 3];
 												sb.append((char)Integer.parseInt(s));
 												i += 5;
 												break replaced;
-											} else if(chars[i + 6] == ';') {
+											} else if (chars[i + 6] == ';') {
 												String s = chars[i + 2] + "" + chars[i + 3] + "" + chars[i + 4] + "" + chars[i + 5];
 												sb.append((char)Integer.parseInt(s));
 												i += 7;
@@ -507,12 +552,12 @@ public class Util implements Constants {
 						break;
 					}
 					case '<' : {
-						if(l < i + 1) {
+						if (l < i + 1) {
 							sb.append(c);
 							break loop;
 						}
 						try {
-							if(chars[i + 1] == 'b' && chars[i + 2] == 'r' && chars[i + 3] == '>') {
+							if (chars[i + 1] == 'b' && chars[i + 2] == 'r' && chars[i + 3] == '>') {
 								i += 4;
 								sb.append("\n");
 								break;
@@ -537,7 +582,7 @@ public class Util implements Constants {
 	}
 	
 	public static String getPlatformSpecificUrl(String url) {
-		if(PlatformUtils.isBlackBerry() && Settings.bbWifi) {
+		if (PlatformUtils.isBlackBerry() && Settings.bbWifi) {
 			return url + ";deviceside=true;interface=wifi";
 		}
 		return url;
@@ -558,7 +603,7 @@ public class Util implements Constants {
 			int r = hc.getResponseCode();
 			int redirects = 0;
 			while ((r == 301 || r == 302) && hc.getHeaderField("Location") != null) {
-				if(redirects++ > 5) {
+				if (redirects++ > 5) {
 					throw new IOException("Too many redirects!");
 				}
 				String redir = hc.getHeaderField("Location");

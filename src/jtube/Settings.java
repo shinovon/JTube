@@ -41,9 +41,8 @@ import midletintegration.MIDletIntegration;
 public class Settings implements Constants {
 	
 	// Settings
-	public static String videoRes = "360p";
 	public static String region;
-	public static int watchMethod = 1;
+	public static int watchMethod = 0;
 	public static String downloadDir;
 	public static String serverstream = glype;
 	public static boolean videoPreviews;
@@ -85,13 +84,13 @@ public class Settings implements Constants {
 	public static Vector langsList;
 	
 	public static void getRoots() {
-		if(rootsList != null) return;
+		if (rootsList != null) return;
 		rootsList = new Vector();
 		try {
 			Enumeration roots = FileSystemRegistry.listRoots();
 			while(roots.hasMoreElements()) {
 				String s = (String) roots.nextElement();
-				if(s.startsWith("file:///")) s = s.substring("file:///".length());
+				if (s.startsWith("file:///")) s = s.substring("file:///".length());
 				rootsList.addElement(s);
 			}
 		} catch (Throwable e) {
@@ -104,12 +103,12 @@ public class Settings implements Constants {
 		fullScreen = true;
 		/*
 		String s = System.getProperty("kemulator.libvlc.supported");
-		if(s != null && s.equals("true")) {
+		if (s != null && s.equals("true")) {
 			watchMethod = 1;
 		}
 		*/
 		boolean ru = "ru".equalsIgnoreCase(region) || "ru".equalsIgnoreCase(customLocale);
-		if(ru) {
+		if (ru) {
 			inv = iteroni;
 			httpStream = true;
 			useApiProxy = true;
@@ -126,16 +125,16 @@ public class Settings implements Constants {
 				int c = isr.read();
 				switch(c) {
 				case '#':
-					if(tmp.length() == 0) skipLine = true;
+					if (tmp.length() == 0) skipLine = true;
 				case '\r':
 					break;
 				case -1:
 				case 0:
 					b = false;
 				case '\n':
-					if(!skipLine && tmp.length() > 6) {
+					if (!skipLine && tmp.length() > 6) {
 						String line = tmp.toString().trim();
-						if(line.startsWith("jtlng_")) {
+						if (line.startsWith("jtlng_")) {
 							int idx = line.indexOf('=');
 							String[] arr = new String[5];
 							arr[0] = line.substring(6, idx);
@@ -165,83 +164,82 @@ public class Settings implements Constants {
 		} catch (Exception e) {
 		}
 		
-		if(r == null) {
+		if (r == null) {
 			// Defaults
-			if(PlatformUtils.isJ2ML()) {
+			if (PlatformUtils.isJ2ML()) {
 				videoPreviews = true;
-				videoRes = "360p";
 				downloadDir = "C:/";
 			} else {
 				String downloadDir = System.getProperty("fileconn.dir.videos");
-				if(downloadDir == null)
+				if (downloadDir == null)
 					downloadDir = System.getProperty("fileconn.dir.photos");
-				if(downloadDir == null) {
+				if (downloadDir == null) {
 					getRoots();
-					if(rootsList.size() > 0) {
+					if (rootsList.size() > 0) {
 						String root = "";
 						for(int i = 0; i < rootsList.size(); i++) {
 							String s = (String) rootsList.elementAt(i);
-							if(s.startsWith("file:///")) s = s.substring("file:///".length());
-							if(s.startsWith("Video")) {
+							if (s.startsWith("file:///")) s = s.substring("file:///".length());
+							if (s.startsWith("Video")) {
 								root = s;
 								break;
 							}
-							if(s.startsWith("SDCard")) {
+							if (s.startsWith("SDCard")) {
 								root = s;
 								break;
 							}
-							if(s.startsWith("F:")) {
+							if (s.startsWith("F:")) {
 								root = s;
 								break;
 							}
-							if(s.startsWith("E:")) {
+							if (s.startsWith("E:")) {
 								root = s;
 								break;
 							}
-							if(PlatformUtils.isPhoneme()) {
-								if(s.startsWith("/Storage")) {
+							if (PlatformUtils.isPhoneme()) {
+								if (s.startsWith("/Storage")) {
 									root = s;
 									break;
 								}
-								if(s.startsWith("/MyDocs")) {
+								if (s.startsWith("/MyDocs")) {
 									root = s;
 								}
 							}
 						}
-						if(!root.endsWith("/")) root += "/";
+						if (!root.endsWith("/")) root += "/";
 						downloadDir = root;
 						try {
 							FileConnection fc = (FileConnection) Connector.open("file:///" + root + "videos/");
-							if(fc.exists()) {
+							if (fc.exists()) {
 								downloadDir = root + "videos/";
 							}
 							fc.close();
 						} catch (Exception e) {
 						}
 					}
-				} else if(downloadDir.startsWith("file:///")) {
+				} else if (downloadDir.startsWith("file:///")) {
 					downloadDir = downloadDir.substring("file:///".length());
 				}
 				Settings.downloadDir = downloadDir;
 				watchMethod = PlatformUtils.isSymbian3Based() ? 1 : 0;
 				boolean lowEnd = isLowEndDevice();
-				if(lowEnd) {
+				if (lowEnd) {
 					fastScrolling = true;
 					powerSaving = true;
 				} else {
-					if(PlatformUtils.isSymbian3Based()) {
+					if (PlatformUtils.isSymbian3Based()) {
 						asyncLoading = true;
 						downloadBuffer = 16384;
-					} else if(PlatformUtils.isSymbian93() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
+					} else if (PlatformUtils.isSymbian93() || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricsson") != -1 && PlatformUtils.platform.indexOf("Samsung") != -1)) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
 					}
-					if(PlatformUtils.isPhoneme()) {
+					if (PlatformUtils.isPhoneme()) {
 						asyncLoading = true;
 						downloadBuffer = 4096;
 						rmsPreviews = true;
 					}
-					if(PlatformUtils.isS40 && !PlatformUtils.isAsha) {
+					if (PlatformUtils.isS40 && !PlatformUtils.isAsha) {
 						rmsPreviews = true;
 					}
 					videoPreviews = true;
@@ -249,14 +247,11 @@ public class Settings implements Constants {
 				serverstream = PlatformUtils.isAsha || PlatformUtils.isS40 ? stream : glype;
 				int min = Math.min(App.startWidth, App.startHeight);
 				// Symbian 9.4 can't handle H.264/AVC
-				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricsson") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
+				if (min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("Samsung") == -1)) {
 					Settings.watchMethod = 2;
 				}
-//				} else {
-//					videoRes = "360p";
-//				}
 			}
-			if(testCanvas.hasPointerEvents()) {
+			if (testCanvas.hasPointerEvents()) {
 				channelBanner = true;
 				searchSuggestions = true;
 			}
@@ -287,7 +282,7 @@ public class Settings implements Constants {
 				autoStart = j.getBoolean("autoStart", autoStart);
 				fullScreen = j.getBoolean("fullScreen", fullScreen);
 				keyboard = j.getInt("keyboard", keyboard);
-				if(j.has("inputLanguages")) {
+				if (j.has("inputLanguages")) {
 					JSONArray a = j.getArray("inputLanguages");
 					a.copyInto(inputLanguages = new String[a.size()]);
 				}
@@ -308,11 +303,11 @@ public class Settings implements Constants {
 				
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
-				if(i < 2) {
+				if (i < 2) {
 					serverstream = glype;
 					inv = iteroni;
 					apiProxy = invproxy;
-					if(ru) {
+					if (ru) {
 						httpStream = true;
 						useApiProxy = true;
 					}
@@ -336,7 +331,7 @@ public class Settings implements Constants {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
 			j.put("v", "v8");
-			j.put("videoRes", videoRes);
+			j.put("videoRes", "360p");
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
 			j.put("videoPreviews", videoPreviews);
@@ -398,7 +393,7 @@ public class Settings implements Constants {
 	
 	public static void registerPush() {
 		try {
-			if(App.midlet.getAppProperty("MIDlet-Push-1") != null) return;
+			if (App.midlet.getAppProperty("MIDlet-Push-1") != null) return;
 		} catch (Exception e) {
 		}
 		try {
@@ -407,7 +402,7 @@ public class Settings implements Constants {
 				port = Integer.parseInt(App.midlet.getAppProperty("MIDletIntegration-Port"));
 			} catch (Exception e) {
 			}
-			if(autoStart) {
+			if (autoStart) {
 				MIDletIntegration.registerPush(App.midlet, port);
 			} else {
 				MIDletIntegration.unregisterPush(port);

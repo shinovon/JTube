@@ -127,6 +127,8 @@ public class App implements Constants, Runnable, CommandListener {
 			throw new RuntimeException();
 		}
 		
+		PlatformUtils.samsungBuild = App.midlet.getAppProperty("JTube-Samsung-Build") != null;
+		
 		SplashScreen splash = new SplashScreen();
 		Display.getDisplay(midlet).setCurrent(splash);
 		App.startWidth = splash.getWidth();
@@ -235,33 +237,45 @@ public class App implements Constants, Runnable, CommandListener {
 	}
 	
 	public static AbstractJSON invApi(String s) throws InvidiousException, IOException {
-		return invApi(s, null);
+		return invApi(s, null, 0);
 	}
 
 	public static AbstractJSON invApi(String s, String fields) throws InvidiousException, IOException {
+		return invApi(s, null, 0);
+	}
+
+	public static AbstractJSON invApi(String s, String fields, int tries) throws InvidiousException, IOException {
 		String url = s;
-		if(!s.endsWith("?")) s = s.concat("&");
+		if (!s.endsWith("?")) s = s.concat("&");
 		s += "region=" + (Settings.region != null ? Settings.region.toUpperCase() : "US");
-		if(fields != null) {
+		if (fields != null) {
 			s = s + "&fields=" + fields + ",error,errorBacktrace,code,message";
 		}
 		s = Settings.inv + "api/v1/" + s;
-		if(Settings.useApiProxy) {
+		if (Settings.useApiProxy) {
 			s = Settings.apiProxy + "?u=" + Util.url(s);
 		}
 		try {
 			s = Util.getUtf(s);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new NetRequestException(e, s);
+			throw new NetRequestException(e, url);
+		}
+		char c;
+		if (s.length() == 0 || ((c = s.charAt(0)) != '{' && c != '[')) {
+			if (tries > 0) {
+				throw new NetRequestException(new IOException("Invalid response"), url);
+			}
+			changeInstance();
+			return invApi(url, fields, ++tries);
 		}
 		AbstractJSON res;
-		if(s.charAt(0) == '{') {
+		if (c == '{') {
 			res = JSON.getObject(s);
-			if(((JSONObject) res).has("code")) {
+			if (((JSONObject) res).has("code")) {
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getString("code") + ": " + ((JSONObject) res).getNullableString("message"), url, "");
 			}
-			if(((JSONObject) res).has("error")) {
+			if (((JSONObject) res).has("error")) {
 				throw new InvidiousException((JSONObject) res, ((JSONObject) res).getNullableString("error"), url, "");
 			}
 		} else {
@@ -374,17 +388,16 @@ public class App implements Constants, Runnable, CommandListener {
 						workingProxy = 1;
 						url = url2;
 					} catch (Exception e) {
-						// nnp.nnchan.ru
+						// nnchan vpb
 						try {
 							String url2 = Settings.videoplaybackProxy + url.substring(url.indexOf("/videoplayback")+14);
 							if(Util.head(url2) >= 400) throw new Exception();
 							url = url2;
 							workingProxy = 2;
 						} catch (Exception e2) {
-							// nnm.nnchan.ru
-//							url = Settings.serverstream + Util.url(url);
-							url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
-							workingProxy = 4;
+							// user url proxy
+							url = Settings.serverstream + Util.url(url);
+							workingProxy = 3;
 						}
 					}
 					return url;
@@ -404,9 +417,9 @@ public class App implements Constants, Runnable, CommandListener {
 			case 3:
 				url = Settings.serverstream + Util.url(url);
 				break;
-			case 4:
-				url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
-				break;
+//			case 4:
+//				url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
+//				break;
 			}
 		}
 		return url;
@@ -421,7 +434,7 @@ public class App implements Constants, Runnable, CommandListener {
 			displayAlert(a);
 			return;
 		}
-		new Downloader(id, Settings.videoRes, Settings.downloadDir, name).start();
+		new Downloader(id, "360p", Settings.downloadDir, name).start();
 	}
 	
 	public static void watch(final String id) {
@@ -432,7 +445,7 @@ public class App implements Constants, Runnable, CommandListener {
 		try {
 			switch (Settings.watchMethod) {
 			case 0: {
-				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), false);
+				String url = getVideoLink(getVideoInfo(id, "360p"), false);
 				try {
 					Util.platReq(url);
 				} catch (Exception e) {
@@ -453,7 +466,7 @@ public class App implements Constants, Runnable, CommandListener {
 					return;
 				}
 
-				String url = getVideoLink(getVideoInfo(id, Settings.videoRes), true);
+				String url = getVideoLink(getVideoInfo(id, "360p"), true);
 				
 				if(PlatformUtils.isBada) {
 					String file = "file:///Media/Videos/watch.ram";
@@ -490,9 +503,7 @@ public class App implements Constants, Runnable, CommandListener {
 					file += "/";
 				if (PlatformUtils.isSymbian3Based() || PlatformUtils.isBada) {
 					file += "watch.ram";
-				} else /*if (PlatformUtils.isSymbian93()) {
-					file += "watch.ram";
-				} else */{
+				} else {
 					Settings.watchMethod = 0;
 					Util.platReq(url);
 					break;
@@ -787,9 +798,12 @@ public class App implements Constants, Runnable, CommandListener {
 		}
 	}
 
-	public static void changeInstance() throws Exception {
+	public static void changeInstance() throws IOException {
 		JSONObject j = JSON.getObject(Util.getUtf(instancesurl + "?current=" + Util.url(Settings.inv)));
 		Settings.inv = j.getString("url");
+		try {
+			Settings.saveConfig();
+		} catch (Exception ignored) {}
 	}
 
 }

@@ -40,6 +40,7 @@ public class PlatformUtils {
 	public static boolean isJ2MELoader;
 	public static boolean isS40;
 	public static boolean isJ9;
+	public static boolean samsungBuild;
 	
 	public static int width;
 	public static int height;
