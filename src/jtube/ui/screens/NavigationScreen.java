@@ -257,10 +257,12 @@ public abstract class NavigationScreen extends AbstractListScreen implements Tex
 	}
 	
 	private void setEditorPositions() {
-		if(editor != null && editor.isVisible()) {
-			editor.setSize(lastW-98, 24);
-			editor.setPosition(50, 12);
-		}
+		try {
+			if(editor != null && editor.isVisible()) {
+				editor.setSize(lastW-98, 24);
+				editor.setPosition(50, 12);
+			}
+		} catch (Throwable e) {}
 	}
 	
 	protected void paint(Graphics g, int w, int h) {

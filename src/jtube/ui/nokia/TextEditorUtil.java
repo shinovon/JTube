@@ -21,6 +21,7 @@ SOFTWARE.
 */
 package jtube.ui.nokia;
 
+import jtube.App;
 import jtube.PlatformUtils;
 
 public class TextEditorUtil {
@@ -28,7 +29,9 @@ public class TextEditorUtil {
 	private static boolean supported;
 	
 	public static void init() {
-		if(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch() || PlatformUtils.isKemulator) {
+		if (App.midlet.getAppProperty("JTube-BlackBerry-Build") == null &&
+				(PlatformUtils.isSymbian3Based() || PlatformUtils.isAshaFullTouch() ||
+						PlatformUtils.isKemulator)) {
 			try {
 				Class.forName("com.nokia.mid.ui.TextEditor");
 				supported = true;

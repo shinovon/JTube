@@ -23,6 +23,7 @@ package jtube.ui.nokia;
 
 import javax.microedition.lcdui.Font;
 
+import jtube.App;
 import jtube.PlatformUtils;
 
 public class DirectFontUtil {
@@ -30,7 +31,9 @@ public class DirectFontUtil {
 	private static boolean supported;
 	
 	public static void init() {
-		if(PlatformUtils.isS60v5() || PlatformUtils.isAshaFullTouch() || PlatformUtils.isKemulator || PlatformUtils.isJ2ML()) {
+		if(App.midlet.getAppProperty("JTube-BlackBerry-Build") == null &&
+				(PlatformUtils.isS60v5() || PlatformUtils.isAshaFullTouch() ||
+						PlatformUtils.isKemulator || PlatformUtils.isJ2ML())) {
 			try {
 				Class.forName("com.nokia.mid.ui.DirectUtils");
 				DirectUtilsInvoker.init();
