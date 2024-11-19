@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import javax.microedition.lcdui.Image;
 
+import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
 import jtube.App;
 import jtube.Constants;
@@ -77,6 +78,8 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 	private byte[] tempImgBytes;
 	
 	public boolean loaded;
+	
+	private int tries;
 
 	public VideoModel(String id) {
 		videoId = id;
@@ -120,7 +123,12 @@ public class VideoModel extends AbstractModel implements ILoader, Constants, Run
 		if(!extended) {
 			try {
 				parse((JSONObject) App.invApi("videos/" + videoId + "?", VIDEO_EXTENDED_FIELDS + (Settings.videoPreviews ? ",authorThumbnails" : "")), true);
-			} catch (Exception ignored) {}
+			} catch (InvidiousException e) {
+				try {
+					App.changeInstance();
+					if (tries++ == 0) return extend();
+				} catch (Exception ignored) {}
+			} catch (Exception e) {}
 			try {
 				JSONObject j = (JSONObject) App.invApi("channels/" + authorId + "?", "subCount");
 				if(j.has("subCount"))

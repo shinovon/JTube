@@ -31,6 +31,7 @@ public interface Constants {
 	static final String updateurl = "http://nnp.nnchan.ru/jtubeupd.php";
 	static final String vpb = "http://nnp.nnchan.ru/vpb.php";
 	static final String vpb2 = "http://nnm.nnchan.ru/vpb.php";
+	static final String instancesurl = "http://nnp.nnchan.ru/jtubeinv.php";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";
 	
@@ -57,5 +58,7 @@ public interface Constants {
 	static final String CONTANT_DEVELOPER_STRING = "Contact developer: t.me/nnmidletschat";
 	
 	static final int DEFAULT_PUSH_PORT = 1260;
+	
+	static final boolean JTDL = false;
 
 }

@@ -249,7 +249,7 @@ public class Settings implements Constants {
 				serverstream = PlatformUtils.isAsha || PlatformUtils.isS40 ? stream : glype;
 				int min = Math.min(App.startWidth, App.startHeight);
 				// Symbian 9.4 can't handle H.264/AVC
-				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricssonU5i") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
+				if(min < 360 || (PlatformUtils.isSymbian94() && PlatformUtils.platform.indexOf("SonyEricsson") == -1 && PlatformUtils.platform.indexOf("Samsung") == -1)) {
 					Settings.watchMethod = 2;
 				}
 //				} else {
@@ -265,7 +265,7 @@ public class Settings implements Constants {
 			try {
 				JSONObject j = JSON.getObject(new String(r.getRecord(1), "UTF-8"));
 				r.closeRecordStore();
-				videoRes = j.getString("videoRes", videoRes);
+//				videoRes = j.getString("videoRes", videoRes);
 				region = j.getString("region", region);
 				downloadDir = j.getString("downloadDir", downloadDir);
 				videoPreviews = j.getBoolean("videoPreviews", videoPreviews);

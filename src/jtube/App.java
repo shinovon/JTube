@@ -196,14 +196,13 @@ public class App implements Constants, Runnable, CommandListener {
 	private void checkUpdate() {
 		boolean b = false;
 		try {
-			String s = Util.getUtf(updateurl+
+			JSONObject j = JSON.getObject(Util.getUtf(updateurl+
 					"?v="+App.midlet.getAppProperty("MIDlet-Version")+
 					"&l="+Locale.lang+
 					"&s="+(App.midlet.getAppProperty("JTube-Samsung-Build") != null ? "1" : "0")+
 					"&b="+(App.midlet.getAppProperty("JTube-BlackBerry-Build") != null ? "1" : "0")+
 					"&p="+Util.url(PlatformUtils.platform)
-					);
-			JSONObject j = JSON.getObject(s);
+					));
 			if(j.getBoolean("update_available", false) && Settings.checkUpdates && !b) {
 				update = j.getString("download_url");
 				String msg = j.getString("message", Locale.s(Locale.TXT_NewUpdateAvailable));
@@ -214,8 +213,7 @@ public class App implements Constants, Runnable, CommandListener {
 				a.setCommandListener(this);
 				ui.display(a);
 			}
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {}
 	}
 	
 	private void initUI() {
@@ -787,6 +785,11 @@ public class App implements Constants, Runnable, CommandListener {
 			startUIThread();
 			return;
 		}
+	}
+
+	public static void changeInstance() throws Exception {
+		JSONObject j = JSON.getObject(Util.getUtf(instancesurl + "?current=" + Util.url(Settings.inv)));
+		Settings.inv = j.getString("url");
 	}
 
 }
