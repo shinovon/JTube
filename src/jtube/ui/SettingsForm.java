@@ -84,7 +84,7 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_Browser),
 			Locale.s(SET_SymbianOnline),
 			Locale.s(SET_Via2yxa),
-			"JTDL"
+//			"JTDL"
 			};
 	static final String[] ON_OFF = new String[] { 
 			Locale.s(SET_On),

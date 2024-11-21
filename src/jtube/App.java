@@ -370,12 +370,11 @@ public class App implements Constants, Runnable, CommandListener {
 		}
 	}
 
-	public static String getVideoLink(JSONObject videoInfo, boolean forceProxy) throws JSONException, IOException {
+	public static String getVideoLink(JSONObject videoInfo, boolean forceProxy, int proxy) throws JSONException, IOException {
 		if(videoInfo == null) throw new RuntimeException("not found");
 		String url = videoInfo.getString("url");
 		if(Settings.httpStream || forceProxy) {
-			int i = Settings.playbackProxyVariant;
-			if(Settings.playbackProxyVariant == 0) {
+			if (proxy == 0) {
 				// Test proxies on auto mode
 				if(workingProxy == 0) {
 					// invidious
@@ -402,9 +401,9 @@ public class App implements Constants, Runnable, CommandListener {
 					}
 					return url;
 				}
-				i = workingProxy;
+				proxy = workingProxy;
 			}
-			switch(i) {
+			switch(proxy) {
 			case 1:
 				url = Settings.inv + url.substring(url.indexOf("/videoplayback")+1);
 				if(Settings.useApiProxy) {
@@ -417,9 +416,6 @@ public class App implements Constants, Runnable, CommandListener {
 			case 3:
 				url = Settings.serverstream + Util.url(url);
 				break;
-//			case 4:
-//				url = vpb2 + url.substring(url.indexOf("/videoplayback")+14);
-//				break;
 			}
 		}
 		return url;
@@ -443,9 +439,15 @@ public class App implements Constants, Runnable, CommandListener {
 			AppUI.inst.current.busy = true;
 		}
 		try {
+			int proxy = Settings.playbackProxyVariant;
 			switch (Settings.watchMethod) {
 			case 0: {
-				String url = getVideoLink(getVideoInfo(id, "360p"), false);
+				String url;
+				if (proxy == 0) {
+					url = vpb3 + "v=" + id + "&i=360p&inv=" + Util.url(Settings.inv);
+				} else {
+					url = getVideoLink(getVideoInfo(id, "360p"), false, proxy == 5 ? 0 : proxy);
+				}
 				try {
 					Util.platReq(url);
 				} catch (Exception e) {
@@ -466,7 +468,7 @@ public class App implements Constants, Runnable, CommandListener {
 					return;
 				}
 
-				String url = getVideoLink(getVideoInfo(id, "360p"), true);
+				String url = getVideoLink(getVideoInfo(id, "360p"), true, proxy);
 				
 				if(PlatformUtils.isBada) {
 					String file = "file:///Media/Videos/watch.ram";
