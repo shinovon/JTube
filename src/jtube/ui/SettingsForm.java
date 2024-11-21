@@ -96,9 +96,9 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_FullScreenInput)
 			};
 	static final String[] VPB_PROXY_VARIANTS = new String[] {
-			"nnchan v2",
+			"nnproject (v2)",
 			"Invidious",
-			"nnchan v1",
+			"nnchan (v1)",
 			Locale.s(SET_UrlPrefix),
 			Locale.s(SET_Auto) + " (old)",
 			};

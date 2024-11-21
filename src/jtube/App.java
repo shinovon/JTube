@@ -374,7 +374,7 @@ public class App implements Constants, Runnable, CommandListener {
 		if(videoInfo == null) throw new RuntimeException("not found");
 		String url = videoInfo.getString("url");
 		if(Settings.httpStream || forceProxy) {
-			if (proxy == 0) {
+			if (proxy == 0 || proxy == 4) {
 				// Test proxies on auto mode
 				if(workingProxy == 0) {
 					// invidious

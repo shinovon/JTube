@@ -98,7 +98,7 @@ public class Downloader implements CommandListener, Runnable, Constants, LocaleC
 			info(f);
 			
 			JSONObject o = App.getVideoInfo(id, res);
-			String url = App.getVideoLink(o, false);
+			String url = App.getVideoLink(o, false, Settings.playbackProxyVariant);
 			int contentLength = o.getInt("clen", 0);
 			o = null;
 			// wait
