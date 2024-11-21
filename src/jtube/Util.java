@@ -140,12 +140,12 @@ public class Util implements Constants {
 	}
 	
 	private static String readUtf(InputStream in, int i) throws IOException {
-		byte[] buf = new byte[i <= 0 ? 1024 : i];
+		byte[] buf = new byte[i <= 0 ? 16384 : i];
 		i = 0;
 		int j;
 		while ((j = in.read(buf, i, buf.length - i)) != -1) {
 			if ((i += j) >= buf.length) {
-				System.arraycopy(buf, 0, buf = new byte[i + 2048], 0, i);
+				System.arraycopy(buf, 0, buf = new byte[i + 4096], 0, i);
 			}
 		}
 		try {

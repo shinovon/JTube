@@ -316,6 +316,9 @@ public class Settings implements Constants {
 				}
 				if (i < 8) {
 					useApiProxy = true;
+				}
+				if (i < 9) {
+					playbackProxyVariant = 0;
 					saveConfig();
 				}
 				return;
@@ -330,7 +333,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v8");
+			j.put("v", "v9");
 			j.put("videoRes", "360p");
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
