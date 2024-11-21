@@ -433,23 +433,25 @@ public class App implements Constants, Runnable, CommandListener {
 		new Downloader(id, "360p", Settings.downloadDir, name).start();
 	}
 	
+	private static String getUrl(String id) throws Exception {
+		int proxy = Settings.playbackProxyVariant;
+		if (proxy == 0) {
+			return vpb3 + "v=" + id + "&i=360p&inv=" + Util.url(Settings.inv);
+		} else {
+			return getVideoLink(getVideoInfo(id, "360p"), false, proxy == 4 ? 0 : proxy);
+		}
+	}
+	
 	public static void watch(final String id) {
 		Loader.stop();
 		if(AppUI.inst.current instanceof VideoScreen) {
 			AppUI.inst.current.busy = true;
 		}
 		try {
-			int proxy = Settings.playbackProxyVariant;
 			switch (Settings.watchMethod) {
 			case 0: {
-				String url;
-				if (proxy == 0) {
-					url = vpb3 + "v=" + id + "&i=360p&inv=" + Util.url(Settings.inv);
-				} else {
-					url = getVideoLink(getVideoInfo(id, "360p"), false, proxy == 5 ? 0 : proxy);
-				}
 				try {
-					Util.platReq(url);
+					Util.platReq(getUrl(id));
 				} catch (Exception e) {
 					error(null, Errors.App_watch, e);
 				}
@@ -468,7 +470,7 @@ public class App implements Constants, Runnable, CommandListener {
 					return;
 				}
 
-				String url = getVideoLink(getVideoInfo(id, "360p"), true, proxy);
+				String url = getUrl(id);
 				
 				if(PlatformUtils.isBada) {
 					String file = "file:///Media/Videos/watch.ram";

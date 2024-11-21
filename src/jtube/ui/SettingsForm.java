@@ -99,7 +99,8 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_Auto),
 			"Invidious",
 			"nnchan",
-			Locale.s(SET_UrlPrefix)
+			Locale.s(SET_UrlPrefix),
+			Locale.s(SET_Auto) + "(old)",
 			};
 	
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
