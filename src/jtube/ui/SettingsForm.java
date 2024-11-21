@@ -96,11 +96,11 @@ public class SettingsForm extends Form implements CommandListener, ItemCommandLi
 			Locale.s(SET_FullScreenInput)
 			};
 	static final String[] VPB_PROXY_VARIANTS = new String[] {
-			Locale.s(SET_Auto),
+			"nnchan v2",
 			"Invidious",
-			"nnchan",
+			"nnchan v1",
 			Locale.s(SET_UrlPrefix),
-			Locale.s(SET_Auto) + "(old)",
+			Locale.s(SET_Auto) + " (old)",
 			};
 	
 	static final Command backCmd = new Command(Locale.s(CMD_Back), Command.BACK, 1);
