@@ -25,12 +25,12 @@ public interface Constants {
 	
 	// default urls
 	static final String invproxy = "http://nnp.nnchan.ru/invproxy.php";
-	static final String iteroni = "http://iteroni.com/";
+	static final String iteroni = "https://pol1.iv.ggtyler.dev/";
 	static final String stream = "http://nnp.nnchan.ru/stream.php?url=";
 	static final String glype = "http://nnp.nnchan.ru/glype/browse.php?u=";
 	static final String updateurl = "http://nnp.nnchan.ru/jtubeupd.php";
 	static final String vpb = "http://nnp.nnchan.ru/vpb.php";
-	static final String vpb3 = "http://nnproject.cc/v.php?";
+	static final String vpb3 = "http://nnp.nnchan.ru/v.php?";
 	static final String instancesurl = "http://nnp.nnchan.ru/jtubeinv.php";
 	
 	static final String CONFIG_RECORD_NAME = "ytconfig";

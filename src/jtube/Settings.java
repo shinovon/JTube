@@ -107,12 +107,9 @@ public class Settings implements Constants {
 			watchMethod = 1;
 		}
 		*/
-		boolean ru = "ru".equalsIgnoreCase(region) || "ru".equalsIgnoreCase(customLocale);
-		if (ru) {
-			inv = iteroni;
-			httpStream = true;
-			useApiProxy = true;
-		}
+		inv = iteroni;
+		httpStream = true;
+		useApiProxy = true;
 		try {
 			langsList = new Vector();
 			langsList.addElement(new String[] { "en", "English", "", "Built-in"});
@@ -303,22 +300,13 @@ public class Settings implements Constants {
 				
 				String v = j.getString("v", "v1");
 				int i = Integer.parseInt(v=v.substring(1));
-				if (i < 2) {
+				if (i < 10) {
 					serverstream = glype;
 					inv = iteroni;
 					apiProxy = invproxy;
-					if (ru) {
-						httpStream = true;
-						useApiProxy = true;
-					}
-				} else if (i < 5) {
 					playbackProxyVariant = 0;
-				}
-				if (i < 8) {
+					httpStream = true;
 					useApiProxy = true;
-				}
-				if (i < 9) {
-					playbackProxyVariant = 0;
 					saveConfig();
 				}
 				return;
@@ -333,7 +321,7 @@ public class Settings implements Constants {
 		try {
 			RecordStore r = RecordStore.openRecordStore(CONFIG_RECORD_NAME, true);
 			JSONObject j = new JSONObject();
-			j.put("v", "v9");
+			j.put("v", "v10");
 			j.put("videoRes", "360p");
 			j.put("region", region);
 			j.put("downloadDir", downloadDir);
